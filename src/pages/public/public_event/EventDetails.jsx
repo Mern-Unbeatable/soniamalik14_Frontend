@@ -1,0 +1,244 @@
+﻿import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Heart } from 'lucide-react';
+import Container from '../../../components/layout/Container';
+import { useDispatch, useSelector } from 'react-redux';
+import { ENV } from '../../../config/env';
+import { fetchOrganizerEventById } from '../../../features/events/eventsAPI';
+import SessionOverview from './components/SessionOverview';
+import VenueInformation from './components/VenueInformation';
+import ContactOrganiser from './components/ContactOrganiser';
+
+const toTitleCase = (value = '') =>
+  String(value)
+    .toLowerCase()
+    .split('_')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+
+const getWomenOnlyValue = (item) => {
+  if (typeof item?.womensOnly === 'boolean') return item.womensOnly ? 'Yes' : 'No';
+  if (typeof item?.womensOnly === 'string') return item.womensOnly;
+
+  const description = String(item?.description || '').toLowerCase();
+  const suitableFor = Array.isArray(item?.suitableFor)
+    ? item.suitableFor.map((entry) => String(entry).toLowerCase())
+    : [];
+
+  const womenKeywords = ['women', 'woman', 'womens', 'women only', 'female', 'girls'];
+  const isWomenOnly =
+    womenKeywords.some((keyword) => description.includes(keyword)) ||
+    suitableFor.some((entry) => womenKeywords.some((keyword) => entry.includes(keyword)));
+
+  return isWomenOnly ? 'Yes' : 'No';
+};
+
+const getMapEmbedUrl = (item) => {
+  if (!item) return '';
+
+  const candidate = item.fullAddress || item.venueName || item.city || item.googleMapLink || '';
+  if (!candidate) return '';
+
+  return `https://www.google.com/maps?q=${encodeURIComponent(candidate)}&z=16&output=embed`;
+};
+
+const normalizeMediaUrl = (value) => {
+  if (!value) return null;
+
+  const mediaUrl = String(value).trim();
+  if (!mediaUrl) return null;
+
+  if (/^https?:\/\//i.test(mediaUrl)) {
+    try {
+      const parsedMediaUrl = new URL(mediaUrl);
+      const apiBaseUrl = String(ENV.API_BASE_URL || '').trim();
+      const parsedApiBaseUrl = apiBaseUrl ? new URL(apiBaseUrl) : null;
+
+      if (
+        parsedApiBaseUrl &&
+        parsedMediaUrl.pathname.includes('/uploads/') &&
+        parsedMediaUrl.hostname !== parsedApiBaseUrl.hostname
+      ) {
+        return `${parsedApiBaseUrl.origin}${parsedMediaUrl.pathname}${parsedMediaUrl.search}${parsedMediaUrl.hash}`;
+      }
+
+      return mediaUrl;
+    } catch {
+      return mediaUrl;
+    }
+  }
+
+  const apiBaseUrl = String(ENV.API_BASE_URL || '').replace(/\/+$/, '');
+  if (apiBaseUrl && mediaUrl.startsWith('/uploads/')) {
+    return `${apiBaseUrl}${mediaUrl}`;
+  }
+
+  return mediaUrl;
+};
+
+const EventDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+ 
+  const dispatch = useDispatch();
+  const apiItem = useSelector((state) => state.events.organizerEventDetails.item);
+  const loading = useSelector((state) => state.events.organizerEventDetails.loading);
+  const error = useSelector((state) => state.events.organizerEventDetails.error);
+
+  useEffect(() => {
+    if (!id) return;
+    dispatch(fetchOrganizerEventById(id));
+  }, [id, dispatch]);
+
+  const data = apiItem?.data || apiItem;
+  const event = data
+    ? {
+        id: data.id,
+        organizerId: data.organizerId || data.organizer?.id || '',
+        title: data.title,
+        titleColor: '#0B544E',
+        coach: data.organizerName || data.organizer?.name || '',
+        type: toTitleCase(data.eventType || ''),
+        sport: data.sportType || '',
+        suitableFor: Array.isArray(data.suitableFor) && data.suitableFor.length > 0
+          ? data.suitableFor.join(', ')
+          : 'All participants',
+        womensOnly: getWomenOnlyValue(data),
+        location: data.venueName || '',
+        locationFull: data.fullAddress || '',
+        postcode: data.postcode || '',
+        town: data.city || '',
+        day: data.startDate ? new Date(data.startDate).toLocaleDateString(undefined, { weekday: 'long' }) : '',
+        time: data.startTime && data.endTime ? `${data.startTime} - ${data.endTime}` : (data.startTime || ''),
+        image: normalizeMediaUrl(data.image) || '/images/detaisPage/detailsBanner.png',
+        organizerAvatar: normalizeMediaUrl(data.organizer?.avatar) || '/images/detaisPage/coachAvatar.png',
+        avatar: normalizeMediaUrl(data.organizer?.avatar) || '/images/detaisPage/coachAvatar.png',
+        mapEmbedUrl: getMapEmbedUrl(data),
+        about: data.description || data.about || '',
+      }
+    : null;
+
+  if (loading) {
+    return (
+      <div className="bg-[#F8FAFC] min-h-screen pb-16">
+        <Container>
+          <div className="py-8 text-center">Loading event...</div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-[#F8FAFC] min-h-screen pb-16">
+        <Container>
+          <div className="py-8 text-center text-red-600">{error}</div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (!event) {
+    return (
+      <div className="bg-[#F8FAFC] min-h-screen pb-16">
+        <Container>
+          <div className="py-8 text-center">Event not found</div>
+        </Container>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-[#F8FAFC] min-h-screen pb-16">
+      <Container>
+        <div className="py-4 md:py-8">
+          
+          {/* Hero Banner Section */}
+          <div className="relative mb-16">
+            {/* Banner Image */}
+            <div className="w-full md:h-96 lg:h-100 xl:h-140 2xl:h-186 rounded-2xl overflow-hidden shadow-sm">
+              {event.image ? (
+                <img
+                  src={event.image}
+                  alt={event.title}
+                  className="w-full h-full object-cover"
+                  onError={(imageEvent) => {
+                    imageEvent.currentTarget.onerror = null;
+                    imageEvent.currentTarget.src = '/images/detaisPage/detailsBanner.png';
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-300"></div>
+              )}
+            </div>
+
+            {/* Overlaid Back Button */}
+            <button
+              onClick={() => navigate(-1)}
+              className="absolute top-4 left-4 flex items-center gap-2 bg-black/20 hover:bg-black/40 backdrop-blur-sm text-white px-4 py-2 rounded-full transition-all text-sm font-medium"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </button>
+
+            {/* Overlaid Favorite/Heart Button */}
+            <button className="absolute top-4 right-4 bg-black/20 hover:bg-black/40 backdrop-blur-sm text-white p-2.5 rounded-full transition-all">
+              <Heart className="w-4 h-4" />
+            </button>
+
+            {/* Overlaid Avatar Picture */}
+            <div className="absolute -bottom-10 left-6 md:left-10 w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#F8FAFC] overflow-hidden bg-gray-200">
+              {event.organizerAvatar ? (
+                <img
+                  src={event.organizerAvatar}
+                  alt={event.coach}
+                  className="w-full h-full object-cover"
+                  onError={(avatarEvent) => {
+                    avatarEvent.currentTarget.onerror = null;
+                    avatarEvent.currentTarget.src = '/images/detaisPage/coachAvatar.png';
+                  }}
+                />
+              ) : (
+                <img src="/images/detaisPage/coachAvatar.png" alt="fallback" className="w-full h-full object-cover" />
+              )}
+            </div>
+          </div>
+
+          {/* Title & Info */}
+          <div className="px-2 md:px-4 mb-8">
+            <h1 className="text-2xl md:text-[32px] font-bold text-[#0B544E] leading-tight">
+              {event.title}
+            </h1>
+            <p className="text-[#0C0C0C] mt-2 text-base">
+              Event Type: <span className="text-[#0C0C0C]">{event.type}</span>
+            </p>
+          </div>
+
+          {/* Session Details Card */}
+          <div className="bg-white rounded-lg p-6  mb-8 shadow-sm border border-gray-100">
+            <h2 className="text-xl font-bold text-[#000000] mb-3">Event Type</h2>
+            <div className="text-[#272727] text-base md:max-w-7xl whitespace-pre-wrap leading-relaxed">  
+              {event.about}
+            </div>
+          </div>
+
+          {/* 3-Column Grid for Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Column 1: Session Overview */}
+            <SessionOverview event={event} />
+
+            {/* Column 2: Venue Information */}
+            <VenueInformation event={event} />
+
+            {/* Column 3: Contact Organiser */}
+            <ContactOrganiser event={event} />
+          </div>
+        </div>
+      </Container>
+    </div>
+  );
+};
+
+export default EventDetails;

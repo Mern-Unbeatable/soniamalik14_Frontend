@@ -1,0 +1,14 @@
+[
+  { "id": "ri-1", "name": "Marvin McKinney", "phone": "(319) 555-0115", "email": "willie.jennings@example.com" },
+  { "id": "ri-2", "name": "Eleanor Pena", "phone": "(702) 555-0122", "email": "jessica.hanson@example.com" },
+  { "id": "ri-3", "name": "Jacob Jones", "phone": "(302) 555-0107", "email": "alma.lawson@example.com" },
+  { "id": "ri-4", "name": "Annette Black", "phone": "(604) 555-0102", "email": "nathan.roberts@example.com" },
+  { "id": "ri-5", "name": "Dianne Russell", "phone": "(319) 555-0116", "email": "dolores.chambers@example.com" },
+  { "id": "ri-6", "name": "Albert Flores", "phone": "(405) 555-0128", "email": "jackson.graham@example.com" },
+  { "id": "ri-7", "name": "Devon Lane", "phone": "(704) 555-0127", "email": "michael.mitc@example.com" },
+  { "id": "ri-8", "name": "Esther Howard", "phone": "(216) 555-0183", "email": "esther.howard@example.com" },
+  { "id": "ri-9", "name": "Cody Fisher", "phone": "(629) 555-0129", "email": "cody.fisher@example.com" },
+  { "id": "ri-10", "name": "Savannah Nguyen", "phone": "(505) 555-0111", "email": "savannah.nguyen@example.com" },
+  { "id": "ri-11", "name": "Kathryn Murphy", "phone": "(907) 555-0134", "email": "kathryn.murphy@example.com" },
+  { "id": "ri-12", "name": "Ronald Richards", "phone": "(308) 555-0109", "email": "ronald.richards@example.com" }
+]

@@ -1,0 +1,134 @@
+[
+  {
+    "id": "pev-1",
+    "title": "Women's Football Friendly Match Day",
+    "status": "Approved",
+    "image": "https://picsum.photos/800/500?random=101",
+    "date": "2026-03-18",
+    "location": "1901 Thornridge Cir. Shiloh",
+    "description": "This event is designed for women players to improve technical skills, tactical awareness, and team coordination in a competitive but supportive environment.",
+    "time": "10:00 AM - 12:00 PM",
+    "sportType": "Football",
+    "eventType": "Workshops & learning",
+    "skillLevel": "Beginner to Intermediate",
+    "playerSpotlight": "Amina Rahman - Midfielder",
+    "venue": {
+      "name": "Community Sports Ground",
+      "address": "1901 Thornridge Cir. Shiloh, Hawaii 81063"
+    },
+    "organizer": {
+      "name": "Rising Queens Football Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Rising+Queens&background=0D8ABC&color=fff"
+    }
+  },
+  {
+    "id": "pev-2",
+    "title": "Junior Training Session",
+    "status": "Pending",
+    "image": "https://picsum.photos/800/500?random=102",
+    "date": "2026-03-24",
+    "location": "2972 Westheimer Rd. Santa Ana",
+    "description": "A structured training session focused on fundamentals, discipline, and match preparation for junior players.",
+    "time": "02:00 PM - 04:00 PM",
+    "sportType": "Football",
+    "eventType": "Training Camp",
+    "skillLevel": "Beginner",
+    "playerSpotlight": "Sadia Noor - Defender",
+    "venue": {
+      "name": "Community Sports Ground",
+      "address": "2972 Westheimer Rd. Santa Ana, Illinois 85486"
+    },
+    "organizer": {
+      "name": "Youth Sports Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Youth+Sports&background=10B981&color=fff"
+    }
+  },
+  {
+    "id": "pev-3",
+    "title": "Open Trial Morning",
+    "status": "Approved",
+    "image": "https://picsum.photos/800/500?random=103",
+    "date": "2026-03-28",
+    "location": "Northside Stadium",
+    "description": "Open trials for players of all skill levels with coach assessments and development recommendations.",
+    "time": "09:00 AM - 12:00 PM",
+    "sportType": "Football",
+    "eventType": "Trial",
+    "skillLevel": "All Levels",
+    "playerSpotlight": "Lamia Hasan - Goalkeeper",
+    "venue": {
+      "name": "Northside Stadium",
+      "address": "1234 Stadium Way, Northside District, NY 10001"
+    },
+    "organizer": {
+      "name": "Northside FC",
+      "avatar": "https://ui-avatars.com/api/?name=Northside+FC&background=EF4444&color=fff"
+    }
+  },
+  {
+    "id": "pev-4",
+    "title": "Community Coaching Clinic",
+    "status": "Pending",
+    "image": "https://picsum.photos/800/500?random=104",
+    "date": "2026-04-02",
+    "location": "Green Park Sports Complex",
+    "description": "Coaching clinic with fitness and strategy segments delivered by experienced women coaches.",
+    "time": "03:00 PM - 06:00 PM",
+    "sportType": "Football",
+    "eventType": "Coaching Clinic",
+    "skillLevel": "Intermediate",
+    "playerSpotlight": "Nusrat Jahan - Winger",
+    "venue": {
+      "name": "Green Park Sports Complex",
+      "address": "567 Green Park Ave, Springfield, MA 01103"
+    },
+    "organizer": {
+      "name": "Community Sports Foundation",
+      "avatar": "https://ui-avatars.com/api/?name=Community+Sports&background=8B5CF6&color=fff"
+    }
+  },
+  {
+    "id": "pev-5",
+    "title": "Weekend Match Series",
+    "status": "Approved",
+    "image": "https://picsum.photos/800/500?random=105",
+    "date": "2026-04-07",
+    "location": "Eastfield Arena",
+    "description": "Competitive match series for women teams with structured fixtures and referee support.",
+    "time": "01:00 PM - 06:00 PM",
+    "sportType": "Football",
+    "eventType": "Tournament",
+    "skillLevel": "Advanced",
+    "playerSpotlight": "Tahmina Akter - Striker",
+    "venue": {
+      "name": "Eastfield Arena",
+      "address": "890 Eastfield Blvd, Downtown, CA 90210"
+    },
+    "organizer": {
+      "name": "Eastfield Sports League",
+      "avatar": "https://ui-avatars.com/api/?name=Eastfield+Sports&background=F59E0B&color=fff"
+    }
+  },
+  {
+    "id": "pev-6",
+    "title": "Skills & Drills Camp",
+    "status": "Pending",
+    "image": "https://picsum.photos/800/500?random=106",
+    "date": "2026-04-12",
+    "location": "Riverside Pitch",
+    "description": "Full-day camp focused on practical drills, tactical games, and confidence-building sessions.",
+    "time": "08:00 AM - 03:00 PM",
+    "sportType": "Football",
+    "eventType": "Training Camp",
+    "skillLevel": "All Levels",
+    "playerSpotlight": "Rifa Sultana - Central Midfielder",
+    "venue": {
+      "name": "Riverside Football Complex",
+      "address": "234 River Rd, Riverside, TX 75001"
+    },
+    "organizer": {
+      "name": "Riverside Football Club",
+      "avatar": "https://ui-avatars.com/api/?name=Riverside+FC&background=06B6D4&color=fff"
+    }
+  }
+]

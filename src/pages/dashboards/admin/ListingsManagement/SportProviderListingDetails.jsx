@@ -1,0 +1,343 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+    Award,
+    CalendarDays,
+    Users,
+    Code,
+    AlertCircle,
+    Eye,
+    MessageSquare,
+    TrendingUp,
+    ExternalLink,
+    ArrowLeft // Added import
+} from 'lucide-react';
+import { GET } from '../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../services/httpEndpoint';
+import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+
+const normalizeStatus = (service) => {
+    if (service?.bannedAt || service?.bannedReason) return 'Banned';
+    if (service?.isFeatured) return 'Featured';
+
+    const normalized = String(service?.status || '').trim().toLowerCase();
+    if (['active', 'approved', 'live'].includes(normalized)) return 'Live';
+    if (['pending', 'pending_approval'].includes(normalized)) return 'Pending';
+    if (['banned', 'blocked', 'rejected'].includes(normalized)) return 'Banned';
+
+    return 'Pending';
+};
+
+const formatReadableDate = (value) => {
+    if (!value) return '';
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return String(value);
+    return parsed.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const SportProviderListingDetails = () => {
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [service, setService] = useState(null);
+
+    useEffect(() => {
+        let active = true;
+
+        const loadService = async () => {
+            setLoading(true);
+            setError('');
+
+            try {
+                const response = await GET(ENDPOINT.SERVICES.DETAIL(id));
+                const payload = response?.data || response;
+                const nextService = payload?.data?.service || payload?.service || payload?.data || null;
+
+                if (!active) return;
+                if (!nextService?.id) {
+                    setService(null);
+                    setError('Service not found.');
+                    return;
+                }
+
+                setService(nextService);
+            } catch (err) {
+                if (!active) return;
+                setError(err?.response?.data?.message || err?.message || 'Failed to load service details');
+                setService(null);
+            } finally {
+                if (active) setLoading(false);
+            }
+        };
+
+        if (!id) {
+            setError('Invalid service id.');
+            setLoading(false);
+            return;
+        }
+
+        loadService();
+
+        return () => {
+            active = false;
+        };
+    }, [id]);
+
+    const data = useMemo(() => {
+        if (!service) return null;
+
+        const sports = Array.isArray(service?.sports) ? service.sports : [];
+        const sessionTypes = Array.isArray(service?.sessionTypes) ? service.sessionTypes : [];
+        const suitableFor = Array.isArray(service?.suitableFor) ? service.suitableFor : [];
+        const days = Array.isArray(service?.availableDays) ? service.availableDays : [];
+
+        return {
+            id: service?.id,
+            listing:
+                service?.listingHeadline ||
+                service?.organizationName ||
+                service?.providerName ||
+                service?.clinicName ||
+                'Untitled Listing',
+            coach: service?.contactName || service?.provider?.name || service?.providerName || 'N/A',
+            status: normalizeStatus(service),
+            engagement: null,
+            coverImage: service?.logo || service?.image || '',
+            avatar: service?.provider?.avatar || '',
+            about: service?.aboutService || service?.description || 'No description available.',
+            sport: sports.length > 0 ? sports.join(', ') : 'Not specified',
+            sessionType:
+                sessionTypes.length > 0
+                    ? sessionTypes.join(', ')
+                    : service?.isOnline
+                        ? 'Online'
+                        : 'In-person',
+            suitableFor:
+                suitableFor.length > 0
+                    ? suitableFor.join(', ')
+                    : service?.womenOnly
+                        ? "Women's only"
+                        : 'All participants',
+            womenOnly: typeof service?.womenOnly === 'boolean' ? (service.womenOnly ? 'Yes' : 'No') : 'Not specified',
+            venueName: service?.clinicName || service?.fullAddress || service?.location || 'Not specified',
+            postcode: service?.postcode || 'Not specified',
+            townCity: service?.city || service?.location || 'Not specified',
+            sessionDays:
+                service?.sessonDay ||
+                (days.length > 0 ? days.join(', ') : '') ||
+                (service?.date ? `Date: ${formatReadableDate(service.date)}` : 'Not specified'),
+            sessionTime:
+                service?.timeSlote ||
+                (service?.duration ? `${service.duration} mins` : 'Not specified'),
+        };
+    }, [service]);
+
+    if (loading) {
+        return (
+            <div className="flex-1 overflow-auto bg-gray-50 min-h-screen flex items-center justify-center">
+                <LoadingSpinner label="" containerClassName="py-0" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return <div className="flex-1 overflow-auto bg-gray-50 p-8 text-center text-red-600">Error: {error}</div>;
+    }
+
+    if (!data) {
+        return (
+            <div className="flex-1 overflow-auto bg-gray-50 p-8 flex justify-center items-center h-screen">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900">Listing not found</h2>
+                    <button onClick={() => navigate(-1)} className="mt-4 px-4 py-2 bg-btn-primary text-white rounded-lg">Go Back</button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex-1 overflow-auto bg-gray-50 min-h-screen relative ">
+
+     
+
+            <div className=" p-4 md:p-8 space-y-8">
+
+                {/* Hero Section */}
+                <div className="relative">
+                    {/* Cover Image */}
+                    <img
+                        src={data.coverImage || 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1200&q=80'}
+                        alt="Team Cover"
+                        className="w-full h-72 md:h-96 object-cover rounded-2xl shadow-sm"
+                    />
+
+                    {/* Back Button Added Here */}
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-white/80 hover:bg-white rounded-lg text-btn-primary font-medium transition-colors shadow-md z-10"
+                        title="Go Back"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span className='text-sm'>Back</span>
+                    </button>
+
+                    {/* Profile Picture overlapping */}
+                    <div className="absolute -bottom-10 left-8">
+                        <img
+                            src={data.avatar || data.coverImage || 'https://randomuser.me/api/portraits/men/32.jpg'}
+                            alt="Coach"
+                            className="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover"
+                        />
+                    </div>
+                </div>
+
+                {/* Header Info */}
+                <div className="pt-10 px-2">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-4">{data.listing}</h1>
+                    <p className="text-base text-gray-600 font-medium mb-3">Coach: <span className="text-gray-900 text-lg">{data.coach}</span></p>
+
+                    {/* Mini Stats (From Image 1) */}
+                    {data.engagement && (
+                        <div className="flex items-center gap-4 text-base font-medium text-gray-500">
+                            <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" /> {data.engagement.views}</span>
+                            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> {data.engagement.trend}</span>
+                            <span className="flex items-center gap-1.5"><MessageSquare className="w-3.5 h-3.5" /> {data.engagement.messages}</span>
+                            <span className="flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> {data.engagement.shares}</span>
+                        </div>
+                    )}
+                </div>
+
+                {/* 2. Banned Status Alert Banner */}
+                {data.status === 'Banned' && (
+                    <div className="bg-red-50/80 border border-red-100 rounded-xl p-4 mx-2 flex gap-3">
+                        <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                        <div>
+                            <h3 className="text-xl font-semibold text-red-600 mb-1">This event was not approved</h3>
+                            <p className="text-base leading-relaxed text-red-500">
+                                Your event could not be published because it does not meet our community or safety guidelines.<br />
+                                Please review the feedback below, make the required changes, and submit again.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Session Details Card */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mx-2">
+                    <h2 className="text-xl font-bold text-gray-900 mb-3">Session Details</h2>
+                    <p className="text-base text-[#000000] leading-relaxed mb-4 xl:max-w-6xl">
+                        {data.about}
+                    </p>
+                    <p className="text-base text-[#000000]">Join and improve with confidence.</p>
+                </div>
+
+                {/* Bottom Grid Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-2">
+
+                    {/* Left Column */}
+                    <div className="space-y-6">
+
+                        {/* Session Overview */}
+                        <div>
+                            <h2 className="text-xl font-semibold text-gray-900 mb-4">Session Overview</h2>
+                            <div className="space-y-3">
+                                {/* Overview Card 1 */}
+                                <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                    <div className="p-2 bg-[#E7F1F1] rounded-full text-[#00786F]"><Award className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-base font-semibold text-gray-900">Sport</p>
+                                        <p className="text-base text-gray-500">{data.sport}</p>
+                                    </div>
+                                </div>
+                                {/* Overview Card 2 */}
+                                <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                    <div className="p-2 bg-[#E7F1F1] rounded-full text-[#00786F]"><CalendarDays className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-base font-semibold text-gray-900">Session Type</p>
+                                        <p className="text-base text-gray-500">{data.sessionType}</p>
+                                    </div>
+                                </div>
+                                {/* Overview Card 3 */}
+                                <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                    <div className="p-2 bg-[#E7F1F1] rounded-full text-[#00786F]"><Users className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-base font-semibold text-gray-900">Suitable For</p>
+                                        <p className="text-base text-gray-500">{data.suitableFor}</p>
+                                    </div>
+                                </div>
+                                {/* Overview Card 4 */}
+                                <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                    <div className="p-2 bg-[#E7F1F1] rounded-full text-[#00786F]"><Users className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-base font-semibold text-gray-900">Women's only</p>
+                                        <p className="text-base text-gray-500">{data.womenOnly}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-col md:flex-row gap-3 mt-4">
+                                <button className="px-5 py-2.5 bg-btn-primary text-white text-sm font-semibold rounded-lg hover:bg-teal-800 transition-colors">
+                                    Book Your Place
+                                </button>
+                                <button className="px-5 py-2.5 bg-btn-primary text-white text-sm font-semibold rounded-lg hover:bg-teal-800 transition-colors">
+                                    Register Interest
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Contact Organiser */}
+                        <div>
+                            <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Organiser</h2>
+                            <div className="bg-[#E7F1F1] p-4 rounded-xl border border-gray-100">
+                                <p className="text-base text-gray-900 mb-3 font-medium">Ask the organiser a question</p>
+                                <textarea
+                                    className="w-full h-50 lg:h-100 bg-[#B5D5D2] border-none rounded-lg p-3 text-base text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-btn-primary/20 outline-none resize-none mb-3"
+                                    placeholder="Write your message"
+                                ></textarea>
+                                <button className="px-5 py-2 bg-btn-primary text-white text-base font-medium rounded-lg hover:bg-teal-800 transition-colors">
+                                    Send message
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div>
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Venue Information</h2>
+                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
+                            <div className="grid grid-cols-[100px_1fr] gap-2 text-base">
+                                <span className="text-gray-500">Venue Name:</span>
+                                <span className="text-gray-900 font-medium">{data.venueName}</span>
+
+                                <span className="text-gray-500">Postcode:</span>
+                                <span className="text-gray-900 font-medium">{data.postcode}</span>
+
+                                <span className="text-gray-500">Town/City:</span>
+                                <span className="text-gray-900 font-medium">{data.townCity}</span>
+
+                                <span className="text-gray-500">Session Days:</span>
+                                <span className="text-gray-900 font-medium">{data.sessionDays}</span>
+
+                                <span className="text-gray-500">Session Time:</span>
+                                <span className="text-gray-900 font-medium">{data.sessionTime}</span>
+                            </div>
+
+                            {/* Dummy Map Image */}
+                            <div className="mt-6">
+                                <img
+                                    src="https://i.ibb.co.com/3mNs5TCZ/1579279c93526af38385f21a2041e29aeb2f2ae5.png"
+                                    alt="Venue Map"
+                                    className="w-full h-60 object-cover rounded-lg border border-gray-200"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default SportProviderListingDetails;

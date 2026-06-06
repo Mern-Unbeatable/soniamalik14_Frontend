@@ -1,0 +1,1430 @@
+[
+  {
+    "id": 1,
+    "image": "https://picsum.photos/500/300?random=1",
+    "title": "Women's Football Friendly Match",
+    "date": "2026-03-15",
+    "time": "4:00 PM – 7:00 PM",
+    "location": "1901 Thornridge Cir. Shiloh",
+    "status": "Approved",
+    "description": "This training camp is designed exclusively for women footballers who want to improve their skills, fitness, and overall match performance. The session will focus on technical drills, tactical awareness, team coordination, and physical conditioning.",
+    "ageGroup": "16+ Years",
+    "sportType": "Football",
+    "skillLevel": "Beginner to Intermediate",
+    "lastDateToRegister": "2026-03-10",
+    "venue": {
+      "name": "Community Sports Ground",
+      "address": "1901 Thornridge Cir. Shiloh, Hawaii 81063"
+    },
+    "contact": {
+      "phone": "(406) 555-0120",
+      "email": "contact@sportsground.com"
+    },
+    "organizer": {
+      "name": "Rising Queens Football Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Rising+Queens&background=0D8ABC&color=fff"
+    },
+    "joined": 150,
+    "eventType": "Workshops & learning"
+  },
+  {
+    "id": 2,
+    "image": "https://picsum.photos/500/300?random=2",
+    "title": "Junior Training Session",
+    "date": "2026-04-10",
+    "time": "10:00 AM – 1:00 PM",
+    "location": "Community Sports Ground",
+    "status": "Pending",
+    "description": "A comprehensive training session for junior players focusing on fundamental skills, teamwork, and game strategies. Perfect for young athletes looking to develop their abilities in a structured environment.",
+    "ageGroup": "12-16 Years",
+    "sportType": "Football",
+    "skillLevel": "Beginner",
+    "lastDateToRegister": "2026-04-05",
+    "venue": {
+      "name": "Community Sports Ground",
+      "address": "2972 Westheimer Rd. Santa Ana, Illinois 85486"
+    },
+    "contact": {
+      "phone": "(219) 555-0114",
+      "email": "junior@training.com"
+    },
+    "organizer": {
+      "name": "Youth Sports Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Youth+Sports&background=10B981&color=fff"
+    },
+    "joined": 85,
+    "eventType": "Training Camp"
+  },
+  {
+    "id": 3,
+    "image": "https://picsum.photos/500/300?random=3",
+    "title": "Open Trial Morning",
+    "date": "2026-03-21",
+    "time": "9:00 AM – 12:00 PM",
+    "location": "Northside Stadium",
+    "status": "Approved",
+    "description": "Open trials for players of all skill levels. Showcase your talent and potentially join our competitive teams. Coaches will evaluate technical skills, tactical awareness, and overall game understanding.",
+    "ageGroup": "18+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-03-15",
+    "venue": {
+      "name": "Northside Stadium",
+      "address": "1234 Stadium Way, Northside District, NY 10001"
+    },
+    "contact": {
+      "phone": "(555) 123-4567",
+      "email": "trials@northsidefc.com"
+    },
+    "organizer": {
+      "name": "Northside FC",
+      "avatar": "https://ui-avatars.com/api/?name=Northside+FC&background=EF4444&color=fff"
+    },
+    "joined": 220,
+    "eventType": "Recreational"
+  },
+  {
+    "id": 4,
+    "image": "https://picsum.photos/500/300?random=4",
+    "title": "Community Coaching Clinic",
+    "date": "2026-04-15",
+    "time": "2:00 PM – 5:00 PM",
+    "location": "Green Park",
+    "status": "Rejected",
+    "description": "A coaching clinic open to the community focusing on skill development, fitness training, and game strategy. Led by experienced professional coaches with proven track records.",
+    "ageGroup": "14+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate",
+    "lastDateToRegister": "2026-04-10",
+    "venue": {
+      "name": "Green Park Sports Complex",
+      "address": "567 Green Park Ave, Springfield, MA 01103"
+    },
+    "contact": {
+      "phone": "(413) 555-7890",
+      "email": "clinic@greenpark.org"
+    },
+    "organizer": {
+      "name": "Community Sports Foundation",
+      "avatar": "https://ui-avatars.com/api/?name=Community+Sports&background=8B5CF6&color=fff"
+    },
+    "joined": 95,
+    "eventType": "Competitive"
+  },
+  {
+    "id": 5,
+    "image": "https://picsum.photos/500/300?random=5",
+    "title": "Weekend Match Series",
+    "date": "2026-05-02",
+    "time": "1:00 PM – 6:00 PM",
+    "location": "Eastfield Arena",
+    "status": "Approved",
+    "description": "Competitive match series featuring multiple teams across different age groups. Experience real game situations and compete against skilled opponents in a professional setting.",
+    "ageGroup": "16+ Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-04-25",
+    "venue": {
+      "name": "Eastfield Arena",
+      "address": "890 Eastfield Blvd, Downtown, CA 90210"
+    },
+    "contact": {
+      "phone": "(310) 555-2468",
+      "email": "matches@eastfieldarena.com"
+    },
+    "organizer": {
+      "name": "Eastfield Sports League",
+      "avatar": "https://ui-avatars.com/api/?name=Eastfield+Sports&background=F59E0B&color=fff"
+    },
+    "joined": 320,
+    "eventType": "Trial"
+  },
+  {
+    "id": 6,
+    "image": "https://picsum.photos/500/300?random=6",
+    "title": "Skills & Drills Camp",
+    "date": "2026-05-12",
+    "time": "8:00 AM – 3:00 PM",
+    "location": "Riverside Pitch",
+    "status": "Pending",
+    "description": "Full-day intensive camp focused on skill development through structured drills and practical exercises. Includes individual attention, group sessions, and competitive mini-games.",
+    "ageGroup": "10-18 Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-05-05",
+    "venue": {
+      "name": "Riverside Football Complex",
+      "address": "234 River Rd, Riverside, TX 75001"
+    },
+    "contact": {
+      "phone": "(214) 555-3691",
+      "email": "camp@riversidefc.com"
+    },
+    "organizer": {
+      "name": "Riverside Football Club",
+      "avatar": "https://ui-avatars.com/api/?name=Riverside+FC&background=06B6D4&color=fff"
+    },
+    "joined": 175,
+    "eventType": "Coaching Clinic"
+  },
+  {
+    "id": 7,
+    "image": "https://picsum.photos/500/300?random=7",
+    "title": "Advanced Tactical Workshop",
+    "date": "2026-03-22",
+    "time": "5:00 PM – 8:00 PM",
+    "location": "Central Training Ground",
+    "status": "Approved",
+    "description": "Specialized workshop for advanced players focusing on tactical awareness, positioning, and game reading. Learn professional strategies from elite-level coaches.",
+    "ageGroup": "18+ Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-03-18",
+    "venue": {
+      "name": "Central Training Ground",
+      "address": "456 Central Ave, Midtown, FL 33101"
+    },
+    "contact": {
+      "phone": "(305) 555-8024",
+      "email": "workshop@centralfc.com"
+    },
+    "organizer": {
+      "name": "Elite Football Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Elite+Football&background=EC4899&color=fff"
+    },
+    "joined": 65,
+    "eventType": "Community Event"
+  },
+  {
+    "id": 8,
+    "image": "https://picsum.photos/500/300?random=8",
+    "title": "Goalkeeping Masterclass",
+    "date": "2026-04-18",
+    "time": "3:00 PM – 6:00 PM",
+    "location": "Pro Training Center",
+    "status": "Approved",
+    "description": "Exclusive training session for goalkeepers covering shot-stopping, positioning, distribution, and command of the box. Limited spots available for intensive one-on-one coaching.",
+    "ageGroup": "15+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate to Advanced",
+    "lastDateToRegister": "2026-04-12",
+    "venue": {
+      "name": "Pro Training Center",
+      "address": "789 Pro Way, Athletic District, WA 98101"
+    },
+    "contact": {
+      "phone": "(206) 555-4567",
+      "email": "gk@protraining.com"
+    },
+    "organizer": {
+      "name": "Goalkeeper Academy Pro",
+      "avatar": "https://ui-avatars.com/api/?name=GK+Academy&background=3B82F6&color=fff"
+    },
+    "joined": 45,
+    "eventType": "Youth Development"
+  },
+  {
+    "id": 9,
+    "image": "https://picsum.photos/500/300?random=9",
+    "title": "Women's Summer League",
+    "date": "2026-06-15",
+    "time": "10:00 AM – 7:00 PM",
+    "location": "Sunfield Complex",
+    "status": "Pending",
+    "description": "Competitive summer league for women's teams featuring weekly matches throughout the season. Professional referees, quality facilities, and championship trophy for winners.",
+    "ageGroup": "18+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate to Advanced",
+    "lastDateToRegister": "2026-06-01",
+    "venue": {
+      "name": "Sunfield Sports Complex",
+      "address": "321 Sunshine Blvd, Coastal City, OR 97001"
+    },
+    "contact": {
+      "phone": "(503) 555-7891",
+      "email": "league@sunfieldsports.com"
+    },
+    "organizer": {
+      "name": "Women's Football League",
+      "avatar": "https://ui-avatars.com/api/?name=Women+Football&background=14B8A6&color=fff"
+    },
+    "joined": 280,
+    "eventType": "Skills Workshop"
+  },
+  {
+    "id": 10,
+    "image": "https://picsum.photos/500/300?random=10",
+    "title": "Youth Development Program",
+    "date": "2026-05-05",
+    "time": "4:00 PM – 7:00 PM",
+    "location": "Academy Training Ground",
+    "status": "Approved",
+    "description": "Long-term development program for talented young players. Comprehensive curriculum covering technical skills, physical conditioning, mental preparation, and nutrition guidance.",
+    "ageGroup": "8-16 Years",
+    "sportType": "Football",
+    "skillLevel": "Beginner to Intermediate",
+    "lastDateToRegister": "2026-04-28",
+    "venue": {
+      "name": "Academy Training Ground",
+      "address": "654 Academy Dr, Education Park, CO 80201"
+    },
+    "contact": {
+      "phone": "(303) 555-9876",
+      "email": "youth@academyfc.com"
+    },
+    "organizer": {
+      "name": "Future Stars Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Future+Stars&background=F97316&color=fff"
+    },
+    "joined": 210,
+    "eventType": "Tournament"
+  },
+  {
+    "id": 11,
+    "image": "https://picsum.photos/500/300?random=11",
+    "title": "Fitness & Conditioning Boot Camp",
+    "date": "2026-06-08",
+    "time": "6:00 AM – 9:00 AM",
+    "location": "Parkside Stadium",
+    "status": "Approved",
+    "description": "Intensive fitness training program designed to build agility, strength, and endurance. Includes interval training, core strengthening, and cardiovascular conditioning.",
+    "ageGroup": "14+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-06-01",
+    "venue": {
+      "name": "Parkside Stadium",
+      "address": "789 Park Ave, Fitness District, PA 19101"
+    },
+    "contact": {
+      "phone": "(215) 555-1234",
+      "email": "fitness@parkside.com"
+    },
+    "organizer": {
+      "name": "Athletic Performance Institute",
+      "avatar": "https://ui-avatars.com/api/?name=Athletic+Performance&background=D97706&color=fff"
+    },
+    "joined": 130,
+    "eventType": "Workshops & learning"
+  },
+  {
+    "id": 12,
+    "image": "https://picsum.photos/500/300?random=12",
+    "title": "Injury Prevention Seminar",
+    "date": "2026-04-25",
+    "time": "2:00 PM – 4:00 PM",
+    "location": "Medical Center Hall",
+    "status": "Approved",
+    "description": "Educational seminar on injury prevention techniques, proper warm-up protocols, recovery methods, and nutrition for athletes. Featuring sports medicine experts and physiotherapists.",
+    "ageGroup": "12+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-04-20",
+    "venue": {
+      "name": "Medical Center Hall",
+      "address": "321 Health St, Medical District, MI 48201"
+    },
+    "contact": {
+      "phone": "(313) 555-5678",
+      "email": "health@medicalcenter.com"
+    },
+    "organizer": {
+      "name": "Sports Medicine Association",
+      "avatar": "https://ui-avatars.com/api/?name=Sports+Medicine&background=10B981&color=fff"
+    },
+    "joined": 105,
+    "eventType": "Training Camp"
+  },
+  {
+    "id": 13,
+    "image": "https://picsum.photos/500/300?random=13",
+    "title": "Championship Qualifiers Round 1",
+    "date": "2026-05-20",
+    "time": "10:00 AM – 5:00 PM",
+    "location": "National Stadium",
+    "status": "Pending",
+    "description": "First round of the national football championships featuring top teams from across the country. High-intensity matches with live commentary and professional match management.",
+    "ageGroup": "16+ Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-05-13",
+    "venue": {
+      "name": "National Stadium",
+      "address": "1000 Championship Way, Capital City, DC 20001"
+    },
+    "contact": {
+      "phone": "(202) 555-9999",
+      "email": "championships@national.gov"
+    },
+    "organizer": {
+      "name": "National Football Federation",
+      "avatar": "https://ui-avatars.com/api/?name=National+Football&background=DC2626&color=fff"
+    },
+    "joined": 450,
+    "eventType": "Recreational"
+  },
+  {
+    "id": 14,
+    "image": "https://picsum.photos/500/300?random=14",
+    "title": "Beginner's Football Basics",
+    "date": "2026-03-28",
+    "time": "11:00 AM – 2:00 PM",
+    "location": "Grassroots Training Academy",
+    "status": "Approved",
+    "description": "Perfect for absolute beginners. Learn the fundamental rules, basic techniques, positioning, and introduction to match play. Welcoming environment with patient coaches.",
+    "ageGroup": "10-14 Years",
+    "sportType": "Football",
+    "skillLevel": "Beginner",
+    "lastDateToRegister": "2026-03-24",
+    "venue": {
+      "name": "Grassroots Training Academy",
+      "address": "456 Learning Lane, Education City, VA 23219"
+    },
+    "contact": {
+      "phone": "(804) 555-2468",
+      "email": "beginners@grassroots.com"
+    },
+    "organizer": {
+      "name": "Grassroots Football Foundation",
+      "avatar": "https://ui-avatars.com/api/?name=Grassroots+Football&background=6366F1&color=fff"
+    },
+    "joined": 78,
+    "eventType": "Competitive"
+  },
+  {
+    "id": 15,
+    "image": "https://picsum.photos/500/300?random=15",
+    "title": "Night Training Session",
+    "date": "2026-04-20",
+    "time": "7:00 PM – 9:30 PM",
+    "location": "Floodlit Park",
+    "status": "Approved",
+    "description": "Evening training session under professional floodlights. Perfect for working professionals and students. Focus on skill refinement and game-situation practice.",
+    "ageGroup": "13+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate",
+    "lastDateToRegister": "2026-04-15",
+    "venue": {
+      "name": "Floodlit Park",
+      "address": "789 Evening Avenue, Downtown, IL 60601"
+    },
+    "contact": {
+      "phone": "(312) 555-3691",
+      "email": "evening@floodlit.com"
+    },
+    "organizer": {
+      "name": "Downtown Football Club",
+      "avatar": "https://ui-avatars.com/api/?name=Downtown+FC&background=7C3AED&color=fff"
+    },
+    "joined": 92,
+    "eventType": "Trial"
+  },
+  {
+    "id": 16,
+    "image": "https://picsum.photos/500/300?random=16",
+    "title": "University Team Recruitment",
+    "date": "2026-06-01",
+    "time": "9:00 AM – 3:00 PM",
+    "location": "University Sports Complex",
+    "status": "Pending",
+    "description": "Recruitment event for university sports scholarships. Showcase your abilities to college scouts and coaches. Professional evaluation and potential scholarship opportunities.",
+    "ageGroup": "18-22 Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-05-25",
+    "venue": {
+      "name": "University Sports Complex",
+      "address": "999 Campus Drive, College Town, MA 02108"
+    },
+    "contact": {
+      "phone": "(617) 555-1111",
+      "email": "recruitment@university.edu"
+    },
+    "organizer": {
+      "name": "University Athletics Department",
+      "avatar": "https://ui-avatars.com/api/?name=University+Athletics&background=1F2937&color=fff"
+    },
+    "joined": 156,
+    "eventType": "Coaching Clinic"
+  },
+  {
+    "id": 17,
+    "image": "https://picsum.photos/500/300?random=17",
+    "title": "One-on-One Coaching Sessions",
+    "date": "2026-04-08",
+    "time": "3:00 PM – 6:30 PM",
+    "location": "Elite Training Center",
+    "status": "Approved",
+    "description": "Personalized coaching sessions tailored to individual player needs. Expert one-on-one instruction focusing on specific skill improvement and performance enhancement.",
+    "ageGroup": "All Ages",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-04-05",
+    "venue": {
+      "name": "Elite Training Center",
+      "address": "555 Elite Way, Premium District, AZ 85001"
+    },
+    "contact": {
+      "phone": "(602) 555-4892",
+      "email": "coaching@elite.com"
+    },
+    "organizer": {
+      "name": "Elite Coaching Services",
+      "avatar": "https://ui-avatars.com/api/?name=Elite+Coaching&background=059669&color=fff"
+    },
+    "joined": 34,
+    "eventType": "Community Event"
+  },
+  {
+    "id": 18,
+    "image": "https://picsum.photos/500/300?random=18",
+    "title": "Senior Player Legends Match",
+    "date": "2026-05-30",
+    "time": "2:00 PM – 5:00 PM",
+    "location": "Heritage Stadium",
+    "status": "Approved",
+    "description": "Friendly match featuring veteran and senior players. Celebrate the love for the game with experienced players. Social event with prize ceremonies and recognition.",
+    "ageGroup": "35+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-05-25",
+    "venue": {
+      "name": "Heritage Stadium",
+      "address": "888 Heritage Park, Historic District, GA 30303"
+    },
+    "contact": {
+      "phone": "(404) 555-6789",
+      "email": "legends@heritage.com"
+    },
+    "organizer": {
+      "name": "Golden Age Sports Club",
+      "avatar": "https://ui-avatars.com/api/?name=Golden+Age&background=B45309&color=fff"
+    },
+    "joined": 67,
+    "eventType": "Youth Development"
+  },
+  {
+    "id": 19,
+    "image": "https://picsum.photos/500/300?random=19",
+    "title": "Mixed Tournament Series",
+    "date": "2026-06-10",
+    "time": "9:00 AM – 6:00 PM",
+    "location": "Multi-Purpose Complex",
+    "status": "Pending",
+    "description": "Multi-day tournament featuring teams of mixed skill levels and ages. Round-robin format with playoffs and finals. Great networking opportunity and competitive experience.",
+    "ageGroup": "All Ages",
+    "sportType": "Football",
+    "skillLevel": "Mixed",
+    "lastDateToRegister": "2026-06-03",
+    "venue": {
+      "name": "Multi-Purpose Complex",
+      "address": "444 Complex Lane, Sports Hub, TN 37201"
+    },
+    "contact": {
+      "phone": "(615) 555-0000",
+      "email": "tournament@multiplex.com"
+    },
+    "organizer": {
+      "name": "Sports Complex Authority",
+      "avatar": "https://ui-avatars.com/api/?name=Sports+Complex&background=7F1D1D&color=fff"
+    },
+    "joined": 198,
+    "eventType": "Skills Workshop"
+  },
+  {
+    "id": 20,
+    "image": "https://picsum.photos/500/300?random=20",
+    "title": "Technical Skills Workshop",
+    "date": "2026-05-15",
+    "time": "3:00 PM – 6:00 PM",
+    "location": "Academy Training Ground",
+    "status": "Approved",
+    "description": "Focused workshop on technical football skills including passing accuracy, ball control, shooting techniques, and first touch improvement. Video analysis and feedback included.",
+    "ageGroup": "12+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate",
+    "lastDateToRegister": "2026-05-10",
+    "venue": {
+      "name": "Academy Training Ground",
+      "address": "654 Academy Dr, Education Park, CO 80201"
+    },
+    "contact": {
+      "phone": "(303) 555-9876",
+      "email": "technical@academyfc.com"
+    },
+    "organizer": {
+      "name": "Technical Skills Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Technical+Skills&background=1E40AF&color=fff"
+    },
+    "joined": 88,
+    "eventType": "Tournament"
+  },
+  {
+    "id": 21,
+    "image": "https://picsum.photos/500/300?random=21",
+    "title": "Corporate Football Tournament",
+    "date": "2026-07-12",
+    "time": "10:00 AM – 7:00 PM",
+    "location": "Business District Ground",
+    "status": "Pending",
+    "description": "Company-based football tournament promoting team building and healthy competition among corporate teams. Professional organization, prizes, and corporate hospitality.",
+    "ageGroup": "18+ Years",
+    "sportType": "Football",
+    "skillLevel": "Mixed",
+    "lastDateToRegister": "2026-07-01",
+    "venue": {
+      "name": "Business District Ground",
+      "address": "200 Business Ave, Corporate Zone, NY 10001"
+    },
+    "contact": {
+      "phone": "(212) 555-5555",
+      "email": "corporate@busdistrict.com"
+    },
+    "organizer": {
+      "name": "Corporate Sports League",
+      "avatar": "https://ui-avatars.com/api/?name=Corporate+Sports&background=4338CA&color=fff"
+    },
+    "joined": 256,
+    "eventType": "Workshops & learning"
+  },
+  {
+    "id": 22,
+    "image": "https://picsum.photos/500/300?random=22",
+    "title": "Under-10 Kids Program",
+    "date": "2026-04-12",
+    "time": "2:00 PM – 3:30 PM",
+    "location": "Kids Training Zone",
+    "status": "Approved",
+    "description": "Fun and engaging football program for young children. Focus on basic skills, team play, and enjoyment of the game. Safe environment with qualified youth coaches.",
+    "ageGroup": "6-10 Years",
+    "sportType": "Football",
+    "skillLevel": "Beginner",
+    "lastDateToRegister": "2026-04-08",
+    "venue": {
+      "name": "Kids Training Zone",
+      "address": "100 PlayGround St, Family Park, OH 44101"
+    },
+    "contact": {
+      "phone": "(216) 555-7890",
+      "email": "kids@trainingzone.com"
+    },
+    "organizer": {
+      "name": "Youth Sports Development",
+      "avatar": "https://ui-avatars.com/api/?name=Youth+Sports&background=A16207&color=fff"
+    },
+    "joined": 112,
+    "eventType": "Training Camp"
+  },
+  {
+    "id": 23,
+    "image": "https://picsum.photos/500/300?random=23",
+    "title": "Midfield Mastery Class",
+    "date": "2026-05-25",
+    "time": "4:00 PM – 7:00 PM",
+    "location": "Central Training Hub",
+    "status": "Approved",
+    "description": "Specialized training for midfielders covering positioning, passing combinations, defensive duties, and transition play. Expert instruction from ex-professional midfielders.",
+    "ageGroup": "14+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate to Advanced",
+    "lastDateToRegister": "2026-05-20",
+    "venue": {
+      "name": "Central Training Hub",
+      "address": "350 Central Blvd, Downtown, WI 53202"
+    },
+    "contact": {
+      "phone": "(414) 555-1234",
+      "email": "midfield@centralhub.com"
+    },
+    "organizer": {
+      "name": "Midfield Excellence Institute",
+      "avatar": "https://ui-avatars.com/api/?name=Midfield+Excellence&background=5B21B6&color=fff"
+    },
+    "joined": 56,
+    "eventType": "Recreational"
+  },
+  {
+    "id": 24,
+    "image": "https://picsum.photos/500/300?random=24",
+    "title": "Forward's Finishing Clinic",
+    "date": "2026-04-30",
+    "time": "5:00 PM – 8:00 PM",
+    "location": "Striker Training Center",
+    "status": "Pending",
+    "description": "Intensive clinic focusing on finishing techniques, positioning in the box, movement off the ball, and goal-scoring instincts. Real-game scenarios and practical drills.",
+    "ageGroup": "15+ Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-04-25",
+    "venue": {
+      "name": "Striker Training Center",
+      "address": "777 Strike Lane, Goal City, CA 90001"
+    },
+    "contact": {
+      "phone": "(213) 555-8888",
+      "email": "forwards@striker.com"
+    },
+    "organizer": {
+      "name": "Strike Force Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Strike+Force&background=BE123C&color=fff"
+    },
+    "joined": 73,
+    "eventType": "Competitive"
+  },
+  {
+    "id": 25,
+    "image": "https://picsum.photos/500/300?random=25",
+    "title": "Defensive Fundamentals Class",
+    "date": "2026-06-05",
+    "time": "3:00 PM – 6:00 PM",
+    "location": "Defense Academy",
+    "status": "Approved",
+    "description": "Comprehensive training for defenders covering marking techniques, positioning, tackling, heading, and defensive organization. Learn from experienced defensive coaches.",
+    "ageGroup": "13+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate",
+    "lastDateToRegister": "2026-05-30",
+    "venue": {
+      "name": "Defense Academy",
+      "address": "500 Defense Road, Protection District, Houston, TX 77001"
+    },
+    "contact": {
+      "phone": "(713) 555-4444",
+      "email": "defense@academy.com"
+    },
+    "organizer": {
+      "name": "Defensive Mastery Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Defensive+Mastery&background=1E3A8A&color=fff"
+    },
+    "joined": 99,
+    "eventType": "Trial"
+  },
+  {
+    "id": 26,
+    "image": "https://picsum.photos/500/300?random=26",
+    "title": "Referee & Officiating Course",
+    "date": "2026-07-01",
+    "time": "9:00 AM – 4:00 PM",
+    "location": "Officiating Center",
+    "status": "Approved",
+    "description": "Certification course for football referees and match officials. Learn rules, positioning, decision-making, and match management. Qualify as a certified match referee.",
+    "ageGroup": "16+ Years",
+    "sportType": "Football",
+    "skillLevel": "N/A",
+    "lastDateToRegister": "2026-06-24",
+    "venue": {
+      "name": "Officiating Center",
+      "address": "222 Official St, Justice Park, IL 60601"
+    },
+    "contact": {
+      "phone": "(312) 555-7777",
+      "email": "referees@officiating.com"
+    },
+    "organizer": {
+      "name": "Football Officials Association",
+      "avatar": "https://ui-avatars.com/api/?name=Officials+Association&background=000000&color=fff"
+    },
+    "joined": 42,
+    "eventType": "Coaching Clinic"
+  },
+  {
+    "id": 27,
+    "image": "https://picsum.photos/500/300?random=27",
+    "title": "Family Fun Football Day",
+    "date": "2026-05-10",
+    "time": "10:00 AM – 4:00 PM",
+    "location": "Community Park",
+    "status": "Approved",
+    "description": "Fun-filled family event combining football activities, games, entertainment, and social gathering. Perfect for families of all ages to enjoy and participate together.",
+    "ageGroup": "All Ages",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-05-05",
+    "venue": {
+      "name": "Community Park",
+      "address": "100 Family Lane, Community Center, FL 32801"
+    },
+    "contact": {
+      "phone": "(407) 555-2020",
+      "email": "family@communitypark.com"
+    },
+    "organizer": {
+      "name": "Community Recreation Department",
+      "avatar": "https://ui-avatars.com/api/?name=Community+Rec&background=065F46&color=fff"
+    },
+    "joined": 247,
+    "eventType": "Community Event"
+  },
+  {
+    "id": 28,
+    "image": "https://picsum.photos/500/300?random=28",
+    "title": "Speed and Agility Training",
+    "date": "2026-04-28",
+    "time": "6:00 AM – 8:00 AM",
+    "location": "Athletic Performance Center",
+    "status": "Pending",
+    "description": "Early morning session focused on explosiveness, acceleration, deceleration, and directional changes. Advanced training methods for performance enhancement.",
+    "ageGroup": "13+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate to Advanced",
+    "lastDateToRegister": "2026-04-23",
+    "venue": {
+      "name": "Athletic Performance Center",
+      "address": "333 Performance Ave, Fitness Zone, Boston, MA 02101"
+    },
+    "contact": {
+      "phone": "(617) 555-3333",
+      "email": "speed@athletic.com"
+    },
+    "organizer": {
+      "name": "Performance Training Institute",
+      "avatar": "https://ui-avatars.com/api/?name=Performance+Training&background=881391&color=fff"
+    },
+    "joined": 68,
+    "eventType": "Youth Development"
+  },
+  {
+    "id": 29,
+    "image": "https://picsum.photos/500/300?random=29",
+    "title": "Mental Skills & Psychology Workshop",
+    "date": "2026-06-12",
+    "time": "2:00 PM – 5:00 PM",
+    "location": "Sports Psychology Center",
+    "status": "Approved",
+    "description": "Educational workshop on mental toughness, confidence building, pressure management, and psychological strategies for peak performance. Led by sports psychologists.",
+    "ageGroup": "14+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-06-07",
+    "venue": {
+      "name": "Sports Psychology Center",
+      "address": "666 Mind Lane, Wellness Park, Seattle, WA 98101"
+    },
+    "contact": {
+      "phone": "(206) 555-6666",
+      "email": "mental@psychcenter.com"
+    },
+    "organizer": {
+      "name": "Sports Psychology Association",
+      "avatar": "https://ui-avatars.com/api/?name=Sports+Psychology&background=4F46E5&color=fff"
+    },
+    "joined": 51,
+    "eventType": "Skills Workshop"
+  },
+  {
+    "id": 30,
+    "image": "https://picsum.photos/500/300?random=30",
+    "title": "Equipment & Nutrition Expo",
+    "date": "2026-07-08",
+    "time": "10:00 AM – 5:00 PM",
+    "location": "Convention Center",
+    "status": "Pending",
+    "description": "Comprehensive expo featuring sports equipment vendors, nutrition specialists, fitness products, and professional consultants. Learn about latest gear and nutritional science.",
+    "ageGroup": "All Ages",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-07-01",
+    "venue": {
+      "name": "Convention Center",
+      "address": "999 Convention Way, Exhibition Hall, Chicago, IL 60601"
+    },
+    "contact": {
+      "phone": "(312) 555-9999",
+      "email": "expo@convention.com"
+    },
+    "organizer": {
+      "name": "Sports Industry Association",
+      "avatar": "https://ui-avatars.com/api/?name=Sports+Industry&background=9333EA&color=fff"
+    },
+    "joined": 189,
+    "eventType": "Tournament"
+  },
+  {
+    "id": 31,
+    "image": "https://picsum.photos/500/300?random=31",
+    "title": "Charity Football Match",
+    "date": "2026-06-20",
+    "time": "3:00 PM – 6:00 PM",
+    "location": "Charity Stadium",
+    "status": "Approved",
+    "description": "Friendly match organized to raise funds for charity. All proceeds go to local community development. Social cause mixed with passionate football competition.",
+    "ageGroup": "16+ Years",
+    "sportType": "Football",
+    "skillLevel": "Mixed",
+    "lastDateToRegister": "2026-06-15",
+    "venue": {
+      "name": "Charity Stadium",
+      "address": "111 Charity Lane, Giving District, Atlanta, GA 30303"
+    },
+    "contact": {
+      "phone": "(404) 555-1111",
+      "email": "charity@stadium.com"
+    },
+    "organizer": {
+      "name": "Community Charity Foundation",
+      "avatar": "https://ui-avatars.com/api/?name=Charity+Foundation&background=DC2626&color=fff"
+    },
+    "joined": 134,
+    "eventType": "Workshops & learning"
+  },
+  {
+    "id": 32,
+    "image": "https://picsum.photos/500/300?random=32",
+    "title": "Video Analysis & Game Review",
+    "date": "2026-05-22",
+    "time": "7:00 PM – 9:00 PM",
+    "location": "Media Center",
+    "status": "Approved",
+    "description": "Session analyzing professional matches and player performances using video technology. Learn from elite player movements, positioning, and decision-making.",
+    "ageGroup": "12+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-05-18",
+    "venue": {
+      "name": "Media Center",
+      "address": "555 Media Ave, Tech Park, Los Angeles, CA 90001"
+    },
+    "contact": {
+      "phone": "(213) 555-5555",
+      "email": "video@mediacenter.com"
+    },
+    "organizer": {
+      "name": "Football Analysis Institute",
+      "avatar": "https://ui-avatars.com/api/?name=Football+Analysis&background=7C2D12&color=fff"
+    },
+    "joined": 77,
+    "eventType": "Training Camp"
+  },
+  {
+    "id": 33,
+    "image": "https://picsum.photos/500/300?random=33",
+    "title": "Club Selection Trials",
+    "date": "2026-05-28",
+    "time": "10:00 AM – 3:00 PM",
+    "location": "Club Selection Center",
+    "status": "Pending",
+    "description": "Club-wide selection trials for competitive team rosters. Opportunity to be selected for representative teams and special squads. Professional evaluation and feedback.",
+    "ageGroup": "12-20 Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate to Advanced",
+    "lastDateToRegister": "2026-05-20",
+    "venue": {
+      "name": "Club Selection Center",
+      "address": "777 Selection Way, Elite District, Dallas, TX 75201"
+    },
+    "contact": {
+      "phone": "(214) 555-7777",
+      "email": "selection@clubcenter.com"
+    },
+    "organizer": {
+      "name": "Elite Club Selection Board",
+      "avatar": "https://ui-avatars.com/api/?name=Elite+Selection&background=0891B2&color=fff"
+    },
+    "joined": 123,
+    "eventType": "Recreational"
+  },
+  {
+    "id": 34,
+    "image": "https://picsum.photos/500/300?random=34",
+    "title": "Summer Intensive Training Camp",
+    "date": "2026-07-15",
+    "time": "8:00 AM – 6:00 PM",
+    "location": "Peak Training Resort",
+    "status": "Approved",
+    "description": "Week-long intensive residential training camp with world-class coaching staff. Comprehensive skill development, match play, and competitive experience in a premium facility.",
+    "ageGroup": "14-18 Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-07-01",
+    "venue": {
+      "name": "Peak Training Resort",
+      "address": "2000 Peak Lane, Mountain Region, Colorado Springs, CO 80901"
+    },
+    "contact": {
+      "phone": "(719) 555-2000",
+      "email": "camp@peakresort.com"
+    },
+    "organizer": {
+      "name": "Peak Sports Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Peak+Sports&background=F59E0B&color=fff"
+    },
+    "joined": 95,
+    "eventType": "Competitive"
+  },
+  {
+    "id": 35,
+    "image": "https://picsum.photos/500/300?random=35",
+    "title": "Coaching Certification Level 1",
+    "date": "2026-08-01",
+    "time": "9:00 AM – 5:00 PM",
+    "location": "Coach Training Academy",
+    "status": "Pending",
+    "description": "Foundational coaching certification course. Learn coaching methodology, player development, team management, and basic technical training principles. 3-day intensive program.",
+    "ageGroup": "18+ Years",
+    "sportType": "Football",
+    "skillLevel": "N/A",
+    "lastDateToRegister": "2026-07-25",
+    "venue": {
+      "name": "Coach Training Academy",
+      "address": "888 Coach Dr, Education Zone, Philadelphia, PA 19101"
+    },
+    "contact": {
+      "phone": "(215) 555-8888",
+      "email": "coaching@academy.com"
+    },
+    "organizer": {
+      "name": "International Coach Federation",
+      "avatar": "https://ui-avatars.com/api/?name=Coach+Federation&background=2563EB&color=fff"
+    },
+    "joined": 38,
+    "eventType": "Trial"
+  },
+  {
+    "id": 36,
+    "image": "https://picsum.photos/500/300?random=36",
+    "title": "Women's Empowerment in Sports",
+    "date": "2026-06-25",
+    "time": "2:00 PM – 5:00 PM",
+    "location": "Empowerment Hall",
+    "status": "Approved",
+    "description": "Panel discussion and workshop focused on women's development in football, gender equality, leadership opportunities, and success stories from female athletes.",
+    "ageGroup": "14+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-06-20",
+    "venue": {
+      "name": "Empowerment Hall",
+      "address": "444 Empowerment Ave, Progress District, Austin, TX 78701"
+    },
+    "contact": {
+      "phone": "(512) 555-4444",
+      "email": "empowerment@hall.com"
+    },
+    "organizer": {
+      "name": "Women Sports Empowerment Initiative",
+      "avatar": "https://ui-avatars.com/api/?name=Women+Sports&background=EC4899&color=fff"
+    },
+    "joined": 156,
+    "eventType": "Coaching Clinic"
+  },
+  {
+    "id": 37,
+    "image": "https://picsum.photos/500/300?random=37",
+    "title": "Youth League Regular Season",
+    "date": "2026-08-10",
+    "time": "2:00 PM – 7:00 PM",
+    "location": "Youth League Ground",
+    "status": "Pending",
+    "description": "Regular season matches for youth players spanning the entire month. Play in a structured league with consistent opponents, scorekeeping, and ranking system.",
+    "ageGroup": "10-16 Years",
+    "sportType": "Football",
+    "skillLevel": "Mixed",
+    "lastDateToRegister": "2026-08-01",
+    "venue": {
+      "name": "Youth League Ground",
+      "address": "999 Youth St, Development Park, Denver, CO 80201"
+    },
+    "contact": {
+      "phone": "(303) 555-9999",
+      "email": "league@youthground.com"
+    },
+    "organizer": {
+      "name": "Youth Football League",
+      "avatar": "https://ui-avatars.com/api/?name=Youth+League&background=10B981&color=fff"
+    },
+    "joined": 267,
+    "eventType": "Community Event"
+  },
+  {
+    "id": 38,
+    "image": "https://picsum.photos/500/300?random=38",
+    "title": "Professional Scout Meeting",
+    "date": "2026-07-20",
+    "time": "10:00 AM – 2:00 PM",
+    "location": "Professional Stadium Office",
+    "status": "Approved",
+    "description": "Exclusive meeting with professional scouts and team recruiters. Network with decision-makers and discuss potential pathways to professional football careers.",
+    "ageGroup": "18+ Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-07-15",
+    "venue": {
+      "name": "Professional Stadium Office",
+      "address": "200 Pro Blvd, Major League District, New York, NY 10001"
+    },
+    "contact": {
+      "phone": "(212) 555-2020",
+      "email": "scouts@prostadum.com"
+    },
+    "organizer": {
+      "name": "Professional Football League",
+      "avatar": "https://ui-avatars.com/api/?name=Pro+League&background=7F1D1D&color=fff"
+    },
+    "joined": 52,
+    "eventType": "Youth Development"
+  },
+  {
+    "id": 39,
+    "image": "https://picsum.photos/500/300?random=39",
+    "title": "Recovery & Rehabilitation Session",
+    "date": "2026-06-18",
+    "time": "10:00 AM – 12:00 PM",
+    "location": "Wellness Center",
+    "status": "Approved",
+    "description": "Session focused on post-match recovery, injury prevention, stretching techniques, physiotherapy exercises, and overall player wellness management.",
+    "ageGroup": "13+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-06-13",
+    "venue": {
+      "name": "Wellness Center",
+      "address": "333 Wellness Way, Health Park, Miami, FL 33101"
+    },
+    "contact": {
+      "phone": "(305) 555-3333",
+      "email": "recovery@wellness.com"
+    },
+    "organizer": {
+      "name": "Players Wellness Institute",
+      "avatar": "https://ui-avatars.com/api/?name=Players+Wellness&background=059669&color=fff"
+    },
+    "joined": 104,
+    "eventType": "Skills Workshop"
+  },
+  {
+    "id": 40,
+    "image": "https://picsum.photos/500/300?random=40",
+    "title": "Set Pieces Mastery Class",
+    "date": "2026-05-31",
+    "time": "4:00 PM – 7:00 PM",
+    "location": "Technical Excellence Center",
+    "status": "Pending",
+    "description": "Specialized training on free kicks, corners, throw-ins, and penalties. Practice execution, defensive organization, and converting set-piece opportunities into goals.",
+    "ageGroup": "14+ Years",
+    "sportType": "Football",
+    "skillLevel": "Intermediate to Advanced",
+    "lastDateToRegister": "2026-05-26",
+    "venue": {
+      "name": "Technical Excellence Center",
+      "address": "666 Excellence Ave, Premium Zone, Phoenix, AZ 85001"
+    },
+    "contact": {
+      "phone": "(602) 555-6666",
+      "email": "setpieces@excellence.com"
+    },
+    "organizer": {
+      "name": "Set Piece Specialists",
+      "avatar": "https://ui-avatars.com/api/?name=Set+Piece&background=DC2626&color=fff"
+    },
+    "joined": 69,
+    "eventType": "Tournament"
+  },
+  {
+    "id": 41,
+    "image": "https://picsum.photos/500/300?random=41",
+    "title": "International Football Exchange",
+    "date": "2026-08-05",
+    "time": "9:00 AM – 5:00 PM",
+    "location": "International Training Center",
+    "status": "Approved",
+    "description": "Exchange program with international football players and coaches. Experience different playing styles, cultural exchange, and international competition standards.",
+    "ageGroup": "16+ Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-07-28",
+    "venue": {
+      "name": "International Training Center",
+      "address": "111 International Way, Global District, San Francisco, CA 94101"
+    },
+    "contact": {
+      "phone": "(415) 555-1111",
+      "email": "exchange@international.com"
+    },
+    "organizer": {
+      "name": "International Football Federation",
+      "avatar": "https://ui-avatars.com/api/?name=International+Football&background=1E40AF&color=fff"
+    },
+    "joined": 87,
+    "eventType": "Workshops & learning"
+  },
+  {
+    "id": 42,
+    "image": "https://picsum.photos/500/300?random=42",
+    "title": "Tournament Preparation Boot Camp",
+    "date": "2026-07-25",
+    "time": "8:00 AM – 5:00 PM",
+    "location": "Tournament Prep Complex",
+    "status": "Pending",
+    "description": "Intensive preparation program for teams heading into major tournaments. Focus on physical conditioning, tactical preparation, team cohesion, and match simulations.",
+    "ageGroup": "15+ Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-07-17",
+    "venue": {
+      "name": "Tournament Prep Complex",
+      "address": "777 Tournament Lane, Competition Zone, Las Vegas, NV 89101"
+    },
+    "contact": {
+      "phone": "(702) 555-7777",
+      "email": "tournament@prep.com"
+    },
+    "organizer": {
+      "name": "Tournament Champions Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Tournament+Champs&background=9333EA&color=fff"
+    },
+    "joined": 78,
+    "eventType": "Training Camp"
+  },
+  {
+    "id": 43,
+    "image": "https://picsum.photos/500/300?random=43",
+    "title": "Small Sided Games Focus",
+    "date": "2026-06-22",
+    "time": "3:00 PM – 6:00 PM",
+    "location": "Futsal Arena",
+    "status": "Approved",
+    "description": "Training session using small-sided games (5v5, 6v6) to improve technical skills, decision-making, and game intelligence in confined spaces.",
+    "ageGroup": "11+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-06-17",
+    "venue": {
+      "name": "Futsal Arena",
+      "address": "444 Arena Ave, Sports Hub, San Antonio, TX 78201"
+    },
+    "contact": {
+      "phone": "(210) 555-4444",
+      "email": "futsal@arena.com"
+    },
+    "organizer": {
+      "name": "Futsal Development League",
+      "avatar": "https://ui-avatars.com/api/?name=Futsal+League&background=07C29B&color=fff"
+    },
+    "joined": 111,
+    "eventType": "Recreational"
+  },
+  {
+    "id": 44,
+    "image": "https://picsum.photos/500/300?random=44",
+    "title": "Beach Football Tournament",
+    "date": "2026-07-30",
+    "time": "10:00 AM – 6:00 PM",
+    "location": "Coastal Beach Arena",
+    "status": "Pending",
+    "description": "Fun beach football tournament combining competitive spirit with vacation atmosphere. Sand football requires different skills and adds exciting variation to traditional play.",
+    "ageGroup": "All Ages",
+    "sportType": "Football",
+    "skillLevel": "Mixed",
+    "lastDateToRegister": "2026-07-22",
+    "venue": {
+      "name": "Coastal Beach Arena",
+      "address": "100 Beach Blvd, Seaside Resort, Hawaii 96815"
+    },
+    "contact": {
+      "phone": "(808) 555-1000",
+      "email": "beach@arena.com"
+    },
+    "organizer": {
+      "name": "Beach Sports Festival",
+      "avatar": "https://ui-avatars.com/api/?name=Beach+Sports&background=0891B2&color=fff"
+    },
+    "joined": 142,
+    "eventType": "Competitive"
+  },
+  {
+    "id": 45,
+    "image": "https://picsum.photos/500/300?random=45",
+    "title": "Leadership Development Workshop",
+    "date": "2026-06-30",
+    "time": "1:00 PM – 4:00 PM",
+    "location": "Leadership Institute",
+    "status": "Approved",
+    "description": "Workshop for young team leaders and captains. Focus on leadership skills, team motivation, communication, decision-making, and managing team dynamics.",
+    "ageGroup": "14+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-06-25",
+    "venue": {
+      "name": "Leadership Institute",
+      "address": "555 Lead Lane, Executive Park, Washington DC, DC 20001"
+    },
+    "contact": {
+      "phone": "(202) 555-5555",
+      "email": "leadership@institute.com"
+    },
+    "organizer": {
+      "name": "Sports Leadership Institute",
+      "avatar": "https://ui-avatars.com/api/?name=Sports+Leadership&background=7C3AED&color=fff"
+    },
+    "joined": 73,
+    "eventType": "Trial"
+  },
+  {
+    "id": 46,
+    "image": "https://picsum.photos/500/300?random=46",
+    "title": "Transition Play Masterclass",
+    "date": "2026-07-05",
+    "time": "4:00 PM – 7:00 PM",
+    "location": "Transition Training Center",
+    "status": "Approved",
+    "description": "Advanced training on transition moments from defense to attack and vice versa. Learn to capitalize on counter-attacking opportunities and defensive transitions.",
+    "ageGroup": "14+ Years",
+    "sportType": "Football",
+    "skillLevel": "Advanced",
+    "lastDateToRegister": "2026-06-30",
+    "venue": {
+      "name": "Transition Training Center",
+      "address": "999 Transition Way, Dynamic Zone, Boston, MA 02101"
+    },
+    "contact": {
+      "phone": "(617) 555-9999",
+      "email": "transition@center.com"
+    },
+    "organizer": {
+      "name": "Transition Masters Academy",
+      "avatar": "https://ui-avatars.com/api/?name=Transition+Masters&background=EA580C&color=fff"
+    },
+    "joined": 64,
+    "eventType": "Coaching Clinic"
+  },
+  {
+    "id": 47,
+    "image": "https://picsum.photos/500/300?random=47",
+    "title": "Grassroots Sunday Matches",
+    "date": "2026-08-20",
+    "time": "9:00 AM – 3:00 PM",
+    "location": "Community Grounds",
+    "status": "Pending",
+    "description": "Regular Sunday matches for casual football enthusiasts. Friendly atmosphere with mixed-skill teams. Perfect for recreational players looking for consistent weekend matches.",
+    "ageGroup": "All Ages",
+    "sportType": "Football",
+    "skillLevel": "Beginner to Intermediate",
+    "lastDateToRegister": "2026-08-15",
+    "venue": {
+      "name": "Community Grounds",
+      "address": "222 Community Way, Local Park, Austin, TX 78701"
+    },
+    "contact": {
+      "phone": "(512) 555-2222",
+      "email": "sunday@community.com"
+    },
+    "organizer": {
+      "name": "Local Community Sports",
+      "avatar": "https://ui-avatars.com/api/?name=Local+Community&background=16A34A&color=fff"
+    },
+    "joined": 185,
+    "eventType": "Community Event"
+  },
+  {
+    "id": 48,
+    "image": "https://picsum.photos/500/300?random=48",
+    "title": "Innovation in Football Seminar",
+    "date": "2026-07-12",
+    "time": "2:00 PM – 5:00 PM",
+    "location": "Innovation Center",
+    "status": "Approved",
+    "description": "Seminar on latest technological innovations in football including data analytics, GPS tracking, video technology, and modern coaching methods for performance improvement.",
+    "ageGroup": "16+ Years",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-07-07",
+    "venue": {
+      "name": "Innovation Center",
+      "address": "888 Innovation Blvd, Tech Park, Silicon Valley, CA 94025"
+    },
+    "contact": {
+      "phone": "(408) 555-8888",
+      "email": "innovation@center.com"
+    },
+    "organizer": {
+      "name": "Football Technology Institute",
+      "avatar": "https://ui-avatars.com/api/?name=Football+Tech&background=1F2937&color=fff"
+    },
+    "joined": 89,
+    "eventType": "Youth Development"
+  },
+  {
+    "id": 49,
+    "image": "https://picsum.photos/500/300?random=49",
+    "title": "Disability Inclusion Football Program",
+    "date": "2026-08-12",
+    "time": "10:00 AM – 1:00 PM",
+    "location": "Inclusive Sports Center",
+    "status": "Approved",
+    "description": "Inclusive football program for players with disabilities. Adaptive equipment and modified rules to ensure everyone can participate and enjoy the beautiful game.",
+    "ageGroup": "All Ages",
+    "sportType": "Football",
+    "skillLevel": "All Levels",
+    "lastDateToRegister": "2026-08-07",
+    "venue": {
+      "name": "Inclusive Sports Center",
+      "address": "333 Inclusion Way, Equity Park, Portland, OR 97201"
+    },
+    "contact": {
+      "phone": "(503) 555-3333",
+      "email": "inclusive@center.com"
+    },
+    "organizer": {
+      "name": "Inclusive Sports Foundation",
+      "avatar": "https://ui-avatars.com/api/?name=Inclusive+Sports&background=9933EA&color=fff"
+    },
+    "joined": 112,
+    "eventType": "Skills Workshop"
+  },
+  {
+    "id": 50,
+    "image": "https://picsum.photos/500/300?random=50",
+    "title": "International Coaching Exchange Program",
+    "date": "2026-08-25",
+    "time": "9:00 AM – 5:00 PM",
+    "location": "Global Coaching Center",
+    "status": "Pending",
+    "description": "Exchange program for coaches to learn from international coaching styles and methodologies. Gain insights from different football cultures and training approaches.",
+    "ageGroup": "N/A",
+    "sportType": "Football",
+    "skillLevel": "N/A",
+    "lastDateToRegister": "2026-08-18",
+    "venue": {
+      "name": "Global Coaching Center",
+      "address": "666 Global Ave, International Zone, New York, NY 10001"
+    },
+    "contact": {
+      "phone": "(212) 555-6666",
+      "email": "exchange@coaching.com"
+    },
+    "organizer": {
+      "name": "International Coaching Forum",
+      "avatar": "https://ui-avatars.com/api/?name=Coaching+Forum&background=DC2626&color=fff"
+    },
+    "joined": 31,
+    "eventType": "Tournament"
+  },
+  {
+    "id": 51,
+    "image": "https://picsum.photos/500/300?random=51",
+    "title": "Final Championship Super Cup",
+    "date": "2026-09-15",
+    "time": "6:00 PM – 9:00 PM",
+    "location": "Grand National Stadium",
+    "status": "Pending",
+    "description": "The ultimate championship finale featuring the best teams competing for the national title. High-energy atmosphere, professional broadcast, and celebration of excellence in football.",
+    "ageGroup": "18+ Years",
+    "sportType": "Football",
+    "skillLevel": "Elite",
+    "lastDateToRegister": "2026-09-08",
+    "venue": {
+      "name": "Grand National Stadium",
+      "address": "1000 Grand Ave, Championship District, Atlanta, GA 30303"
+    },
+    "contact": {
+      "phone": "(404) 555-0000",
+      "email": "championship@stadium.com"
+    },
+    "organizer": {
+      "name": "National Football Championship Board",
+      "avatar": "https://ui-avatars.com/api/?name=Championship+Board&background=1E3A8A&color=fff"
+    },
+    "joined": 512,
+    "eventType": "Workshops & learning"
+  }
+]

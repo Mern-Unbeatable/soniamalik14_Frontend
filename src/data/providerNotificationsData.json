@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Brian Griffin",
+    "message": "wants to collaborate",
+    "time": "5 days ago",
+    "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
+    "read": false
+  },
+  {
+    "id": 2,
+    "name": "Adam from The Mayor's Office",
+    "message": "Hey Peter, we've got a new user research opportunity for you. Adam from The Mayor's Office is looking for people like you.",
+    "time": "1 month ago",
+    "avatar": "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=150&q=80",
+    "read": false
+  },
+  {
+    "id": 3,
+    "name": "Neil",
+    "message": "Hey Peter, we've got a new user research opportunity for you. Neil is looking for people like you.",
+    "time": "1 month ago",
+    "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
+    "read": false
+  },
+  {
+    "id": 4,
+    "name": "Quagmire from Giggity Co.",
+    "message": "Hey Peter, we've got a new user research opportunity for you. Quagmire from Giggity Co. is looking for people like you.",
+    "time": "1 month ago",
+    "avatar": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=150&q=80",
+    "read": false
+  },
+  {
+    "id": 5,
+    "name": "Herbert from Children's Program",
+    "message": "Hey Peter, we've got a new side project opportunity for you. Herbert from Children's Program is looking for people like you.",
+    "time": "1 month ago",
+    "avatar": "https://images.unsplash.com/photo-1544502062-f82887f03d1c?auto=format&fit=crop&w=150&q=80",
+    "read": false
+  },
+  {
+    "id": 6,
+    "name": "Cleveland from The Post Office",
+    "message": "Hey Peter, we've got a new side project opportunity for you. Cleveland from The Post Office is looking for people like you.",
+    "time": "2 months ago",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+    "read": false
+  }
+]

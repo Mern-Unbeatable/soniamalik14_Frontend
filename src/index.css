@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+@import 'tailwindcss';
+
+/* ==================== */
+/* THEME CONFIGURATION  */
+/* ==================== */
+@theme {
+  /* ---------- */
+  /* TYPOGRAPHY */
+  /* ---------- */
+  --font-primary: 'Geist', sans-serif;
+  --font-secondary: 'Lato', sans-serif;
+
+  /* Font Sizes */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
+  --text-7xl: 72px;
+
+  /* ------ */
+  /* COLORS */
+  /* ------ */
+  /* Core Colors */
+  --color-primary: #f6bc09;
+
+  --color-secondary: #e7f1f1;
+  --color-accent: rgb(255, 255, 255);
+  --color-background: #2b0731;
+  --color-border-color: rgb(255, 255, 255);
+  --color-black: #000;
+  --color-white: #fff;
+
+  /* Text Colors */
+  --text-color-heading: #1f1f1f;
+  --text-color-title: #0d263c;
+  --text-color-sidebarLink: #707070;
+  --text-color-subtitle: #101010;
+  --text-color-btn: #1c1c1c;
+  --text-color-cardTitle: #06322e;
+  --text-color-description: #3b3b3b;
+  --text-color-tableText: #674e43;
+  --text-color-tableTh: #191919;
+
+  --color-secondary-text: #656565;
+  --text-color-navigation: #495572;
+
+  /* dashboard all colors */
+  --color-dashboardTitle: #161616;
+  --color-dashboardProgress: #394c6b;
+  --color-dashboardPending: #e99f00;
+
+  /* Component Colors */
+  --color-nav-bg: #fafdfd;
+  --color-btn-primary: #0f766e;
+  --color-btn-secondary: #15a398;
+  --color-loginInput: #b5d5d2;
+  --color-card: rgb(25, 25, 25);
+  --color-cta: rgb(0, 122, 255);
+  --color-cta-active: rgb(0, 102, 215);
+  --color-cta-text: rgb(255, 255, 255);
+  --color-cta-txt-active: rgb(255, 230, 9);
+
+  /* ------- */
+  /* EFFECTS */
+  /* ------- */
+  /* Shadows */
+  --shadow-box-style: 1px 1px 1px 2px rgb(0 0 0 / 0.1);
+  --shadow-btn-style: 2px 2px 0px 2px rgb(0 0 0 / 0.1);
+}
+
+/* ==================== */
+/* BASE STYLES          */
+/* ==================== */
+@layer base {
+  /* ---------- */
+  /* TYPOGRAPHY */
+  /* ---------- */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-primary);
+  }
+
+  .scroll-touch {
+    -webkit-overflow-scrolling: touch;
+  }
+  /* ----- */
+  /* LINKS */
+  /* ----- */
+  a {
+    color: var(--color-cta);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+  }
+
+  a:hover {
+    color: var(--color-cta-active);
+  }
+
+  /* ----------- */
+  /* FORM INPUTS */
+  /* ----------- */
+  button,
+  input,
+  select,
+  textarea {
+    transition-property:
+      color, background-color, border-color, text-decoration-color, fill, stroke, opacity,
+      box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  body {
+    background: #f8fafc;
+    font-family: var(--font-primary);
+    overflow-x: hidden;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* ===== Custom Scrollbar ===== */
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.4);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* For Firefox */
+  body {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 100, 100, 0.4) transparent;
+  }
+
+  /* ===== Optional: Hide Scrollbar on Specific Elements ===== */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  @keyframes fade-in-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in-down {
+    animation: fade-in-down 0.3s ease-out both;
+  }
+}
+
+/* ==================== */
+/* COMPONENTS           */
+/* ==================== */
+@layer components {
+  .herosubtitle {
+    @apply text-center text-base text-white/90 lg:text-[20px];
+  }
+  .sectiontitle {
+    @apply font-secondary text-[28px] leading-tight font-semibold text-[#313131] lg:text-[40px] lg:leading-relaxed;
+  }
+
+  .subtitle {
+    @apply text-[22px] leading-tight font-semibold lg:text-[28px] lg:leading-relaxed;
+    color: var(--text-color-subtitle);
+  }
+  .description {
+    @apply text-base leading-tight lg:leading-relaxed;
+    color: var(--text-color-description);
+  }
+
+  /* cta section */
+  .cta-title {
+    @apply font-secondary text-center text-xl leading-tight font-semibold text-white md:text-3xl lg:text-left lg:text-[42px];
+  }
+
+  /* BUTTONS */
+  .btn-primary {
+    @apply rounded-lg px-5 py-2.5 font-semibold text-white;
+    background-color: var(--color-cta);
+    color: var(--color-cta-text);
+    box-shadow: var(--shadow-btn-style);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-cta-active);
+    color: var(--color-cta-txt-active);
+  }
+
+  /* CARDS */
+  .card-default {
+    @apply rounded-xl p-6 shadow-lg;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border-color);
+  }
+
+  /* adminDashboard */
+  .dashboardPy {
+    @apply p-4 lg:px-8 lg:py-4;
+  }
+  .dashboardSpaceY {
+    @apply space-y-5 lg:space-y-6;
+  }
+  .dashboardStatsGrid {
+    @apply grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4 lg:gap-6;
+  }
+}
+
+/* ==================== */
+/* UTILITIES           */
+/* ==================== */
+@layer utilities {
+  /* TRANSFORMS */
+  .transform-flip-x {
+    transform: scaleX(-1);
+  }
+}
