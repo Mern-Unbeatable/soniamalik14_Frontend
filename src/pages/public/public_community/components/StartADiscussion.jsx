@@ -100,7 +100,6 @@ const StartADiscussion = ({ isOpen, onClose, onSubmit, isSubmitting = false }) =
                         </select>
                     </div>
 
-                    {/* Topic Selection */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Topic</label>
                         <div className="flex flex-wrap gap-2">
