@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import { GET } from '../../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../../services/httpEndpoint';
 
 const getNiceMax = (maxVal) => {
     if (maxVal <= 5) return 5;
@@ -36,7 +37,7 @@ const AnalyticsCharts = ({ userFilter, onUserFilterChange }) => {
             setLoading(true);
             setError(null);
             try {
-                const response = await GET('/api/admin/dashboard/user-trends');
+                const response = await GET(ENDPOINT.ADMIN.USER_TRENDS);
                 const payload = response?.data || response;
                 if (payload?.success && Array.isArray(payload?.data)) {
                     setChartData(payload.data);

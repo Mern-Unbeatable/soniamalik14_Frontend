@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { GET } from '../../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../../services/httpEndpoint';
 
 const AnalyticsConversionFunnel = () => {
     const [funnelSteps, setFunnelSteps] = useState([]);
@@ -12,7 +13,7 @@ const AnalyticsConversionFunnel = () => {
             setLoading(true);
             setError(null);
             try {
-                const response = await GET('/api/admin/dashboard/conversion-funnel');
+                const response = await GET(ENDPOINT.ADMIN.CONVERSION_FUNNEL);
                 const payload = response?.data || response;
                 if (payload?.success && Array.isArray(payload?.data)) {
                     setFunnelSteps(payload.data);

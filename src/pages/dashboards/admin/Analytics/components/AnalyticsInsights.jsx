@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Loader2, AlertCircle } from 'lucide-react';
 import { GET } from '../../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../../services/httpEndpoint';
 
 const AnalyticsInsights = () => {
     const [alerts, setAlerts] = useState([]);
@@ -12,7 +13,7 @@ const AnalyticsInsights = () => {
             setLoading(true);
             setError(null);
             try {
-                const response = await GET('/api/admin/dashboard/high-demand-alerts');
+                const response = await GET(ENDPOINT.ADMIN.HIGH_DEMAND_ALERTS);
                 const payload = response?.data || response;
                 const rawData = payload?.success && Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
                 

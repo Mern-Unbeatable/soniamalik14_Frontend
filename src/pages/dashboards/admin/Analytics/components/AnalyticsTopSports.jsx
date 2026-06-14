@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { GET } from '../../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../../services/httpEndpoint';
 
 const COLORS = [
     { stroke: '#2dd4bf', bg: 'bg-[#2dd4bf]' },
@@ -23,7 +24,7 @@ const AnalyticsTopSports = () => {
             setLoading(true);
             setError(null);
             try {
-                const response = await GET('/api/admin/dashboard/demand-supply');
+                const response = await GET(ENDPOINT.ADMIN.DEMAND_SUPPLY);
                 const payload = response?.data || response;
                 if (payload?.success && Array.isArray(payload?.data)) {
                     setSportsData(payload.data);

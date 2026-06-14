@@ -50,6 +50,7 @@ export const ENDPOINT = {
     HIGH_DEMAND_ALERTS: '/api/admin/dashboard/high-demand-alerts',
     TOP_LOCATIONS: '/api/admin/dashboard/top-locations',
     DASHBOARD_EXPORT: '/api/admin/dashboard/export',
+    CONVERSION_FUNNEL: '/api/admin/dashboard/conversion-funnel',
   },
   SERVICES: {
     LIST: '/api/services',
