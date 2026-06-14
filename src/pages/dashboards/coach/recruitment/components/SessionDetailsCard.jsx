@@ -9,7 +9,7 @@ const SessionDetailsCard = ({ item }) => {
             </div>
 
             <div className='text-base mt-4'>
-                <p>No trials. No pressure. Just cricket.</p>
+                <p>No trials. No pressure.</p>
             </div>
         </div>
     );
