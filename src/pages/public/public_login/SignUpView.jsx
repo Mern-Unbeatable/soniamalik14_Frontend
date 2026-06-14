@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -31,6 +31,8 @@ const RegisterView = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [confirmSuitableSessions, setConfirmSuitableSessions] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -45,7 +47,6 @@ const RegisterView = () => {
     interestedSports: [],
     orgName: '',
     aboutOrg: '',
-    sessionType: 'Women Only',
     sportsOffered: [],
     fullName: '',
     serviceType: [],
@@ -110,7 +111,6 @@ const RegisterView = () => {
         role: ROLES.COACH.toUpperCase(),
         firstName: formData.fullName?.trim() || undefined,
         organizationName: formData.orgName?.trim(),
-        sessionType: formData.sessionType,
         sportsOffered: formData.sportsOffered,
         aboutOrganization: formData.aboutOrg?.trim() || undefined,
       };
@@ -135,6 +135,10 @@ const RegisterView = () => {
       return 'Password is required';
     }
 
+    if (formData.password.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+
     if (!resolveName()) {
       return 'Name is required';
     }
@@ -143,12 +147,23 @@ const RegisterView = () => {
       return 'Password and confirm password must match';
     }
 
-    if (role === 'Sport provider' && !formData.orgName.trim()) {
-      return 'Organization name is required for sport provider';
+    if (role === 'Sport provider') {
+      if (!formData.orgName.trim()) {
+        return 'Organisation or coach name is required';
+      }
+      if (!confirmSuitableSessions) {
+        return 'You must confirm that your sessions are suitable and welcoming for women to attend';
+      }
     }
 
-    if (role === 'Service Provider' && !formData.practitionerName.trim()) {
-      return 'Organization name is required for service provider';
+    if (role === 'Service Provider') {
+      if (!formData.practitionerName.trim()) {
+        return 'Organisation or practitioner name is required';
+      }
+    }
+
+    if (!agreeToTerms) {
+      return "You must agree to ESSA Hub's Terms & Conditions and Privacy Policy";
     }
 
     return '';
@@ -183,7 +198,7 @@ const RegisterView = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-black mb-2">Create Account</h1>
           <p className="text-[#00796B] text-lg">
-            {role === 'Player' ? 'Join the ESSA community' : role === 'Sport provider' ? 'Join ESSA and start listing your sessions.' : 'Join ESSA and help more women stay active.'}
+            {role === 'Player' ? 'Join the ESSA community' : role === 'Sport provider' ? 'Join ESSA and start listing your sessions.' : 'Join ESSA and support women in sport, fitness and wellbeing.'}
           </p>
         </div>
 
@@ -212,14 +227,19 @@ const RegisterView = () => {
           {/* Player Form */}
           {role === 'Player' && (
             <>
-              <InputField label="Display Name" name="displayName" placeholder="john doe" optional value={formData.displayName} onChange={handleChange} />
-              <div className="grid grid-cols-2 gap-4">
-                <InputField label="First Name" name="firstName" placeholder="Enter name here" value={formData.firstName} onChange={handleChange} />
-                <InputField label="Last Name" name="lastName" placeholder="Enter name here" value={formData.lastName} onChange={handleChange} />
+              <div>
+                <InputField label="Display name" name="displayName" placeholder="e.g. SportSeeker" optional value={formData.displayName} onChange={handleChange} />
+                <p className="text-xs text-gray-500 mt-1">
+                  This name will be shown if you post in the community. If left blank, your first name will be displayed.
+                </p>
               </div>
-              <InputField label="Email" name="email" placeholder="enter your email" type="email" value={formData.email} onChange={handleChange} />
-              <InputField label="Phone Number" name="phoneNumber" placeholder="enter your phone number" optional value={formData.phoneNumber} onChange={handleChange} />
-              <InputField label="Postcode" name="postcode" placeholder="SW20" value={formData.postcode} onChange={handleChange} />
+              <div className="grid grid-cols-2 gap-4">
+                <InputField label="First Name" name="firstName" placeholder="Your first name" value={formData.firstName} onChange={handleChange} />
+                <InputField label="Last Name" name="lastName" placeholder="Your last name" value={formData.lastName} onChange={handleChange} />
+              </div>
+              <InputField label="Email" name="email" placeholder="Your email address" type="email" value={formData.email} onChange={handleChange} />
+              <InputField label="Phone number" name="phoneNumber" placeholder="Best contact number" optional value={formData.phoneNumber} onChange={handleChange} />
+              <InputField label="Postcode" name="postcode" placeholder="e.g. SW20" value={formData.postcode} onChange={handleChange} />
 
               <div>
                 <label className="block text-[#1A1D1F] text-sm md:text-base font-medium mb-2">
@@ -254,19 +274,12 @@ const RegisterView = () => {
           {/* Sport Provider Form */}
           {role === 'Sport provider' && (
             <>
-              <InputField label="Organization or Coach Name" name="orgName" placeholder="Woking Warriors FC" value={formData.orgName} onChange={handleChange} />
+              <InputField label="Organisation or coach name" name="orgName" placeholder="e.g. Woking Warriors FC" value={formData.orgName} onChange={handleChange} />
               <div>
                 <label className="block text-[#1A1D1F] font-medium mb-2">About your organisation</label>
-                <textarea name="aboutOrg" placeholder="A short overview of what you offer and who your sessions are suitable for." className="w-full px-4 py-3 bg-[#C2DBD9]/60 rounded-lg outline-none h-28 text-[#1A1D1F]" value={formData.aboutOrg} onChange={handleChange} />
+                <textarea name="aboutOrg" placeholder="Tell us briefly about your club, coaching or sports group." className="w-full px-4 py-3 bg-[#C2DBD9]/60 rounded-lg outline-none h-28 text-[#1A1D1F]" value={formData.aboutOrg} onChange={handleChange} />
               </div>
-              <div>
-                <label className="block text-[#1A1D1F] font-medium mb-2">Session type</label>
-                <select name="sessionType" value={formData.sessionType} onChange={handleChange} className="w-full px-4 py-3 bg-[#C2DBD9] rounded-lg outline-none appearance-none cursor-pointer">
-                  <option value="Women Only">Women Only</option>
-                  <option value="Mixed">Mixed</option>
-                </select>
-              </div>
-              <InputField label="Postcode" name="postcode" placeholder="SW1" value={formData.postcode} onChange={handleChange} />
+              <InputField label="Main location postcode" name="postcode" placeholder="e.g. SW1A 1AA" value={formData.postcode} onChange={handleChange} />
               <div>
                 <label className="block text-[#1A1D1F] font-medium mb-3">Sports offered</label>
                 <div className="flex flex-wrap gap-2">
@@ -276,10 +289,10 @@ const RegisterView = () => {
                   ))}
                 </div>
               </div>
-              <div className="pt-4"><h3 className="font-bold text-xl text-black">Primary Contact</h3></div>
-              <InputField label="Full Name" name="fullName" placeholder="Enter Your Full Name" value={formData.fullName} onChange={handleChange} />
-              <InputField label="Email" name="email" placeholder="Write your email" value={formData.email} onChange={handleChange} />
-              <InputField label="Phone Number" name="phoneNumber" placeholder="enter your phone number" value={formData.phoneNumber} onChange={handleChange} />
+              <div className="pt-4"><h3 className="font-bold text-xl text-black">Primary contact details</h3></div>
+              <InputField label="Full Name" name="fullName" placeholder="Your full name" value={formData.fullName} onChange={handleChange} />
+              <InputField label="Email" name="email" placeholder="Your email address" value={formData.email} onChange={handleChange} />
+              <InputField label="Phone Number" name="phoneNumber" placeholder="Best contact number" value={formData.phoneNumber} onChange={handleChange} />
             </>
           )}
 
@@ -295,16 +308,16 @@ const RegisterView = () => {
                   ))}
                 </div>
               </div>
-              <InputField label="Organisation or Practitioner Name" name="practitionerName" placeholder="Woking Warriors FC" value={formData.practitionerName} onChange={handleChange} />
+              <InputField label="Organisation or practitioner name" name="practitionerName" placeholder="Your business or practice name" value={formData.practitionerName} onChange={handleChange} />
               <div>
-                <label className="block text-[#1A1D1F] font-medium mb-2">About</label>
-                <textarea name="aboutService" placeholder="A short overview of your services and who you support." className="w-full px-4 py-3 bg-[#C2DBD9]/60 rounded-lg outline-none h-28 text-[#1A1D1F]" value={formData.aboutService} onChange={handleChange} />
+                <label className="block text-[#1A1D1F] font-medium mb-2">About your services</label>
+                <textarea name="aboutService" placeholder="Tell us briefly about the services you offer." className="w-full px-4 py-3 bg-[#C2DBD9]/60 rounded-lg outline-none h-28 text-[#1A1D1F]" value={formData.aboutService} onChange={handleChange} />
               </div>
-              <InputField label="Postcode" name="postcode" placeholder="SW1" value={formData.postcode} onChange={handleChange} />
-              <div className="pt-4"><h3 className="font-bold text-xl text-black">Primary Contact</h3></div>
-              <InputField label="Full Name" name="fullName" placeholder="Enter Your Full Name" value={formData.fullName} onChange={handleChange} />
-              <InputField label="Email" name="email" placeholder="Write your email" value={formData.email} onChange={handleChange} />
-              <InputField label="Phone Number" name="phoneNumber" placeholder="enter your phone number" value={formData.phoneNumber} onChange={handleChange} />
+              <InputField label="Main location postcode" name="postcode" placeholder="e.g. SW1A 1AA" value={formData.postcode} onChange={handleChange} />
+              <div className="pt-4"><h3 className="font-bold text-xl text-black">Primary contact details</h3></div>
+              <InputField label="Full Name" name="fullName" placeholder="Your full name" value={formData.fullName} onChange={handleChange} />
+              <InputField label="Email" name="email" placeholder="Your email address" value={formData.email} onChange={handleChange} />
+              <InputField label="Phone Number" name="phoneNumber" placeholder="Best contact number" value={formData.phoneNumber} onChange={handleChange} />
             </>
           )}
 
@@ -316,10 +329,39 @@ const RegisterView = () => {
             </button>
           </div>
           <div className="relative">
-            <InputField label="Confirm Password" name="confirmPassword" placeholder="**** **** ****" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={handleChange} />
+            <InputField label="Confirm Password" name="confirmPassword" placeholder="Re-type your password" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={handleChange} />
             <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-10.5 text-gray-500">
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
+          </div>
+
+          {/* Checkboxes Section */}
+          <div className="space-y-4 pt-2">
+            {role === 'Sport provider' && (
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={confirmSuitableSessions}
+                  onChange={(e) => setConfirmSuitableSessions(e.target.checked)}
+                  className="mt-1 h-5 w-5 rounded border-gray-300 text-[#00796B] focus:ring-[#00796B] cursor-pointer"
+                />
+                <span className="text-sm md:text-base text-gray-700 font-medium">
+                  I confirm that any sessions I list on ESSA Hub will be suitable and welcoming for women to attend.
+                </span>
+              </label>
+            )}
+
+            <label className="flex items-start gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={agreeToTerms}
+                onChange={(e) => setAgreeToTerms(e.target.checked)}
+                className="mt-1 h-5 w-5 rounded border-gray-300 text-[#00796B] focus:ring-[#00796B] cursor-pointer"
+              />
+              <span className="text-sm md:text-base text-gray-700 font-medium">
+                I agree to ESSA Hub's <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-black hover:text-[#00796B]">Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-black hover:text-[#00796B]">Privacy Policy</a>.
+              </span>
+            </label>
           </div>
 
           <button type="submit" disabled={loading} className="w-full bg-[#00796B] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
