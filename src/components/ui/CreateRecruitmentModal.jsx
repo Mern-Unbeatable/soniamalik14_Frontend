@@ -323,10 +323,10 @@ const CreateRecruitmentModal = ({
       return;
     }
 
-    if (!providerPhone || !providerEmail) {
-      toast.error('Provider phone and email are missing from your profile.');
-      return;
-    }
+    // if (!providerPhone || !providerEmail) {
+    //   toast.error('Provider phone and email are missing from your profile.');
+    //   return;
+    // }
 
     if (!sessionDay || !timeFrom || !timeTo) {
       toast.error('Sesson day and time range (from/to) are required.');
