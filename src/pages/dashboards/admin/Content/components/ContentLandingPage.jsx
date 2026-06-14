@@ -1,9 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ImagePlus, Plus, X } from 'lucide-react';
+import { POST, GET } from '../../../../../services/httpMethods';
+import { toast } from 'react-toastify';
 
 const ContentLandingPage = () => {
     // Image state for different sections
     const [heroImage, setHeroImage] = useState(null);
+    const [heroImageFile, setHeroImageFile] = useState(null);
+    const [heroTitle, setHeroTitle] = useState('');
+    const [heroSubheadline, setHeroSubheadline] = useState('');
+    const [savingHero, setSavingHero] = useState(false);
+
     const [exploreCards, setExploreCards] = useState([{ id: 1, image: null }]);
     const [findCards, setFindCards] = useState([{ id: 1, image: null }]);
 
@@ -24,6 +31,7 @@ const ContentLandingPage = () => {
             const imageUrl = event.target?.result;
 
             if (type === 'hero') {
+                setHeroImageFile(file);
                 setHeroImage(imageUrl);
             } else if (type === 'explore') {
                 setExploreCards(cards =>
@@ -52,6 +60,7 @@ const ContentLandingPage = () => {
     const removeImage = (type, cardId = null) => {
         if (type === 'hero') {
             setHeroImage(null);
+            setHeroImageFile(null);
         } else if (type === 'explore') {
             setExploreCards(cards =>
                 cards.map(card => card.id === cardId ? { ...card, image: null } : card)
@@ -72,6 +81,59 @@ const ContentLandingPage = () => {
     const addFindCard = () => {
         const newId = Math.max(...findCards.map(c => c.id), 0) + 1;
         setFindCards([...findCards, { id: newId, image: null }]);
+    };
+
+    // Fetch and populate existing homepage sections (e.g. Hero content) when the component mounts
+    useEffect(function initHero() {
+        const fetchHeroData = async () => {
+            try {
+                const response = await GET('/api/homepage/sections?page=HOME');
+                const payload = response?.data || response;
+                const sections = Array.isArray(payload) ? payload : (payload?.sections || payload?.data || []);
+                const homeHero = sections.find(s => s.page === 'HOME') || sections[0];
+                if (homeHero) {
+                    setHeroTitle(homeHero.title || '');
+                    setHeroSubheadline(homeHero.description || '');
+                    if (homeHero.image) {
+                        setHeroImage(homeHero.image);
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not fetch existing hero section data:', err);
+            }
+        };
+        fetchHeroData();
+    }, []);
+
+    const handleSaveHero = async () => {
+        if (!heroTitle.trim()) {
+            toast.error('Title is required');
+            return;
+        }
+        if (!heroSubheadline.trim()) {
+            toast.error('Subheadline is required');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('title', heroTitle.trim());
+        formData.append('description', heroSubheadline.trim());
+        formData.append('page', 'HOME');
+        if (heroImageFile) {
+            formData.append('image', heroImageFile);
+        }
+
+        setSavingHero(true);
+        try {
+            await POST('/api/homepage/sections', formData);
+            toast.success('Hero section saved successfully!');
+        } catch (err) {
+            console.error('Error saving Hero section:', err);
+            const errMsg = err?.response?.data?.message || err?.message || 'Failed to save Hero section';
+            toast.error(errMsg);
+        } finally {
+            setSavingHero(false);
+        }
     };
 
     return (
@@ -133,10 +195,12 @@ const ContentLandingPage = () => {
                 {/* Inputs */}
                 <div className="space-y-6">
                     <div>
-                        <label className="block text-base font-medium text-gray-900 mb-2">Tittle</label>
+                        <label className="block text-base font-medium text-gray-900 mb-2">Title</label>
                         <input
                             type="text"
                             placeholder="Write title"
+                            value={heroTitle}
+                            onChange={(e) => setHeroTitle(e.target.value)}
                             className="w-full bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none text-gray-800 placeholder-gray-500"
                         />
                     </div>
@@ -144,9 +208,23 @@ const ContentLandingPage = () => {
                         <label className="block text-base font-medium text-gray-900 mb-2">Subheadline</label>
                         <textarea
                             placeholder="Write your subheadline"
+                            value={heroSubheadline}
+                            onChange={(e) => setHeroSubheadline(e.target.value)}
                             className="w-full h-32 bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none resize-none text-gray-800 placeholder-gray-500"
                         />
                     </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end mt-6">
+                    <button
+                        type="button"
+                        onClick={handleSaveHero}
+                        disabled={savingHero}
+                        className="bg-[#0f766e] hover:bg-[#0d655d] text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+                    >
+                        {savingHero ? 'Saving...' : 'Save Changes'}
+                    </button>
                 </div>
             </div>
 
