@@ -7,6 +7,7 @@ import serviceReducer from '../features/service/serviceSlice';
 import newsReducer from '../features/news/newsSlice';
 import usersReducer from './users/usersSlice';
 import providerListingReducer from '../features/providerListing/providerListingSlice';
+import sportsCategoriesReducer from './sportsCategories/sportsCategoriesSlice';
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     news: newsReducer,
     users: usersReducer,
     providerListing: providerListingReducer,
+    sportsCategories: sportsCategoriesReducer,
   },
 });
 

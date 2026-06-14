@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { selectCreateCategoryLoading } from '../../../../../features/sportsCategories/sportsCategoriesSlice';
 
 const AddCategoryModal = ({ isOpen, onClose, onSave }) => {
     const [sportName, setSportName] = useState('');
+    const isLoading = useSelector(selectCreateCategoryLoading);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setSportName('');
+        }
+    }, [isOpen]);
 
     const handleSave = () => {
-        if (sportName.trim()) {
+        if (sportName.trim() && !isLoading) {
             onSave(sportName);
-            setSportName('');
         }
     };
 
     const handleClose = () => {
+        if (isLoading) return;
         setSportName('');
         onClose();
     };
@@ -48,17 +57,19 @@ const AddCategoryModal = ({ isOpen, onClose, onSave }) => {
                             }
                         }}
                         placeholder="Write sport name"
-                        className="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/20 focus:border-transparent"
+                        className="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/20 focus:border-transparent disabled:opacity-50"
                         autoFocus
+                        disabled={isLoading}
                     />
                 </div>
 
                 {/* Save Button */}
                 <button
                     onClick={handleSave}
-                    className="w-full px-6 py-2.5 bg-[#0f766e] text-white font-medium rounded-lg hover:bg-teal-800 transition-colors"
+                    disabled={isLoading || !sportName.trim()}
+                    className="w-full px-6 py-2.5 bg-[#0f766e] text-white font-medium rounded-lg hover:bg-teal-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                    Save
+                    {isLoading ? 'Saving...' : 'Save'}
                 </button>
             </div>
         </div>
