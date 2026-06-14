@@ -51,6 +51,8 @@ export const ENDPOINT = {
     TOP_LOCATIONS: '/api/admin/dashboard/top-locations',
     DASHBOARD_EXPORT: '/api/admin/dashboard/export',
     CONVERSION_FUNNEL: '/api/admin/dashboard/conversion-funnel',
+    REGISTER_INTERESTS: '/api/admin/dashboard/register-interests',
+    CONTACT_METADATA: '/api/admin/dashboard/contact-metadata',
   },
   SERVICES: {
     LIST: '/api/services',

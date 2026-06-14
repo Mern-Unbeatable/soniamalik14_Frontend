@@ -1,7 +1,23 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
+import LoadingSpinner from '../../../../../components/ui/LoadingSpinner';
 
-const DemandRegisterInterestTable = ({ data }) => {
+const DemandRegisterInterestTable = ({ data = [], loading, error }) => {
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-12">
+                <LoadingSpinner label="Loading register interests..." />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="px-6 py-12 text-center text-red-600">
+                <p className="font-medium">{error}</p>
+            </div>
+        );
+    }
     return (
         <table className="w-full text-left border-collapse">
             <thead>
