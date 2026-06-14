@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Plus, Users, X } from 'lucide-react';
 import EventModal from '../../../components/ui/EventModal';
 import CreateServiceModal from './addListing/components/CreateServiceModal';
-import { addListingDummyData } from './addListing/addListingDummyData';
 import providerEventDummyData from './event/providerEventDummyData.json';
+import axiosInstance from '../../../services/axiosInstance';
 
 const recentPlayers = [
   {
@@ -112,20 +112,19 @@ const formatEventDate = (dateStr) => {
   };
 };
 
-const getListingStatus = (item, index) => {
-  const rawStatus = String(item?.status || item?.approvalStatus || '').toLowerCase();
-
-  if (rawStatus === 'approved' || rawStatus === 'active') return 'Active';
-  if (rawStatus === 'pending') return 'Pending';
-
-  return index < 2 ? 'Active' : 'Pending';
+const STATUS_STYLES = {
+  ACTIVE: 'bg-[#E7F1F1] text-[#0F766E]',
+  APPROVED: 'bg-[#E7F1F1] text-[#0F766E]',
+  PENDING_APPROVAL: 'bg-[#FFDAB9] text-[#FF7700]',
+  PENDING: 'bg-[#FFDAB9] text-[#FF7700]',
+  REJECTED: 'bg-[#FFE4E1] text-[#DC2626]',
 };
 
-const getListingApplicants = (item, index) => {
-  const fallbackApplicants = [12, 45, 3];
-  const baseCount = item?.bookings?.length ?? item?.applicants ?? 0;
-  return baseCount > 0 ? baseCount : fallbackApplicants[index] ?? 0;
-};
+const formatStatus = (status = '') =>
+  status
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
@@ -133,24 +132,37 @@ const ProviderDashboard = () => {
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [localServices, setLocalServices] = useState(addListingDummyData);
   const [events] = useState(providerEventDummyData);
+
+  // Active Listings from API
+  const [activeListings, setActiveListings] = useState([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
+  const [listingsError, setListingsError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchListings = async () => {
+      try {
+        setListingsLoading(true);
+        setListingsError(null);
+        const res = await axiosInstance.get('/api/services/provider/my', {
+          params: { limit: 3, page: 1 },
+        });
+        if (!cancelled) {
+          setActiveListings((res?.data?.data ?? []).slice(0, 3));
+        }
+      } catch (err) {
+        if (!cancelled) setListingsError('Failed to load listings.');
+      } finally {
+        if (!cancelled) setListingsLoading(false);
+      }
+    };
+    fetchListings();
+    return () => { cancelled = true; };
+  }, []);
 
   const perPage = 6;
   const totalPages = Math.max(1, Math.ceil(recentPlayers.length / perPage));
-  const listingSource = localServices;
-
-  const activeListings = useMemo(
-    () =>
-      listingSource.slice(0, 3).map((listing, index) => ({
-        id: listing.id,
-        title: listing.title,
-        applicants: getListingApplicants(listing, index),
-        status: getListingStatus(listing, index),
-        item: listing,
-      })),
-    [listingSource],
-  );
 
   const yourEvents = useMemo(
     () =>
@@ -174,35 +186,16 @@ const ProviderDashboard = () => {
   const startResult = recentPlayers.length === 0 ? 0 : (page - 1) * perPage + 1;
   const endResult = Math.min(page * perPage, recentPlayers.length);
 
-  const handleLocalSubmit = (formData, submitMode, initialData) => {
-    const imageValue =
-      formData.logo && typeof formData.logo !== 'string'
-        ? URL.createObjectURL(formData.logo)
-        : formData.logo || '/images/marketplace/image_1.jpg';
-
-    const localItem = {
-      id:
-        submitMode === 'edit'
-          ? initialData?.id
-          : `demo-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
-      title: formData.listingHeadline,
-      description: formData.about,
-      category: formData.providerTypes[0] || 'Other',
-      image: imageValue,
-      providerName: formData.providerBusinessName,
-      fullAddress: [formData.clinicName, formData.address1, formData.city, formData.postcode]
-        .filter(Boolean)
-        .join(', '),
-      status: 'Pending',
-      bookings: [],
-    };
-
-    if (submitMode === 'edit') {
-      setLocalServices((prev) => prev.map((item) => (item.id === localItem.id ? localItem : item)));
-      return;
+  // After creating a new listing, re-fetch to keep the list fresh
+  const handleLocalSubmit = async () => {
+    try {
+      const res = await axiosInstance.get('/api/services/provider/my', {
+        params: { limit: 3, page: 1 },
+      });
+      setActiveListings((res?.data?.data ?? []).slice(0, 3));
+    } catch (_) {
+      // silently ignore refresh errors
     }
-
-    setLocalServices((prev) => [localItem, ...prev]);
   };
 
   return (
@@ -222,31 +215,40 @@ const ProviderDashboard = () => {
           </div>
 
           <div className="space-y-3">
-            {activeListings.map((listing) => (
+            {listingsLoading && (
+              <p className="py-6 text-center text-sm text-secondary-text">Loading listings...</p>
+            )}
+            {!listingsLoading && listingsError && (
+              <p className="py-6 text-center text-sm text-red-500">{listingsError}</p>
+            )}
+            {!listingsLoading && !listingsError && activeListings.length === 0 && (
+              <p className="py-6 text-center text-sm text-secondary-text">No listings found.</p>
+            )}
+            {!listingsLoading && !listingsError && activeListings.map((listing) => (
               <article key={listing.id} className="relative rounded-2xl border border-[#EDEDED] bg-white px-4 pt-4 pb-12 md:px-5">
                 <div className="flex items-start justify-between gap-3">
-                <h3 className="text-base leading-tight font-medium text-[#373737] ">{listing.title}</h3>
+                  <h3 className="text-base leading-tight font-medium text-[#373737]">
+                    {listing.listingHeadline || listing.organizationName || 'Untitled'}
+                  </h3>
                   <span
-                    className={`rounded-md px-2 py-1.5  text-sm ${
-                      listing.status === 'Active'
-                        ? 'bg-[#E7F1F1] text-[#0F766E]'
-                        : 'bg-[#FFDAB9] text-[#FF7700]'
+                    className={`rounded-md px-2 py-1.5 text-sm ${
+                      STATUS_STYLES[listing.status] ?? 'bg-gray-100 text-gray-600'
                     }`}
                   >
-                    {listing.status}
+                    {formatStatus(listing.status)}
                   </span>
                 </div>
 
-                <p className=" inline-flex items-center gap-2 text-base text-sidebarLink py-2 md:py-0">
+                <p className="inline-flex items-center gap-2 text-base text-sidebarLink py-2 md:py-0">
                   <Users className="h-3.4 w-3.4" />
-                  <span>{listing.applicants} Applicants</span>
+                  <span>{listing._count?.bookings ?? 0} Bookings</span>
                 </p>
 
                 <button
                   type="button"
                   onClick={() =>
                     navigate(`/provider/add-listing/${listing.id}`, {
-                      state: { item: listing.item, from: 'add-listing' },
+                      state: { item: listing, from: 'add-listing' },
                     })
                   }
                   className="absolute left-4 bottom-4 text-start text-base font-medium text-btn-primary hover:underline md:left-5"
