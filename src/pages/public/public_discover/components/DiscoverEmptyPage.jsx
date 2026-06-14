@@ -1,10 +1,30 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Container from '../../../../components/layout/Container'
 import Button from '../../../../components/ui/Button'
 import FindSupportModal from './FindSupportModal'
+import LoginModal from './LoginModal'
+import { useAuth } from '../../../../context/AuthContext'
 
 const DiscoverEmptyPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [showLoginModal, setShowLoginModal] = useState(false)
+    const { isAuthenticated } = useAuth()
+    const navigate = useNavigate()
+
+    const handleButtonClick = () => {
+        if (!isAuthenticated) {
+            setShowLoginModal(true)
+        } else {
+            setIsModalOpen(true)
+        }
+    }
+
+    const handleLoginClick = () => {
+        setShowLoginModal(false)
+        navigate('/signin')
+    }
+
     return (
         <section className="py-6 lg:py-10 bg-[#F8FAFC]">
             <Container>
@@ -21,13 +41,18 @@ const DiscoverEmptyPage = () => {
                         Tell us what you’d love to play — we’ll show clubs there’s demand in your area. Help us bring more sport to your area.
                     </p>
 
-                    <Button variant="primary" className="px-6 py-3 rounded-lg" onClick={() => setIsModalOpen(true)}>
+                    <Button variant="primary" className="px-6 py-3 rounded-lg" onClick={handleButtonClick}>
                         What would you like to see?
                     </Button>
                 </div>
             </Container>
 
             <FindSupportModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                onLoginClick={handleLoginClick}
+            />
         </section>
     )
 }
