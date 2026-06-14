@@ -1,6 +1,6 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
@@ -71,6 +71,7 @@ const RecruitmentDetails = () => {
     const [messagesData, setMessagesData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         let active = true;
@@ -253,6 +254,45 @@ const RecruitmentDetails = () => {
 
                 {/* Title & Coach Info */}
                 <TitleCoachInfo item={item} />
+
+                {/* Booking Link Card */}
+                {item.bookingLink && (
+                    <div className="bg-white rounded-lg p-6 mb-8 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <h3 className="text-lg font-bold text-[#1A1D1F]">share Link</h3>
+                            <p className="text-base text-gray-500 mb-2">
+                                Share this link with players so they can book their place directly.
+                            </p>
+                            <a
+                                href={item.bookingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#0F766E] font-medium hover:underline text-sm md:text-base break-all block font-mono bg-gray-50 p-2 rounded border border-gray-100"
+                            >
+                                {item.bookingLink}
+                            </a>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                navigator.clipboard.writeText(item.bookingLink);
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 2000);
+                            }}
+                            className="inline-flex items-center justify-center gap-2 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shrink-0 cursor-pointer shadow-sm"
+                        >
+                            {copied ? (
+                                <>
+                                    <Check className="w-4 h-4" /> Copied!
+                                </>
+                            ) : (
+                                <>
+                                    <Copy className="w-4 h-4" /> Copy Link
+                                </>
+                            )}
+                        </button>
+                    </div>
+                )}
 
                 {/* Session Details Card */}
                 <SessionDetailsCard item={item} />
