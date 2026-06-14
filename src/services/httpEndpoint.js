@@ -93,5 +93,6 @@ export const ENDPOINT = {
   },
   INTEREST_REQUESTS: {
     CREATE: '/api/interest-requests',
+    ADMIN_ALL: '/api/interest-requests/admin/all',
   },
 };

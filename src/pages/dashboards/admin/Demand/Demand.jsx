@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import DemandHeader from './components/DemandHeader';
 import DemandTabs from './components/DemandTabs';
 import DemandFilters from './components/DemandFilters';
@@ -7,6 +7,8 @@ import DemandRegisterInterestTable from './components/DemandRegisterInterestTabl
 import DemandMissingSportsTable from './components/DemandMissingSportsTable';
 import DemandContactMetadataTable from './components/DemandContactMetadataTable';
 import DemandPagination from './components/DemandPagination';
+import { GET } from '../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../services/httpEndpoint';
 
 const DemandSignals = () => {
     // State for Tabs and Filters
@@ -14,7 +16,39 @@ const DemandSignals = () => {
     const [riSearchQuery, setRiSearchQuery] = useState('');
     const [riFilter, setRiFilter] = useState('All');
 
+    // API Data for Missing Sports tab
+    const [missingSports, setMissingSports] = useState([]);
+    const [loadingMissingSports, setLoadingMissingSports] = useState(false);
+    const [errorMissingSports, setErrorMissingSports] = useState(null);
+
     const tabs = ['Account Preferences', 'Register Interest', 'Missing Sports', 'Contact Metadata'];
+
+    useEffect(function initMissingSports() {
+        if (activeTab !== 'Missing Sports') return;
+
+        const fetchMissingSports = async () => {
+            setLoadingMissingSports(true);
+            setErrorMissingSports(null);
+            try {
+                const response = await GET(ENDPOINT.INTEREST_REQUESTS.ADMIN_ALL);
+                const payload = response?.data || response;
+                if (payload?.success && Array.isArray(payload?.data)) {
+                    setMissingSports(payload.data);
+                } else if (Array.isArray(payload)) {
+                    setMissingSports(payload);
+                } else {
+                    setMissingSports([]);
+                }
+            } catch (err) {
+                console.error('Error fetching admin missing sports requests:', err);
+                setErrorMissingSports(err?.response?.data?.message || 'Failed to load missing sports');
+            } finally {
+                setLoadingMissingSports(false);
+            }
+        };
+
+        fetchMissingSports();
+    }, [activeTab]);
 
     // --- DUMMY DATA ---
     const accountPreferencesData = [
@@ -93,7 +127,13 @@ const DemandSignals = () => {
                     <div className="overflow-x-auto">
                         {activeTab === 'Account Preferences' && <DemandAccountPreferencesTable data={accountPreferencesData} />}
                         {activeTab === 'Register Interest' && <DemandRegisterInterestTable data={filteredRegisterInterest} />}
-                        {activeTab === 'Missing Sports' && <DemandMissingSportsTable data={missingSportsData} />}
+                        {activeTab === 'Missing Sports' && (
+                            <DemandMissingSportsTable 
+                                data={missingSports} 
+                                loading={loadingMissingSports} 
+                                error={errorMissingSports} 
+                            />
+                        )}
                         {activeTab === 'Contact Metadata' && <DemandContactMetadataTable data={contactMetadataData} />}
                     </div>
 
