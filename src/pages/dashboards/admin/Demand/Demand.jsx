@@ -289,14 +289,107 @@ const DemandSignals = () => {
         fetchContactMetadata();
     }, [activeTab, cmPage]);
 
+    const escapeCsvValue = (value) => {
+        const normalized = value === null || value === undefined ? '' : String(value);
+        const escaped = normalized.replace(/"/g, '""');
+        return `"${escaped}"`;
+    };
 
+    const handleExportCsv = () => {
+        let csvContent = '';
+        let fileName = '';
+
+        if (activeTab === 'Register Interest') {
+            if (!registerInterests.length) return;
+            const columns = [
+                { key: 'user', label: 'User' },
+                { key: 'listing', label: 'Listing' },
+                { key: 'sport', label: 'Sport' },
+                { key: 'location', label: 'Location' },
+                { key: 'date', label: 'Date' },
+                { key: 'responseTime', label: 'Response Time' },
+                { key: 'provider', label: 'Provider' },
+                { key: 'status', label: 'Status' }
+            ];
+            const headerLine = columns.map(col => escapeCsvValue(col.label)).join(',');
+            const dataLines = registerInterests.map(row => 
+                columns.map(col => escapeCsvValue(row[col.key])).join(',')
+            );
+            csvContent = [headerLine, ...dataLines].join('\n');
+            fileName = `register-interests-page-${riPage}.csv`;
+        } else if (activeTab === 'Missing Sports') {
+            if (!missingSports.length) return;
+            
+            const headerLine = [
+                'User Name', 'User Email/ID', 'Requested Sport', 'Level', 
+                'Preference', 'Preferred Days', 'Help Start?', 'Date', 'Status', 'Notes'
+            ].map(escapeCsvValue).join(',');
+
+            const dataLines = missingSports.map(row => {
+                const userName = row.user?.name || 'Unknown User';
+                const userEmail = row.user?.email || row.userId || 'No email';
+                const sport = row.sportName === 'Other' ? row.otherSportName || 'Other' : row.sportName;
+                const level = row.level || '';
+                const preference = row.preference || '';
+                const preferredDays = Array.isArray(row.preferredDays) ? row.preferredDays.join(', ') : '';
+                const helpStart = row.wantToHelpStart ? 'Yes' : 'No';
+                const date = row.createdAt ? new Date(row.createdAt).toLocaleDateString('en-GB') : '';
+                const status = row.status || '';
+                const notes = row.adminNotes || '';
+
+                return [
+                    userName, userEmail, sport, level, 
+                    preference, preferredDays, helpStart, date, status, notes
+                ].map(escapeCsvValue).join(',');
+            });
+            csvContent = [headerLine, ...dataLines].join('\n');
+            fileName = `missing-sports.csv`;
+        } else if (activeTab === 'Contact Metadata') {
+            if (!contactMetadata.length) return;
+            const headerLine = [
+                'Listing', 'Provider Name', 'Provider Email', 'Provider Phone', 
+                'Received', 'Replies', 'Avg Response', 'Unanswered', 'Flagged'
+            ].map(escapeCsvValue).join(',');
+
+            const dataLines = contactMetadata.map(row => {
+                const listing = row.listing || '';
+                const providerName = row.providerDetails?.name || row.provider || '';
+                const providerEmail = row.providerDetails?.email || '';
+                const providerPhone = row.providerDetails?.phone || '';
+                const received = row.received ?? 0;
+                const replies = row.replies ?? 0;
+                const avgResponse = row.avgResponse || '';
+                const unanswered = row.unanswered ?? 0;
+                const flagged = row.flagged ?? 0;
+
+                return [
+                    listing, providerName, providerEmail, providerPhone,
+                    received, replies, avgResponse, unanswered, flagged
+                ].map(escapeCsvValue).join(',');
+            });
+            csvContent = [headerLine, ...dataLines].join('\n');
+            fileName = `contact-metadata-page-${cmPage}.csv`;
+        }
+
+        if (!csvContent) return;
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+    };
 
     return (
         <div className="flex-1 overflow-auto bg-gray-50 dashboardPy dashboardSpaceY">
             <div className="">
 
                 {/* 1. Header Section */}
-                <DemandHeader />
+                <DemandHeader onExport={handleExportCsv} />
 
                 {/* 2. Tabs Section */}
                 <DemandTabs activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />
