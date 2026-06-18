@@ -309,11 +309,11 @@ const TermsView = () => {
       <Container className="mt-8 md:mt-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Navigation */}
-          <div className="lg:w-1/4 lg:sticky lg:top-24 h-fit bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hidden lg:block">
+          <div className="lg:w-1/4 lg:sticky lg:top-28 h-fit bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hidden lg:block">
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
               Table of Contents
             </h3>
-            <nav className="space-y-1 max-h-[60vh] overflow-y-auto scrollbar-thin pr-2">
+            <nav className="space-y-1">
               {sections.map((section) => (
                 <button
                   key={section.id}
