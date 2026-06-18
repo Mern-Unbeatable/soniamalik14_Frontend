@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { fetchOrganizerEventById } from '../../../../features/events/eventsAPI';
 import {
   selectOrganizerEventDetails,
@@ -47,6 +47,7 @@ const ProviderEventDetails = () => {
   const [message, setMessage] = useState('');
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [messageSuccess, setMessageSuccess] = useState(false);
+  const [copiedEventLink, setCopiedEventLink] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -54,6 +55,15 @@ const ProviderEventDetails = () => {
   }, [dispatch, id]);
 
   const event = eventDetails?.data || eventDetails || null;
+
+  const handleCopyEventLink = () => {
+    if (event?.id) {
+      const publicLink = `${window.location.origin}/events/${event.id}`;
+      navigator.clipboard.writeText(publicLink);
+      setCopiedEventLink(true);
+      setTimeout(() => setCopiedEventLink(false), 2000);
+    }
+  };
 
   const handleBack = () => {
     navigate('/provider/event', {
@@ -93,13 +103,37 @@ const ProviderEventDetails = () => {
   return (
     <div className="min-h-screen bg-[#f4f6f8] px-4 pb-10 pt-5 md:px-6 lg:px-10">
       <div className="mx-auto w-full">
-        <button
-          onClick={handleBack}
-          className="mb-4 inline-flex items-center gap-2 text-[18px] font-normal text-[#0F766E]"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span>Back</span>
-        </button>
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={handleBack}
+            className="inline-flex items-center gap-2 text-[18px] font-normal text-[#0F766E]"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span>Back</span>
+          </button>
+          {event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING' ? (
+            <span className="text-sm text-gray-500 font-medium italic">
+              You can share your link after admin approved
+            </span>
+          ) : (
+            <button
+              onClick={handleCopyEventLink}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-[#0F766E] rounded-lg text-sm font-medium text-[#0F766E] bg-white hover:bg-[#E7F1F1] transition shadow-sm"
+            >
+              {copiedEventLink ? (
+                <>
+                  <Check className="h-4 w-4 text-emerald-600" />
+                  <span className="text-emerald-600 font-semibold">Event Link Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  <span>Copy Event Link</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
 
         <div className=" w-full  rounded-xl ">
           <img src={event.image} alt={event.title} className="h-65 md:h-96 lg:h-100 xl:h-140 2xl:h-186 w-full object-cover rounded-xl" />
