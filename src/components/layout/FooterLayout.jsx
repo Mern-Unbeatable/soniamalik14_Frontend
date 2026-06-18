@@ -72,7 +72,7 @@ const FooterLayout = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to="/teams" className="text-[#4D4D4D] transition hover:text-btn-primary">
+                    <Link to="/discover" className="text-[#4D4D4D] transition hover:text-btn-primary">
                       Discover
                     </Link>
                   </li>
@@ -112,11 +112,11 @@ const FooterLayout = () => {
                       About ESSA
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link to="/news" className="text-[#4D4D4D] transition hover:text-btn-primary">
                       News
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       to="/services"
