@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Container from '../../../components/layout/Container';
 import PageHeader from '../../../components/ui/PageHeader';
 import DiscoverCard from './components/DiscoverCard';
@@ -6,6 +7,8 @@ import Pagination from './components/Pagination';
 import DiscoverEmptyPage from './components/DiscoverEmptyPage';
 import { GET } from '../../../services/httpMethods';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner';
+import { fetchSportsCategories } from '../../../features/sportsCategories/sportsCategoriesAPI';
+import { selectSportsCategories } from '../../../features/sportsCategories/sportsCategoriesSlice';
 
 const DISCOVER_API = '/api/services/by-role';
 
@@ -58,8 +61,9 @@ const toDiscoverItem = (service) => {
 };
 
 const DiscoverView = () => {
+  const dispatch = useDispatch();
   const [services, setServices] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const categories = useSelector(selectSportsCategories);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedSport, setSelectedSport] = useState('');
@@ -67,6 +71,10 @@ const DiscoverView = () => {
   const [distance, setDistance] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 6;
+
+  useEffect(() => {
+    dispatch(fetchSportsCategories());
+  }, [dispatch]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -90,28 +98,6 @@ const DiscoverView = () => {
             : [];
 
         setServices(serviceList.map(toDiscoverItem));
-
-        // Fetch sports categories
-        try {
-          const categoriesResponse = await GET(
-            '/api/sports-categories',
-            {},
-            controller.signal,
-            { skipAuth: true, withCredentials: false }
-          );
-          const catsData = categoriesResponse?.data?.data || categoriesResponse?.data || [];
-          const normCats = Array.isArray(catsData)
-            ? catsData
-            : Array.isArray(catsData.data)
-              ? catsData.data
-              : Array.isArray(catsData.rows)
-                ? catsData.rows
-                : [];
-          setCategories(normCats);
-        } catch (catErr) {
-          console.error('Failed to fetch sports categories:', catErr);
-        }
-
       } catch (err) {
         if (err?.name === 'CanceledError' || err?.name === 'AbortError') return;
         setError(err?.response?.data?.message || err?.message || 'Failed to load discover listings.');
