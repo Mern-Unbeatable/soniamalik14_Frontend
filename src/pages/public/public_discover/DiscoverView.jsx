@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Container from '../../../components/layout/Container';
 import PageHeader from '../../../components/ui/PageHeader';
 import DiscoverCard from './components/DiscoverCard';
@@ -59,6 +59,7 @@ const toDiscoverItem = (service) => {
 
 const DiscoverView = () => {
   const [services, setServices] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedSport, setSelectedSport] = useState('');
@@ -77,7 +78,7 @@ const DiscoverView = () => {
 
         const response = await GET(
           DISCOVER_API,
-          { isApproved: true, providerRole: 'COACH' },
+          { status: 'ACTIVE', providerRole: 'COACH' },
           controller.signal,
           { skipAuth: true, withCredentials: false }
         );
@@ -89,6 +90,28 @@ const DiscoverView = () => {
             : [];
 
         setServices(serviceList.map(toDiscoverItem));
+
+        // Fetch sports categories
+        try {
+          const categoriesResponse = await GET(
+            '/api/sports-categories',
+            {},
+            controller.signal,
+            { skipAuth: true, withCredentials: false }
+          );
+          const catsData = categoriesResponse?.data?.data || categoriesResponse?.data || [];
+          const normCats = Array.isArray(catsData)
+            ? catsData
+            : Array.isArray(catsData.data)
+              ? catsData.data
+              : Array.isArray(catsData.rows)
+                ? catsData.rows
+                : [];
+          setCategories(normCats);
+        } catch (catErr) {
+          console.error('Failed to fetch sports categories:', catErr);
+        }
+
       } catch (err) {
         if (err?.name === 'CanceledError' || err?.name === 'AbortError') return;
         setError(err?.response?.data?.message || err?.message || 'Failed to load discover listings.');
@@ -172,12 +195,14 @@ const DiscoverView = () => {
                 className="w-full cursor-pointer appearance-none rounded-md border-none bg-white px-3 py-3 text-base text-gray-700 shadow-sm outline-none focus:ring-1 focus:ring-teal-500"
               >
                 <option value="">Select sports</option>
-                <option value="Football">Football</option>
-                <option value="Cricket">Cricket</option>
-                <option value="Netball">Netball</option>
-                <option value="Tennis">Tennis</option>
-                <option value="Padel">Padel</option>
-                <option value="Rugby">Rugby</option>
+                {categories.map((cat, index) => {
+                  const name = typeof cat === 'object' ? cat?.name : cat;
+                  return (
+                    <option key={cat?.id || index} value={name}>
+                      {name}
+                    </option>
+                  );
+                })}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-800">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
