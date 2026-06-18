@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Linkedin, Youtube, Twitter } from 'lucide-react';
 import Container from './Container';
@@ -119,7 +119,7 @@ const FooterLayout = () => {
                   </li>
                   <li>
                     <Link
-                      to="/support"
+                      to="/services"
                       className="text-[#4D4D4D] transition hover:text-btn-primary"
                     >
                       Injury & Recovery Support
@@ -149,14 +149,14 @@ const FooterLayout = () => {
                       Terms of use
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
                       to="/safeguarding"
                       className="text-[#4D4D4D] transition hover:text-btn-primary"
                     >
                       Safeguarding
                     </Link>
-                  </li>
+                  </li> */}
                 </ul>
               </div>
             </div>
