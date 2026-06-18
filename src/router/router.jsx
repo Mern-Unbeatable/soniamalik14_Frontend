@@ -25,6 +25,7 @@ import ServiceDetails from '../pages/public/public_service/ServiceDetails.jsx';
 
 import NewsView from '../pages/public/public_news/NewsView';
 import NewsDetails from '../pages/public/public_news/NewsDetails.jsx';
+import TermsView from '../pages/public/public_terms/TermsView.jsx';
 import DashboardLayout from '../components/layout/DashboardLayout.jsx';
 import RequireAuth from '../components/auth/RequireAuth.jsx';
 import { ROLES } from '../context/AuthContext.jsx';
@@ -119,6 +120,7 @@ const router = createBrowserRouter(
         <Route path="services/:id" element={<ServiceDetails />} />
         <Route path="news" element={<NewsView />} />
         <Route path="news/:id" element={<NewsDetails />} />
+        <Route path="terms" element={<TermsView />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>
