@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Container from '../../../components/layout/Container';
 import ServiceCard from './components/ServiceCard';
 import Pagination from '../../../components/ui/Pagination';
@@ -55,7 +55,7 @@ const ServiceView = () => {
 
                 const response = await GET(
                     SERVICE_BY_ROLE_API,
-                    { isApproved: true, providerRole: 'PROVIDER' },
+                    { status: 'ACTIVE', providerRole: 'PROVIDER' },
                     controller.signal,
                     { skipAuth: true, withCredentials: false }
                 );
