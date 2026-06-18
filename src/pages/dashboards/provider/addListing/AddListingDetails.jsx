@@ -63,6 +63,7 @@ const mapServiceToViewModel = (service) => {
           : service?.insuranceInPlace || 'N/A',
     },
     bookingLink: service?.bookingLink || '',
+    status: service?.status || '',
     bookings: Array.isArray(service?.bookings) ? service.bookings : [],
     enquiries: Array.isArray(service?.messages) ? service.messages : [],
   };
@@ -241,34 +242,42 @@ const AddListingDetails = () => {
               {item?.bookingLink && (
                 <div className="mt-4 bg-[#FFFFFF] rounded-xl p-5 shadow-sm border border-gray-100">
                   <h3 className="text-lg font-bold text-[#1A1D1F]">Booking Link</h3>
-                  <p className="text-sm text-gray-500 mb-3">
-                    Share this link with players so they can book their place directly.
-                  </p>
-                  <div className="flex items-center gap-3 w-full">
-                    <a
-                      href={item.bookingLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 text-[#0F766E] font-medium hover:underline text-sm md:text-base break-all block font-mono bg-gray-50 p-3 rounded-lg border border-gray-200"
-                    >
-                      {item.bookingLink}
-                    </a>
-                    <button
-                      type="button"
-                      onClick={handleCopy}
-                      className="inline-flex items-center justify-center gap-2 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-3.5 rounded-lg text-sm font-semibold transition-colors shrink-0 cursor-pointer shadow-sm"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="w-4 h-4" /> Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" /> Copy Link
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  {item?.status === 'PENDING_APPROVAL' || item?.status === 'PENDING' ? (
+                    <p className="text-base text-gray-500 font-medium italic mt-1">
+                      You can share after admin approved
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-sm text-gray-500 mb-3">
+                        Share this link with players so they can book their place directly.
+                      </p>
+                      <div className="flex items-center gap-3 w-full">
+                        <a
+                          href={item.bookingLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-[#0F766E] font-medium hover:underline text-sm md:text-base break-all block font-mono bg-gray-50 p-3 rounded-lg border border-gray-200"
+                        >
+                          {item.bookingLink}
+                        </a>
+                        <button
+                          type="button"
+                          onClick={handleCopy}
+                          className="inline-flex items-center justify-center gap-2 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-3.5 rounded-lg text-sm font-semibold transition-colors shrink-0 cursor-pointer shadow-sm"
+                        >
+                          {copied ? (
+                            <>
+                              <Check className="w-4 h-4" /> Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4" /> Copy Link
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </article>
