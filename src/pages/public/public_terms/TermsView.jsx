@@ -289,7 +289,7 @@ const TermsView = () => {
   return (
     <div className="bg-slate-50 min-h-screen pb-16">
       {/* Header Banner */}
-      <div className="bg-[#0B544E] py-12 md:py-20 text-white relative overflow-hidden">
+      <div className="bg-btn-primary py-12 md:py-20 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(15,118,110,0.4),transparent)]" />
         <Container className="relative z-10">
           <div className="max-w-3xl">
