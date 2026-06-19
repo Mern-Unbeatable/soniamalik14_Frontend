@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import EventHeaderSection from './components/EventHeaderSection';
 import EventSearchAndFilters from './components/EventSearchAndFilters';
@@ -64,7 +64,10 @@ const formatSport = (event) =>
 const formatPostcode = (event) =>
   event?.postcode || event?.zipCode || event?.postalCode || event?.venue?.postcode || 'N/A';
 
-const formatEngagement = (event) => event?.engagement || event?.metrics || null;
+const formatEngagement = (event) => ({
+  currentParticipants: event?.currentParticipants ?? 0,
+  maxParticipants: event?.maxParticipants,
+});
 
 const resolveIsFeatured = (event) => {
   if (typeof event?.isFeatured === 'boolean') return event.isFeatured;
