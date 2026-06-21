@@ -43,7 +43,6 @@ const InteractionItem = ({ interaction }) => {
             On: {interaction.post.title}
           </p>
         )}
-
         <p className="text-sm leading-relaxed text-gray-700">{interaction?.content}</p>
 
         {Number(interaction?.replyCount) > 0 && (
