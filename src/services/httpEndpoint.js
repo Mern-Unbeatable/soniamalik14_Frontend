@@ -94,6 +94,8 @@ export const ENDPOINT = {
     POST_REACTION: (postId) => `/api/community/posts/${postId}/reactions`,
     MY_REACTION: (postId) => `/api/community/posts/${postId}/my-reaction`,
     COMMENTS: (postId) => `/api/community/posts/${postId}/comments`,
+    MY_POSTS_ACTIVITY: '/api/community/my-posts/activity',
+    MY_INTERACTIONS: '/api/community/my-interactions',
   },
   INTEREST_REQUESTS: {
     CREATE: '/api/interest-requests',

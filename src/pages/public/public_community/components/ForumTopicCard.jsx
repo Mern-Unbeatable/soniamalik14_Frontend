@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useState } from 'react';
+﻿import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ThumbsUp, Heart, MessageSquare, Send, MapPin, Calendar, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -18,6 +18,11 @@ const ForumTopicCard = ({ topic, isLoggedIn = false }) => {
   const [currentReaction, setCurrentReaction] = useState(null);
   const [isReactingLike, setIsReactingLike] = useState(false);
   const [isReactingLove, setIsReactingLove] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [hasLongDescription, setHasLongDescription] = useState(false);
+  const descriptionRef = useRef(null);
+
+  const DESCRIPTION_LINE_LIMIT = 5;
 
   // Merging passed topic data with fallbacks to match the UI in your screenshots
   const {
@@ -43,6 +48,8 @@ const ForumTopicCard = ({ topic, isLoggedIn = false }) => {
     ]
   } = topic || {};
 
+  const postId = topic?.id || topic?.postId || topic?._id;
+
   useEffect(() => {
     setLikesCount(Number(likes || 0));
     setHeartsCount(Number(hearts || 0));
@@ -62,7 +69,56 @@ const ForumTopicCard = ({ topic, isLoggedIn = false }) => {
     }
   }, [isLoggedIn]);
 
-  const postId = topic?.id || topic?.postId || topic?._id;
+  useEffect(() => {
+    setIsDescriptionExpanded(false);
+  }, [description, postId]);
+
+  useLayoutEffect(() => {
+    const el = descriptionRef.current;
+    if (!el || !description) {
+      setHasLongDescription(false);
+      return;
+    }
+
+    const measureOverflow = () => {
+      const styles = window.getComputedStyle(el);
+      const lineHeight = parseFloat(styles.lineHeight);
+      const limitHeight = Number.isFinite(lineHeight)
+        ? lineHeight * DESCRIPTION_LINE_LIMIT
+        : el.clientHeight;
+
+      const clone = el.cloneNode(true);
+      clone.removeAttribute('style');
+      clone.style.cssText = [
+        'position:absolute',
+        'visibility:hidden',
+        'pointer-events:none',
+        'height:auto',
+        'max-height:none',
+        'overflow:visible',
+        'display:block',
+        '-webkit-line-clamp:unset',
+        '-webkit-box-orient:unset',
+        `width:${el.offsetWidth}px`,
+      ].join(';');
+
+      el.parentElement?.appendChild(clone);
+      const fullHeight = clone.offsetHeight;
+      clone.remove();
+
+      setHasLongDescription(fullHeight > limitHeight + 1);
+    };
+
+    measureOverflow();
+    window.addEventListener('resize', measureOverflow);
+    return () => window.removeEventListener('resize', measureOverflow);
+  }, [description, postId]);
+
+  const handleToggleDescription = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDescriptionExpanded((prev) => !prev);
+  };
 
   const fetchAndSetMyReaction = useCallback(async () => {
     if (!isLoggedIn || !postId) {
@@ -344,9 +400,33 @@ const ForumTopicCard = ({ topic, isLoggedIn = false }) => {
 
       {/* Description (Only render if it exists) */}
       {description && (
-        <p className="text-[#4A5568] text-base mb-5 leading-relaxed">
-          {description}
-        </p>
+        <div className="mb-5">
+          <p
+            ref={descriptionRef}
+            className="text-[#4A5568] text-sm md:text-base leading-relaxed "
+            style={
+              isDescriptionExpanded
+                ? undefined
+                : {
+                    display: '-webkit-box',
+                    WebkitLineClamp: DESCRIPTION_LINE_LIMIT,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }
+            }
+          >
+            {description}
+          </p>
+          {hasLongDescription && (
+            <button
+              type="button"
+              onClick={handleToggleDescription}
+              className="mt-2 text-sm font-semibold text-[#147A73] hover:underline"
+            >
+              {isDescriptionExpanded ? 'See less' : 'See more'}
+            </button>
+          )}
+        </div>
       )}
 
       {/* Conditional Checkboxes (For Event posts like Image 2) */}
