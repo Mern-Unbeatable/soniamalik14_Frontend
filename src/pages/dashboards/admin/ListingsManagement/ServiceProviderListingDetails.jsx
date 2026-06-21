@@ -105,6 +105,7 @@ const ServiceProviderListingDetails = () => {
                         ? 'Yes'
                         : 'No'
                     : 'N/A',
+            participantResponseType: service?.participantResponseType || 'ADD_BOOKING_LINK',
         };
     }, [service]);
 
@@ -242,12 +243,15 @@ const ServiceProviderListingDetails = () => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-4">
-                    <button className="px-5 py-2.5 bg-btn-primary text-white text-sm md:text-base font-semibold rounded-lg hover:bg-teal-800 transition-colors">
-                        Book Your Place
-                    </button>
-                    <button className="px-5 py-2.5 bg-btn-primary text-white text-sm md:text-base font-semibold rounded-lg hover:bg-teal-800 transition-colors">
-                        Register Interest
-                    </button>
+                    {data.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
+                        <button className="px-5 py-2.5 bg-btn-primary text-white text-sm md:text-base font-semibold rounded-lg hover:bg-teal-800 transition-colors">
+                            Register
+                        </button>
+                    ) : (
+                        <button className="px-5 py-2.5 bg-btn-primary text-white text-sm md:text-base font-semibold rounded-lg hover:bg-teal-800 transition-colors">
+                            Register Interest
+                        </button>
+                    )}
                 </div>
 
                  {/* Contact Organiser */}

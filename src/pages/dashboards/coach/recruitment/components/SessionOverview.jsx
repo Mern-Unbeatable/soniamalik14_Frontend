@@ -55,20 +55,23 @@ const SessionOverview = ({ item, disableActions = false }) => {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3">
-                <button
-                    type="button"
-                    disabled={disableActions}
-                    className="bg-[#0F766E] hover:bg-[#0D655D] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                >
-                    Book Your Place
-                </button>
-                <button
-                    type="button"
-                    disabled={disableActions}
-                    className="bg-[#0F766E] hover:bg-[#0D655D] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                >
-                    Register Interest
-                </button>
+                {(!Array.isArray(item.responseMethods) || item.responseMethods.length === 0 || item.responseMethods.includes('Add booking link')) ? (
+                    <button
+                        type="button"
+                        disabled={disableActions}
+                        className="bg-[#0F766E] hover:bg-[#0D655D] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                    >
+                        Register
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        disabled={disableActions}
+                        className="bg-[#0F766E] hover:bg-[#0D655D] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                    >
+                        Register Interest
+                    </button>
+                )}
             </div>
         </div>
     );

@@ -130,6 +130,7 @@ const SportProviderListingDetails = () => {
             sessionTime:
                 service?.timeSlote ||
                 (service?.duration ? `${service.duration} mins` : 'Not specified'),
+            participantResponseType: service?.participantResponseType || 'ADD_BOOKING_LINK',
         };
     }, [service]);
 
@@ -275,15 +276,18 @@ const SportProviderListingDetails = () => {
                                 </div>
                             </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex flex-col md:flex-row gap-3 mt-4">
-                                <button className="px-5 py-2.5 bg-btn-primary text-white text-sm font-semibold rounded-lg hover:bg-teal-800 transition-colors">
-                                    Book Your Place
-                                </button>
-                                <button className="px-5 py-2.5 bg-btn-primary text-white text-sm font-semibold rounded-lg hover:bg-teal-800 transition-colors">
-                                    Register Interest
-                                </button>
-                            </div>
+                             {/* Action Buttons */}
+                             <div className="flex flex-col md:flex-row gap-3 mt-4">
+                                 {data.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
+                                     <button className="px-5 py-2.5 bg-btn-primary text-white text-sm font-semibold rounded-lg hover:bg-teal-800 transition-colors">
+                                         Register
+                                     </button>
+                                 ) : (
+                                     <button className="px-5 py-2.5 bg-btn-primary text-white text-sm font-semibold rounded-lg hover:bg-teal-800 transition-colors">
+                                         Register Interest
+                                     </button>
+                                 )}
+                             </div>
                         </div>
 
                         {/* Contact Organiser */}

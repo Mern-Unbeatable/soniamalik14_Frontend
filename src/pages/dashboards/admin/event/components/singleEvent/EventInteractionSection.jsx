@@ -4,18 +4,20 @@ const EventInteractionSection = ({ allowsBooking, allowsRegisterInterest, allows
   return (
     <>
       <div className="flex flex-wrap gap-4 pt-4">
-        <button
-          className="bg-btn-primary rounded-lg px-6 py-2.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 disabled:opacity-50"
-          disabled={!allowsBooking}
-        >
-          Book Now
-        </button>
-        <button
-          className="bg-btn-primary rounded-lg px-6 py-2.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 disabled:opacity-50"
-          disabled={!allowsRegisterInterest}
-        >
-          Register Interest
-        </button>
+        {allowsBooking && (
+          <button
+            className="bg-btn-primary rounded-lg px-6 py-2.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 disabled:opacity-50"
+          >
+            Register
+          </button>
+        )}
+        {allowsRegisterInterest && (
+          <button
+            className="bg-btn-primary rounded-lg px-6 py-2.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 disabled:opacity-50"
+          >
+            Register Interest
+          </button>
+        )}
       </div>
 
       <div

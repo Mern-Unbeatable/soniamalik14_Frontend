@@ -54,12 +54,15 @@ const VenueInformation = ({ event }) => {
       </div>
 
       <div className="mt-5 flex flex-col sm:flex-row gap-3 md:hidden">
-        <button className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
-          Book Your Place
-        </button>
-        <button className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
-          Register Interest
-        </button>
+        {(!Array.isArray(event.responseMethods) || event.responseMethods.length === 0 || event.responseMethods.includes('Add booking link')) ? (
+          <button className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">
+            Register
+          </button>
+        ) : (
+          <button className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
+            Register Interest
+          </button>
+        )}
       </div>
     </div>
   );

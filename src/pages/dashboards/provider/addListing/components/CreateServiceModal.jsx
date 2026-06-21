@@ -144,7 +144,9 @@ const buildInitialState = (initialData) => ({
   sessionTypes: getInitialSessionTypes(initialData),
   registration: initialData?.professionalRegistration || '',
   insuranceInPlace: initialData?.insuranceInPlace === false ? 'No' : 'Yes',
-  responseMethods: ['Add booking link'],
+  responseMethods: initialData?.participantResponseType === 'ALLOW_REGISTER_INTEREST'
+    ? ['Allow users to register interest']
+    : ['Add booking link'],
   bookingLink: initialData?.bookingLink || '',
   price: initialData?.price ?? '',
   duration: initialData?.duration ?? '',
@@ -600,32 +602,53 @@ const CreateServiceModal = ({
             </div>
           </div>
 
-          {/* Section 6: Response & Booking */}
-          {/* <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-            <label className="text-sm font-medium text-[#242424]">
-              How would you like participants to respond?
+          {/* Section 6: Choose CTA */}
+          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+            <label className="block text-base font-semibold text-gray-700">
+              Choose the main action for this listing
             </label>
-            <div className="flex flex-wrap gap-2">
-              {responseOptions.map((opt) => (
-                <CheckboxPill
-                  key={opt}
-                  active={formData.responseMethods.includes(opt)}
-                  onClick={() => toggleMulti('responseMethods', opt)}
-                >
-                  {opt}
-                </CheckboxPill>
-              ))}
+            <p className="text-sm text-gray-500">
+              Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
+            </p>
+            <div className="space-y-3">
+              {[
+                {
+                  value: 'Add booking link',
+                  label: 'Register',
+                  desc: 'Choose this if the event or session is confirmed and people can sign up to attend. Note: If payment or final details are required, you should contact the person after they register.',
+                },
+                {
+                  value: 'Allow users to register interest',
+                  label: 'Register Interest',
+                  desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend. Note: You should follow up with anyone who registers interest to let them know the next steps.',
+                },
+              ].map((option) => {
+                const selected = formData.responseMethods.includes(option.value);
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => updateField('responseMethods', [option.value])}
+                    className={`w-full text-left p-4 rounded-xl border transition-all ${
+                      selected
+                        ? 'border-[#0F766E] bg-[#E7F1F1] text-gray-900 shadow-sm'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-400">
+                        {selected && <div className="h-2 w-2 rounded-full bg-[#0F766E]" />}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-base text-gray-900">{option.label}</p>
+                        <p className="mt-1 text-sm text-gray-500 leading-normal">{option.desc}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-[#0A0A0A]">Booking Link</label>
-              <input
-                className="w-full rounded-lg border border-gray-100 p-3 text-sm outline-none"
-                placeholder="enter booking link"
-                value={formData.bookingLink}
-                onChange={(e) => updateField('bookingLink', e.target.value)}
-              />
-            </div>
-          </div> */}
+          </div>
         </form>
         {/* Sticky Footer */}
         <div className="sticky bottom-0 z-20 flex items-center gap-3 border-t border-gray-100 bg-white px-6 py-4">

@@ -94,20 +94,23 @@ const SessionOverview = ({ event, onBookPlace }) => {
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <button
-          onClick={() => { if (!isDisabled) onBookPlace && onBookPlace(); }}
-          disabled={isDisabled}
-          className={`rounded-md px-3 py-2.5 text-[14px] font-medium text-white transition ${isDisabled ? 'bg-gray-300 cursor-not-allowed opacity-60' : 'bg-[#0F766E] hover:bg-[#0c5e58]'}`}
-        >
-          Book Your Place
-        </button>
-        <button
-          disabled={isDisabled}
-          className={`rounded-md px-3 py-2.5 text-[14px] font-medium text-white transition ${isDisabled ? 'bg-gray-300 cursor-not-allowed opacity-60' : 'bg-[#0F766E] hover:bg-[#0c5e58]'}`}
-        >
-          Register Interest
-        </button>
+      <div className="mt-4 flex flex-wrap gap-3">
+        {(!Array.isArray(event.responseMethods) || event.responseMethods.length === 0 || event.responseMethods.includes('Add booking link')) ? (
+          <button
+            onClick={() => { if (!isDisabled) onBookPlace && onBookPlace(); }}
+            disabled={isDisabled}
+            className={`rounded-md px-4 py-2.5 text-[14px] font-medium text-white transition ${isDisabled ? 'bg-gray-300 cursor-not-allowed opacity-60' : 'bg-[#0F766E] hover:bg-[#0c5e58]'}`}
+          >
+            Register
+          </button>
+        ) : (
+          <button
+            disabled={isDisabled}
+            className={`rounded-md px-5 py-2.5 text-[14px] font-medium text-white transition ${isDisabled ? 'bg-gray-300 cursor-not-allowed opacity-60' : 'bg-[#0F766E] hover:bg-[#0c5e58]'}`}
+          >
+            Register Interest
+          </button>
+        )}
       </div>
     </section>
   );

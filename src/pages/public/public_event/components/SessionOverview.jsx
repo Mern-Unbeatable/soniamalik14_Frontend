@@ -119,7 +119,7 @@ const SessionOverview = ({ event }) => {
 
     if (!fullName || !email || !phoneNumber) {
       setBookingStatus('error');
-      toast.error('Please provide full name, email and phone number to book.');
+      toast.error('Please provide full name, email and phone number to register.');
       return;
     }
 
@@ -130,10 +130,10 @@ const SessionOverview = ({ event }) => {
         fullName,
         email,
         phoneNumber,
-        notes: `Booking request for ${event.title || 'event'}`,
+        notes: `Registration request for ${event.title || 'event'}`,
       });
 
-      const successMessage = response?.data?.message || response?.message || 'Booked successfully!';
+      const successMessage = response?.data?.message || response?.message || 'Registered successfully!';
       setBookingStatus('success');
       setShowBookingForm(false);
       await Swal.fire({
@@ -145,7 +145,7 @@ const SessionOverview = ({ event }) => {
       });
     } catch (e) {
       setBookingStatus('error');
-      toast.error(e?.response?.data?.message || 'Failed to book your place');
+      toast.error(e?.response?.data?.message || 'Failed to register');
     }
   };
 
@@ -200,30 +200,33 @@ const SessionOverview = ({ event }) => {
 
       {/* Action Buttons */}
       <div className="hidden flex-wrap gap-3 md:flex">
-        <button
-          className={`rounded-lg bg-[#0F766E] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D655D] ${bookingStatus === 'success' || !isActionAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
-          onClick={handleBookPlace}
-          disabled={!isActionAllowed || bookingStatus === 'loading' || bookingStatus === 'success'}
-        >
-          {bookingStatus === 'loading'
-            ? 'Booking...'
-            : bookingStatus === 'success'
-              ? 'Booked'
-              : 'Book Your Place'}
-        </button>
-        <button
-          className={`rounded-lg bg-[#0F766E] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D655D] ${interestStatus === 'success' || !isActionAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
-          onClick={handleRegisterInterest}
-          disabled={
-            !isActionAllowed || interestStatus === 'loading' || interestStatus === 'success'
-          }
-        >
-          {interestStatus === 'loading'
-            ? 'Registering...'
-            : interestStatus === 'success'
-              ? 'Registered'
-              : 'Register Interest'}
-        </button>
+        {(!Array.isArray(event.responseMethods) || event.responseMethods.length === 0 || event.responseMethods.includes('Add booking link')) ? (
+          <button
+            className={`rounded-lg bg-[#0F766E] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D655D] ${bookingStatus === 'success' || !isActionAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
+            onClick={handleBookPlace}
+            disabled={!isActionAllowed || bookingStatus === 'loading' || bookingStatus === 'success'}
+          >
+            {bookingStatus === 'loading'
+              ? 'Registering...'
+              : bookingStatus === 'success'
+                ? 'Registered'
+                : 'Register'}
+          </button>
+        ) : (
+          <button
+            className={`rounded-lg bg-[#0F766E] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D655D] ${interestStatus === 'success' || !isActionAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
+            onClick={handleRegisterInterest}
+            disabled={
+              !isActionAllowed || interestStatus === 'loading' || interestStatus === 'success'
+            }
+          >
+            {interestStatus === 'loading'
+              ? 'Registering...'
+              : interestStatus === 'success'
+                ? 'Registered'
+                : 'Register Interest'}
+          </button>
+        )}
       </div>
 
       {showBookingForm && isActionAllowed && bookingStatus !== 'success' && (
@@ -232,9 +235,9 @@ const SessionOverview = ({ event }) => {
             <div className="border-b border-gray-100 px-5 py-4 md:px-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-lg font-semibold text-[#1A1D1F]">Book your place</p>
+                  <p className="text-lg font-semibold text-[#1A1D1F]">Register</p>
                   <p className="mt-1 text-sm text-[#5B6976]">
-                    Confirm your contact details before sending the booking request.
+                    Confirm your contact details before sending the registration request.
                   </p>
                 </div>
                 <button
@@ -318,7 +321,7 @@ const SessionOverview = ({ event }) => {
                 onClick={handleConfirmBooking}
                 disabled={bookingStatus === 'loading'}
               >
-                {bookingStatus === 'loading' ? 'Submitting...' : 'Confirm booking'}
+                {bookingStatus === 'loading' ? 'Submitting...' : 'Register'}
               </button>
             </div>
           </div>

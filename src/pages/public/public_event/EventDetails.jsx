@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart } from 'lucide-react';
 import Container from '../../../components/layout/Container';
@@ -162,6 +162,7 @@ const EventDetails = () => {
         avatar: normalizeMediaUrl(data.organizer?.avatar) || '/images/detaisPage/coachAvatar.png',
         mapEmbedUrl: getMapEmbedUrl(data),
         about: data.description || data.about || '',
+        responseMethods: data.responseMethods || [],
       }
     : null;
 

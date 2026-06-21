@@ -21,7 +21,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
-/* ─── Booking Confirmation Modal ──────────────────────────────────────── */
+/* ─── Registration Confirmation Modal ──────────────────────────────────────── */
 const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, loading }) => {
   if (!isOpen) return null;
 
@@ -31,7 +31,7 @@ const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, l
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <div>
-            <h2 className="text-xl font-bold text-[#1A1D1F]">Confirm Booking</h2>
+            <h2 className="text-xl font-bold text-[#1A1D1F]">Confirm Registration</h2>
             <p className="mt-0.5 text-sm text-[#4A5565]">{serviceTitle}</p>
           </div>
           <button
@@ -46,7 +46,7 @@ const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, l
         {/* Info that will be sent */}
         <div className="px-6 py-5">
           <p className="mb-4 text-sm text-[#4A5565]">
-            The following information will be submitted with your booking request:
+            The following information will be submitted with your registration request:
           </p>
 
           <div className="space-y-3 rounded-xl bg-[#F4FAF9] p-4 border border-[#D1EDE9]">
@@ -89,7 +89,7 @@ const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, l
           </div>
 
           <p className="mt-3 text-xs text-[#8A9BAE]">
-            Type: <span className="font-semibold text-[#147B6B]">booking</span>
+            Type: <span className="font-semibold text-[#147B6B]">registration</span>
           </p>
         </div>
 
@@ -110,12 +110,12 @@ const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, l
             {loading ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Booking…
+                Registering…
               </>
             ) : (
               <>
                 <CheckCircle2 className="h-4 w-4" />
-                Confirm Booking
+                Confirm Registration
               </>
             )}
           </button>
@@ -143,6 +143,7 @@ const ServiceDetails = () => {
   // Booking modal state
   const [showBookModal, setShowBookModal] = useState(false);
   const [bookLoading, setBookLoading] = useState(false);
+  const [isInterest, setIsInterest] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -170,11 +171,45 @@ const ServiceDetails = () => {
   /* ── Book Now handler ── */
   const handleBookNowClick = () => {
     if (!isAuthenticated || !user) {
-      toast.info('Please log in to book this service.');
+      toast.info('Please log in to register for this service.');
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
     setShowBookModal(true);
+  };
+
+  /* ── Register Interest handler ── */
+  const handleRegisterInterest = async () => {
+    if (!isAuthenticated || !user) {
+      toast.info('Please log in to register interest.');
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+    try {
+      setIsInterest(true);
+      const response = await POST(ENDPOINT.SERVICES.INTEREST(id), {});
+      const msg = response?.data?.message || 'Interest registered successfully!';
+      await Swal.fire({
+        icon: 'success',
+        title: 'Interest Registered!',
+        text: msg,
+        confirmButtonColor: '#147B6B',
+        confirmButtonText: 'Great!',
+        timer: 4000,
+        timerProgressBar: true,
+      });
+    } catch (intErr) {
+      const errMsg = intErr?.response?.data?.message || 'Failed to register interest. Please try again.';
+      await Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: errMsg,
+        confirmButtonColor: '#147B6B',
+        confirmButtonText: 'OK',
+      });
+    } finally {
+      setIsInterest(false);
+    }
   };
 
   /* ── Confirm booking API call ── */
@@ -194,19 +229,19 @@ const ServiceDetails = () => {
       setShowBookModal(false);
       await Swal.fire({
         icon: 'success',
-        title: 'Booking Confirmed!',
-        text: 'Your booking request has been submitted. The provider will contact you shortly.',
+        title: 'Registration Confirmed!',
+        text: 'Your registration request has been submitted. The provider will contact you shortly.',
         confirmButtonText: 'Great!',
         confirmButtonColor: '#147B6B',
         timer: 4000,
         timerProgressBar: true,
       });
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || 'Booking failed. Please try again.';
+      const msg = err?.response?.data?.message || err.message || 'Registration failed. Please try again.';
       setShowBookModal(false);
       await Swal.fire({
         icon: 'error',
-        title: 'Booking Failed',
+        title: 'Registration Failed',
         text: msg,
         confirmButtonText: 'Try Again',
         confirmButtonColor: '#147B6B',
@@ -279,9 +314,10 @@ const ServiceDetails = () => {
       Array.isArray(item?.sports) && item.sports.length > 0
         ? item.sports.join(', ')
         : item?.sport || '—',
-    registration: item?.professionalRegistration || item?.registration,
+    professionalRegistration: item?.professionalRegistration || item?.registration,
     insurance:
       item?.insuranceInPlace === true ? 'Yes' : item?.insuranceInPlace === false ? 'No' : item?.insurance,
+    participantResponseType: item?.participantResponseType || 'ADD_BOOKING_LINK',
   };
 
   return (
@@ -371,14 +407,24 @@ const ServiceDetails = () => {
                     </div>
                   </div>
 
-                  {/* Book Now */}
+                  {/* CTA Buttons */}
                   <div className="flex flex-wrap gap-3">
-                    <button
-                      onClick={handleBookNowClick}
-                      className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors"
-                    >
-                      Book Now
-                    </button>
+                    {displayData.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
+                      <button
+                        onClick={handleBookNowClick}
+                        className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors"
+                      >
+                        Register
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleRegisterInterest}
+                        disabled={isInterest}
+                        className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors disabled:opacity-75"
+                      >
+                        {isInterest ? 'Registering...' : 'Register Interest'}
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

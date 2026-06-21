@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, Upload } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from './Button';
@@ -259,7 +259,11 @@ const EventModal = ({
       'registrationFee',
       formData.costType === 'Paid' ? String(formData.price || '').trim() : '0'
     );
-    (formData.responseMethods || []).forEach((method) => {
+    const finalMethods = [...(formData.responseMethods || [])];
+    if (!finalMethods.includes('Allow users to ask a question')) {
+      finalMethods.push('Allow users to ask a question');
+    }
+    finalMethods.forEach((method) => {
       if (String(method || '').trim()) {
         payload.append('responseMethods', String(method).trim());
       }
@@ -608,31 +612,46 @@ const EventModal = ({
 
             {/* Response methods */}
             <div>
-              <label className="mb-2 block text-base font-medium text-gray-700">
-                How would you like people to respond?
+              <label className="mb-1 block text-base font-semibold text-gray-700">
+                Choose the main action for this listing
               </label>
-              <div className="flex flex-wrap gap-2">
+              <p className="mb-3 text-sm text-gray-500">
+                Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
+              </p>
+              <div className="space-y-3">
                 {[
-                  'Add booking link',
-                  'Allow users to register interest',
-                  'Allow users to ask a question',
-                ].map((method) => {
-                  const selected = formData.responseMethods.includes(method);
+                  {
+                    value: 'Add booking link',
+                    label: 'Register',
+                    desc: 'Choose this if the event or session is confirmed and people can sign up to attend. Note: If payment or final details are required, you should contact the person after they register.',
+                  },
+                  {
+                    value: 'Allow users to register interest',
+                    label: 'Register Interest',
+                    desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend. Note: You should follow up with anyone who registers interest to let them know the next steps.',
+                  },
+                ].map((option) => {
+                  const selected = formData.responseMethods.includes(option.value);
                   return (
                     <button
-                      key={method}
+                      key={option.value}
                       type="button"
-                      onClick={() => toggleResponseMethod(method)}
-                      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-base font-medium transition-colors ${
+                      onClick={() => handleChange('responseMethods', [option.value])}
+                      className={`w-full text-left p-4 rounded-xl border transition-all ${
                         selected
-                          ? 'bg-[#A7C8C7] text-[#123634]'
-                          : 'bg-[#D6EBEA] text-[#2A4D4B] hover:bg-[#C2E0DE]'
+                          ? 'border-[#0F766E] bg-[#E7F1F1] text-gray-900 shadow-sm'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-sm border border-current text-xs">
-                        {selected ? '✓' : ''}
-                      </span>
-                      {method}
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-400">
+                          {selected && <div className="h-2 w-2 rounded-full bg-[#0F766E]" />}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-base text-gray-900">{option.label}</p>
+                          <p className="mt-1 text-sm text-gray-500 leading-normal">{option.desc}</p>
+                        </div>
+                      </div>
                     </button>
                   );
                 })}

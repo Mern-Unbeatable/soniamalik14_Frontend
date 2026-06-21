@@ -105,6 +105,7 @@ const DiscoverDetails = () => {
       about: service.aboutService || service.description || '',
       bookingLink: service.bookingLink || '',
       providerId: service.providerId || service.provider?.id || '',
+      participantResponseType: service.participantResponseType || 'ADD_BOOKING_LINK',
     };
   }, [service]);
 
@@ -113,10 +114,10 @@ const DiscoverDetails = () => {
     try {
       setIsBooking(true);
       const response = await POST(ENDPOINT.SERVICES.BOOK(id), {});
-      const msg = response?.data?.message || 'Booking created successfully!';
+      const msg = response?.data?.message || 'Registration completed successfully!';
       await Swal.fire({
         icon: 'success',
-        title: 'Booking Confirmed!',
+        title: 'Registration Confirmed!',
         text: msg,
         confirmButtonColor: '#0F766E',
         confirmButtonText: 'Great!',
@@ -124,10 +125,10 @@ const DiscoverDetails = () => {
         timerProgressBar: true,
       });
     } catch (bookErr) {
-      const errMsg = bookErr?.response?.data?.message || 'Failed to create booking. Please try again.';
+      const errMsg = bookErr?.response?.data?.message || 'Failed to register. Please try again.';
       await Swal.fire({
         icon: 'error',
-        title: 'Booking Failed',
+        title: 'Registration Failed',
         text: errMsg,
         confirmButtonColor: '#0F766E',
         confirmButtonText: 'OK',
@@ -343,20 +344,23 @@ const DiscoverDetails = () => {
               
               {/* Action Buttons */}
               <div className="hidden md:flex flex-wrap gap-3">
-                <button
-                  onClick={handleBookPlace}
-                  disabled={isBooking}
-                  className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                >
-                  {isBooking ? 'Booking...' : 'Book Your Place'}
-                </button>
-                <button
-                  onClick={handleRegisterInterest}
-                  disabled={isInterest}
-                  className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                >
-                  {isInterest ? 'Registering...' : 'Register Interest'}
-                </button>
+                {item.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
+                  <button
+                    onClick={handleBookPlace}
+                    disabled={isBooking}
+                    className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    {isBooking ? 'Registering...' : 'Register'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleRegisterInterest}
+                    disabled={isInterest}
+                    className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    {isInterest ? 'Registering...' : 'Register Interest'}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -403,20 +407,23 @@ const DiscoverDetails = () => {
               </div>
 
             <div className="mt-5 flex flex-col sm:flex-row gap-3 md:hidden">
-                <button
-                  onClick={handleBookPlace}
-                  disabled={isBooking}
-                  className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
-                >
-                  {isBooking ? 'Booking...' : 'Book Your Place'}
-                </button>
-                <button
-                  onClick={handleRegisterInterest}
-                  disabled={isInterest}
-                  className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                >
-                  {isInterest ? 'Registering...' : 'Register Interest'}
-                </button>
+                {item.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
+                  <button
+                    onClick={handleBookPlace}
+                    disabled={isBooking}
+                    className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
+                  >
+                    {isBooking ? 'Registering...' : 'Register'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleRegisterInterest}
+                    disabled={isInterest}
+                    className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    {isInterest ? 'Registering...' : 'Register Interest'}
+                  </button>
+                )}
               </div>
             </div>
 
