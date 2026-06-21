@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart } from 'lucide-react';
 import Container from '../../../components/layout/Container';
@@ -8,7 +8,11 @@ import { fetchOrganizerEventById } from '../../../features/events/eventsAPI';
 import SessionOverview from './components/SessionOverview';
 import VenueInformation from './components/VenueInformation';
 import ContactOrganiser from './components/ContactOrganiser';
-
+import { useAuth } from '../../../context/AuthContext';
+import { POST } from '../../../services/httpMethods';
+import { ENDPOINT } from '../../../services/httpEndpoint';
+import { toast } from 'react-toastify';
+import LoginRequiredModal from './components/LoginRequiredModal';
 const toTitleCase = (value = '') =>
   String(value)
     .toLowerCase()
@@ -80,12 +84,16 @@ const normalizeMediaUrl = (value) => {
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
- 
   const dispatch = useDispatch();
   const apiItem = useSelector((state) => state.events.organizerEventDetails.item);
   const loading = useSelector((state) => state.events.organizerEventDetails.loading);
   const error = useSelector((state) => state.events.organizerEventDetails.error);
+
+  const [isSaved, setIsSaved] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -93,6 +101,43 @@ const EventDetails = () => {
   }, [id, dispatch]);
 
   const data = apiItem?.data || apiItem;
+
+  useEffect(() => {
+    if (data?.isSaved !== undefined) {
+      setIsSaved(Boolean(data.isSaved));
+    }
+  }, [data?.id, data?.isSaved]);
+
+  const handleToggleSave = async () => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    if (!id || saveLoading) return;
+
+    try {
+      setSaveLoading(true);
+      const response = await POST(ENDPOINT.EVENTS.SAVE(id), {});
+      const result = response?.data || response;
+      const nextSavedState =
+        result?.data?.isSaved !== undefined ? Boolean(result.data.isSaved) : !isSaved;
+
+      setIsSaved(nextSavedState);
+      toast.success(
+        result?.message || (nextSavedState ? 'Event saved successfully' : 'Event removed from saved')
+      );
+    } catch (saveError) {
+      toast.error(saveError?.response?.data?.message || 'Failed to update saved event');
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleModalLogin = () => {
+    setShowLoginModal(false);
+    navigate('/login', { state: { from: `/events/${id}` } });
+  };
   const event = data
     ? {
         id: data.id,
@@ -184,8 +229,16 @@ const EventDetails = () => {
             </button>
 
             {/* Overlaid Favorite/Heart Button */}
-            <button className="absolute top-4 right-4 bg-black/20 hover:bg-black/40 backdrop-blur-sm text-white p-2.5 rounded-full transition-all">
-              <Heart className="w-4 h-4" />
+            <button
+              type="button"
+              onClick={handleToggleSave}
+              disabled={saveLoading}
+              aria-label={isSaved ? 'Remove from saved' : 'Save event'}
+              className={`absolute top-4 right-4 backdrop-blur-sm text-white p-2.5 rounded-full transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
+                isSaved ? 'bg-red-500/70 hover:bg-red-500/90' : 'bg-black/20 hover:bg-black/40'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isSaved ? 'fill-white' : ''}`} />
             </button>
 
             {/* Overlaid Avatar Picture */}
@@ -237,6 +290,12 @@ const EventDetails = () => {
           </div>
         </div>
       </Container>
+
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={handleModalLogin}
+      />
     </div>
   );
 };

@@ -82,6 +82,8 @@ export const ENDPOINT = {
     DETAIL: (id) => `/api/events/${id}`,
     UPDATE: (id) => `/api/events/${id}`,
     DELETE: (id) => `/api/events/${id}`,
+    SAVE: (id) => `/api/events/${id}/save`,
+    USER_SAVED: '/api/events/user/saved',
     FEATURE: (id) => `/api/events/${id}/feature`,
     ADMIN_FEATURE: (id) => `/api/admin/events/${id}/feature`,
     APPROVAL_STATUS: (id) => `/api/events/${id}/approval-status`,

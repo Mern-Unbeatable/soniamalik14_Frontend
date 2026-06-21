@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapPin, Clock, Bookmark } from 'lucide-react';
 
-const SavedCard = ({ title, location, time, imageSrc, onViewDetails, onRemove }) => (
+const SavedCard = ({ title, location, time, imageSrc, onViewDetails, onRemove, isRemoving = false }) => (
   <div className="bg-white border-2 border-gray-200 rounded-xl  p-4">
     <div className="h-48 md:h-56 overflow-hidden bg-gray-200 rounded-lg mb-4 relative">
       <img 
@@ -11,7 +11,8 @@ const SavedCard = ({ title, location, time, imageSrc, onViewDetails, onRemove })
       />
       <button
         onClick={onRemove}
-        className="absolute top-3 right-3 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors shadow"
+        disabled={isRemoving}
+        className="absolute top-3 right-3 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors shadow disabled:opacity-60 disabled:cursor-not-allowed"
         title="Remove from saved"
       >
         <Bookmark className="w-5 h-5 text-btn-primary fill-btn-primary" />
