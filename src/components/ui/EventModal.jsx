@@ -526,7 +526,7 @@ const EventModal = ({
               )}
             </div>
 
-            {/* Google Map Links */}
+            {/* Google Maps Link */}
             <div>
               <label className="mb-1 block text-base font-medium text-gray-700">
                 Google Maps Link

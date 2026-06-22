@@ -380,7 +380,7 @@ const DiscoverDetails = () => {
                   </div>
 
                   <p className="text-base flex items-start gap-2">
-                    <span className="text-[#1A1D1F] shrink-0 font-medium">Session Days:</span>
+                    <span className="text-[#1A1D1F] shrink-0 font-medium">Day of session:</span>
                     <span className="text-[#1A1D1F]">{item.day}</span>
                   </p>
 

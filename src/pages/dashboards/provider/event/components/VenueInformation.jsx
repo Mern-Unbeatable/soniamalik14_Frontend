@@ -20,7 +20,7 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
 
         <div className="mb-2 mt-4 space-y-2 text-base text-[#101828]">
           <p>
-            <span className="font-medium">Session Days:</span> Saturday
+            <span className="font-medium">Day of session:</span> Saturday
           </p>
           <p>
             <span className="font-medium">Session Time:</span>{' '}

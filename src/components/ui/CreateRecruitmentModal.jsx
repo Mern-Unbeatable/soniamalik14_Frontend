@@ -686,7 +686,7 @@ const CreateRecruitmentModal = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Town / City</label>
+                  <label className="text-base font-medium text-gray-700">e.g. London</label>
                   <input
                     value={form.townCity}
                     onChange={(e) => handleChange('townCity', e.target.value)}
@@ -695,7 +695,7 @@ const CreateRecruitmentModal = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Google Map Link</label>
+                  <label className="text-base font-medium text-gray-700">Google Maps Link</label>
                   <input
                     value={form.googleMapLink}
                     onChange={(e) => handleChange('googleMapLink', e.target.value)}
@@ -713,7 +713,7 @@ const CreateRecruitmentModal = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Date/Day</label>
+                  <label className="text-base font-medium text-gray-700">Session Date</label>
                   <input
                     type="date"
                     value={form.dateDay}
@@ -722,7 +722,7 @@ const CreateRecruitmentModal = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Time From</label>
+                  <label className="text-base font-medium text-gray-700">Start Time</label>
                   <input
                     type="time"
                     value={form.timeFrom}
@@ -731,7 +731,7 @@ const CreateRecruitmentModal = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Time To</label>
+                  <label className="text-base font-medium text-gray-700">End Time</label>
                   <input
                     type="time"
                     value={form.timeTo}

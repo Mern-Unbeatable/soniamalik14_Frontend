@@ -23,7 +23,7 @@ const VenueInformation = ({ event }) => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <span className="text-[#1A1D1F] w-28 shrink-0 text-base">Session Days:</span> 
+            <span className="text-[#1A1D1F] w-28 shrink-0 text-base">Day of session:</span> 
             <span className="text-[#1A1D1F] text-base min-w-0 wrap-break-word">{event.day}</span>
           </div>
           

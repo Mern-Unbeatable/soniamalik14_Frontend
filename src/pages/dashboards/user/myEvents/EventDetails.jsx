@@ -173,7 +173,7 @@ const EventDetails = () => {
                     <span className=" text-[#1A1D1F]">{item.town}</span>
                   </p>
                   <p className="text-base flex">
-                    <span className="text-[#1A1D1F] w-28 shrink-0 font-medium">Session Days:</span> 
+                    <span className="text-[#1A1D1F] w-28 shrink-0 font-medium">Day of session:</span> 
                     <span className=" text-[#1A1D1F]">{item.day}</span>
                   </p>
                   <p className="text-base flex">

@@ -170,8 +170,8 @@ const ServiceModal = ({ isOpen, onClose, initialData = null, mode = 'create' }) 
                         </div>
 
                         <div>
-                            <label className="block text-base font-medium text-gray-700 mb-1">Google map links</label>
-                            <input type="text" placeholder="enter google map links" value={formData.googleMapLinks} onChange={(e) => handleChange('googleMapLinks', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                            <label className="block text-base font-medium text-gray-700 mb-1">Google Maps Link</label>
+                            <input type="text" placeholder="enter Google Maps Link" value={formData.googleMapLinks} onChange={(e) => handleChange('googleMapLinks', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
