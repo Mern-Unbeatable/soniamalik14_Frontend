@@ -1,8 +1,29 @@
-﻿import Container from '../../../../components/layout/Container';
+﻿import { useNavigate } from 'react-router-dom';
+import Container from '../../../../components/layout/Container';
 import Button from '../../../../components/ui/Button';
 import HeroTitle from '../../../../components/ui/HeroTitle';
+import { useAuth } from '../../../../context/AuthContext';
+
+const CORE_FEATURES_SECTION_ID = 'core-features';
 
 const Hero = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  const buttonLabel = isAuthenticated ? 'Explore ESSA Hub' : 'Join ESSA Hub';
+
+  const handleCtaClick = () => {
+    if (!isAuthenticated) {
+      navigate('/register');
+      return;
+    }
+
+    document.getElementById(CORE_FEATURES_SECTION_ID)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
   return (
     <>
       <div className="w-full bg-white md:hidden">
@@ -30,8 +51,12 @@ const Hero = () => {
           </p>
 
           <div className="mt-6 flex justify-center">
-            <Button className="rounded-2xl bg-[#0F766E] px-8 py-3 text-base whitespace-nowrap text-white hover:bg-[#0d655d]">
-              Join ESSA Hub
+            <Button
+              type="button"
+              onClick={handleCtaClick}
+              className="rounded-2xl bg-[#0F766E] px-8 py-3 text-base whitespace-nowrap text-white hover:bg-[#0d655d]"
+            >
+              {buttonLabel}
             </Button>
           </div>
         </div>
@@ -51,8 +76,12 @@ const Hero = () => {
             </p>
 
             <div className="flex w-full justify-center sm:pb-30 md:pb-35 lg:pb-40">
-              <Button className="w-full max-w-62.5 rounded-md border-none bg-[#00796B] px-8 py-3 whitespace-nowrap text-white hover:bg-[#005a50] md:w-auto">
-                Join ESSA Hub
+              <Button
+                type="button"
+                onClick={handleCtaClick}
+                className="w-full max-w-62.5 rounded-md border-none bg-[#00796B] px-8 py-3 whitespace-nowrap text-white hover:bg-[#005a50] md:w-auto"
+              >
+                {buttonLabel}
               </Button>
             </div>
           </div>

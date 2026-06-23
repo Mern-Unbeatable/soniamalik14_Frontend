@@ -72,7 +72,8 @@ export default function CoreFeatures() {
 
   return (
     <section
-      className="flex h-auto w-full flex-col items-center justify-center overflow-hidden bg-[#E7F1F199] px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-20"
+      id="core-features"
+      className="flex h-auto w-full flex-col items-center justify-center overflow-hidden bg-[#E7F1F199] px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-20 scroll-mt-24"
       aria-labelledby="essa-hub-heading"
     >
       <div className="relative container w-full">

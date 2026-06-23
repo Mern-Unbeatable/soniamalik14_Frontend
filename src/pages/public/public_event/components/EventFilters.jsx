@@ -55,6 +55,11 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
     update({ [key]: Array.from(set) });
   };
 
+  const toggleDateFilter = (value) => {
+    const currentList = filters.date || [];
+    update({ date: currentList.includes(value) ? [] : [value] });
+  };
+
   return (
     <div className="w-full">
       {/* City/Area Filter */}
@@ -99,7 +104,7 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
               <input
                 type="checkbox"
                 checked={(filters.date || []).includes(d)}
-                onChange={() => toggleArrayFilter('date', d)}
+                onChange={() => toggleDateFilter(d)}
                 className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
               />
               <span className="text-[13px] text-[#1A1D1F] leading-none mt-0.5 group-hover:text-[#147B6B] transition-colors">{d}</span>

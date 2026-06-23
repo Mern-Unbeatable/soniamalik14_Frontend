@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,17 +22,32 @@ const InputField = ({ label, name, placeholder, type = "text", optional = false,
   </div>
 );
 
+const REGISTER_ROLE_QUERY_MAP = {
+  player: 'Player',
+  'sport-provider': 'Sport provider',
+  'service-provider': 'Service Provider',
+};
+
 const RegisterView = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loading = useSelector(selectAuthLoading);
+  const [searchParams] = useSearchParams();
+  const roleFromQuery = searchParams.get('role');
+  const initialRole = REGISTER_ROLE_QUERY_MAP[roleFromQuery] || 'Player';
 
-  const [role, setRole] = useState('Player');
+  const [role, setRole] = useState(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [confirmSuitableSessions, setConfirmSuitableSessions] = useState(false);
+
+  useEffect(() => {
+    if (roleFromQuery && REGISTER_ROLE_QUERY_MAP[roleFromQuery]) {
+      setRole(REGISTER_ROLE_QUERY_MAP[roleFromQuery]);
+    }
+  }, [roleFromQuery]);
 
   const [formData, setFormData] = useState({
     email: '',

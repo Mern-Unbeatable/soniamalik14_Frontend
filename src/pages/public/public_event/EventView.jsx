@@ -87,6 +87,67 @@ const matchesSportFilter = (eventSport, selectedSport) => {
 const matchesEventTypeFilter = (eventType, selectedType) =>
   String(eventType || '').trim().toUpperCase() === String(selectedType || '').trim().toUpperCase();
 
+const PUBLIC_EVENT_STATUSES = new Set(['UPCOMING', 'ONGOING', 'APPROVED']);
+
+const isPublicEventStatus = (status) =>
+  PUBLIC_EVENT_STATUSES.has(String(status || '').trim().toUpperCase());
+
+const formatApiDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getDateRangeParams = (dateFilters = []) => {
+  const selectedDates = Array.isArray(dateFilters) ? dateFilters.filter(Boolean) : [];
+  if (selectedDates.length === 0) return {};
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let dateFrom = null;
+  let dateTo = null;
+
+  selectedDates.forEach((filter) => {
+    if (filter === 'Upcoming') {
+      const from = formatApiDate(today);
+      dateFrom = !dateFrom || from < dateFrom ? from : dateFrom;
+      return;
+    }
+
+    if (filter === 'This Week') {
+      const startOfWeek = new Date(today);
+      const day = startOfWeek.getDay();
+      const diffToMonday = day === 0 ? 6 : day - 1;
+      startOfWeek.setDate(startOfWeek.getDate() - diffToMonday);
+
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+      const from = formatApiDate(startOfWeek);
+      const to = formatApiDate(endOfWeek);
+      dateFrom = !dateFrom || from < dateFrom ? from : dateFrom;
+      dateTo = !dateTo || to > dateTo ? to : dateTo;
+      return;
+    }
+
+    if (filter === 'This Month') {
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      const from = formatApiDate(startOfMonth);
+      const to = formatApiDate(endOfMonth);
+      dateFrom = !dateFrom || from < dateFrom ? from : dateFrom;
+      dateTo = !dateTo || to > dateTo ? to : dateTo;
+    }
+  });
+
+  const params = {};
+  if (dateFrom) params.dateFrom = dateFrom;
+  if (dateTo) params.dateTo = dateTo;
+  return params;
+};
+
 const EventView = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -123,10 +184,10 @@ const EventView = () => {
   const fetchFilteredEvents = useCallback(async (signal) => {
     const params = {
       view: 'live',
-      status: 'APPROVED',
       page: needsClientPagination ? 1 : page,
       limit: needsClientPagination ? 100 : perPage,
       sort: '-createdAt',
+      ...getDateRangeParams(filters.date),
     };
 
     if (filters.city?.trim()) {
@@ -156,7 +217,7 @@ const EventView = () => {
       const fetchedEvents = normalizeEventsList(payload?.events || payload);
       const meta = payload?.meta || response?.data?.meta || {};
 
-      let filteredEvents = fetchedEvents;
+      let filteredEvents = fetchedEvents.filter((event) => isPublicEventStatus(event?.status));
 
       if (selectedSports.length > 1) {
         filteredEvents = filteredEvents.filter((event) =>
@@ -185,7 +246,7 @@ const EventView = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters.city, eventTypeFilterKey, sportFilterKey, needsClientPagination, pageKey]);
+  }, [filters.city, filters.date, eventTypeFilterKey, sportFilterKey, needsClientPagination, pageKey]);
 
   useEffect(() => {
     const abortController = new AbortController();

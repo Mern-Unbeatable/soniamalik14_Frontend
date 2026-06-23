@@ -1,9 +1,21 @@
 import React from 'react';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { ROLES } from '../../../../context/AuthContext';
+import CollaborateListingButton from './CollaborateListingButton';
+import {
+  REGISTER_ROLE_KEYS,
+  useCollaborateListingCta,
+} from '../hooks/useCollaborateListingCta';
 
 const SportProvidersSection = () => {
-    return (
-        <div className="relative w-full rounded-lg overflow-hidden bg-white shadow-sm flex flex-col md:block">
+    const { handleClick, isDisabled } = useCollaborateListingCta({
+        targetRole: ROLES.COACH,
+        registerRoleKey: REGISTER_ROLE_KEYS.SPORT_PROVIDER,
+        dashboardPath: '/coach',
+        providerLabel: 'sport provider',
+    });
+
+    return (        <div className="relative w-full rounded-lg overflow-hidden bg-white shadow-sm flex flex-col md:block">
 
             {/* Mobile Image (Visible only on small screens) */}
             <div className="h-64 sm:h-80 w-full md:hidden relative">
@@ -60,15 +72,12 @@ const SportProvidersSection = () => {
                 </p>
 
                 <div>
-                    <a
-                        href="#"
-                        className="bg-[#107C66] hover:bg-[#0c6150] transition-colors duration-200 text-white text-[15px] font-medium py-3 px-6 rounded-md inline-flex items-center group shadow-sm"
-                    >
-                        List your club or sessions
-                        <ArrowRight className="w-4 h-4 ml-2 mt-[1px] transform group-hover:translate-x-1 transition-transform duration-200" strokeWidth={2.5} />
-                    </a>
-                </div>
-            </div>
+                    <CollaborateListingButton
+                        label="List your club or sessions"
+                        onClick={handleClick}
+                        disabled={isDisabled}
+                    />
+                </div>            </div>
         </div>
     );
 };

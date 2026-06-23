@@ -1,6 +1,20 @@
 import React from 'react';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { ROLES } from '../../../../context/AuthContext';
+import CollaborateListingButton from './CollaborateListingButton';
+import {
+  REGISTER_ROLE_KEYS,
+  useCollaborateListingCta,
+} from '../hooks/useCollaborateListingCta';
+
 const ProfessionalSupportSection = () => {
+    const { handleClick, isDisabled } = useCollaborateListingCta({
+        targetRole: ROLES.PROVIDER,
+        registerRoleKey: REGISTER_ROLE_KEYS.SERVICE_PROVIDER,
+        dashboardPath: '/provider',
+        providerLabel: 'service provider',
+    });
+
     return (
         <div className="relative w-full rounded-lg overflow-hidden bg-white shadow-sm flex flex-col md:block mb-10">
 
@@ -55,13 +69,11 @@ const ProfessionalSupportSection = () => {
                 </ul>
 
                 <div>
-                    <a
-                        href="#"
-                        className="bg-[#107C66] hover:bg-[#0c6150] transition-colors duration-200 text-white text-[15px] font-medium py-3 px-6 rounded-md inline-flex items-center group shadow-sm"
-                    >
-                        List your business
-                        <ArrowRight className="w-4 h-4 ml-2 mt-[1px] transform group-hover:translate-x-1 transition-transform duration-200" strokeWidth={2.5} />
-                    </a>
+                    <CollaborateListingButton
+                        label="List your business"
+                        onClick={handleClick}
+                        disabled={isDisabled}
+                    />
                 </div>
             </div>
         </div>
