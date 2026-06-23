@@ -139,6 +139,38 @@ const formatLabel = (value) => {
     .join(' ');
 };
 
+const extractMessagesFromOrganizerList = (listPayload, eventId) => {
+  const events =
+    listPayload?.events ||
+    (Array.isArray(listPayload?.data) ? listPayload.data : []) ||
+    [];
+
+  const matchedEvent = events.find((entry) => String(entry?.id) === String(eventId));
+  return Array.isArray(matchedEvent?.messages) ? matchedEvent.messages : null;
+};
+
+const mapMessageToEnquiry = (item) => ({
+  id: item.id,
+  playerName: item.senderName || item.sender?.name || item.user?.name || item.fullName || '-',
+  phone:
+    item.senderPhoneNumber ||
+    item.sender?.phoneNumber ||
+    item.sender?.phone ||
+    item.phoneNumber ||
+    item.user?.phone ||
+    item.user?.phoneNumber ||
+    '-',
+  email: item.senderEmail || item.sender?.email || item.user?.email || item.email || '-',
+  message: item.message || item.content || '-',
+  date: item.createdAt
+    ? new Date(item.createdAt).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: '2-digit',
+    })
+    : '-',
+});
+
 const InsightsPreview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -315,6 +347,15 @@ const InsightsPreview = () => {
     const eventId = event?.id;
     if (!eventId) {
       setEventMessages([]);
+      setMessagesLoading(false);
+      setMessagesError('');
+      return;
+    }
+
+    if (Array.isArray(rawEvent?.messages)) {
+      setEventMessages(rawEvent.messages);
+      setMessagesLoading(false);
+      setMessagesError('');
       return;
     }
 
@@ -325,6 +366,15 @@ const InsightsPreview = () => {
       setMessagesError('');
 
       try {
+        const listResponse = await GET(ENDPOINT.EVENTS.MY_LIST, {}, abortController.signal);
+        const listPayload = listResponse?.data?.data || listResponse?.data || {};
+        const messagesFromList = extractMessagesFromOrganizerList(listPayload, eventId);
+
+        if (messagesFromList !== null) {
+          setEventMessages(messagesFromList);
+          return;
+        }
+
         const response = await GET(`/api/events/${eventId}/messages`, {}, abortController.signal);
         const payload = response?.data;
         const data =
@@ -345,7 +395,7 @@ const InsightsPreview = () => {
     loadMessages();
 
     return () => abortController.abort();
-  }, [event?.id]);
+  }, [event?.id, rawEvent?.messages]);
 
   const bookings = useMemo(
     () =>
@@ -376,26 +426,7 @@ const InsightsPreview = () => {
       return second - first;
     });
 
-    return sortedMessages.map((item) => ({
-      id: item.id,
-      playerName: item.senderName || item.sender?.name || item.user?.name || item.fullName || '-',
-      phone:
-        item.senderPhoneNumber ||
-        item.sender?.phoneNumber ||
-        item.sender?.phone ||
-        item.phoneNumber ||
-        item.user?.phoneNumber ||
-        '-',
-      email: item.senderEmail || item.sender?.email || item.user?.email || item.email || '-',
-      message: item.message || item.content || '-',
-      date: item.createdAt
-        ? new Date(item.createdAt).toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: '2-digit',
-        })
-        : '-',
-    }));
+    return sortedMessages.map(mapMessageToEnquiry);
   }, [eventMessages]);
 
   const bookingTotalPages = Math.max(1, Math.ceil(bookings.length / perPage));
@@ -716,9 +747,9 @@ const InsightsPreview = () => {
           )}
 
           {!messagesLoading && !messagesError && enquiries.length > 0 && <div className="space-y-3 p-4 md:hidden">
-            {paginatedEnquiries.map((enquiry, idx) => (
+            {paginatedEnquiries.map((enquiry) => (
               <div
-                key={`${enquiry.email}-${idx}`}
+                key={enquiry.id}
                 className="rounded-xl border border-[#E2E8EA] bg-[#F8FAFB] p-3"
               >
                 <p className="text-base font-semibold text-[#1D1D1D]">{enquiry.playerName}</p>
@@ -755,8 +786,8 @@ const InsightsPreview = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedEnquiries.map((enquiry, idx) => (
-                  <tr key={`${enquiry.email}-${idx}`} className="border-t border-gray-100">
+                {paginatedEnquiries.map((enquiry) => (
+                  <tr key={enquiry.id} className="border-t border-gray-100">
                     <td className="px-4 py-3 text-sm text-[#2F3B3A]">{enquiry.playerName}</td>
                     <td className="px-4 py-3 text-sm text-[#2F3B3A]">{enquiry.phone}</td>
                     <td className="px-4 py-3 text-sm break-all text-[#2F3B3A]">{enquiry.email}</td>
