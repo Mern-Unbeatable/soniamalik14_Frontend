@@ -14,6 +14,32 @@ const FilterSection = ({ title, children, icon: Icon }) => (
   </div>
 );
 
+const EVENT_TYPE_OPTIONS = [
+  { label: 'Match', value: 'MATCH' },
+  { label: 'Tournament', value: 'TOURNAMENT' },
+  { label: 'Trial', value: 'TRIAL' },
+  { label: 'Training', value: 'TRAINING' },
+  { label: 'Workshop', value: 'WORKSHOP' },
+  { label: 'Seminar', value: 'SEMINAR' },
+  { label: 'Competition', value: 'COMPETITION' },
+  { label: 'Meetup', value: 'MEETUP' },
+];
+
+const SPORT_OPTIONS = [
+  'Football',
+  'Squash',
+  'Rugby',
+  'Netball',
+  'Cricket',
+  'Padel',
+  'Tennis',
+  'Badminton',
+  'Golf',
+  'Running',
+  'Multi-Sport',
+  'Not sport-specific',
+];
+
 const EventFilters = ({ filters = {}, onChange = () => { } }) => {
   const update = (patch) => onChange({ ...filters, ...patch });
 
@@ -49,21 +75,17 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
       {/* Event Type */}
       <FilterSection title="Event Type">
         <div className="space-y-3">
-          {[
-            'All events',
-            'Workshops & learning',
-            'Wellbeing & support',
-            'Tournaments & competitions',
-            'Community & campaigns',
-          ].map((t) => (
-            <label key={t} className="flex items-center gap-2.5 cursor-pointer group">
+          {EVENT_TYPE_OPTIONS.map((option) => (
+            <label key={option.value} className="flex items-center gap-2.5 cursor-pointer group">
               <input
                 type="checkbox"
-                checked={(filters.eventTypes || []).includes(t)}
-                onChange={() => toggleArrayFilter('eventTypes', t)}
+                checked={(filters.eventTypes || []).includes(option.value)}
+                onChange={() => toggleArrayFilter('eventTypes', option.value)}
                 className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
               />
-              <span className="text-[13px] text-[#1A1D1F] leading-none mt-0.5 group-hover:text-[#147B6B] transition-colors">{t}</span>
+              <span className="text-[13px] text-[#1A1D1F] leading-none mt-0.5 group-hover:text-[#147B6B] transition-colors">
+                {option.label}
+              </span>
             </label>
           ))}
         </div>
@@ -86,23 +108,10 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
         </div>
       </FilterSection>
 
-      {/* Sport (Converted to Checkboxes as per image) */}
+      {/* Sport */}
       <FilterSection title="Sport">
         <div className="space-y-3">
-          {[
-            'Football',
-            'Squash',
-            'Rugby',
-            'Netball',
-            'Cricket',
-            'Padel',
-            'Tennis',
-            'Badminton',
-            'Golf',
-            'Running',
-            'Multi-Sport',
-            'Not sport-specific',
-          ].map((s) => (
+          {SPORT_OPTIONS.map((s) => (
             <label key={s} className="flex items-center gap-2.5 cursor-pointer group">
               <input
                 type="checkbox"

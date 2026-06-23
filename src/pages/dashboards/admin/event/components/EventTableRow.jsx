@@ -11,7 +11,7 @@ const EventTableRow = ({ row }) => {
                 <div className="text-sm text-gray-500 mt-1">{row.date}</div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-base text-gray-800">{row.provider}</div>
+                {/* <div className="text-base text-gray-800">{row.provider}</div> */}
                 {row.providerSub && <div className="text-base text-gray-500">{row.providerSub}</div>}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-base text-gray-600">

@@ -148,7 +148,7 @@ export const rejectAdminEvent = createAsyncThunk(
       }
 
       const response = await apiExecutor(
-        (signal) => PATCH(ENDPOINT.EVENTS.APPROVAL_STATUS(eventId), { action: 'reject', reason }, signal),
+        (signal) => PATCH(ENDPOINT.EVENTS.BAN(eventId), { bannedReason: reason }, signal),
         rejectWithValue,
         signal
       );

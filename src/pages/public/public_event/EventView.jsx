@@ -1,5 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Container from '../../../components/layout/Container';
 import { X, Filter } from 'lucide-react';
@@ -10,12 +9,8 @@ import LoginRequiredModal from './components/LoginRequiredModal';
 import Pagination from '../../../components/ui/Pagination';
 import PageHeader from '../../../components/ui/PageHeader';
 import { ENV } from '../../../config/env';
-import { fetchEvents } from '../../../features/events/eventsAPI';
-import {
-  selectAllEvents,
-  selectEventsLoading,
-  selectEventsError,
-} from '../../../features/events/eventsSlice';
+import { GET } from '../../../services/httpMethods';
+import { ENDPOINT } from '../../../services/httpEndpoint';
 
 const normalizeEventsList = (value) => {
   if (Array.isArray(value)) return value;
@@ -77,14 +72,29 @@ const normalizeEventImageUrl = (value) => {
   return imageUrl;
 };
 
+const toApiSportType = (sport) => {
+  if (!sport) return '';
+  if (sport === 'Multi-Sport' || sport === 'Not sport-specific') return sport;
+  return String(sport).toLowerCase();
+};
+
+const matchesSportFilter = (eventSport, selectedSport) => {
+  const normalizedEventSport = String(eventSport || '').trim().toLowerCase();
+  const normalizedSelected = toApiSportType(selectedSport).toLowerCase();
+  return normalizedEventSport === normalizedSelected;
+};
+
+const matchesEventTypeFilter = (eventType, selectedType) =>
+  String(eventType || '').trim().toUpperCase() === String(selectedType || '').trim().toUpperCase();
+
 const EventView = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const reduxEvents = useSelector(selectAllEvents);
-  const loading = useSelector(selectEventsLoading);
-  const error = useSelector(selectEventsError);
 
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -93,13 +103,95 @@ const EventView = () => {
     city: '',
     eventTypes: [],
     date: [],
-    sport: '',
+    sport: [],
   });
   const perPage = 9;
 
+  const selectedSports = useMemo(
+    () => (Array.isArray(filters.sport) ? filters.sport.filter(Boolean) : []),
+    [filters.sport]
+  );
+  const selectedEventTypes = useMemo(
+    () => (Array.isArray(filters.eventTypes) ? filters.eventTypes.filter(Boolean) : []),
+    [filters.eventTypes]
+  );
+  const sportFilterKey = selectedSports.join('|');
+  const eventTypeFilterKey = selectedEventTypes.join('|');
+  const needsClientPagination = selectedSports.length > 1 || selectedEventTypes.length > 1;
+  const pageKey = needsClientPagination ? 0 : page;
+
+  const fetchFilteredEvents = useCallback(async (signal) => {
+    const params = {
+      view: 'live',
+      status: 'APPROVED',
+      page: needsClientPagination ? 1 : page,
+      limit: needsClientPagination ? 100 : perPage,
+      sort: '-createdAt',
+    };
+
+    if (filters.city?.trim()) {
+      params.city = filters.city.trim();
+    }
+
+    if (selectedEventTypes.length === 1) {
+      params.eventType = selectedEventTypes[0];
+    }
+
+    if (selectedSports.length === 1) {
+      params.sportType = toApiSportType(selectedSports[0]);
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await GET(
+        ENDPOINT.EVENTS.LIST,
+        params,
+        signal,
+        { skipAuth: true, withCredentials: false }
+      );
+
+      const payload = response?.data?.data || response?.data || {};
+      const fetchedEvents = normalizeEventsList(payload?.events || payload);
+      const meta = payload?.meta || response?.data?.meta || {};
+
+      let filteredEvents = fetchedEvents;
+
+      if (selectedSports.length > 1) {
+        filteredEvents = filteredEvents.filter((event) =>
+          selectedSports.some((sport) => matchesSportFilter(event?.sportType, sport))
+        );
+      }
+
+      if (selectedEventTypes.length > 1) {
+        filteredEvents = filteredEvents.filter((event) =>
+          selectedEventTypes.some((eventType) => matchesEventTypeFilter(event?.eventType, eventType))
+        );
+      }
+
+      setEvents(filteredEvents);
+
+      if (needsClientPagination) {
+        setTotalPages(Math.max(1, Math.ceil(filteredEvents.length / perPage)));
+      } else {
+        setTotalPages(Number(meta?.totalPages) > 0 ? Number(meta.totalPages) : 1);
+      }
+    } catch (fetchError) {
+      if (fetchError?.name === 'CanceledError' || fetchError?.code === 'ERR_CANCELED') return;
+      setError(fetchError?.response?.data?.message || 'Failed to load events');
+      setEvents([]);
+      setTotalPages(1);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters.city, eventTypeFilterKey, sportFilterKey, needsClientPagination, pageKey]);
+
   useEffect(() => {
-    dispatch(fetchEvents());
-  }, [dispatch]);
+    const abortController = new AbortController();
+    fetchFilteredEvents(abortController.signal);
+    return () => abortController.abort();
+  }, [fetchFilteredEvents]);
 
   useEffect(() => {
     if (showFilters) {
@@ -112,56 +204,29 @@ const EventView = () => {
     };
   }, [showFilters]);
 
-  const events = normalizeEventsList(reduxEvents).map((event) => ({
-    id: event.id,
-    title: event.title || 'Untitled Event',
-    titleColor: '#0B544E',
-    date: formatDate(event.startDate || event.date),
-    location: event.fullAddress || event.location || event.city || event.venueName || 'Location not set',
-    tag: formatEventTypeTag(event.eventType),
-    image: normalizeEventImageUrl(event.image),
-    sport: event.sportType || '',
-  }));
+  const mappedEvents = useMemo(
+    () =>
+      events.map((event) => ({
+        id: event.id,
+        title: event.title || 'Untitled Event',
+        titleColor: '#0B544E',
+        date: formatDate(event.startDate || event.date),
+        location:
+          event.fullAddress || event.location || event.city || event.venueName || 'Location not set',
+        tag: formatEventTypeTag(event.eventType),
+        image: normalizeEventImageUrl(event.image),
+        sport: event.sportType || '',
+      })),
+    [events]
+  );
 
-  // apply simple client-side filtering
-  const filtered = events.filter((e) => {
-    // city / search
-    if (filters.city) {
-      const q = filters.city.toLowerCase();
-      if (
-        !((e.title || '').toLowerCase().includes(q) || (e.location || '').toLowerCase().includes(q))
-      )
-        return false;
-    }
+  const paged = useMemo(() => {
+    if (!needsClientPagination) return mappedEvents;
+    const start = (page - 1) * perPage;
+    return mappedEvents.slice(start, start + perPage);
+  }, [needsClientPagination, mappedEvents, page]);
 
-    // event type
-    const types = filters.eventTypes || [];
-    if (types.length > 0 && !types.includes('All events')) {
-      const tag = (e.tag || '').toLowerCase();
-      const matched = types.some((t) => {
-        const key = t.toLowerCase();
-        return tag.includes(key.split(' ')[0]) || key.includes(tag);
-      });
-      if (!matched) return false;
-    }
-
-    // sport
-    const selectedSports = Array.isArray(filters.sport)
-      ? filters.sport.filter(Boolean)
-      : filters.sport
-        ? [filters.sport]
-        : [];
-    if (selectedSports.length > 0) {
-      const sport = String(e.sport || '').toLowerCase();
-      const matchedSport = selectedSports.some((s) => String(s).toLowerCase() === sport);
-      if (!matchedSport) return false;
-    }
-
-    return true;
-  });
-
-  const total = Math.ceil(filtered.length / perPage);
-  const paged = filtered.slice((page - 1) * perPage, page * perPage);
+  const total = totalPages;
 
   const handleViewDetails = (event) => {
     if (!event?.id) return;
@@ -300,7 +365,7 @@ const EventView = () => {
             )}
 
             {/* Pagination Area */}
-            {!loading && !error && filtered.length === 0 ? (
+            {!loading && !error && paged.length === 0 ? (
               <div className="mt-10 rounded-md border border-dashed border-gray-200 bg-white p-6 text-center text-gray-600">
                 No events match your filters yet — try widening your search or exploring all events.
               </div>

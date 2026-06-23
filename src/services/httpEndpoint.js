@@ -87,6 +87,7 @@ export const ENDPOINT = {
     FEATURE: (id) => `/api/events/${id}/feature`,
     ADMIN_FEATURE: (id) => `/api/admin/events/${id}/feature`,
     APPROVAL_STATUS: (id) => `/api/events/${id}/approval-status`,
+    BAN: (id) => `/api/events/${id}/ban`,
   },
   COMMUNITY: {
     LIST_POSTS: '/api/community/posts',

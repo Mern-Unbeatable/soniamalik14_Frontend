@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ChevronRight, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ChevronRight, X } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import TablePagination from '../../../../components/ui/TablePagination';
-import insightsData from '../../../../data/providerInsightsData.json';
 import { GET } from '../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../services/httpEndpoint';
 import SessionOverview from '../event/components/SessionOverview';
 import VenueInformation from '../event/components/VenueInformation';
 import ContactOrganiser from '../event/components/ContactOrganiser';
@@ -109,6 +109,34 @@ const statusMeta = {
     label: 'Cancelled',
     className: 'bg-[#FEECEC] text-[#B91C1C] border border-[#FECACA]',
   },
+  banned: {
+    label: 'Banned',
+    className: 'bg-[#FEECEC] text-[#B91C1C] border border-[#FECACA]',
+  },
+};
+
+const resolveStatusKey = (rawStatus) => {
+  const status = String(rawStatus || '').trim().toUpperCase();
+
+  if (status === 'BANNED') return 'banned';
+  if (status.includes('PENDING') || status === 'REJECTED') return 'pending';
+  if (status.includes('CANCEL')) return 'cancel';
+  if (status.includes('COMPLETE')) return 'complete';
+  if (status.includes('ONGOING') || status.includes('UPCOMING') || status.includes('APPROV')) {
+    return 'upcoming';
+  }
+
+  return 'upcoming';
+};
+
+const formatLabel = (value) => {
+  if (!value) return '-';
+  return String(value)
+    .toLowerCase()
+    .split('_')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 };
 
 const InsightsPreview = () => {
@@ -116,25 +144,81 @@ const InsightsPreview = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  const rawEvent = state?.item || insightsData.find((item) => item.id === id) || insightsData[0];
-  const event = useMemo(
-    () => ({
+  const [rawEvent, setRawEvent] = useState(
+    state?.item && String(state.item.id) === String(id) ? state.item : null
+  );
+  const [eventLoading, setEventLoading] = useState(
+    !(state?.item && String(state.item.id) === String(id))
+  );
+  const [eventError, setEventError] = useState('');
+
+  useEffect(() => {
+    if (state?.item && String(state.item.id) === String(id)) {
+      setRawEvent(state.item);
+      setEventLoading(false);
+      setEventError('');
+      return;
+    }
+
+    if (!id) {
+      setRawEvent(null);
+      setEventLoading(false);
+      setEventError('Event id is missing.');
+      return;
+    }
+
+    const abortController = new AbortController();
+
+    const loadEvent = async () => {
+      setEventLoading(true);
+      setEventError('');
+
+      try {
+        const response = await GET(ENDPOINT.EVENTS.DETAIL(id), {}, abortController.signal);
+        const data = response?.data?.data || response?.data || null;
+        setRawEvent(data);
+      } catch (error) {
+        if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
+        setEventError(error?.response?.data?.message || 'Failed to load event details');
+        setRawEvent(null);
+      } finally {
+        setEventLoading(false);
+      }
+    };
+
+    loadEvent();
+
+    return () => abortController.abort();
+  }, [id, state?.item]);
+
+  const event = useMemo(() => {
+    if (!rawEvent) return null;
+
+    const organizerName = rawEvent?.organizerName || rawEvent?.organizer?.name || 'Organizer';
+    const organizerAvatar =
+      rawEvent?.organizer?.avatar ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(organizerName)}&background=0F766E&color=fff`;
+
+    return {
       ...rawEvent,
       image: rawEvent?.image || rawEvent?.coverImage || '/images/Football.jpg',
       description: rawEvent?.description || rawEvent?.about || '-',
-      eventType: rawEvent?.eventType || rawEvent?.type || '-',
+      eventType: formatLabel(rawEvent?.eventType || rawEvent?.type),
       sportType: rawEvent?.sportType || rawEvent?.sport || '-',
       venueName: rawEvent?.venueName || '-',
       fullAddress: rawEvent?.fullAddress || rawEvent?.venue || '-',
-      organizer: rawEvent?.organizer || {
-        name: rawEvent?.organizer || 'Organizer',
-        avatar: 'https://ui-avatars.com/api/?name=Provider&background=0F766E&color=fff',
+      bannedReason: rawEvent?.bannedReason || null,
+      status: resolveStatusKey(rawEvent?.status),
+      organizer: {
+        ...(rawEvent?.organizer || {}),
+        name: organizerName,
+        avatar: organizerAvatar,
       },
-    }),
-    [rawEvent]
-  );
-  const statusConfig = statusMeta[event.status];
-  const mapEmbedUrl = getMapEmbedUrl(event);
+    };
+  }, [rawEvent]);
+
+  const statusConfig = event ? statusMeta[event.status] : null;
+  const mapEmbedUrl = event ? getMapEmbedUrl(event) : '';
 
   const [bookingPage, setBookingPage] = useState(1);
   const [interestPage, setInterestPage] = useState(1);
@@ -306,10 +390,10 @@ const InsightsPreview = () => {
       message: item.message || item.content || '-',
       date: item.createdAt
         ? new Date(item.createdAt).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: '2-digit',
-          })
+          day: '2-digit',
+          month: 'short',
+          year: '2-digit',
+        })
         : '-',
     }));
   }, [eventMessages]);
@@ -358,6 +442,43 @@ const InsightsPreview = () => {
     window.setTimeout(() => setMessageSuccess(false), 2200);
   };
 
+  if (eventLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f4f6f8] px-4">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
+          <p className="text-gray-600">Loading event details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (eventError || !event) {
+    return (
+      <div className="min-h-screen bg-[#f4f6f8] px-4 pb-10 pt-5 md:px-6 lg:px-10">
+        <div className="mx-auto w-full">
+          <button
+            type="button"
+            onClick={() =>
+              navigate('/provider/insights', {
+                state: {
+                  activeTab: state?.activeTab || 'all',
+                  currentPage: state?.currentPage || 1,
+                },
+              })
+            }
+            className="mb-4 inline-flex items-center gap-2 text-[18px] font-normal text-[#0F766E]"
+          >
+            <ArrowLeft className="h-5 w-5" /> Back
+          </button>
+          <div className="rounded-lg border border-red-200 bg-red-50 px-5 py-10 text-center text-red-600">
+            {eventError || 'Event not found.'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f4f6f8] px-4 pb-10 pt-5 md:px-6 lg:px-10">
       <div className="mx-auto w-full">
@@ -384,15 +505,31 @@ const InsightsPreview = () => {
           />
         </div>
 
-        <div className="relative -mt-6 ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:-mt-8 md:ml-4 md:h-21 md:w-21">
-          <img
-            src={
-              event.organizer?.avatar ||
-              'https://ui-avatars.com/api/?name=Provider&background=0F766E&color=fff'
-            }
-            alt={event.organizer?.name || 'Organizer'}
-            className="h-full w-full object-cover"
-          />
+        <div className="relative">
+          {event.bannedReason && (
+            <div className="mt-4 ml-3 max-w-3xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 md:ml-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                <div>
+                  <p className="text-sm font-semibold text-red-700">This event was not approved
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-red-600">{event.bannedReason}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div
+            className={`relative ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:ml-4 md:h-21 md:w-21 ${
+              event.bannedReason ? 'mt-3' : '-mt-6 md:-mt-8'
+            }`}
+          >
+            <img
+              src={event.organizer?.avatar}
+              alt={event.organizer?.name || 'Organizer'}
+              className="h-full w-full object-cover"
+            />
+          </div>
         </div>
 
         <div className="mt-4">
