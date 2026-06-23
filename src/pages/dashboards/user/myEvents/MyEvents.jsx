@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import EventCard from './components/EventCard';
 import Pagination from '../../../../components/ui/Pagination';
 import { GET } from '../../../../services/httpMethods';
@@ -34,10 +35,50 @@ const mapRegistrationToEventCard = (item) => {
   };
 };
 
+const MY_EVENTS_RETURN_KEY = 'myEventsReturnContext';
+
+const readMyEventsReturnContext = (locationState) => {
+  if (locationState?.from === 'my-events' && TAB_CONFIG[locationState.activeTab]) {
+    return {
+      activeTab: locationState.activeTab,
+      currentPage: Number.isInteger(locationState.currentPage) && locationState.currentPage > 0
+        ? locationState.currentPage
+        : 1,
+    };
+  }
+
+  try {
+    const saved = sessionStorage.getItem(MY_EVENTS_RETURN_KEY);
+    if (saved) {
+      sessionStorage.removeItem(MY_EVENTS_RETURN_KEY);
+      const parsed = JSON.parse(saved);
+      if (TAB_CONFIG[parsed?.activeTab]) {
+        return {
+          activeTab: parsed.activeTab,
+          currentPage: Number.isInteger(parsed.currentPage) && parsed.currentPage > 0
+            ? parsed.currentPage
+            : 1,
+        };
+      }
+    }
+  } catch {
+    // ignore invalid stored context
+  }
+
+  return { activeTab: 'interested', currentPage: 1 };
+};
+
 const MyEvents = () => {
+  const location = useLocation();
+
+  const initialContext = useMemo(
+    () => readMyEventsReturnContext(location.state),
+    [location.state],
+  );
+
   const [events, setEvents] = useState([]);
-  const [activeTab, setActiveTab] = useState('interested');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState(initialContext.activeTab);
+  const [currentPage, setCurrentPage] = useState(initialContext.currentPage);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
@@ -67,9 +108,10 @@ const MyEvents = () => {
     fetchEvents();
   }, [fetchEvents]);
 
-  const handleViewDetails = (eventId) => {
-    console.log('View details for event:', eventId);
-  };
+  useEffect(() => {
+    setActiveTab(initialContext.activeTab);
+    setCurrentPage(initialContext.currentPage);
+  }, [initialContext.activeTab, initialContext.currentPage]);
 
   const handleDeleteEvent = (eventId) => {
     const updatedEvents = events.filter((event) => event.id !== eventId);
@@ -129,7 +171,8 @@ const MyEvents = () => {
                 location={event.location}
                 time={event.time}
                 imageSrc={event.imageSrc}
-                onViewDetails={() => handleViewDetails(event.id)}
+                activeTab={activeTab}
+                currentPage={currentPage}
                 onDelete={() => handleDeleteEvent(event.id)}
               />
             ))}

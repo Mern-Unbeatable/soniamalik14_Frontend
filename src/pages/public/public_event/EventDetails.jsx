@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Heart } from 'lucide-react';
 import Container from '../../../components/layout/Container';
 import { useDispatch, useSelector } from 'react-redux';
@@ -84,6 +84,7 @@ const normalizeMediaUrl = (value) => {
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
 
   const dispatch = useDispatch();
@@ -138,6 +139,22 @@ const EventDetails = () => {
     setShowLoginModal(false);
     navigate('/login', { state: { from: `/events/${id}` } });
   };
+
+  const handleBack = () => {
+    const returnState = location.state;
+    if (returnState?.from === 'my-events') {
+      navigate('/dashboard/my-events', {
+        state: {
+          from: 'my-events',
+          activeTab: returnState.activeTab || 'interested',
+          currentPage: returnState.currentPage || 1,
+        },
+      });
+      return;
+    }
+    navigate(-1);
+  };
+
   const event = data
     ? {
         id: data.id,
@@ -222,7 +239,7 @@ const EventDetails = () => {
 
             {/* Overlaid Back Button */}
             <button
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
               className="absolute top-4 left-4 flex items-center gap-2 bg-black/20 hover:bg-black/40 backdrop-blur-sm text-white px-4 py-2 rounded-full transition-all text-sm font-medium"
             >
               <ArrowLeft className="w-4 h-4" />

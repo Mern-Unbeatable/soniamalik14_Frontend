@@ -2,12 +2,20 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Edit, Trash2 } from 'lucide-react';
 
-const EventCard = ({ id, title, location, time, imageSrc, onViewDetails, onDelete }) => {
+const MY_EVENTS_RETURN_KEY = 'myEventsReturnContext';
+
+const EventCard = ({ id, title, location, time, imageSrc, activeTab, currentPage, onDelete }) => {
   const navigate = useNavigate();
 
   const handleViewClick = () => {
-    navigate(`/dashboard/my-events/${id}`);
-    if (onViewDetails) onViewDetails();
+    const returnContext = { activeTab, currentPage };
+    sessionStorage.setItem(MY_EVENTS_RETURN_KEY, JSON.stringify(returnContext));
+    navigate(`/events/${id}`, {
+      state: {
+        from: 'my-events',
+        ...returnContext,
+      },
+    });
   };
 
   return (
