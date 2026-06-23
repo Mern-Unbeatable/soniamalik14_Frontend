@@ -149,7 +149,7 @@ const ProviderEnquiries = () => {
                 <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Event/Listing Name</th>
                 <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Message</th>
                 <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Date</th>
-                <th className="px-5 py-3 text-center text-base font-medium text-[#1D1D1D]">ACTIONS</th>
+                {/* <th className="px-5 py-3 text-center text-base font-medium text-[#1D1D1D]">ACTIONS</th> */}
               </tr>
             </thead>
             <tbody>
@@ -160,7 +160,7 @@ const ProviderEnquiries = () => {
                   <td className="px-5 py-4 text-base text-[#2F3B3A]">{enquiry.eventTitle}</td>
                   <td className="max-w-90 px-5 py- text-base leading-6 text-[#4B5563]">{enquiry.message}</td>
                   <td className="px-5 py-4 text-base text-[#4B5563]">{enquiry.date}</td>
-                  <td className="px-5 py-4 text-center">
+                  {/* <td className="px-5 py-4 text-center">
                     <button
                       type="button"
                       onClick={() => openDetails(enquiry)}
@@ -169,7 +169,7 @@ const ProviderEnquiries = () => {
                     >
                       <ChevronRight className="h-5 w-5" />
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
@@ -190,7 +190,7 @@ const ProviderEnquiries = () => {
 
       <EnquiryDetailsModal open={isModalOpen} onClose={closeDetails} enquiry={selectedEnquiry} />
 
-      <section className="rounded-lg bg-white">
+      {/* <section className="rounded-lg bg-white">
         <div className="px-5 pt-5 pb-4">
           <h2 className="text-2xl leading-9 font-semibold text-btn-primary">Register Interest</h2>
         </div>
@@ -242,7 +242,7 @@ const ProviderEnquiries = () => {
           resultsTextClass="text-base text-[#0F766E]"
           buttonClass="rounded-xl px-4 py-2 text-base"
         />
-      </section>
+      </section> */}
     </div>
   );
 };
