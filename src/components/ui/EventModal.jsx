@@ -60,6 +60,36 @@ const normalizeSkillLevel = (value) => {
   );
 };
 
+const SPORT_OPTIONS = [
+  'Football',
+  'Squash',
+  'Rugby',
+  'Netball',
+  'Cricket',
+  'Padel',
+  'Tennis',
+  'Badminton',
+  'Golf',
+  'Running',
+  'Multi-Sport',
+  'Not sport-specific',
+];
+
+const SUITABLE_FOR_OPTIONS = ['Women', 'College Students', 'Professionals'];
+
+const getSuitableForValue = (value) => {
+  if (Array.isArray(value) && value.length > 0) {
+    return String(value[0] || '').trim();
+  }
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)[0] || '';
+  }
+  return '';
+};
+
 const EventModal = ({
   isOpen,
   onClose,
@@ -76,6 +106,7 @@ const EventModal = ({
   const [formData, setFormData] = useState({
     eventTitle: '',
     sportType: '',
+    suitableFor: '',
     eventType: 'TRAINING',
     description: '',
     startDate: '',
@@ -104,6 +135,7 @@ const EventModal = ({
       setFormData({
         eventTitle: initialData.title || '',
         sportType: initialData.sportType || '',
+        suitableFor: getSuitableForValue(initialData.suitableFor),
         eventType: initialData.eventType || initialData.type || 'TRAINING',
         description: initialData.description || '',
         startDate: toDateInputValue(initialData.startDate || initialData.date),
@@ -133,6 +165,7 @@ const EventModal = ({
       setFormData({
         eventTitle: '',
         sportType: '',
+        suitableFor: '',
         eventType: 'TRAINING',
         description: '',
         startDate: '',
@@ -197,6 +230,7 @@ const EventModal = ({
     const requiredFields = [
       'eventTitle',
       'sportType',
+      'suitableFor',
       'eventType',
       'description',
       'startDate',
@@ -241,6 +275,7 @@ const EventModal = ({
     const payload = new FormData();
     payload.append('title', formData.eventTitle);
     payload.append('sportType', formData.sportType);
+    payload.append('suitableFor', formData.suitableFor);
     payload.append('eventType', formData.eventType);
     payload.append('description', formData.description);
     payload.append('startDate', formData.startDate);
@@ -365,13 +400,18 @@ const EventModal = ({
               </div>
               <div>
                 <label className="mb-1 block text-base font-medium text-gray-700">Sport</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Football, Cricket, Netball"
+                <select
                   value={formData.sportType}
                   onChange={(e) => handleChange('sportType', e.target.value)}
                   className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
-                />
+                >
+                  <option value="">Select sport</option>
+                  {SPORT_OPTIONS.map((sport) => (
+                    <option key={sport} value={sport}>
+                      {sport}
+                    </option>
+                  ))}
+                </select>
                 {errors.sportType && (
                   <p className="mt-1 text-base text-red-600">{errors.sportType}</p>
                 )}
@@ -544,6 +584,25 @@ const EventModal = ({
             </div>
 
             {/* Who it's suitable for */}
+            <div>
+              <label className="mb-1 block text-base font-medium text-gray-700">Suitable For</label>
+              <select
+                value={formData.suitableFor}
+                onChange={(e) => handleChange('suitableFor', e.target.value)}
+                className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+              >
+                <option value="">Select suitable audience</option>
+                {SUITABLE_FOR_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {errors.suitableFor && (
+                <p className="mt-1 text-base text-red-600">{errors.suitableFor}</p>
+              )}
+            </div>
+
             <div>
               <label className="mb-2 block text-base font-medium text-gray-700">
                 Who is this for?
