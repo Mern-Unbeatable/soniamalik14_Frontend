@@ -77,6 +77,7 @@ export const ENDPOINT = {
     LIST: '/api/events',
     APPROVED: '/api/events?view=live',
     MY_LIST: '/api/events/my/list',
+    MY_DASHBOARD: '/api/events/my/dashboard',
     ANALYTICS: '/api/events/analytics',
     CREATE: '/api/events',
     DETAIL: (id) => `/api/events/${id}`,

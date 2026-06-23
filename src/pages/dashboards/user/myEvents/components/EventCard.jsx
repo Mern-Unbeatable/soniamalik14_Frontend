@@ -51,14 +51,14 @@ const EventCard = ({ id, title, location, time, imageSrc, activeTab, currentPage
             <span>View</span>
           </button>
           
-          <button
+          {/* <button
             onClick={onDelete}
             className="flex-1 border-2 border-btn-primary text-btn-primary py-3 px-4 rounded-lg font-semibold hover:bg-btn-primary/5 transition-colors text-base  flex items-center justify-center gap-2"
             title="Delete event"
           >
             <Trash2 className="w-5 h-5" />
             <span>Delete</span>
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

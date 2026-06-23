@@ -1,67 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Plus, Users, X } from 'lucide-react';
 import EventModal from '../../../components/ui/EventModal';
 import CreateServiceModal from './addListing/components/CreateServiceModal';
-import providerEventDummyData from './event/providerEventDummyData.json';
 import axiosInstance from '../../../services/axiosInstance';
-
-const recentPlayers = [
-  {
-    id: 1,
-    name: 'Devon Lane',
-    phone: '(405) 555-0128',
-    email: 'jackson.graham@example.com',
-    message:
-      'Aliquam porta nisl dolor, molestie pellentesque elit molestie in. Morbi metus neque, elementum ullam',
-    date: '12 Mar 26',
-  },
-  {
-    id: 2,
-    name: 'Wade Warren',
-    phone: '(603) 555-0123',
-    email: 'alma.lawson@example.com',
-    message:
-      'Vestibulum eu quam nec neque pellentesque efficitur id eget nisl. Proin porta est convallis lacus bl',
-    date: '12 Mar 26',
-  },
-  {
-    id: 3,
-    name: 'Robert Fox',
-    phone: '(209) 555-0104',
-    email: 'nevaeh.simmons@example.com',
-    message:
-      'Vestibulum eu quam nec neque pellentesque efficitur id eget nisl. Proin porta est convallis lacus bl',
-    date: '12 Mar 26',
-  },
-  {
-    id: 4,
-    name: 'Cameron Williamson',
-    phone: '(303) 555-0105',
-    email: 'tim.jennings@example.com',
-    message:
-      'Donec sed erat ut magna suscipit mattis. Aliquam erat volutpat. Morbi in orci risus. Donec pretium f',
-    date: '12 Mar 26',
-  },
-  {
-    id: 5,
-    name: 'Marvin McKinney',
-    phone: '(704) 555-0127',
-    email: 'michael.mitc@example.com',
-    message:
-      'In a laoreet purus. Integer turpis quam, laoreet id orci nec, ultrices lacinia nunc. Aliquam erat vo',
-    date: '12 Mar 26',
-  },
-  {
-    id: 6,
-    name: 'Esther Howard',
-    phone: '(239) 555-0108',
-    email: 'georgia.young@example.com',
-    message:
-      'Aliquam pulvinar vestibulum blandit. Donec sed nisl libero. Fusce dignissim luctus sem eu dapibus. P',
-    date: '12 Mar 26',
-  },
-];
+import { GET } from '../../../services/httpMethods';
+import { ENDPOINT } from '../../../services/httpEndpoint';
 
 const PlayerActivityModal = ({ open, onClose, player }) => {
   if (!open || !player) return null;
@@ -112,9 +56,31 @@ const formatEventDate = (dateStr) => {
   };
 };
 
+const formatShortDate = (dateStr) => {
+  if (!dateStr) return '-';
+  const parsed = new Date(dateStr);
+  if (Number.isNaN(parsed.getTime())) return '-';
+  return parsed.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit',
+  });
+};
+
+const mapRecentRegistration = (item) => ({
+  id: item?.id,
+  name: item?.fullName || item?.user?.name || '-',
+  phone: item?.phoneNumber || item?.user?.phone || 'Not provided',
+  email: item?.email || item?.user?.email || '-',
+  message: item?.notes || item?.event?.title || '-',
+  date: formatShortDate(item?.registeredAt || item?.createdAt),
+});
+
 const STATUS_STYLES = {
   ACTIVE: 'bg-[#E7F1F1] text-[#0F766E]',
   APPROVED: 'bg-[#E7F1F1] text-[#0F766E]',
+  UPCOMING: 'bg-[#E7F1F1] text-[#0F766E]',
+  ONGOING: 'bg-[#E7F1F1] text-[#0F766E]',
   PENDING_APPROVAL: 'bg-[#FFDAB9] text-[#FF7700]',
   PENDING: 'bg-[#FFDAB9] text-[#FF7700]',
   REJECTED: 'bg-[#FFE4E1] text-[#DC2626]',
@@ -132,7 +98,10 @@ const ProviderDashboard = () => {
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [events] = useState(providerEventDummyData);
+  const [events, setEvents] = useState([]);
+  const [recentPlayers, setRecentPlayers] = useState([]);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [dashboardError, setDashboardError] = useState(null);
 
   // Active Listings from API
   const [activeListings, setActiveListings] = useState([]);
@@ -161,16 +130,43 @@ const ProviderDashboard = () => {
     return () => { cancelled = true; };
   }, []);
 
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setDashboardLoading(true);
+      setDashboardError(null);
+      const response = await GET(ENDPOINT.EVENTS.MY_DASHBOARD);
+      const data = response?.data?.data || {};
+      setEvents(Array.isArray(data?.events) ? data.events : []);
+      setRecentPlayers(
+        (Array.isArray(data?.recentRegistrations) ? data.recentRegistrations : []).map(
+          mapRecentRegistration
+        )
+      );
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+      setEvents([]);
+      setRecentPlayers([]);
+      setDashboardError('Failed to load dashboard data.');
+    } finally {
+      setDashboardLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
   const perPage = 6;
   const totalPages = Math.max(1, Math.ceil(recentPlayers.length / perPage));
 
   const yourEvents = useMemo(
     () =>
       events.slice(0, 4).map((event) => {
-        const dateParts = formatEventDate(event.date);
+        const dateParts = formatEventDate(event.startDate || event.date || event.createdAt);
 
         return {
           ...event,
+          statusLabel: formatStatus(event.status),
           dateMonth: dateParts.month,
           dateDay: dateParts.day,
         };
@@ -181,10 +177,16 @@ const ProviderDashboard = () => {
   const pagedPlayers = useMemo(() => {
     const start = (page - 1) * perPage;
     return recentPlayers.slice(start, start + perPage);
-  }, [page]);
+  }, [page, recentPlayers]);
 
   const startResult = recentPlayers.length === 0 ? 0 : (page - 1) * perPage + 1;
   const endResult = Math.min(page * perPage, recentPlayers.length);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   // After creating a new listing, re-fetch to keep the list fresh
   const handleLocalSubmit = async () => {
@@ -196,6 +198,10 @@ const ProviderDashboard = () => {
     } catch (_) {
       // silently ignore refresh errors
     }
+  };
+
+  const handleEventCreated = async () => {
+    await fetchDashboardData();
   };
 
   return (
@@ -274,38 +280,64 @@ const ProviderDashboard = () => {
           </div>
 
           <div className="space-y-3">
-            {yourEvents.map((event) => (
-              <article
-                key={event.id}
-                className="flex flex-col items-start justify-between gap-3 rounded-lg border border-gray-100 p-3 sm:flex-row sm:items-center md:p-4"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 flex-col items-center justify-center rounded-md border border-gray-100 bg-gray-50">
-                    <span className="text-[10px] leading-none text-sidebarLink">{event.dateMonth}</span>
-                    <span className="mt-1 text-sm font-semibold leading-none text-[#0F766E]">{event.dateDay}</span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-[#373737] md:text-base">{event.title}</h3>
-                    <p className={`mt-0.5 text-sm ${event.status === 'Approved' ? 'text-[#0F766E]' : 'text-[#FF7700]'}`}>
-                      {event.status}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(`/provider/event/${event.id}`, {
-                      state: { item: event, from: 'event', filter: { status: 'All', query: '' }, currentPage: 1 },
-                    })
-                  }
-                  className="w-full rounded-lg bg-[#0F766E] px-4 py-2 text-sm font-medium text-white sm:w-auto"
+            {dashboardLoading && (
+              <p className="py-6 text-center text-sm text-secondary-text">Loading dashboard data...</p>
+            )}
+            {!dashboardLoading && dashboardError && (
+              <p className="py-6 text-center text-sm text-red-500">{dashboardError}</p>
+            )}
+            {!dashboardLoading && !dashboardError && yourEvents.length === 0 && (
+              <p className="py-6 text-center text-sm text-secondary-text">No events found.</p>
+            )}
+            {!dashboardLoading &&
+              !dashboardError &&
+              yourEvents.map((event) => (
+                <article
+                  key={event.id}
+                  className="flex flex-col items-start justify-between gap-3 rounded-lg border border-gray-100 p-3 sm:flex-row sm:items-center md:p-4"
                 >
-                  See Details
-                </button>
-              </article>
-            ))}
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 flex-col items-center justify-center rounded-md border border-gray-100 bg-gray-50">
+                      <span className="text-[10px] leading-none text-sidebarLink">{event.dateMonth}</span>
+                      <span className="mt-1 text-sm font-semibold leading-none text-[#0F766E]">
+                        {event.dateDay}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-medium text-[#373737] md:text-base">{event.title}</h3>
+                      <p
+                        className={`mt-0.5 text-sm ${
+                          event.status === 'REJECTED'
+                            ? 'text-[#DC2626]'
+                            : event.status === 'PENDING' || event.status === 'PENDING_APPROVAL'
+                              ? 'text-[#FF7700]'
+                              : 'text-[#0F766E]'
+                        }`}
+                      >
+                        {event.statusLabel}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(`/provider/event/${event.id}`, {
+                        state: {
+                          item: event,
+                          from: 'event',
+                          filter: { status: 'All', query: '' },
+                          currentPage: 1,
+                        },
+                      })
+                    }
+                    className="w-full rounded-lg bg-[#0F766E] px-4 py-2 text-sm font-medium text-white sm:w-auto"
+                  >
+                    See Details
+                  </button>
+                </article>
+              ))}
           </div>
         </section>
       </div>
@@ -314,7 +346,17 @@ const ProviderDashboard = () => {
         <h2 className="mb-4 text-3xl font-bold text-[#121111]">Recent Player Activity</h2>
 
         <div className="overflow-hidden rounded-xl border border-gray-100 bg-white">
-          <div className="hidden overflow-x-auto md:block">
+          {dashboardLoading && (
+            <p className="px-4 py-8 text-center text-sm text-secondary-text">Loading player activity...</p>
+          )}
+          {!dashboardLoading && dashboardError && (
+            <p className="px-4 py-8 text-center text-sm text-red-500">{dashboardError}</p>
+          )}
+          {!dashboardLoading && !dashboardError && recentPlayers.length === 0 && (
+            <p className="px-4 py-8 text-center text-sm text-secondary-text">No recent player activity found.</p>
+          )}
+          {!dashboardLoading && !dashboardError && recentPlayers.length > 0 && (
+            <div className="hidden overflow-x-auto md:block">
             <table className="min-w-245 w-full">
               <thead>
                 <tr className="bg-[#E7F1F1]">
@@ -348,53 +390,58 @@ const ProviderDashboard = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          )}
 
-          <div className="divide-y divide-gray-100 md:hidden">
-            {pagedPlayers.map((player) => (
-              <article key={player.id} className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-base font-semibold text-[#121111]">{player.name}</h3>
-                  <span className="text-xs text-sidebarLink">{player.date}</span>
-                </div>
-                <p className="mt-2 text-sm text-[#373737]">{player.phone}</p>
-                <p className="break-all text-sm text-[#373737]">{player.email}</p>
-                <p className="mt-2 text-sm text-[#373737]">{player.message}</p>
+          {!dashboardLoading && !dashboardError && recentPlayers.length > 0 && (
+            <div className="divide-y divide-gray-100 md:hidden">
+              {pagedPlayers.map((player) => (
+                <article key={player.id} className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-base font-semibold text-[#121111]">{player.name}</h3>
+                    <span className="text-xs text-sidebarLink">{player.date}</span>
+                  </div>
+                  <p className="mt-2 text-sm text-[#373737]">{player.phone}</p>
+                  <p className="break-all text-sm text-[#373737]">{player.email}</p>
+                  <p className="mt-2 text-sm text-[#373737]">{player.message}</p>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlayer(player)}
+                    className="mt-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#D5E2E1] text-[#1D1D1D] hover:bg-[#EAF2F1]"
+                    aria-label={`Open details for ${player.name}`}
+                  >
+                    <ChevronRight className="h-5 w-5 text-[#121111]" />
+                  </button>
+                </article>
+              ))}
+            </div>
+          )}
+
+          {!dashboardLoading && !dashboardError && recentPlayers.length > 0 && (
+            <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-4 sm:flex-row">
+              <p className="text-sm font-medium text-[#0F766E]">
+                Showing {startResult} to {endResult} of {recentPlayers.length} results
+              </p>
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setSelectedPlayer(player)}
-                  className="mt-3 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#D5E2E1] text-[#1D1D1D] hover:bg-[#EAF2F1]"
-                  aria-label={`Open details for ${player.name}`}
+                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                  disabled={page === 1}
+                  className="rounded-lg border border-[#0F766E] px-4 py-1.5 text-sm text-[#0F766E] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <ChevronRight className="h-5 w-5 text-[#121111]" />
+                  Previous
                 </button>
-              </article>
-            ))}
-          </div>
-
-          <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-4 sm:flex-row">
-            <p className="text-sm font-medium text-[#0F766E]">
-              Showing {startResult} to {endResult} of {recentPlayers.length} results
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                disabled={page === 1}
-                className="rounded-lg border border-[#0F766E] px-4 py-1.5 text-sm text-[#0F766E] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <button
-                type="button"
-                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                disabled={page === totalPages}
-                className="rounded-lg border border-[#0F766E] px-4 py-1.5 text-sm text-[#0F766E] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Next
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={page === totalPages}
+                  className="rounded-lg border border-[#0F766E] px-4 py-1.5 text-sm text-[#0F766E] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -406,7 +453,12 @@ const ProviderDashboard = () => {
         onLocalSubmit={handleLocalSubmit}
       />
 
-      <EventModal isOpen={eventModalOpen} onClose={() => setEventModalOpen(false)} mode="create" />
+      <EventModal
+        isOpen={eventModalOpen}
+        onClose={() => setEventModalOpen(false)}
+        mode="create"
+        onSuccess={handleEventCreated}
+      />
 
       <PlayerActivityModal
         open={Boolean(selectedPlayer)}
