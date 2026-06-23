@@ -1,60 +1,82 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { CheckCheck } from 'lucide-react';
+import { GET, PATCH } from '../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../services/httpEndpoint';
+import { toast } from 'react-toastify';
 
 const Notifications = () => {
-    const [notifications, setNotifications] = useState([
-        {
-            id: 1,
-            name: 'Brian Griffin',
-            message: 'wants to collaborate',
-            time: '5 days ago',
-            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-            read: false,
-        },
-        {
-            id: 2,
-            name: 'Adam from The Mayor\'s Office',
-            message: 'Hey Peter, we\'ve got a new user research opportunity for you. Adam from The Mayor\'s Office is looking for people like you.',
-            time: '1 month ago',
-            avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=150&q=80',
-            read: false,
-        },
-        {
-            id: 3,
-            name: 'Neil',
-            message: 'Hey Peter, we\'ve got a new user research opportunity for you. Neil is looking for people like you.',
-            time: '1 month ago',
-            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-            read: false,
-        },
-        {
-            id: 4,
-            name: 'Quagmire from Giggity Co.',
-            message: 'Hey Peter, we\'ve got a new user research opportunity for you. Quagmire from Giggity Co. is looking for people like you.',
-            time: '1 month ago',
-            avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=150&q=80',
-            read: false,
-        },
-        {
-            id: 5,
-            name: 'Herbert from Children\'s Program',
-            message: 'Hey Peter, we\'ve got a new side project opportunity for you. Herbert from Children\'s Program is looking for people like you.',
-            time: '1 month ago',
-            avatar: 'https://images.unsplash.com/photo-1544502062-f82887f03d1c?auto=format&fit=crop&w=150&q=80',
-            read: false,
-        },
-        {
-            id: 6,
-            name: 'Cleveland from The Post Office',
-            message: 'Hey Peter, we\'ve got a new side project opportunity for you. Cleveland from The Post Office is looking for people like you.',
-            time: '2 months ago',
-            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-            read: false,
-        },
-    ]);
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [markAllLoading, setMarkAllLoading] = useState(false);
+    const [markingId, setMarkingId] = useState(null);
 
-    const handleMarkAllRead = () => {
-        setNotifications(notifications.map(notif => ({ ...notif, read: true })));
+    const formatDateTime = (value) => {
+        if (!value) return '-';
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return '-';
+        return parsed.toLocaleString();
+    };
+
+    const mapNotification = (item) => {
+        const senderName = item?.data?.userName || item?.data?.senderName || '';
+        const fallbackName = senderName || item?.title || 'Notification';
+        return {
+            id: item?.id,
+            name: fallbackName,
+            message: item?.message || '-',
+            time: formatDateTime(item?.createdAt),
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fallbackName)}&background=EBEBEB&color=1A1A1A`,
+            read: Boolean(item?.isRead),
+        };
+    };
+
+    const fetchNotifications = useCallback(async () => {
+        try {
+            setLoading(true);
+            const response = await GET(ENDPOINT.NOTIFICATIONS.LIST, { page: 1, limit: 20 });
+            const list = response?.data?.data?.notifications || [];
+            setNotifications((Array.isArray(list) ? list : []).map(mapNotification));
+        } catch (error) {
+            console.error('Failed to load notifications:', error);
+            setNotifications([]);
+            toast.error('Failed to load notifications');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchNotifications();
+    }, [fetchNotifications]);
+
+    const handleMarkAllRead = async () => {
+        if (markAllLoading) return;
+        try {
+            setMarkAllLoading(true);
+            await PATCH(ENDPOINT.NOTIFICATIONS.READ_ALL, {});
+            setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+        } catch (error) {
+            console.error('Failed to mark all notifications as read:', error);
+            toast.error('Failed to mark all as read');
+        } finally {
+            setMarkAllLoading(false);
+        }
+    };
+
+    const handleMarkSingleRead = async (notificationId) => {
+        if (!notificationId || markingId) return;
+        try {
+            setMarkingId(notificationId);
+            await PATCH(ENDPOINT.NOTIFICATIONS.READ(notificationId), {});
+            setNotifications((prev) =>
+                prev.map((notif) => (notif.id === notificationId ? { ...notif, read: true } : notif))
+            );
+        } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+            toast.error('Failed to mark as read');
+        } finally {
+            setMarkingId(null);
+        }
     };
 
     return (
@@ -66,7 +88,8 @@ const Notifications = () => {
                     <h1 className="text-xl sm:text-2xl font-semibold text-[#1A1A1A]">Notifications</h1>
                     <button
                         onClick={handleMarkAllRead}
-                        className="flex items-center gap-2 text-[15px] font-medium text-[#2C2C2C] hover:text-black transition-colors"
+                        disabled={markAllLoading}
+                        className="flex items-center gap-2 text-[15px] font-medium text-[#2C2C2C] hover:text-black transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         Mark All Read
                         <CheckCheck className="w-[18px] h-[18px]" strokeWidth={2.5} />
@@ -75,6 +98,12 @@ const Notifications = () => {
 
                 {/* Notifications List */}
                 <div className="bg-[#EBEBEB] rounded-lg overflow-hidden shadow-sm">
+                    {loading && (
+                        <div className="p-6 text-center text-sm text-gray-600">Loading notifications...</div>
+                    )}
+                    {!loading && notifications.length === 0 && (
+                        <div className="p-6 text-center text-sm text-gray-500">No notifications found.</div>
+                    )}
                     {notifications.map((notif, index) => (
                         <div
                             key={notif.id}
@@ -105,6 +134,16 @@ const Notifications = () => {
                                 <p className="text-[13px] text-[#888888] mt-1.5">
                                     {notif.time}
                                 </p>
+                                {!notif.read && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleMarkSingleRead(notif.id)}
+                                        disabled={markingId === notif.id}
+                                        className="mt-2 text-xs font-medium text-[#0F766E] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        Mark Read
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}

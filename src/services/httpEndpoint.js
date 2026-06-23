@@ -105,4 +105,9 @@ export const ENDPOINT = {
   INQUIRIES: {
     LIST: '/api/inquiries',
   },
+  NOTIFICATIONS: {
+    LIST: '/api/notifications',
+    READ_ALL: '/api/notifications/read-all',
+    READ: (notificationId) => `/api/notifications/${notificationId}/read`,
+  },
 };
