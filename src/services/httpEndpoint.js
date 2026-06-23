@@ -102,4 +102,7 @@ export const ENDPOINT = {
     CREATE: '/api/interest-requests',
     ADMIN_ALL: '/api/interest-requests/admin/all',
   },
+  INQUIRIES: {
+    LIST: '/api/inquiries',
+  },
 };
