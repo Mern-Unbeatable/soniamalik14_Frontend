@@ -20,7 +20,7 @@ const ContentManagement = () => {
                     <p className="text-sm md:text-base text-gray-600 mt-2">Edit website pages, news articles, and media assets.</p>
                 </div>
 
-                {/* Tabs Area */}
+                {/* Tabs  */}
                 <ContentTabs
                     tabs={tabs}
                     activeTab={activeTab}
