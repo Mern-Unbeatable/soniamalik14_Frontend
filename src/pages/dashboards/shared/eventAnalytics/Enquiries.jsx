@@ -1,56 +1,75 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ChevronRight, X } from 'lucide-react';
 import TablePagination from '../../../../components/ui/TablePagination';
-import eventAnalyticsDetailsData from '../../../../data/eventAnalyticsDetailsData.json';
+import { GET } from '../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../services/httpEndpoint';
+import { toast } from 'react-toastify';
+
+const ITEMS_PER_PAGE = 6;
+
+const formatInquiryDate = (value) => {
+  if (!value) return '-';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return '-';
+  return parsed.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit',
+  });
+};
+
+const mapInquiryToRow = (inquiry) => ({
+  id: inquiry.id,
+  playerName: inquiry?.sender?.name || '-',
+  phoneNumber: inquiry?.sender?.phone || inquiry?.sender?.phoneNumber || '-',
+  email: inquiry?.sender?.email || '-',
+  eventListingName:
+    inquiry?.event?.title ||
+    inquiry?.service?.listingHeadline ||
+    '-',
+  message: inquiry?.message || '-',
+  date: formatInquiryDate(inquiry?.createdAt),
+  details: inquiry?.message || '-',
+});
 
 const Enquiries = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [interestPage, setInterestPage] = useState(1);
+    const [enquiries, setEnquiries] = useState([]);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalResults, setTotalResults] = useState(0);
+    const [loading, setLoading] = useState(true);
     const [selectedApplicant, setSelectedApplicant] = useState(null);
 
-    const perPage = 6;
+    const fetchEnquiries = useCallback(async () => {
+        try {
+            setLoading(true);
+            const response = await GET(ENDPOINT.INQUIRIES.LIST, {
+                page: currentPage,
+                limit: ITEMS_PER_PAGE,
+            });
+            const data = response?.data?.data || {};
+            const inquiriesList = Array.isArray(data?.inquiries) ? data.inquiries : [];
+            const pagination = data?.pagination || {};
 
-    const enquiriesRows = useMemo(
-        () =>
-            (eventAnalyticsDetailsData.enquiries || []).map((row) => ({
-                playerName: row.playerName,
-                phoneNumber: row.phoneNumber,
-                eventListingName: row.eventListingName || 'U16 Goalkeeper Wanted',
-                message: row.message,
-                date: row.date,
-                email: row.email,
-                details: row.details || row.message,
-            })),
-        []
-    );
+            setEnquiries(inquiriesList.map(mapInquiryToRow));
+            setTotalResults(Number(pagination?.total) || inquiriesList.length);
+            setTotalPages(Number(pagination?.totalPages) > 0 ? Number(pagination.totalPages) : 1);
+        } catch (error) {
+            console.error('Failed to fetch enquiries:', error);
+            setEnquiries([]);
+            setTotalResults(0);
+            setTotalPages(1);
+            toast.error('Failed to load enquiries');
+        } finally {
+            setLoading(false);
+        }
+    }, [currentPage]);
 
-    const registerInterestRows = useMemo(
-        () =>
-            (eventAnalyticsDetailsData.registerInterest || []).map((row) => ({
-                name: row.name,
-                phoneNumber: row.phoneNumber,
-                email: row.email,
-            })),
-        []
-    );
+    useEffect(() => {
+        fetchEnquiries();
+    }, [fetchEnquiries]);
 
-    const totalResults = enquiriesRows.length;
-    const totalPages = Math.max(1, Math.ceil(totalResults / perPage));
     const safePage = Math.min(currentPage, totalPages);
-
-    const interestTotalResults = registerInterestRows.length;
-    const interestTotalPages = Math.max(1, Math.ceil(interestTotalResults / perPage));
-    const safeInterestPage = Math.min(interestPage, interestTotalPages);
-
-    const pageData = useMemo(() => {
-        const start = (safePage - 1) * perPage;
-        return enquiriesRows.slice(start, start + perPage);
-    }, [enquiriesRows, safePage]);
-
-    const interestPageData = useMemo(() => {
-        const start = (safeInterestPage - 1) * perPage;
-        return registerInterestRows.slice(start, start + perPage);
-    }, [registerInterestRows, safeInterestPage]);
 
     return (
         <div className="dashboardPy dashboardSpaceY bg-[#F4F6F8]">
@@ -59,142 +78,100 @@ const Enquiries = () => {
                     <h1 className="text-2xl text-btn-primary leading-9 font-semibold ">Enquaries</h1>
                 </div>
 
-                <div className="space-y-3 p-4 md:hidden">
-                    {pageData.map((enquiry, idx) => (
-                        <div key={`${enquiry.playerName}-${idx}`} className="rounded-xl border border-[#E7F1F1] bg-[#E7F1F1] p-4">
-                            <div className="flex items-start justify-between gap-3">
-                                <div>
-                                    <h3 className="text-base font-semibold text-[#1D1D1D]">{enquiry.playerName}</h3>
-                                    <p className="text-sm text-[#0F766E]">{enquiry.phoneNumber}</p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setSelectedApplicant(enquiry)}
-                                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#D5E2E1] text-[#1D1D1D] hover:bg-[#EAF2F1]"
-                                    aria-label={`Open enquiry details for ${enquiry.playerName}`}
-                                >
-                                    <ChevronRight className="h-5 w-5" />
-                                </button>
-                            </div>
+                {loading && (
+                    <p className="px-5 py-8 text-center text-sm text-[#4B5563]">Loading enquiries...</p>
+                )}
 
-                            <div className="mt-3 space-y-1.5 text-sm text-[#4B5563]">
-                                <p>
-                                    <span className="font-semibold text-[#1D1D1D]">Event/Listing Name:</span> {enquiry.eventListingName}
-                                </p>
-                                <p className="break-all">
-                                    <span className="font-semibold text-[#1D1D1D]">Message:</span> {enquiry.message}
-                                </p>
-                                <p>
-                                    <span className="font-semibold text-[#1D1D1D]">Date:</span> {enquiry.date}
-                                </p>
-                                <p>
-                                    <span className="font-semibold text-[#1D1D1D]">Email:</span> {enquiry.email}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                {!loading && enquiries.length === 0 && (
+                    <p className="px-5 py-8 text-center text-sm text-[#4B5563]">No enquiries found.</p>
+                )}
 
-                <div className="hidden overflow-x-auto md:block">
-                    <table className="min-w-245 border-collapse xl:min-w-full">
-                        <thead>
-                            <tr className="bg-[#E7F1F1] text-left border-b border-[#E7F1F1]">
-                                <th className="px-5 py-2 text-base font-medium text-[#1D1D1D]">Player Name</th>
-                                <th className="px-5 py-2 text-base font-medium text-[#1D1D1D]">Phone Number</th>
-                                <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Event/Listing Name</th>
-                                <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Message</th>
-                                <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Date</th>
-                                <th className="px-5 py-3 text-center text-base font-medium text-[#1D1D1D]">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {pageData.map((enquiry, idx) => (
-                                <tr key={`${enquiry.playerName}-${idx}`} className="border-b border-[#E7F1F1] last:border-b-0 align-middle">
-                                    <td className="px-5 py-4 text-base font-medium text-[#2F3B3A]">{enquiry.playerName}</td>
-                                    <td className="px-5 py-4 text-base text-[#4B5563]">{enquiry.phoneNumber}</td>
-                                    <td className="px-5 py-4 text-base text-[#2F3B3A]">{enquiry.eventListingName}</td>
-                                    <td className="max-w-90 px-5 py-4 text-base leading-6 text-[#4B5563]">{enquiry.message}</td>
-                                    <td className="px-5 py-4 text-base text-[#4B5563]">{enquiry.date}</td>
-                                    <td className="px-5 py-4 text-center">
+                {!loading && enquiries.length > 0 && (
+                    <>
+                        <div className="space-y-3 p-4 md:hidden">
+                            {enquiries.map((enquiry, idx) => (
+                                <div key={`${enquiry.id}-${idx}`} className="rounded-xl border border-[#E7F1F1] bg-[#E7F1F1] p-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 className="text-base font-semibold text-[#1D1D1D]">{enquiry.playerName}</h3>
+                                            <p className="text-sm text-[#0F766E]">{enquiry.phoneNumber}</p>
+                                        </div>
                                         <button
                                             type="button"
                                             onClick={() => setSelectedApplicant(enquiry)}
-                                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#1D1D1D]"
+                                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#D5E2E1] text-[#1D1D1D] hover:bg-[#EAF2F1]"
                                             aria-label={`Open enquiry details for ${enquiry.playerName}`}
                                         >
                                             <ChevronRight className="h-5 w-5" />
                                         </button>
-                                    </td>
-                                </tr>
+                                    </div>
+
+                                    <div className="mt-3 space-y-1.5 text-sm text-[#4B5563]">
+                                        <p>
+                                            <span className="font-semibold text-[#1D1D1D]">Event/Listing Name:</span> {enquiry.eventListingName}
+                                        </p>
+                                        <p className="break-all">
+                                            <span className="font-semibold text-[#1D1D1D]">Message:</span> {enquiry.message}
+                                        </p>
+                                        <p>
+                                            <span className="font-semibold text-[#1D1D1D]">Date:</span> {enquiry.date}
+                                        </p>
+                                        <p>
+                                            <span className="font-semibold text-[#1D1D1D]">Email:</span> {enquiry.email}
+                                        </p>
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <TablePagination
-                    currentPage={safePage}
-                    totalPages={totalPages}
-                    totalResults={totalResults}
-                    resultsPerPage={perPage}
-                    onPageChange={(p) => setCurrentPage(Math.max(1, Math.min(totalPages, p)))}
-                    wrapperClass="px-5 py-4"
-                    resultsTextClass="text-base text-[#0F766E]"
-                    buttonClass="rounded-xl px-4 py-2 text-base"
-                />
-            </section>
-
-            <section className="rounded-lg bg-white">
-                <div className="px-5 pt-5 pb-4">
-                    <h2 className="text-2xl leading-9 font-semibold text-btn-primary">Register Interest</h2>
-                </div>
-
-                <div className="space-y-3 p-4 md:hidden">
-                    {interestPageData.map((item, idx) => (
-                        <div key={`${item.email}-${idx}`} className="rounded-xl border border-[#E7F1F1] bg-[#E7F1F1] p-4">
-                            <h3 className="text-base font-semibold text-[#1D1D1D]">{item.name}</h3>
-                            <div className="mt-3 space-y-1.5 text-sm text-[#4B5563]">
-                                <p>
-                                    <span className="font-semibold text-[#1D1D1D]">Phone:</span> {item.phoneNumber}
-                                </p>
-                                <p className="break-all">
-                                    <span className="font-semibold text-[#1D1D1D]">Email:</span> {item.email}
-                                </p>
-                            </div>
                         </div>
-                    ))}
-                </div>
 
-                <div className="hidden overflow-x-auto md:block">
-                    <table className="min-w-245 border-collapse xl:min-w-full">
-                        <thead>
-                            <tr className="bg-[#E7F1F1] text-left border-b border-[#E7F1F1]">
-                                <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Name</th>
-                                <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Phone Number</th>
-                                <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Email</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {interestPageData.map((item, idx) => (
-                                <tr key={`${item.email}-${idx}`} className="border-b border-[#E7F1F1] last:border-b-0 align-middle">
-                                    <td className="px-5 py-4 text-base font-medium text-[#2F3B3A]">{item.name}</td>
-                                    <td className="px-5 py-4 text-base text-[#4B5563]">{item.phoneNumber}</td>
-                                    <td className="px-5 py-4 text-base text-[#4B5563] break-all">{item.email}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                        <div className="hidden overflow-x-auto md:block">
+                            <table className="min-w-245 border-collapse xl:min-w-full">
+                                <thead>
+                                    <tr className="bg-[#E7F1F1] text-left border-b border-[#E7F1F1]">
+                                        <th className="px-5 py-2 text-base font-medium text-[#1D1D1D]">Player Name</th>
+                                        <th className="px-5 py-2 text-base font-medium text-[#1D1D1D]">Phone Number</th>
+                                        <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Event/Listing Name</th>
+                                        <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Message</th>
+                                        <th className="px-5 py-3 text-base font-medium text-[#1D1D1D]">Date</th>
+                                        <th className="px-5 py-3 text-center text-base font-medium text-[#1D1D1D]">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {enquiries.map((enquiry, idx) => (
+                                        <tr key={`${enquiry.id}-${idx}`} className="border-b border-[#E7F1F1] last:border-b-0 align-middle">
+                                            <td className="px-5 py-4 text-base font-medium text-[#2F3B3A]">{enquiry.playerName}</td>
+                                            <td className="px-5 py-4 text-base text-[#4B5563]">{enquiry.phoneNumber}</td>
+                                            <td className="px-5 py-4 text-base text-[#2F3B3A]">{enquiry.eventListingName}</td>
+                                            <td className="max-w-90 px-5 py-4 text-base leading-6 text-[#4B5563]">{enquiry.message}</td>
+                                            <td className="px-5 py-4 text-base text-[#4B5563]">{enquiry.date}</td>
+                                            <td className="px-5 py-4 text-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSelectedApplicant(enquiry)}
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#1D1D1D]"
+                                                    aria-label={`Open enquiry details for ${enquiry.playerName}`}
+                                                >
+                                                    <ChevronRight className="h-5 w-5" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-                <TablePagination
-                    currentPage={safeInterestPage}
-                    totalPages={interestTotalPages}
-                    totalResults={interestTotalResults}
-                    resultsPerPage={perPage}
-                    onPageChange={(p) => setInterestPage(Math.max(1, Math.min(interestTotalPages, p)))}
-                    wrapperClass="px-5 py-4"
-                    resultsTextClass="text-base text-[#0F766E]"
-                    buttonClass="rounded-xl px-4 py-2 text-base"
-                />
+                        <TablePagination
+                            currentPage={safePage}
+                            totalPages={totalPages}
+                            totalResults={totalResults}
+                            resultsPerPage={ITEMS_PER_PAGE}
+                            onPageChange={(p) => setCurrentPage(Math.max(1, Math.min(totalPages, p)))}
+                            wrapperClass="px-5 py-4"
+                            resultsTextClass="text-base text-[#0F766E]"
+                            buttonClass="rounded-xl px-4 py-2 text-base"
+                        />
+                    </>
+                )}
             </section>
 
             {selectedApplicant && (
