@@ -256,9 +256,9 @@ const DiscoverDetails = () => {
             </button>
 
             {/* Overlaid Favorite/Heart Button */}
-            <button className="absolute top-4 right-4 bg-black/20 hover:bg-black/40 backdrop-blur-sm text-white p-2.5 rounded-full transition-all">
+            {/* <button className="absolute top-4 right-4 bg-black/20 hover:bg-black/40 backdrop-blur-sm text-white p-2.5 rounded-full transition-all">
               <Heart className="w-4 h-4" />
-            </button>
+            </button> */}
 
             {/* Overlaid Avatar Picture */}
             <div className="absolute -bottom-10 left-6 md:left-10 w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#F8FAFC] overflow-hidden bg-gray-200">

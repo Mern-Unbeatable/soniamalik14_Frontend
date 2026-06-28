@@ -1,133 +1,291 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import ReactQuill from 'react-quill-new';
 import { ImagePlus, X } from 'lucide-react';
+import { GET, POST } from '../../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../../services/httpEndpoint';
+import { toast } from 'react-toastify';
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link'],
+    ['clean'],
+  ],
+};
+
+const getSections = (response) => {
+  const payload = response?.data || response;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.sections)) return payload.sections;
+  return [];
+};
+
+const getLatestByPage = (sections, pageKey) => {
+  return sections
+    .filter((item) => item?.page === pageKey)
+    .sort(
+      (a, b) =>
+        new Date(b?.updatedAt || b?.createdAt || 0).getTime() -
+        new Date(a?.updatedAt || a?.createdAt || 0).getTime()
+    )[0];
+};
+
+const buildPreview = (file, existing) => {
+  if (file instanceof File) return URL.createObjectURL(file);
+  return existing || '';
+};
 
 const ContentCollaboratePage = () => {
-    const [images, setImages] = useState({
-        hero: null,
-        sportProvider: null,
-        serviceProvider: null,
-        brand: null
-    });
+  const [form, setForm] = useState({
+    title: '',
+    subtitle: '',
+    description: '',
+    sportsProviderDescription: '',
+    supportDescription: '',
+    brandDescription: '',
+  });
+  const [images, setImages] = useState({
+    sportsProviderFile: null,
+    supportFile: null,
+    brandFile: null,
+    sportsProviderPreview: '',
+    supportPreview: '',
+    brandPreview: '',
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-    // Create individual refs for each file input
-    const heroFileRef = useRef(null);
-    const sportProviderFileRef = useRef(null);
-    const serviceProviderFileRef = useRef(null);
-    const brandFileRef = useRef(null);
+  const sportsProviderRef = useRef(null);
+  const supportRef = useRef(null);
+  const brandRef = useRef(null);
 
-    // Map section keys to their refs
-    const refMap = {
-        hero: heroFileRef,
-        sportProvider: sportProviderFileRef,
-        serviceProvider: serviceProviderFileRef,
-        brand: brandFileRef
-    };
-
-    // Handle image upload
-    const handleImageChange = (e, sectionKey) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const imageUrl = event.target?.result;
-            setImages(prev => ({
-                ...prev,
-                [sectionKey]: imageUrl
-            }));
-        };
-        reader.readAsDataURL(file);
-    };
-
-    // Trigger file input click
-    const handleUploadClick = (sectionKey) => {
-        refMap[sectionKey]?.current?.click();
-    };
-
-    // Remove image
-    const removeImage = (sectionKey) => {
-        setImages(prev => ({
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const response = await GET(ENDPOINT.HOMEPAGE.SECTIONS);
+        const latest = getLatestByPage(getSections(response), 'COLLABORATE');
+        if (latest) {
+          setForm({
+            title: latest?.title || '',
+            subtitle: latest?.subtitle || '',
+            description: latest?.description || '',
+            sportsProviderDescription: latest?.sportsProviderDescription || '',
+            supportDescription: latest?.supportDescription || '',
+            brandDescription: latest?.brandDescription || '',
+          });
+          setImages((prev) => ({
             ...prev,
-            [sectionKey]: null
-        }));
+            sportsProviderPreview: latest?.sportsProviderImg || '',
+            supportPreview: latest?.supportImg || '',
+            brandPreview: latest?.brandImg || '',
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load COLLABORATE section:', error);
+        toast.error('Failed to load Collaborate content');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Helper function to render each section consistently
-    const renderSection = (title, sectionKey) => (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-            <h2 className="text-2xl lg:text-3xl font-semibold text-gray-900 mb-6">{title}</h2>
+    loadData();
+  }, []);
 
-            {/* Hidden File Input */}
-            <input
-                ref={refMap[sectionKey]}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(e) => handleImageChange(e, sectionKey)}
-            />
+  const sportsProviderPreview = useMemo(
+    () => buildPreview(images.sportsProviderFile, images.sportsProviderPreview),
+    [images.sportsProviderFile, images.sportsProviderPreview]
+  );
+  const supportPreview = useMemo(
+    () => buildPreview(images.supportFile, images.supportPreview),
+    [images.supportFile, images.supportPreview]
+  );
+  const brandPreview = useMemo(
+    () => buildPreview(images.brandFile, images.brandPreview),
+    [images.brandFile, images.brandPreview]
+  );
 
-            {/* Image Upload Area */}
-            <div
-                onClick={() => handleUploadClick(sectionKey)}
-                className="w-full h-64 md:h-80 bg-[#f5f5f5] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#eeeeee] transition-colors mb-6 group relative overflow-hidden"
+  useEffect(() => {
+    return () => {
+      [sportsProviderPreview, supportPreview, brandPreview].forEach((url) => {
+        if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+      });
+    };
+  }, [sportsProviderPreview, supportPreview, brandPreview]);
+
+  const handleUpload = (key) => (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImages((prev) => ({ ...prev, [key]: file }));
+  };
+
+  const renderImageUploader = (title, preview, onPick, onRemove) => (
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+      <h2 className="mb-6 text-2xl font-semibold text-gray-900 lg:text-3xl">{title}</h2>
+      <div
+        onClick={onPick}
+        className="group relative mb-6 flex h-64 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl bg-[#f5f5f5] transition-colors hover:bg-[#eeeeee] md:h-80"
+      >
+        {preview ? (
+          <>
+            <img src={preview} alt={`${title} preview`} className="h-full w-full object-cover" />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
             >
-                {images[sectionKey] ? (
-                    <>
-                        <img src={images[sectionKey]} alt={`${title} Preview`} className="w-full h-full object-cover" />
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                removeImage(sectionKey);
-                            }}
-                            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
-                        >
-                            <X className="w-5 h-5" strokeWidth={2} />
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        <ImagePlus className="w-10 h-10 text-[#0f766e] mb-3 transition-transform group-hover:scale-110" strokeWidth={1.5} />
-                        <span className="text-base font-medium text-gray-700">Upload Hero image</span>
-                    </>
-                )}
-            </div>
+              <X className="h-5 w-5" />
+            </button>
+          </>
+        ) : (
+          <>
+            <ImagePlus className="mb-3 h-10 w-10 text-[#0f766e]" />
+            <span className="text-base font-medium text-gray-700">Upload image</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
 
-            {/* Inputs */}
-            <div className="space-y-6">
-                <div>
-                    <label className="block text-base font-medium text-gray-900 mb-2">Tittle</label>
-                    <input
-                        type="text"
-                        placeholder="Write title"
-                        className="w-full bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none text-gray-800 placeholder-gray-500"
-                    />
-                </div>
-                <div>
-                    <label className="block text-base font-medium text-gray-900 mb-2">Subheadline</label>
-                    <textarea
-                        placeholder="Write your subheadline"
-                        className="w-full h-32 bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none resize-none text-gray-800 placeholder-gray-500"
-                    />
-                </div>
-            </div>
+  const handleSave = async () => {
+    if (!form.title.trim() || !form.description.trim()) {
+      toast.error('Title and description are required');
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append('page', 'COLLABORATE');
+    payload.append('title', form.title.trim());
+    payload.append('subtitle', form.subtitle);
+    payload.append('description', form.description);
+    payload.append('sportsProviderDescription', form.sportsProviderDescription);
+    payload.append('supportDescription', form.supportDescription);
+    payload.append('brandDescription', form.brandDescription);
+    if (images.sportsProviderFile) payload.append('sportsProviderImg', images.sportsProviderFile);
+    if (images.supportFile) payload.append('supportImg', images.supportFile);
+    if (images.brandFile) payload.append('brandImg', images.brandFile);
+
+    try {
+      setSaving(true);
+      await POST(ENDPOINT.HOMEPAGE.SECTIONS, payload);
+      toast.success('Collaborate content saved');
+    } catch (error) {
+      console.error('Failed to save COLLABORATE section:', error);
+      toast.error(error?.response?.data?.message || 'Failed to save Collaborate content');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="rounded-xl bg-white p-6 text-sm text-gray-600">Loading content...</div>;
+  }
+
+  return (
+    <div className="space-y-8 pb-12 font-sans">
+      <input ref={sportsProviderRef} type="file" accept="image/*" hidden onChange={handleUpload('sportsProviderFile')} />
+      <input ref={supportRef} type="file" accept="image/*" hidden onChange={handleUpload('supportFile')} />
+      <input ref={brandRef} type="file" accept="image/*" hidden onChange={handleUpload('brandFile')} />
+
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <h2 className="mb-6 text-2xl font-semibold text-gray-900 lg:text-3xl">Hero section</h2>
+        <div className="space-y-6">
+          <div>
+            <label className="mb-2 block text-base font-medium text-gray-900">Title</label>
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+              className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-base font-medium text-gray-900">Subtitle</label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.subtitle}
+              onChange={(value) => setForm((prev) => ({ ...prev, subtitle: value }))}
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-base font-medium text-gray-900">Description</label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.description}
+              onChange={(value) => setForm((prev) => ({ ...prev, description: value }))}
+            />
+          </div>
         </div>
-    );
+      </div>
 
-    return (
-        <div className="space-y-8 font-sans pb-12">
-            {/* 1. Hero Section */}
-            {renderSection('Hero section', 'hero')}
+      {renderImageUploader(
+        'Sport Provider section',
+        sportsProviderPreview,
+        () => sportsProviderRef.current?.click(),
+        () => setImages((prev) => ({ ...prev, sportsProviderFile: null, sportsProviderPreview: '' }))
+      )}
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <label className="mb-2 block text-base font-medium text-gray-900">Sport Provider Description</label>
+        <ReactQuill
+          theme="snow"
+          modules={quillModules}
+          value={form.sportsProviderDescription}
+          onChange={(value) => setForm((prev) => ({ ...prev, sportsProviderDescription: value }))}
+        />
+      </div>
 
-            {/* 2. Sport Provider Section */}
-            {renderSection('Sport Provider section', 'sportProvider')}
+      {renderImageUploader(
+        'Supporting section',
+        supportPreview,
+        () => supportRef.current?.click(),
+        () => setImages((prev) => ({ ...prev, supportFile: null, supportPreview: '' }))
+      )}
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <label className="mb-2 block text-base font-medium text-gray-900">Supporting Description</label>
+        <ReactQuill
+          theme="snow"
+          modules={quillModules}
+          value={form.supportDescription}
+          onChange={(value) => setForm((prev) => ({ ...prev, supportDescription: value }))}
+        />
+      </div>
 
-            {/* 3. Service Provider Section */}
-            {renderSection('Service Provider section', 'serviceProvider')}
+      {renderImageUploader(
+        'Brand section',
+        brandPreview,
+        () => brandRef.current?.click(),
+        () => setImages((prev) => ({ ...prev, brandFile: null, brandPreview: '' }))
+      )}
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <label className="mb-2 block text-base font-medium text-gray-900">Brand Description</label>
+        <ReactQuill
+          theme="snow"
+          modules={quillModules}
+          value={form.brandDescription}
+          onChange={(value) => setForm((prev) => ({ ...prev, brandDescription: value }))}
+        />
+      </div>
 
-            {/* 4. Brand Section */}
-            {renderSection('Brand section', 'brand')}
-        </div>
-    );
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded-lg bg-[#0f766e] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#0d655d] disabled:opacity-50"
+        >
+          {saving ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default ContentCollaboratePage;

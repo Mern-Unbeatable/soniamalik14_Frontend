@@ -50,10 +50,10 @@
 
 
 
-import React, { useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Container from '../../../../components/layout/Container';
-import SectionHeader from '../../../../components/ui/SectionHeader';
+import { GET } from '../../../../services/httpMethods';
 
 const tiles = [
     { id: 1, title: 'Football', img: '/images/Football.jpg', sport: 'football' },
@@ -61,8 +61,65 @@ const tiles = [
     { id: 3, title: 'Squash', img: '/images/Squash.jpg', sport: 'squash' },
 ];
 
-const FindYourSport = () => {
+const FindYourSport = ({ section }) => {
     const scrollRef = useRef(null);
+    const [discoverCards, setDiscoverCards] = useState([]);
+    const heading = section?.sportTitle || 'Find your sport. Find your squad.';
+    const subtitle =
+        section?.sportSubTitle ||
+        "We're expanding our sports and local listings. If you can't find what you're looking for yet, help us shape what comes next.";
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        const loadDiscoverCards = async () => {
+            try {
+                const response = await GET(
+                    '/api/services/by-role',
+                    { status: 'ACTIVE', providerRole: 'COACH' },
+                    controller.signal,
+                    { skipAuth: true, withCredentials: false }
+                );
+                const serviceList = Array.isArray(response?.data?.data)
+                    ? response.data.data
+                    : Array.isArray(response?.data)
+                        ? response.data
+                        : [];
+
+                const mapped = serviceList
+                    .filter((item) => item?.id)
+                    .map((item, index) => {
+                        const sports = Array.isArray(item?.sports) ? item.sports.filter(Boolean) : [];
+                        const title =
+                            item?.listingHeadline ||
+                            item?.organizationName ||
+                            item?.providerName ||
+                            item?.contactName ||
+                            `Discover ${index + 1}`;
+
+                        return {
+                            id: item.id,
+                            title,
+                            img: item?.logo || item?.provider?.avatar || '/images/Football.jpg',
+                            type: encodeURIComponent(item?.sessionTypes?.[0] || 'service'),
+                        };
+                    })
+                    .slice(0, 4);
+
+                setDiscoverCards(mapped);
+            } catch {
+                setDiscoverCards([]);
+            }
+        };
+
+        loadDiscoverCards();
+        return () => controller.abort();
+    }, []);
+
+    const displayTiles = useMemo(
+        () => (discoverCards.length > 0 ? discoverCards : tiles.slice(0, 4)),
+        [discoverCards]
+    );
 
     // Function to handle manual scrolling via arrows on mobile
     const scroll = (direction) => {
@@ -77,11 +134,11 @@ const FindYourSport = () => {
             <Container>
                 <div className="text-center mb-4 lg:mb-6">
                     <h2 className="font-semibold text-[#0B544E] text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
-                        Find your sport. Find your squad.
+                        {heading}
                     </h2>
                 </div>
                 <p className="text-center text-gray-600 text-base mb-6 md:mb-12 ">
-                    We're expanding our sports and local listings. If you can't find what you're looking for yet, help us shape what comes next.
+                    {subtitle}
                 </p>
 
                 <div className="relative flex justify-center w-full">
@@ -109,12 +166,12 @@ const FindYourSport = () => {
                     {/* Cards Grid / Slider */}
                     <div
                         ref={scrollRef}
-                        className="flex sm:grid sm:grid-cols-3 gap-4 lg:gap-6 w-full overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-smooth pb-4 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                        className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 w-full overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-smooth pb-4 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
                     >
-                        {tiles.map((t) => (
+                        {displayTiles.map((t) => (
                             <Link
                                 key={t.id}
-                                to={`/discover?sport=${encodeURIComponent(t.sport)}`}
+                                to={discoverCards.length > 0 ? `/discover/${t.type}/${t.id}` : `/discover?sport=${encodeURIComponent(t.sport)}`}
                                 // Mobile: Takes 85% width (w-[85%]) for peeking effect. Desktop: Takes full grid column width (sm:w-auto).
                                 className="block w-[85%] sm:w-auto shrink-0 snap-center sm:snap-align-none rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200"
                             >

@@ -61,8 +61,32 @@ const HubCard = ({ title, description, image, alt }) => {
   );
 };
 
-export default function CoreFeatures() {
+const decodeHtmlEntities = (value = '') => {
+  if (typeof document === 'undefined') return String(value || '');
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = String(value || '');
+  return textarea.value;
+};
+
+const sanitizeText = (value) =>
+  decodeHtmlEntities(String(value || ''))
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+export default function CoreFeatures({ cards = [] }) {
   const scrollRef = useRef(null);
+  const title = 'Explore ESSA Hub';
+  const subtitle = 'Everything you need - all in one place.';
+  const displayCards = Array.isArray(cards) && cards.length > 0
+    ? cards.map((card, idx) => ({
+      id: card?.id || `card-${idx + 1}`,
+      title: sanitizeText(card?.title) || 'Untitled',
+      description: sanitizeText(card?.description) || '',
+      image: card?.image || '/images/Discover.jpg',
+      alt: sanitizeText(card?.subtitle) || sanitizeText(card?.title) || 'Card image',
+    }))
+    : cardData;
   const scroll = (direction) => {
     if (scrollRef.current) {
       const scrollAmount = direction === 'left' ? -300 : 300;
@@ -83,10 +107,10 @@ export default function CoreFeatures() {
             id="essa-hub-heading"
             className="mb-3 text-2xl font-semibold tracking-tight text-[#0B544E] sm:text-3xl md:text-4xl lg:text-5xl"
           >
-            Explore ESSA Hub
+            {title}
           </h1>
           <p className="text-base text-gray-500 sm:text-lg">
-            Everything you need - all in one place.
+            {subtitle}
           </p>
         </header>
 
@@ -138,7 +162,7 @@ export default function CoreFeatures() {
           ref={scrollRef}
           className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-4 [-ms-overflow-style:'none'] [scrollbar-width:'none'] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden"
         >
-          {cardData.map((card) => (
+          {displayCards.map((card) => (
             <HubCard key={card.id} {...card} />
           ))}
         </div>

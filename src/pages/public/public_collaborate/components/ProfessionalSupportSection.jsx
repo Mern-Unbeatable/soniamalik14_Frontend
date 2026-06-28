@@ -7,13 +7,17 @@ import {
   useCollaborateListingCta,
 } from '../hooks/useCollaborateListingCta';
 
-const ProfessionalSupportSection = () => {
+const ProfessionalSupportSection = ({ section }) => {
     const { handleClick, isDisabled } = useCollaborateListingCta({
         targetRole: ROLES.PROVIDER,
         registerRoleKey: REGISTER_ROLE_KEYS.SERVICE_PROVIDER,
         dashboardPath: '/provider',
         providerLabel: 'service provider',
     });
+    const sectionImage = section?.supportImg || '/ProfessionalSupport1.webp';
+    const sectionDescription =
+        section?.supportDescription ||
+        "We want to work with professionals whose expertise supports women in sport — including physiotherapy, strength and conditioning, nutrition, women's health and wellbeing.";
 
     return (
         <div className="relative w-full rounded-lg overflow-hidden bg-white shadow-sm flex flex-col md:block mb-10">
@@ -21,7 +25,7 @@ const ProfessionalSupportSection = () => {
             {/* Mobile Image (Visible only on small screens) */}
             <div className="h-64 sm:h-80 w-full md:hidden relative">
                 <img
-                    src="/ProfessionalSupport1.webp"
+                    src={sectionImage}
                     alt="For Professional Support"
                     loading="lazy"
                     className="w-full h-full object-cover object-center"
@@ -34,7 +38,7 @@ const ProfessionalSupportSection = () => {
             <div className="hidden md:block absolute inset-0 z-0 w-full h-full xl:min-h-175">
                 <img
                     // Replace with your original image: "/ProfessionalSupport1.png"
-                    src="/ProfessionalSupport1.webp"
+                    src={sectionImage}
                     alt="For Professional Support"
                     className="absolute inset-0 w-full h-full object-cover "
                 />
@@ -50,7 +54,7 @@ const ProfessionalSupportSection = () => {
                 </h2>
 
                 <p className="text-[#333333] text-base md:text-lg  mb-8 leading-relaxed pr-4 md:pr-10 max-w-md">
-                    We want to work with professionals whose expertise supports women in sport — including physiotherapy, strength and conditioning, nutrition, women's health and wellbeing.
+                    {sectionDescription}
                 </p>
 
                 <ul className="space-y-4 mb-8">

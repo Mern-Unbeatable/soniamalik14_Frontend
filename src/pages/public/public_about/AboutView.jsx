@@ -1,10 +1,7 @@
-﻿
-import AboutHero from './component/AboutHero';
+﻿import AboutHero from './component/AboutHero';
 import AboutMission from './component/AboutMission';
 
 import Foundersection from './component/Foundersection';
-
-
 const AboutView = () => {
   return (
     <div>

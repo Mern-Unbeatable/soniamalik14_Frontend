@@ -13,51 +13,9 @@ const ContentNews = () => {
     });
     const imageFileRef = useRef(null);
 
-    // Dummy Data exactly matching the image
-    const newsData = [
-        {
-            id: 1,
-            image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
-            date: 'Wed Dec 10 2025',
-            title: 'New Morning Yoga Classes Added',
-            description: "We've added new morning yoga sessions to help you start your day with calm energy and focus. Join now and."
-        },
-        {
-            id: 2,
-            image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
-            date: 'Wed Dec 10 2025',
-            title: 'Special Workshop This Weekend',
-            description: "Join our special weekend workshop focused on flexibility, breathing, and relaxation. Limited seats available."
-        },
-        {
-            id: 3,
-            image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
-            date: 'Wed Dec 10 2025',
-            title: 'Improve Your Flexibility in 30 Days',
-            description: "Discover how regular yoga practice can improve your flexibility and reduce stress in just 30 days."
-        },
-        {
-            id: 4,
-            image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
-            date: 'Wed Dec 10 2025',
-            title: 'New Morning Yoga Classes Added',
-            description: "We've added new morning yoga sessions to help you start your day with calm energy and focus. Join now and."
-        },
-        {
-            id: 5,
-            image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
-            date: 'Wed Dec 10 2025',
-            title: 'Special Workshop This Weekend',
-            description: "Join our special weekend workshop focused on flexibility, breathing, and relaxation. Limited seats available."
-        },
-        {
-            id: 6,
-            image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
-            date: 'Wed Dec 10 2025',
-            title: 'Improve Your Flexibility in 30 Days',
-            description: "Discover how regular yoga practice can improve your flexibility and reduce stress in just 30 days."
-        }
-    ];
+    // NOTE: News dummy data intentionally commented as requested.
+    // const newsData = [...];
+    const newsData = [];
 
     const filteredNews = newsData.filter(news =>
         news.title.toLowerCase().includes(newsSearchQuery.toLowerCase())
@@ -85,6 +43,13 @@ const ContentNews = () => {
         setFormData(prev => ({
             ...prev,
             [name]: value
+        }));
+    };
+
+    const handleDescriptionChange = (value) => {
+        setFormData(prev => ({
+            ...prev,
+            description: value
         }));
     };
 
@@ -179,6 +144,7 @@ const ContentNews = () => {
                 isOpen={isModalOpen}
                 formData={formData}
                 onFormChange={handleFormChange}
+                onDescriptionChange={handleDescriptionChange}
                 onImageUpload={handleImageUpload}
                 onUploadImageClick={handleUploadImageClick}
                 onRemoveImage={removeModalImage}
