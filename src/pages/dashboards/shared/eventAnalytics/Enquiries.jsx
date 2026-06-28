@@ -159,7 +159,7 @@ const Enquiries = () => {
                                 </tbody>
                             </table>
                         </div>
-
+{/**pagination */}
                         <TablePagination
                             currentPage={safePage}
                             totalPages={totalPages}
