@@ -126,7 +126,8 @@ const EventDetails = () => {
 
       setIsSaved(nextSavedState);
       toast.success(
-        result?.message || (nextSavedState ? 'Event saved successfully' : 'Event removed from saved')
+        result?.message ||
+          (nextSavedState ? 'Event saved successfully' : 'Event removed from saved')
       );
     } catch (saveError) {
       toast.error(saveError?.response?.data?.message || 'Failed to update saved event');
@@ -164,18 +165,25 @@ const EventDetails = () => {
         coach: data.organizerName || data.organizer?.name || '',
         type: toTitleCase(data.eventType || ''),
         sport: data.sportType || '',
-        suitableFor: Array.isArray(data.suitableFor) && data.suitableFor.length > 0
-          ? data.suitableFor.join(', ')
-          : 'All participants',
+        suitableFor:
+          Array.isArray(data.suitableFor) && data.suitableFor.length > 0
+            ? data.suitableFor.join(', ')
+            : 'All participants',
         womensOnly: getWomenOnlyValue(data),
         location: data.venueName || '',
         locationFull: data.fullAddress || '',
         postcode: data.postcode || '',
         town: data.city || '',
-        day: data.startDate ? new Date(data.startDate).toLocaleDateString(undefined, { weekday: 'long' }) : '',
-        time: data.startTime && data.endTime ? `${data.startTime} - ${data.endTime}` : (data.startTime || ''),
+        day: data.startDate
+          ? new Date(data.startDate).toLocaleDateString(undefined, { weekday: 'long' })
+          : '',
+        time:
+          data.startTime && data.endTime
+            ? `${data.startTime} - ${data.endTime}`
+            : data.startTime || '',
         image: normalizeMediaUrl(data.image) || '/images/detaisPage/detailsBanner.png',
-        organizerAvatar: normalizeMediaUrl(data.organizer?.avatar) || '/images/detaisPage/coachAvatar.png',
+        organizerAvatar:
+          normalizeMediaUrl(data.organizer?.avatar) || '/images/detaisPage/coachAvatar.png',
         avatar: normalizeMediaUrl(data.organizer?.avatar) || '/images/detaisPage/coachAvatar.png',
         mapEmbedUrl: getMapEmbedUrl(data),
         about: data.description || data.about || '',
@@ -185,7 +193,7 @@ const EventDetails = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#F8FAFC] min-h-screen pb-16">
+      <div className="min-h-screen bg-[#F8FAFC] pb-16">
         <Container>
           <div className="py-8 text-center">Loading event...</div>
         </Container>
@@ -195,7 +203,7 @@ const EventDetails = () => {
 
   if (error) {
     return (
-      <div className="bg-[#F8FAFC] min-h-screen pb-16">
+      <div className="min-h-screen bg-[#F8FAFC] pb-16">
         <Container>
           <div className="py-8 text-center text-red-600">{error}</div>
         </Container>
@@ -205,7 +213,7 @@ const EventDetails = () => {
 
   if (!event) {
     return (
-      <div className="bg-[#F8FAFC] min-h-screen pb-16">
+      <div className="min-h-screen bg-[#F8FAFC] pb-16">
         <Container>
           <div className="py-8 text-center">Event not found</div>
         </Container>
@@ -214,35 +222,34 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen pb-16">
+    <div className="min-h-screen bg-[#F8FAFC] pb-16">
       <Container>
         <div className="py-4 md:py-8">
-          
           {/* Hero Banner Section */}
           <div className="relative mb-16">
             {/* Banner Image */}
-            <div className="w-full md:h-96 lg:h-100 xl:h-140 2xl:h-186 rounded-2xl overflow-hidden shadow-sm">
+            <div className="w-full overflow-hidden rounded-2xl shadow-sm md:h-96 lg:h-100 xl:h-140 2xl:h-186">
               {event.image ? (
                 <img
                   src={event.image}
                   alt={event.title}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                   onError={(imageEvent) => {
                     imageEvent.currentTarget.onerror = null;
                     imageEvent.currentTarget.src = '/images/detaisPage/detailsBanner.png';
                   }}
                 />
               ) : (
-                <div className="w-full h-full bg-gray-300"></div>
+                <div className="h-full w-full bg-gray-300"></div>
               )}
             </div>
 
             {/* Overlaid Back Button */}
             <button
               onClick={handleBack}
-              className="absolute top-4 left-4 flex items-center gap-2 bg-black/20 hover:bg-black/40 backdrop-blur-sm text-white px-4 py-2 rounded-full transition-all text-sm font-medium"
+              className="absolute top-4 left-4 flex items-center gap-2 rounded-full bg-black/20 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-black/40"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Back
             </button>
 
@@ -252,51 +259,55 @@ const EventDetails = () => {
               onClick={handleToggleSave}
               disabled={saveLoading}
               aria-label={isSaved ? 'Remove from saved' : 'Save event'}
-              className={`absolute top-4 right-4 backdrop-blur-sm text-white p-2.5 rounded-full transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
+              className={`absolute top-4 right-4 rounded-full p-2.5 text-white backdrop-blur-sm transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
                 isSaved ? 'bg-red-500/70 hover:bg-red-500/90' : 'bg-black/20 hover:bg-black/40'
               }`}
             >
-              <Heart className={`w-4 h-4 ${isSaved ? 'fill-white' : ''}`} />
+              <Heart className={`h-4 w-4 ${isSaved ? 'fill-white' : ''}`} />
             </button>
 
             {/* Overlaid Avatar Picture */}
-            <div className="absolute -bottom-10 left-6 md:left-10 w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#F8FAFC] overflow-hidden bg-gray-200">
+            <div className="absolute -bottom-10 left-6 h-20 w-20 overflow-hidden rounded-full border-4 border-[#F8FAFC] bg-gray-200 md:left-10 md:h-24 md:w-24">
               {event.organizerAvatar ? (
                 <img
                   src={event.organizerAvatar}
                   alt={event.coach}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                   onError={(avatarEvent) => {
                     avatarEvent.currentTarget.onerror = null;
                     avatarEvent.currentTarget.src = '/images/detaisPage/coachAvatar.png';
                   }}
                 />
               ) : (
-                <img src="/images/detaisPage/coachAvatar.png" alt="fallback" className="w-full h-full object-cover" />
+                <img
+                  src="/images/detaisPage/coachAvatar.png"
+                  alt="fallback"
+                  className="h-full w-full object-cover"
+                />
               )}
             </div>
           </div>
 
           {/* Title & Info */}
-          <div className="px-2 md:px-4 mb-8">
-            <h1 className="text-2xl md:text-[32px] font-bold text-[#0B544E] leading-tight">
+          <div className="mb-8 px-2 md:px-4">
+            <h1 className="text-2xl leading-tight font-bold text-[#0B544E] md:text-[32px]">
               {event.title}
             </h1>
-            <p className="text-[#0C0C0C] mt-2 text-base">
+            <p className="mt-2 text-base text-[#0C0C0C]">
               Event Type: <span className="text-[#0C0C0C]">{event.type}</span>
             </p>
           </div>
 
           {/* Session Details Card */}
-          <div className="bg-white rounded-lg p-6  mb-8 shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-[#000000] mb-3">Event Type</h2>
-            <div className="text-[#272727] text-base md:max-w-7xl whitespace-pre-wrap leading-relaxed">  
+          <div className="mb-8 rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
+            <h2 className="mb-3 text-xl font-bold text-[#000000]">Event Type</h2>
+            <div className="text-base leading-relaxed whitespace-pre-wrap text-[#272727] md:max-w-7xl">
               {event.about}
             </div>
           </div>
 
           {/* 3-Column Grid for Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
             {/* Column 1: Session Overview */}
             <SessionOverview event={event} />
 
