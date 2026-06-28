@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiCamera } from 'react-icons/fi';
+import { FiCamera, FiUser } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../../context/AuthContext';
 import { updateUserProfile } from '../../../../services/authService';
@@ -42,7 +42,7 @@ const ProfileInfoSection = () => {
     const [avatarFile, setAvatarFile] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
-    const [imagePreview, setImagePreview] = useState(user?.avatar || '/coachindex.jpg');
+    const [imagePreview, setImagePreview] = useState(user?.avatar || '');
 
     const handleImageSelect = (e) => {
         const file = e.target.files?.[0];
@@ -136,10 +136,13 @@ const ProfileInfoSection = () => {
     return (
         <section className="bg-white rounded-lg shadow-sm">
             <form className="space-y-6 p-6">
-                {/* Profile Image with Camera Overlay */}
                 <div className="relative w-30 h-30 mb-8">
-                    <div className="h-full w-full rounded-full overflow-hidden bg-gray-100 border border-gray-200">
-                        <img src={imagePreview || '/coachindex.jpg'} alt="Profile" className="h-full w-full object-cover" />
+                    <div className="h-full w-full rounded-full overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                            <FiUser className="w-12 h-12 text-gray-400" />
+                        )}
                     </div>
                     <label htmlFor="imgInput" className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow-md cursor-pointer border border-gray-200 hover:bg-gray-50 transition-all">
                         <FiCamera size={14} className="text-gray-600" />
@@ -250,8 +253,8 @@ const ProfileInfoSection = () => {
                             <input 
                                 name="email" 
                                 value={profile.email} 
-                                onChange={handleProfileChange} 
-                                className={inputClass}
+                                disabled
+                                className={`${inputClass} bg-gray-100 cursor-not-allowed text-gray-500`}
                                 placeholder="Write your email"
                             />
                         </div>
