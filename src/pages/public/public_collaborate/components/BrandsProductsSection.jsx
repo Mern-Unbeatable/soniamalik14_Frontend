@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { Check, ArrowRight } from 'lucide-react';
 import JoinMarketplaceModal from './JoinMarketplaceModal';
 
-const BrandsProductsSection = () => {
+const BrandsProductsSection = ({ section }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const sectionImage = section?.brandImg || '/MarketPlace1.webp';
+    const sectionDescription =
+        section?.brandDescription ||
+        'The ESSA Marketplace features thoughtfully selected brands that support women in sport.';
 
     return (
         <div className="relative w-full rounded-lg overflow-hidden bg-white shadow-sm flex flex-col md:block">
@@ -11,7 +15,7 @@ const BrandsProductsSection = () => {
             {/* Mobile Image (Visible only on small screens) */}
             <div className="h-64 sm:h-80 w-full md:hidden relative">
                 <img
-                    src="/MarketPlace1.webp"
+                    src={sectionImage}
                     alt="For Brands & Products"
                     loading="lazy"
                     className="w-full h-full object-cover object-center"
@@ -23,9 +27,9 @@ const BrandsProductsSection = () => {
             {/* Desktop Background Image (Hidden on small screens) */}
             <div className="hidden md:block absolute inset-0 z-0 w-full h-full">
                 <img
-                    src="/MarketPlace1.webp"
+                    src={sectionImage}
                     alt="For Brands & Products"
-                  ame="absolute inset-0 w-full h-full object-cover object-right-bottom"
+                    className="absolute inset-0 w-full h-full object-cover object-right-bottom"
                 />
                 {/* Smooth Gradient Overlay exactly like the image (Fades Left to Right) */}
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,#FFFFFF_40%,rgba(255,255,255,0.9)_55%,transparent_100%)] w-[90%] lg:w-[80%]" />
@@ -40,7 +44,7 @@ const BrandsProductsSection = () => {
                 </h2>
 
                 <p className="text-[#333333] text-base md:text-lg mb-8 leading-relaxed pr-4 md:pr-10 max-w-md">
-                    The ESSA Marketplace features thoughtfully selected brands that support women in sport.
+                    {sectionDescription}
                 </p>
 
                 <ul className="space-y-4 mb-8">

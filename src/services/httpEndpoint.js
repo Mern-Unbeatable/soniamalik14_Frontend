@@ -106,6 +106,13 @@ export const ENDPOINT = {
   INQUIRIES: {
     LIST: '/api/inquiries',
   },
+  HOMEPAGE: {
+    SECTIONS: '/api/homepage/sections',
+    SECTION_DETAIL: (sectionId) => `/api/homepage/sections/${sectionId}`,
+    CONTENT: '/api/homepage/content',
+    CARDS: '/api/homepage/cards',
+    CARD_DETAIL: (cardId) => `/api/homepage/cards/${cardId}`,
+  },
   NOTIFICATIONS: {
     LIST: '/api/notifications',
     READ_ALL: '/api/notifications/read-all',

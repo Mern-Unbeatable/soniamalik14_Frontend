@@ -7,20 +7,24 @@ import {
   useCollaborateListingCta,
 } from '../hooks/useCollaborateListingCta';
 
-const SportProvidersSection = () => {
+const SportProvidersSection = ({ section }) => {
     const { handleClick, isDisabled } = useCollaborateListingCta({
         targetRole: ROLES.COACH,
         registerRoleKey: REGISTER_ROLE_KEYS.SPORT_PROVIDER,
         dashboardPath: '/coach',
         providerLabel: 'sport provider',
     });
+    const sectionImage = section?.sportsProviderImg || '/sportProviderOrginal.webp';
+    const sectionDescription =
+        section?.sportsProviderDescription ||
+        'If you run sessions, teams or training opportunities, ESSA Hub can help make them easier to find.';
 
     return (        <div className="relative w-full rounded-lg overflow-hidden bg-white shadow-sm flex flex-col md:block">
 
             {/* Mobile Image (Visible only on small screens) */}
             <div className="h-64 sm:h-80 w-full md:hidden relative">
                 <img
-                    src="/sportProviderOrginal.webp"
+                    src={sectionImage}
                     alt="For Sport Providers"
                     loading="lazy"
                     className="w-full h-full object-cover object-center"
@@ -33,7 +37,7 @@ const SportProvidersSection = () => {
             <div className="hidden md:block absolute inset-0 z-0 w-full h-full xl:min-h-[700px]">
                 <img
 
-                    src="/sportProviderOrginal.webp"
+                    src={sectionImage}
                     alt="For Sport Providers"
                     className="absolute inset-0  object-cover object-right"
                 />
@@ -49,7 +53,7 @@ const SportProvidersSection = () => {
                 </h2>
 
                 <p className="text-[#333333] text-base md:text-lg mb-8 leading-relaxed pr-4 md:pr-10 max-w-lg">
-                    If you run sessions, teams or training opportunities, ESSA Hub can help make them easier to find.
+                    {sectionDescription}
                 </p>
 
                 <ul className="space-y-4 mb-8">

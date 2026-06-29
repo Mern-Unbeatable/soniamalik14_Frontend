@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import ContentLandingPage from './components/ContentLandingPage';
-import ContentAboutUS from './components/ContentAboutUS';
+// import ContentAboutUS from './components/ContentAboutUS';
 import ContentCollaboratePage from './components/ContentCollaboratePage';
-import ContentNews from './components/ContentNews';
+// import ContentNews from './components/ContentNews';
 import ContentTabs from './components/ContentTabs';
+import 'react-quill-new/dist/quill.snow.css';
 
 const ContentManagement = () => {
     const [activeTab, setActiveTab] = useState('Landing Page');
 
-    const tabs = ['Landing Page', 'About US', 'Collaborate page', 'News'];
+    const tabs = [
+        'Landing Page',
+        // 'About US',
+        'Collaborate page',
+        // 'News',
+    ];
 
     return (
         <div className="flex-1 overflow-auto bg-gray-50 dashboardPy dashboardSpaceY">
@@ -29,9 +35,9 @@ const ContentManagement = () => {
 
                 {/* Tab Content Rendering */}
                 {activeTab === 'Landing Page' && <ContentLandingPage />}
-                {activeTab === 'About US' && <ContentAboutUS />}
+                {/* {activeTab === 'About US' && <ContentAboutUS />} */}
                 {activeTab === 'Collaborate page' && <ContentCollaboratePage />}
-                {activeTab === 'News' && <ContentNews />}
+                {/* {activeTab === 'News' && <ContentNews />} */}
 
             </div>
 

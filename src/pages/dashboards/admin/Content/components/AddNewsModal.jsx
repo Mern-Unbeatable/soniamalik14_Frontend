@@ -1,10 +1,12 @@
 import React from 'react';
 import { ImagePlus, X } from 'lucide-react';
+import ReactQuill from 'react-quill-new';
 
 const AddNewsModal = ({
     isOpen,
     formData,
     onFormChange,
+    onDescriptionChange,
     onImageUpload,
     onUploadImageClick,
     onRemoveImage,
@@ -48,12 +50,10 @@ const AddNewsModal = ({
                     {/* News Description */}
                     <div>
                         <label className="block text-base font-medium text-gray-900 mb-2">News Description</label>
-                        <textarea
-                            name="description"
+                        <ReactQuill
+                            theme="snow"
                             value={formData.description}
-                            onChange={onFormChange}
-                            placeholder="Description"
-                            className="w-full h-24 bg-[#f5f5f5] border-none rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#0f766e]/20 outline-none resize-none text-gray-800 placeholder-gray-500"
+                            onChange={onDescriptionChange}
                         />
                     </div>
 

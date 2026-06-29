@@ -1,405 +1,385 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ImagePlus, Plus, X } from 'lucide-react';
-import { POST, GET } from '../../../../../services/httpMethods';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import ReactQuill from 'react-quill-new';
+import { ImagePlus, Plus, Trash2, X } from 'lucide-react';
+import { DELETE as DELETE_REQUEST, GET, PATCH, POST, PUT } from '../../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../../services/httpEndpoint';
 import { toast } from 'react-toastify';
 
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link'],
+    ['clean'],
+  ],
+};
+
+const getSections = (response) => {
+  const payload = response?.data || response;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.sections)) return payload.sections;
+  return [];
+};
+
+const getCards = (response) => {
+  const payload = response?.data || response;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload)) return payload;
+  return [];
+};
+
+const getLatestByPage = (sections, pageKey) =>
+  sections
+    .filter((item) => item?.page === pageKey)
+    .sort(
+      (a, b) =>
+        new Date(b?.updatedAt || b?.createdAt || 0).getTime() -
+        new Date(a?.updatedAt || a?.createdAt || 0).getTime()
+    )[0];
+
+const createLocalCard = () => ({
+  id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  title: '',
+  subtitle: '',
+  description: '',
+  image: '',
+  imageFile: null,
+  isSaving: false,
+});
+
+const mapApiCard = (card, idx = 0) => ({
+  id: card?.id || `local-${Date.now()}-${idx}`,
+  title: card?.title || '',
+  subtitle: card?.subtitle || '',
+  description: card?.description || '',
+  image: card?.image || '',
+  imageFile: null,
+  isSaving: false,
+});
+
+const toPlainText = (value = '') =>
+  String(value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const ContentLandingPage = () => {
-    // Image state for different sections
-    const [heroImage, setHeroImage] = useState(null);
-    const [heroImageFile, setHeroImageFile] = useState(null);
-    const [heroTitle, setHeroTitle] = useState('');
-    const [heroSubheadline, setHeroSubheadline] = useState('');
-    const [savingHero, setSavingHero] = useState(false);
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    sectionTitle: '',
+    sectionSubTitle: '',
+    sportTitle: '',
+    sportSubTitle: '',
+  });
+  const [heroImagePreview, setHeroImagePreview] = useState('');
+  const [heroImageFile, setHeroImageFile] = useState(null);
+  const [homeSectionId, setHomeSectionId] = useState('');
+  const [cards, setCards] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [cardsLoading, setCardsLoading] = useState(true);
+  const [savingHome, setSavingHome] = useState(false);
+  const [savingExplore, setSavingExplore] = useState(false);
+  const heroFileRef = useRef(null);
+  const cardFileRefs = useRef({});
 
-    const [exploreCards, setExploreCards] = useState([{ id: 1, image: null }]);
-    const [findCards, setFindCards] = useState([{ id: 1, image: null }]);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setCardsLoading(true);
+        const [sectionsResponse, cardsResponse] = await Promise.all([
+          GET(ENDPOINT.HOMEPAGE.SECTIONS),
+          GET(ENDPOINT.HOMEPAGE.CARDS),
+        ]);
 
-    // Refs for file inputs
-    const heroFileRef = useRef(null);
-    const exploreFileRef = useRef(null);
-    const findFileRef = useRef(null);
-    const [activeUploadType, setActiveUploadType] = useState(null);
-    const [activeCardId, setActiveCardId] = useState(null);
-
-    // Handle image upload
-    const handleImageChange = (e, type, cardId = null) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const imageUrl = event.target?.result;
-
-            if (type === 'hero') {
-                setHeroImageFile(file);
-                setHeroImage(imageUrl);
-            } else if (type === 'explore') {
-                setExploreCards(cards =>
-                    cards.map(card => card.id === cardId ? { ...card, image: imageUrl } : card)
-                );
-            } else if (type === 'find') {
-                setFindCards(cards =>
-                    cards.map(card => card.id === cardId ? { ...card, image: imageUrl } : card)
-                );
-            }
-        };
-        reader.readAsDataURL(file);
-    };
-
-    // Trigger file input clicks
-    const handleUploadClick = (type, cardId = null) => {
-        setActiveUploadType(type);
-        setActiveCardId(cardId);
-
-        if (type === 'hero') heroFileRef.current?.click();
-        else if (type === 'explore') exploreFileRef.current?.click();
-        else if (type === 'find') findFileRef.current?.click();
-    };
-
-    // Remove image
-    const removeImage = (type, cardId = null) => {
-        if (type === 'hero') {
-            setHeroImage(null);
-            setHeroImageFile(null);
-        } else if (type === 'explore') {
-            setExploreCards(cards =>
-                cards.map(card => card.id === cardId ? { ...card, image: null } : card)
-            );
-        } else if (type === 'find') {
-            setFindCards(cards =>
-                cards.map(card => card.id === cardId ? { ...card, image: null } : card)
-            );
-        }
-    };
-
-    // Add new card
-    const addExploreCard = () => {
-        const newId = Math.max(...exploreCards.map(c => c.id), 0) + 1;
-        setExploreCards([...exploreCards, { id: newId, image: null }]);
-    };
-
-    const addFindCard = () => {
-        const newId = Math.max(...findCards.map(c => c.id), 0) + 1;
-        setFindCards([...findCards, { id: newId, image: null }]);
-    };
-
-    // Fetch and populate existing homepage sections (e.g. Hero content) when the component mounts
-    useEffect(function initHero() {
-        const fetchHeroData = async () => {
-            try {
-                const response = await GET('/api/homepage/sections?page=HOME');
-                const payload = response?.data || response;
-                const sections = Array.isArray(payload) ? payload : (payload?.sections || payload?.data || []);
-                const homeHero = sections.find(s => s.page === 'HOME') || sections[0];
-                if (homeHero) {
-                    setHeroTitle(homeHero.title || '');
-                    setHeroSubheadline(homeHero.description || '');
-                    if (homeHero.image) {
-                        setHeroImage(homeHero.image);
-                    }
-                }
-            } catch (err) {
-                console.warn('Could not fetch existing hero section data:', err);
-            }
-        };
-        fetchHeroData();
-    }, []);
-
-    const handleSaveHero = async () => {
-        if (!heroTitle.trim()) {
-            toast.error('Title is required');
-            return;
-        }
-        if (!heroSubheadline.trim()) {
-            toast.error('Subheadline is required');
-            return;
+        const latest = getLatestByPage(getSections(sectionsResponse), 'HOME');
+        if (latest) {
+          setHomeSectionId(latest?.id || '');
+          setForm({
+            title: latest?.title || '',
+            description: latest?.description || '',
+            sectionTitle: latest?.sectionTitle || '',
+            sectionSubTitle: latest?.sectionSubTitle || '',
+            sportTitle: latest?.sportTitle || '',
+            sportSubTitle: latest?.sportSubTitle || '',
+          });
+          setHeroImagePreview(latest?.image || '');
         }
 
-        const formData = new FormData();
-        formData.append('title', heroTitle.trim());
-        formData.append('description', heroSubheadline.trim());
-        formData.append('page', 'HOME');
-        if (heroImageFile) {
-            formData.append('image', heroImageFile);
-        }
-
-        setSavingHero(true);
-        try {
-            await POST('/api/homepage/sections', formData);
-            toast.success('Hero section saved successfully!');
-        } catch (err) {
-            console.error('Error saving Hero section:', err);
-            const errMsg = err?.response?.data?.message || err?.message || 'Failed to save Hero section';
-            toast.error(errMsg);
-        } finally {
-            setSavingHero(false);
-        }
+        const mappedCards = getCards(cardsResponse)
+          .sort((a, b) => Number(a?.order || 0) - Number(b?.order || 0))
+          .map((item, idx) => mapApiCard(item, idx));
+        setCards(mappedCards);
+      } catch (error) {
+        console.error('Failed to load HOME content/cards:', error);
+        toast.error('Failed to load landing page data');
+      } finally {
+        setLoading(false);
+        setCardsLoading(false);
+      }
     };
 
-    return (
-        <div className="space-y-8 font-sans pb-12">
+    loadData();
+  }, []);
 
-            {/* Hidden File Inputs */}
-            <input
-                ref={heroFileRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(e) => handleImageChange(e, 'hero')}
-            />
-            <input
-                ref={exploreFileRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(e) => handleImageChange(e, 'explore', activeCardId)}
-            />
-            <input
-                ref={findFileRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(e) => handleImageChange(e, 'find', activeCardId)}
-            />
+  const previewUrl = useMemo(() => {
+    if (heroImageFile instanceof File) return URL.createObjectURL(heroImageFile);
+    return heroImagePreview;
+  }, [heroImageFile, heroImagePreview]);
 
-            {/* 1. Hero Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-                <h2 className="text-2xl lg:text-3xl font-semibold text-gray-900 mb-6">Hero section</h2>
+  useEffect(
+    () => () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    },
+    [previewUrl]
+  );
 
-                {/* Image Upload Area */}
-                <div
-                    onClick={() => handleUploadClick('hero')}
-                    className="w-full h-64 md:h-80 bg-[#f5f5f5] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#eeeeee] transition-colors mb-6 group relative overflow-hidden"
-                >
-                    {heroImage ? (
-                        <>
-                            <img src={heroImage} alt="Hero Preview" className="w-full h-full object-cover" />
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    removeImage('hero');
-                                }}
-                                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
-                            >
-                                <X className="w-5 h-5" strokeWidth={2} />
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <ImagePlus className="w-10 h-10 text-[#0f766e] mb-3 transition-transform group-hover:scale-110" strokeWidth={1.5} />
-                            <span className="text-sm font-medium text-gray-700">Upload Hero image</span>
-                        </>
-                    )}
-                </div>
+  const handleInputChange = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
-                {/* Inputs */}
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-base font-medium text-gray-900 mb-2">Title</label>
-                        <input
-                            type="text"
-                            placeholder="Write title"
-                            value={heroTitle}
-                            onChange={(e) => setHeroTitle(e.target.value)}
-                            className="w-full bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none text-gray-800 placeholder-gray-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-base font-medium text-gray-900 mb-2">Subheadline</label>
-                        <textarea
-                            placeholder="Write your subheadline"
-                            value={heroSubheadline}
-                            onChange={(e) => setHeroSubheadline(e.target.value)}
-                            className="w-full h-32 bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none resize-none text-gray-800 placeholder-gray-500"
-                        />
-                    </div>
-                </div>
+  const updateCardState = (cardId, updates) => {
+    setCards((prev) => prev.map((item) => (item.id === cardId ? { ...item, ...updates } : item)));
+  };
 
-                {/* Save Button */}
-                <div className="flex justify-end mt-6">
-                    <button
-                        type="button"
-                        onClick={handleSaveHero}
-                        disabled={savingHero}
-                        className="bg-[#0f766e] hover:bg-[#0d655d] text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
-                    >
-                        {savingHero ? 'Saving...' : 'Save Changes'}
-                    </button>
-                </div>
-            </div>
+  const handleSaveHomeSection = async () => {
+    if (!homeSectionId) {
+      toast.error('Home section id not found. Please reload the page.');
+      return;
+    }
 
-            {/* 2. Explore Essa Hub Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-                <h2 className="text-2xl lg:text-3xl font-semibold text-gray-900 mb-6">Explore Essa Hub</h2>
+    const payload = new FormData();
+    payload.append('id', homeSectionId);
+    payload.append('page', 'HOME');
+    payload.append('title', form.title.trim());
+    payload.append('description', form.description);
+    payload.append('sectionTitle', form.sectionTitle.trim());
+    payload.append('sectionSubTitle', toPlainText(form.sectionSubTitle));
+    payload.append('sportTitle', form.sportTitle.trim());
+    payload.append('sportSubTitle', toPlainText(form.sportSubTitle));
+    if (heroImageFile) payload.append('image', heroImageFile);
 
-                {/* Section Inputs */}
-                <div className="space-y-6 mb-10">
-                    <div>
-                        <label className="block text-base font-medium text-gray-900 mb-2">Section Tittle</label>
-                        <input
-                            type="text"
-                            placeholder="Write title"
-                            className="w-full bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none text-gray-800 placeholder-gray-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-base font-medium text-gray-900 mb-2">Section Subheadline</label>
-                        <textarea
-                            placeholder="Write your subheadline"
-                            className="w-full h-32 bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none resize-none text-gray-800 placeholder-gray-500"
-                        />
-                    </div>
-                </div>
+    try {
+      setSavingHome(true);
+      await PATCH(ENDPOINT.HOMEPAGE.SECTION_DETAIL(homeSectionId), payload);
+      toast.success('Landing page content saved');
+    } catch (error) {
+      console.error('Failed to save HOME section:', error);
+      toast.error(error?.response?.data?.message || 'Failed to save content');
+    } finally {
+      setSavingHome(false);
+    }
+  };
 
-                {/* Cards Area */}
-                <h3 className="text-2xl lg:text-3xl font-semibold text-gray-900 mb-6">Card</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  const handleSaveExploreSection = async () => {
+    if (!homeSectionId) {
+      toast.error('Home section id not found. Please reload the page.');
+      return;
+    }
 
-                    {/* Existing Card Items */}
-                    {exploreCards.map((card) => (
-                        <div key={card.id} className="bg-[#f4f4f4] p-5 rounded-xl border border-gray-100">
-                            <div className="space-y-5">
-                                <div>
-                                    <label className="block text-base font-medium text-gray-900 mb-2">Card Tittle</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Write title"
-                                        className="w-full bg-white border border-gray-100 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none text-gray-800 placeholder-gray-500 shadow-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-base font-medium text-gray-900 mb-2">Card Description</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Description"
-                                        className="w-full bg-white border border-gray-100 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none text-gray-800 placeholder-gray-500 shadow-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-base font-medium text-gray-900 mb-2">Image</label>
-                                    <div
-                                        onClick={() => handleUploadClick('explore', card.id)}
-                                        className="w-full h-36 bg-white border border-gray-100 shadow-sm rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors group relative overflow-hidden"
-                                    >
-                                        {card.image ? (
-                                            <>
-                                                <img src={card.image} alt="Card Preview" className="w-full h-full object-cover" />
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        removeImage('explore', card.id);
-                                                    }}
-                                                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full transition-colors"
-                                                >
-                                                    <X className="w-4 h-4" strokeWidth={2} />
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ImagePlus className="w-7 h-7 text-[#0f766e] mb-2 transition-transform group-hover:scale-110" strokeWidth={1.5} />
-                                                <span className="text-xs font-medium text-gray-600">Upload Hero image</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+    if (!form.title.trim()) {
+      toast.error('Hero title is required before saving Explore section');
+      return;
+    }
 
-                    {/* Add New Card Button */}
-                    <div
-                        onClick={addExploreCard}
-                        className="bg-[#f5f5f5] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#eeeeee] transition-colors min-h-[340px] group border-2 border-dashed border-gray-200"
-                    >
-                        <Plus className="w-8 h-8 text-[#0f766e] mb-3 transition-transform group-hover:scale-110" strokeWidth={2} />
-                        <span className="text-sm font-medium text-gray-700">Add new card</span>
-                    </div>
-                </div>
-            </div>
+    const payload = new FormData();
+    payload.append('id', homeSectionId);
+    payload.append('page', 'HOME');
+    payload.append('title', form.title.trim());
+    payload.append('description', form.description || '');
+    payload.append('sectionTitle', form.sectionTitle.trim());
+    payload.append('sectionSubTitle', toPlainText(form.sectionSubTitle));
 
-            {/* 3. Find Your Sport Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-                <h2 className="text-2xl lg:text-3xl font-semibold text-[#0B544E] mb-6">Find Your Sport</h2>
+    try {
+      setSavingExplore(true);
+      await PATCH(ENDPOINT.HOMEPAGE.SECTION_DETAIL(homeSectionId), payload);
+      toast.success('Explore ESSA Hub content saved');
+    } catch (error) {
+      console.error('Failed to save Explore ESSA Hub content:', error);
+      toast.error(error?.response?.data?.message || 'Failed to save Explore section');
+    } finally {
+      setSavingExplore(false);
+    }
+  };
 
-                {/* Section Inputs */}
-                <div className="space-y-6 mb-10">
-                    <div>
-                        <label className="block text-base font-medium text-gray-900 mb-2">Section Tittle</label>
-                        <input
-                            type="text"
-                            placeholder="Write title"
-                            className="w-full bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none text-gray-800 placeholder-gray-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-base font-medium text-gray-900 mb-2">Section Subheadline</label>
-                        <textarea
-                            placeholder="Write your subheadline"
-                            className="w-full h-32 bg-[#f5f5f5] border-none rounded-lg px-4 py-3.5 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none resize-none text-gray-800 placeholder-gray-500"
-                        />
-                    </div>
-                </div>
+  const handleSaveCard = async (card) => {
+    if (!card.title.trim() || !card.description.trim()) {
+      toast.error('Card title and description are required');
+      return;
+    }
+    const payload = new FormData();
+    payload.append('title', card.title.trim());
+    payload.append('subtitle', card.subtitle || '');
+    payload.append('description', card.description || '');
+    if (card.imageFile) payload.append('image', card.imageFile);
 
-                {/* Cards Area */}
-                <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">Card</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    const isExisting = !String(card.id).startsWith('local-');
+    updateCardState(card.id, { isSaving: true });
+    try {
+      const response = isExisting
+        ? await PUT(ENDPOINT.HOMEPAGE.CARD_DETAIL(card.id), payload)
+        : await POST(ENDPOINT.HOMEPAGE.CARDS, payload);
+      const savedCard = response?.data?.data?.card || response?.data?.data;
+      const savedCardId = savedCard?.id || card.id;
+      let cardDetails = savedCard;
+      try {
+        const detailResponse = await GET(ENDPOINT.HOMEPAGE.CARD_DETAIL(savedCardId));
+        cardDetails = detailResponse?.data?.data?.card || savedCard;
+      } catch {
+        cardDetails = savedCard;
+      }
+      if (savedCard?.id) {
+        setCards((prev) =>
+          prev.map((item) => (item.id === card.id ? mapApiCard(cardDetails) : item))
+        );
+      }
+      toast.success(isExisting ? 'Card updated' : 'Card created');
+    } catch (error) {
+      console.error('Failed to save card:', error);
+      toast.error(error?.response?.data?.message || 'Failed to save card');
+    } finally {
+      updateCardState(card.id, { isSaving: false });
+    }
+  };
 
-                    {/* Existing Card Items (No description field in this section) */}
-                    {findCards.map((card) => (
-                        <div key={card.id} className="bg-[#f4f4f4] p-5 rounded-xl border border-gray-100 flex flex-col justify-between min-h-[250px]">
-                            <div className="space-y-5">
-                                <div>
-                                    <label className="block text-base font-medium text-gray-900 mb-2">Card Tittle</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Write title"
-                                        className="w-full bg-white border border-gray-100 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-[#0f766e]/20 outline-none text-gray-800 placeholder-gray-500 shadow-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-base font-medium text-gray-900 mb-2">Image</label>
-                                    <div
-                                        onClick={() => handleUploadClick('find', card.id)}
-                                        className="w-full h-28 bg-white border border-gray-100 shadow-sm rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors group relative overflow-hidden"
-                                    >
-                                        {card.image ? (
-                                            <>
-                                                <img src={card.image} alt="Card Preview" className="w-full h-full object-cover" />
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        removeImage('find', card.id);
-                                                    }}
-                                                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full transition-colors"
-                                                >
-                                                    <X className="w-4 h-4" strokeWidth={2} />
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ImagePlus className="w-7 h-7 text-[#0f766e] mb-2 transition-transform group-hover:scale-110" strokeWidth={1.5} />
-                                                <span className="text-xs font-medium text-gray-600">Upload Hero image</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+  const handleDeleteCard = async (card) => {
+    const isExisting = !String(card.id).startsWith('local-');
+    if (!isExisting) {
+      setCards((prev) => prev.filter((item) => item.id !== card.id));
+      return;
+    }
+    try {
+      await DELETE_REQUEST(ENDPOINT.HOMEPAGE.CARD_DETAIL(card.id));
+      setCards((prev) => prev.filter((item) => item.id !== card.id));
+      toast.success('Card deleted');
+    } catch (error) {
+      console.error('Failed to delete card:', error);
+      toast.error(error?.response?.data?.message || 'Failed to delete card');
+    }
+  };
 
-                    {/* Add New Card Button */}
-                    <div
-                        onClick={addFindCard}
-                        className="bg-[#f5f5f5] rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#eeeeee] transition-colors min-h-[250px] group border-2 border-dashed border-gray-200"
-                    >
-                        <Plus className="w-8 h-8 text-[#0f766e] mb-3 transition-transform group-hover:scale-110" strokeWidth={2} />
-                        <span className="text-sm font-medium text-gray-700">Add new card</span>
-                    </div>
-                </div>
-            </div>
+  if (loading) return <div className="rounded-xl bg-white p-6 text-sm text-gray-600">Loading content...</div>;
 
+  return (
+    <div className="space-y-8 pb-12 font-sans">
+      <input ref={heroFileRef} type="file" accept="image/*" hidden onChange={(e) => setHeroImageFile(e.target.files?.[0] || null)} />
+
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <h2 className="mb-6 text-2xl font-semibold text-gray-900 lg:text-3xl">Hero section</h2>
+        <div onClick={() => heroFileRef.current?.click()} className="group relative mb-6 flex h-64 w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-[#f5f5f5] md:h-80">
+          {previewUrl ? (
+            <>
+              <img src={previewUrl} alt="Hero Preview" className="h-full w-full object-cover" />
+              <button type="button" onClick={(e) => { e.stopPropagation(); setHeroImageFile(null); setHeroImagePreview(''); }} className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white"><X className="h-5 w-5" /></button>
+            </>
+          ) : (
+            <ImagePlus className="h-10 w-10 text-[#0f766e]" />
+          )}
         </div>
-    );
+        <div className="space-y-6">
+          <input type="text" value={form.title} onChange={(e) => handleInputChange('title', e.target.value)} className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none" placeholder="Write title" />
+          <ReactQuill theme="snow" modules={quillModules} value={form.description} onChange={(value) => handleInputChange('description', value)} />
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <h2 className="mb-6 text-2xl font-semibold text-gray-900 lg:text-3xl">Explore ESSA Hub</h2>
+        <div className="space-y-6">
+          <input type="text" value={form.sectionTitle} onChange={(e) => handleInputChange('sectionTitle', e.target.value)} className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none" placeholder="Section title" />
+          <ReactQuill theme="snow" modules={quillModules} value={form.sectionSubTitle} onChange={(value) => handleInputChange('sectionSubTitle', value)} />
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={handleSaveExploreSection}
+            disabled={savingExplore}
+            className="rounded-lg bg-[#0f766e] px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            {savingExplore ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+
+        <div className="mt-8">
+          <div className="mb-5 flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-gray-900">Cards</h3>
+            <button type="button" onClick={() => setCards((prev) => [...prev, createLocalCard()])} className="inline-flex items-center gap-2 rounded-lg bg-[#0f766e] px-4 py-2 text-sm font-medium text-white">
+              <Plus className="h-4 w-4" /> Add New Card
+            </button>
+          </div>
+
+          {cardsLoading ? (
+            <p className="text-sm text-gray-600">Loading cards...</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {cards.map((card) => (
+                <div key={card.id} className="rounded-xl border border-gray-200 bg-[#F8FAFB] p-4">
+                  <div onClick={() => cardFileRefs.current[card.id]?.click()} className="relative mb-4 flex h-36 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white">
+                    {card.image ? (
+                      <>
+                        <img src={card.image} alt={card.title || 'Card'} className="h-full w-full object-cover" />
+                        <button type="button" onClick={(e) => { e.stopPropagation(); updateCardState(card.id, { image: '', imageFile: null }); }} className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white"><X className="h-4 w-4" /></button>
+                      </>
+                    ) : (
+                      <ImagePlus className="h-7 w-7 text-[#0f766e]" />
+                    )}
+                  </div>
+                  <input
+                    ref={(el) => { if (el) cardFileRefs.current[card.id] = el; }}
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (evt) => updateCardState(card.id, { imageFile: file, image: evt.target?.result || '' });
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+
+                  <div className="space-y-3">
+                    <input type="text" value={card.title} onChange={(e) => updateCardState(card.id, { title: e.target.value })} className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm outline-none" placeholder="Card title" />
+                    <input type="text" value={card.subtitle} onChange={(e) => updateCardState(card.id, { subtitle: e.target.value })} className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm outline-none" placeholder="Card subtitle" />
+                    <ReactQuill theme="snow" modules={quillModules} value={card.description} onChange={(value) => updateCardState(card.id, { description: value })} />
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <button type="button" onClick={() => handleSaveCard(card)} disabled={card.isSaving} className="flex-1 rounded-lg bg-[#0f766e] px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+                      {card.isSaving ? 'Saving...' : 'Save Card'}
+                    </button>
+                    <button type="button" onClick={() => handleDeleteCard(card)} className="inline-flex items-center justify-center rounded-lg border border-red-300 px-3 text-red-600">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <h2 className="mb-6 text-2xl font-semibold text-[#0B544E] lg:text-3xl">Find Your Sport</h2>
+        <div className="space-y-6">
+          <input type="text" value={form.sportTitle} onChange={(e) => handleInputChange('sportTitle', e.target.value)} className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none" placeholder="Section title" />
+          <ReactQuill theme="snow" modules={quillModules} value={form.sportSubTitle} onChange={(value) => handleInputChange('sportSubTitle', value)} />
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <button type="button" onClick={handleSaveHomeSection} disabled={savingHome} className="rounded-lg bg-[#0f766e] px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
+          {savingHome ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default ContentLandingPage;
