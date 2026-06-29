@@ -279,8 +279,10 @@ const CreateServiceModal = ({
     const payload = new FormData();
     payload.append('title', serviceTitle);
     payload.append('listingHeadline', serviceTitle);
+    payload.append('about', serviceDescription);
     payload.append('description', serviceDescription);
     payload.append('aboutService', serviceDescription);
+    payload.append('providerBusinessName', providerName);
     payload.append('providerName', providerName);
     appendIfPresent(payload, 'contactName', contactName || providerName);
     appendIfPresent(payload, 'providerPhone', providerPhone);
@@ -288,7 +290,9 @@ const CreateServiceModal = ({
     appendIfPresent(payload, 'providerType', providerType);
     payload.append('serviceType', initialData?.serviceType || 'COACHING');
     payload.append('clinicName', String(formData.clinicName || '').trim());
+    payload.append('address1', String(formData.address1 || '').trim());
     payload.append('addressLine1', String(formData.address1 || '').trim());
+    payload.append('townCity', String(formData.townCity || '').trim());
     payload.append('city', String(formData.townCity || '').trim());
     payload.append('postcode', String(formData.postcode || '').trim());
     payload.append('fullAddress', fullAddress);
@@ -305,6 +309,7 @@ const CreateServiceModal = ({
       'isOnline',
       String((formData.sessionTypes || []).some((item) => String(item).toLowerCase() === 'online video'))
     );
+    payload.append('registration', String(formData.registration || '').trim());
     payload.append('professionalRegistration', String(formData.registration || '').trim());
     payload.append('insuranceInPlace', String(formData.insuranceInPlace === 'Yes'));
     payload.append('participantResponseType', getParticipantResponseType(formData.responseMethods));
@@ -357,6 +362,7 @@ const CreateServiceModal = ({
     } else {
       result = await createService(payload);
     }
+    console.log('[CreateServiceModal] API response result:', result);
 
     if (result?.success) {
       onSuccess?.(result?.service || result, mode);

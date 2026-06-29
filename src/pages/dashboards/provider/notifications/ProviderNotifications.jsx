@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { CheckCheck } from 'lucide-react';
-import { GET, PATCH } from '../../../../services/httpMethods';
+import { CheckCheck, Trash2 } from 'lucide-react';
+import { GET, PATCH, DELETE } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import { toast } from 'react-toastify';
 
@@ -80,6 +80,18 @@ const ProviderNotifications = () => {
     }
   };
 
+  const handleDeleteNotification = async (notificationId) => {
+    if (!notificationId) return;
+    try {
+      await DELETE(`/api/notifications/${notificationId}`);
+      setNotifications((prev) => prev.filter((item) => item.id !== notificationId));
+      toast.success('Notification deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+      toast.error('Failed to delete notification');
+    }
+  };
+
   return (
     <div className="dashboardPy">
       <section className=" ">
@@ -104,7 +116,7 @@ const ProviderNotifications = () => {
           {notifications.map((notification) => (
             <article
               key={notification.id}
-              className={`flex gap-3 px-4 py-4 md:gap-4 md:px-5 md:py-6.5  ${notification.read ? 'bg-[#E8E8E8]' : 'bg-[#E8E8E8]'}`}
+              className={`group relative flex gap-3 px-4 py-4 md:gap-4 md:px-5 md:py-6.5 ${notification.read ? 'bg-[#E8E8E8]' : 'bg-[#E8E8E8]'}`}
             >
               <img
                 src={notification.avatar}
@@ -131,6 +143,15 @@ const ProviderNotifications = () => {
                   )}
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => handleDeleteNotification(notification.id)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:block text-gray-400 hover:text-red-500 transition-colors p-1"
+                title="Delete notification"
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
             </article>
           ))}
         </div>

@@ -25,8 +25,9 @@ const formatSessionTypeForApi = (value) => (value === 'mixed' ? 'Mixed' : 'Women
 
 const normalizeProfileFromUser = (user) => ({
     clubName: user?.organizationName || user?.clubName || user?.organization || user?.name || '',
-    about: user?.aboutOrganization || user?.about || user?.bio || '',
-    postcode: user?.postcode || '',
+    bio: user?.bio || user?.aboutOrganization || user?.about || '',
+    address: user?.address || '',
+    postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
     sessionType: normalizeSessionType(user?.sessionType),
     sports: user?.sportsOffered || user?.sports || [],
     fullName: user?.firstName || user?.fullName || user?.displayName || user?.name || '',
@@ -36,9 +37,11 @@ const normalizeProfileFromUser = (user) => ({
 
 const ProfileInfoSection = () => {
     const { user, fetchMe } = useAuth();
+    console.log('ProfileInfoSection user data:', user);
     const userId = resolveUserId(user);
 
     const [profile, setProfile] = useState(() => normalizeProfileFromUser(user));
+    console.log('ProfileInfoSection initial profile state:', profile);
     const [avatarFile, setAvatarFile] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -78,8 +81,13 @@ const ProfileInfoSection = () => {
         const payload = {
             name: profile.clubName,
             organizationName: profile.clubName,
-            aboutOrganization: profile.about,
+            bio: profile.bio,
+            aboutOrganization: profile.bio,
+            address: profile.address,
             postcode: profile.postcode,
+            postCode: profile.postcode,
+            postalCode: profile.postcode,
+            zip: profile.postcode,
             sessionType: formatSessionTypeForApi(profile.sessionType),
             sportsOffered: profile.sports,
             firstName: profile.fullName,
@@ -105,12 +113,14 @@ const ProfileInfoSection = () => {
         setIsSaving(true);
         try {
             const result = await updateUserProfile(userId, requestBody);
+            console.log('updateUserProfile result:', result);
 
             if (!result?.success) {
                 return;
             }
 
             const updatedUser = result?.user || {};
+            console.log('updateUserProfile updatedUser:', updatedUser);
             const nextProfile = normalizeProfileFromUser(updatedUser);
             setProfile((prev) => ({
                 ...prev,
@@ -162,12 +172,12 @@ const ProfileInfoSection = () => {
                     />
                 </div>
 
-                {/* About Section */}
+                {/* Bio Section */}
                 <div>
                     <label className={labelClass}>About your organisation</label>
                     <textarea 
-                        name="about" 
-                        value={profile.about} 
+                        name="bio" 
+                        value={profile.bio} 
                         onChange={handleProfileChange} 
                         className={`${inputClass} min-h-37.5 resize-none`}
                         placeholder="Write about club"
@@ -195,6 +205,18 @@ const ProfileInfoSection = () => {
                             </button>
                         ))}
                     </div>
+                </div>
+
+                {/* Address */}
+                <div>
+                    <label className={labelClass}>Address</label>
+                    <input 
+                        name="address" 
+                        value={profile.address} 
+                        onChange={handleProfileChange} 
+                        className={inputClass}
+                        placeholder="Enter your address"
+                    />
                 </div>
 
                 {/* Postcode */}

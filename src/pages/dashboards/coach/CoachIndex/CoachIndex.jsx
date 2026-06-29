@@ -44,8 +44,18 @@ const CoachIndex = () => {
     
   
 
-      <CreateRecruitmentModal isOpen={isPostModalOpen} onClose={() => setIsPostModalOpen(false)} />
-      <EventModal isOpen={isEventModalOpen} onClose={() => setIsEventModalOpen(false)} mode="create" />
+      <CreateRecruitmentModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        onSuccess={() => window.location.reload()}
+      />
+      <EventModal
+        isOpen={isEventModalOpen}
+        onClose={() => setIsEventModalOpen(false)}
+        mode="create"
+        useOrganizerApi={true}
+        onSuccess={() => window.location.reload()}
+      />
     </div>
   );
 };
