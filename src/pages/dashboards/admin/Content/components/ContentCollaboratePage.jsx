@@ -1,19 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import ReactQuill from 'react-quill-new';
 import { ImagePlus, X } from 'lucide-react';
-import { GET, POST } from '../../../../../services/httpMethods';
+import { GET, PATCH, POST } from '../../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../../services/httpEndpoint';
 import { toast } from 'react-toastify';
-
-const quillModules = {
-  toolbar: [
-    [{ header: [1, 2, 3, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    ['link'],
-    ['clean'],
-  ],
-};
 
 const getSections = (response) => {
   const payload = response?.data || response;
@@ -38,6 +27,18 @@ const buildPreview = (file, existing) => {
   return existing || '';
 };
 
+const toPlainText = (value = '') =>
+  String(value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const ContentCollaboratePage = () => {
   const [form, setForm] = useState({
     title: '',
@@ -57,6 +58,7 @@ const ContentCollaboratePage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [collaborateSectionId, setCollaborateSectionId] = useState('');
 
   const sportsProviderRef = useRef(null);
   const supportRef = useRef(null);
@@ -66,9 +68,14 @@ const ContentCollaboratePage = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const response = await GET(ENDPOINT.HOMEPAGE.SECTIONS);
-        const latest = getLatestByPage(getSections(response), 'COLLABORATE');
+        const response = await GET(ENDPOINT.HOMEPAGE.CONTENT);
+        const allSections = response?.data?.data?.homepage?.sections || [];
+        const latest = getLatestByPage(
+          Array.isArray(allSections) ? allSections : getSections(response),
+          'COLLABORATE'
+        );
         if (latest) {
+          setCollaborateSectionId(latest?.id || '');
           setForm({
             title: latest?.title || '',
             subtitle: latest?.subtitle || '',
@@ -162,18 +169,22 @@ const ContentCollaboratePage = () => {
     const payload = new FormData();
     payload.append('page', 'COLLABORATE');
     payload.append('title', form.title.trim());
-    payload.append('subtitle', form.subtitle);
-    payload.append('description', form.description);
-    payload.append('sportsProviderDescription', form.sportsProviderDescription);
-    payload.append('supportDescription', form.supportDescription);
-    payload.append('brandDescription', form.brandDescription);
+    payload.append('subtitle', toPlainText(form.subtitle));
+    payload.append('description', toPlainText(form.description));
+    payload.append('sportsProviderDescription', toPlainText(form.sportsProviderDescription));
+    payload.append('supportDescription', toPlainText(form.supportDescription));
+    payload.append('brandDescription', toPlainText(form.brandDescription));
     if (images.sportsProviderFile) payload.append('sportsProviderImg', images.sportsProviderFile);
     if (images.supportFile) payload.append('supportImg', images.supportFile);
     if (images.brandFile) payload.append('brandImg', images.brandFile);
 
     try {
       setSaving(true);
-      await POST(ENDPOINT.HOMEPAGE.SECTIONS, payload);
+      if (collaborateSectionId) {
+        await PATCH(ENDPOINT.HOMEPAGE.SECTION_DETAIL(collaborateSectionId), payload);
+      } else {
+        await POST(ENDPOINT.HOMEPAGE.SECTIONS, payload);
+      }
       toast.success('Collaborate content saved');
     } catch (error) {
       console.error('Failed to save COLLABORATE section:', error);
@@ -207,20 +218,20 @@ const ContentCollaboratePage = () => {
           </div>
           <div>
             <label className="mb-2 block text-base font-medium text-gray-900">Subtitle</label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
+            <textarea
               value={form.subtitle}
-              onChange={(value) => setForm((prev) => ({ ...prev, subtitle: value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, subtitle: e.target.value }))}
+              rows={3}
+              className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
             />
           </div>
           <div>
             <label className="mb-2 block text-base font-medium text-gray-900">Description</label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
+            <textarea
               value={form.description}
-              onChange={(value) => setForm((prev) => ({ ...prev, description: value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+              rows={4}
+              className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
             />
           </div>
         </div>
@@ -234,11 +245,11 @@ const ContentCollaboratePage = () => {
       )}
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
         <label className="mb-2 block text-base font-medium text-gray-900">Sport Provider Description</label>
-        <ReactQuill
-          theme="snow"
-          modules={quillModules}
+        <textarea
           value={form.sportsProviderDescription}
-          onChange={(value) => setForm((prev) => ({ ...prev, sportsProviderDescription: value }))}
+          onChange={(e) => setForm((prev) => ({ ...prev, sportsProviderDescription: e.target.value }))}
+          rows={4}
+          className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
         />
       </div>
 
@@ -250,11 +261,11 @@ const ContentCollaboratePage = () => {
       )}
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
         <label className="mb-2 block text-base font-medium text-gray-900">Supporting Description</label>
-        <ReactQuill
-          theme="snow"
-          modules={quillModules}
+        <textarea
           value={form.supportDescription}
-          onChange={(value) => setForm((prev) => ({ ...prev, supportDescription: value }))}
+          onChange={(e) => setForm((prev) => ({ ...prev, supportDescription: e.target.value }))}
+          rows={4}
+          className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
         />
       </div>
 
@@ -266,11 +277,11 @@ const ContentCollaboratePage = () => {
       )}
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
         <label className="mb-2 block text-base font-medium text-gray-900">Brand Description</label>
-        <ReactQuill
-          theme="snow"
-          modules={quillModules}
+        <textarea
           value={form.brandDescription}
-          onChange={(value) => setForm((prev) => ({ ...prev, brandDescription: value }))}
+          onChange={(e) => setForm((prev) => ({ ...prev, brandDescription: e.target.value }))}
+          rows={4}
+          className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
         />
       </div>
 

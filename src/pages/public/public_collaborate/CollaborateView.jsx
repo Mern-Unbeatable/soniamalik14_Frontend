@@ -67,10 +67,13 @@ const CollaborateView = () => {
                 {/* Header Section */}
                 <div className="max-w-3xl mb-8">
                     <h1 className="text-3xl lg:text-[40px] font-semibold text-[#0B544E] mb-4">
-                        {normalizedCollaborateSection?.title || 'Collaborate With ESSA Hub'}
+                        {normalizedCollaborateSection?.title || ''}
                     </h1>
+                    <p className="text-lg text-[#0B544E] mb-3">
+                        {normalizedCollaborateSection?.subtitle || ''}
+                    </p>
                     <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl">
-                        {normalizedCollaborateSection?.description || "We're building a trusted space for women's sport and we welcome organisations and businesses who want to be part of it."}
+                        {normalizedCollaborateSection?.description || ''}
                     </p>
                 </div>
 
