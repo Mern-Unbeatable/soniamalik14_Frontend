@@ -19,6 +19,7 @@ const AddListing = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const reduxServices = useSelector(selectProviderListings);
+  console.log('AddListing loaded services from Redux:', reduxServices);
 
   useEffect(() => {
     dispatch(fetchProviderListings());

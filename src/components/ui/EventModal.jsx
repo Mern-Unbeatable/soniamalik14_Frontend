@@ -334,9 +334,15 @@ const EventModal = ({
         updateOrganizerEvent({ id: initialData.id, eventData: payload })
       );
       isSuccess = updateOrganizerEvent.fulfilled.match(action);
+      if (!isSuccess) {
+        console.error('[EventModal] updateOrganizerEvent failed:', action.payload || action.error);
+      }
     } else if (useOrganizerApi && mode === 'create') {
       const action = await dispatch(createOrganizerEvent(payload));
       isSuccess = createOrganizerEvent.fulfilled.match(action);
+      if (!isSuccess) {
+        console.error('[EventModal] createOrganizerEvent failed:', action.payload || action.error);
+      }
     } else if (mode === 'edit' && initialData?.id) {
       const result = await updateEvent(initialData.id, payload);
       isSuccess = Boolean(result?.success);

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Upload, X } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -339,6 +339,7 @@ const CreateRecruitmentModal = ({
       const updatePayload = {
         listingHeadline: serviceTitle,
         aboutService: serviceDescription,
+        serviceType: 'COACHING',
         providerType: [form.role || 'Coach / Trainer'],
         sessionTypes: normalizedSessionTypes,
         availableDays: normalizedAvailableDays,
@@ -406,6 +407,7 @@ const CreateRecruitmentModal = ({
       }
     } else {
       const payload = new FormData();
+      payload.append('serviceType', 'COACHING');
       appendIfPresent(payload, 'listingHeadline', serviceTitle);
       appendIfPresent(payload, 'aboutService', serviceDescription);
       appendArrayField(payload, 'providerType', [form.role || 'Coach / Trainer']);

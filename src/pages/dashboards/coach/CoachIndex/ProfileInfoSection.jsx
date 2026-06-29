@@ -27,7 +27,7 @@ const normalizeProfileFromUser = (user) => ({
     clubName: user?.organizationName || user?.clubName || user?.organization || user?.name || '',
     bio: user?.bio || user?.aboutOrganization || user?.about || '',
     address: user?.address || '',
-    postcode: user?.postcode || '',
+    postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
     sessionType: normalizeSessionType(user?.sessionType),
     sports: user?.sportsOffered || user?.sports || [],
     fullName: user?.firstName || user?.fullName || user?.displayName || user?.name || '',
@@ -37,9 +37,11 @@ const normalizeProfileFromUser = (user) => ({
 
 const ProfileInfoSection = () => {
     const { user, fetchMe } = useAuth();
+    console.log('ProfileInfoSection user data:', user);
     const userId = resolveUserId(user);
 
     const [profile, setProfile] = useState(() => normalizeProfileFromUser(user));
+    console.log('ProfileInfoSection initial profile state:', profile);
     const [avatarFile, setAvatarFile] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -83,6 +85,9 @@ const ProfileInfoSection = () => {
             aboutOrganization: profile.bio,
             address: profile.address,
             postcode: profile.postcode,
+            postCode: profile.postcode,
+            postalCode: profile.postcode,
+            zip: profile.postcode,
             sessionType: formatSessionTypeForApi(profile.sessionType),
             sportsOffered: profile.sports,
             firstName: profile.fullName,
@@ -108,12 +113,14 @@ const ProfileInfoSection = () => {
         setIsSaving(true);
         try {
             const result = await updateUserProfile(userId, requestBody);
+            console.log('updateUserProfile result:', result);
 
             if (!result?.success) {
                 return;
             }
 
             const updatedUser = result?.user || {};
+            console.log('updateUserProfile updatedUser:', updatedUser);
             const nextProfile = normalizeProfileFromUser(updatedUser);
             setProfile((prev) => ({
                 ...prev,

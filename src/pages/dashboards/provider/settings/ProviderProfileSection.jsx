@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiCamera } from 'react-icons/fi';
+import { FiCamera, FiUser } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import Button from '../../../../components/ui/Button';
 import { updateUserProfile } from '../../../../services/authService';
@@ -19,8 +19,8 @@ const resolveUserId = (user) => user?.id || user?._id || user?.userId || null;
 
 const normalizeProfileFromUser = (user) => ({
   organizationName: user?.organizationName || '',
-  aboutOrganization: user?.aboutOrganization || '',
-  postcode: user?.postcode || '',
+  bio: user?.bio || user?.aboutOrganization || '',
+  postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
   sessionType: user?.sessionType || 'women',
   sportsOffered: Array.isArray(user?.sportsOffered) ? user?.sportsOffered : [],
   serviceTypes: Array.isArray(user?.serviceTypes) ? user?.serviceTypes : [],
@@ -30,8 +30,9 @@ const normalizeProfileFromUser = (user) => ({
 });
 
 const ProviderProfileSection = ({ user, fetchMe }) => {
+  console.log('ProviderProfileSection user data prop:', user);
   const [profile, setProfile] = useState(() => normalizeProfileFromUser(user));
-
+  console.log('ProviderProfileSection initial profile state:', profile);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(user?.avatar || user?.image || '');
   const [savingProfile, setSavingProfile] = useState(false);
@@ -99,8 +100,12 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
       const payload = {
         name: profile.fullName,
         organizationName: profile.organizationName,
-        aboutOrganization: profile.aboutOrganization,
+        bio: profile.bio,
+        aboutOrganization: profile.bio,
         postcode: profile.postcode,
+        postCode: profile.postcode,
+        postalCode: profile.postcode,
+        zip: profile.postcode,
         sessionType: profile.sessionType,
         sportsOffered: selectedSports,
         serviceTypes: selectedServiceTypes,
@@ -146,12 +151,16 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
         <div className="space-y-5">
           {/* Profile Image with Camera Overlay */}
           <div className="relative mb-8 h-30 w-30">
-            <div className="h-full w-full overflow-hidden rounded-full border border-gray-200 bg-gray-100">
-              <img
-                src={imagePreview || '/coachindex.jpg'}
-                alt="Profile"
-                className="h-full w-full object-cover"
-              />
+            <div className="h-full w-full overflow-hidden rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <FiUser className="w-12 h-12 text-gray-400" />
+              )}
             </div>
             <label
               htmlFor="imgInput"
@@ -185,11 +194,11 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
               About your organisation
             </label>
             <textarea
-              name="aboutOrganization"
-              value={profile.aboutOrganization}
+              name="bio"
+              value={profile.bio}
               onChange={handleProfileChange}
               className={`${inputClass} min-h-40`}
-              placeholder="Write about club"
+              placeholder="Write about bio"
             />
           </div>
 

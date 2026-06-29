@@ -352,13 +352,6 @@ const InsightsPreview = () => {
       return;
     }
 
-    if (Array.isArray(rawEvent?.messages)) {
-      setEventMessages(rawEvent.messages);
-      setMessagesLoading(false);
-      setMessagesError('');
-      return;
-    }
-
     const abortController = new AbortController();
 
     const loadMessages = async () => {

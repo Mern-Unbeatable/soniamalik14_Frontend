@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { CheckCheck } from 'lucide-react';
-import { GET, PATCH } from '../../../../services/httpMethods';
+import { CheckCheck, Trash2 } from 'lucide-react';
+import { GET, PATCH, DELETE } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import { toast } from 'react-toastify';
 
@@ -79,6 +79,18 @@ const Notifications = () => {
         }
     };
 
+    const handleDeleteNotification = async (notificationId) => {
+        if (!notificationId) return;
+        try {
+            await DELETE(`/api/notifications/${notificationId}`);
+            setNotifications((prev) => prev.filter((notif) => notif.id !== notificationId));
+            toast.success('Notification deleted successfully');
+        } catch (error) {
+            console.error('Failed to delete notification:', error);
+            toast.error('Failed to delete notification');
+        }
+    };
+
     return (
         <div className=" min-h-screen py-10 px-4 sm:px-8 font-sans flex justify-center">
             <div className="w-full ">
@@ -107,7 +119,7 @@ const Notifications = () => {
                     {notifications.map((notif, index) => (
                         <div
                             key={notif.id}
-                            className={`flex gap-4 p-5 sm:p-6 ${
+                            className={`group relative flex gap-4 p-5 sm:p-6 ${
                                 index !== notifications.length - 1 ? 'border-b border-[#767676]' : ''
                             }  transition-colors cursor-pointer`}
                         >
@@ -145,6 +157,18 @@ const Notifications = () => {
                                     </button>
                                 )}
                             </div>
+
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteNotification(notif.id);
+                                }}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:block text-gray-400 hover:text-red-500 transition-colors p-1"
+                                title="Delete notification"
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </button>
                         </div>
                     ))}
                 </div>

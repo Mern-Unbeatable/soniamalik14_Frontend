@@ -195,9 +195,11 @@ const RegisterView = () => {
     }
 
     const payload = buildPayload();
+    console.log('SignUp registration payload:', payload);
     try {
       await dispatch(registerThunk(payload)).unwrap();
     } catch (err) {
+      console.error('SignUp registration error:', err);
       const message = err?.message || err?.payload?.message || err?.payload || 'Registration failed';
       setError(message);
       return;
