@@ -80,12 +80,12 @@ const AnalyticsCharts = ({ userFilter, onUserFilterChange }) => {
         <div className="lg:col-span-2 bg-white rounded-lg md:rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 lg:p-8 relative min-h-[350px]">
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0 sm:items-center mb-6">
                 <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900">User</h2>
-                <button
+                {/* <button
                     onClick={onUserFilterChange}
                     className="flex items-center gap-2 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-md text-sm text-gray-600 font-medium hover:bg-gray-100 transition-colors w-full sm:w-auto"
                 >
                     {userFilter} <ChevronDown className="w-4 h-4 text-gray-400" />
-                </button>
+                </button> */}
             </div>
 
             {/* Legend */}

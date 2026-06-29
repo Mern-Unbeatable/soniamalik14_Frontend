@@ -1,47 +1,10 @@
-﻿import { useState, useRef } from 'react';
-
-const cardData = [
-  {
-    id: 1,
-    title: 'Discover',
-    description:
-      'Explore women-only teams, sessions and activities near you - from beginner-friendly to competitive.',
-    image: '/images/Discover.jpg',
-    alt: 'Person tying athletic shoes',
-  },
-  {
-    id: 2,
-    title: 'Community & Guidance',
-    description: 'Ask questions, share experiences and build your network.',
-    image: '/images/Community.webp',
-    alt: 'Group of women exercising outdoors',
-  },
-  {
-    id: 3,
-    title: 'Support & Services',
-    description:
-      'Find women-focused professionals and services designed to support an active lifestyle.',
-    image: '/images/Support.jpg',
-    alt: 'Female healthcare professional',
-  },
-  {
-    id: 4,
-    title: 'Marketplace',
-    description: 'A curated space for brands supporting women in sport.',
-    image: '/images/Marketplace.jpg',
-    alt: 'Sports gear and equipment',
-  },
-];
+﻿import { useRef } from 'react';
 
 const HubCard = ({ title, description, image, alt }) => {
-  const [isHovered, setHovered] = useState(false);
-
   return (
     <article
       // Mobile view: Takes 85% width and enables snapping. Desktop: Auto width.
       className="group flex w-[85%] shrink-0 cursor-pointer snap-center flex-col overflow-hidden rounded-2xl border-[5px] border-white bg-white shadow-lg shadow-black/20 sm:w-auto sm:snap-align-none"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       role="button"
       tabIndex={0}
       aria-label={`Explore ${title}`}
@@ -49,7 +12,13 @@ const HubCard = ({ title, description, image, alt }) => {
     >
       {/* Image container */}
       <div className="relative h-52 overflow-hidden">
-        <img src={image} alt={alt} className="h-full w-full object-cover" />
+        {image ? (
+          <img src={image} alt={alt} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-sm text-gray-500">
+            No image
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -74,21 +43,20 @@ const sanitizeText = (value) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-export default function CoreFeatures({ cards = [], textsections}) {
+export default function CoreFeatures({ cards = [], section }) {
   const scrollRef = useRef(null);
-  const title = textsections[0]?.sectionTitle || '';
-  const subtitle = textsections[0]?.sectionSubTitle || '';
-console.log("title: ",title);
-console.log("subtitle: ",subtitle);
+  const title = section?.sectionTitle || '';
+  const subtitle = section?.sectionSubTitle || '';
+  
   const displayCards = Array.isArray(cards) && cards.length > 0
     ? cards.map((card, idx) => ({
       id: card?.id || `card-${idx + 1}`,
       title: sanitizeText(card?.title) || 'Untitled',
       description: sanitizeText(card?.description) || '',
-      image: card?.image || '/images/Discover.jpg',
+      image: card?.image || '',
       alt: sanitizeText(card?.subtitle) || sanitizeText(card?.title) || 'Card image',
     }))
-    : cardData;
+    : [];
   const scroll = (direction) => {
     if (scrollRef.current) {
       const scrollAmount = direction === 'left' ? -300 : 300;
@@ -167,6 +135,11 @@ console.log("subtitle: ",subtitle);
           {displayCards.map((card) => (
             <HubCard key={card.id} {...card} />
           ))}
+          {displayCards.length === 0 && (
+            <div className="col-span-full rounded-lg bg-white/70 p-6 text-center text-sm text-gray-600">
+              No cards available right now.
+            </div>
+          )}
         </div>
       </div>
     </section>

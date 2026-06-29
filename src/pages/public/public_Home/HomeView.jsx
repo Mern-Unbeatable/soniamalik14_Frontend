@@ -79,7 +79,7 @@ const HomeView = () => {
     <div className=" " >
       <Hero section={normalizedHomeSection} />
       {/* <GetInvolved/> */}
-      <CoreFeatures cards={cards} textsections= {sections} />
+      <CoreFeatures cards={cards} section={normalizedHomeSection} />
       <HowItWorks/>
       <FindYourSport section={normalizedHomeSection} />
       {/* <InjurySupportHub/> */}
