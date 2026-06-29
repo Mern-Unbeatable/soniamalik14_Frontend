@@ -6,24 +6,25 @@ import { selectAuthUser } from '../../../../../features/auth/authSlice';
 
 const ProfileHeader = () => {
     const user = useSelector(selectAuthUser);
+    console.log('ProfileHeader user data from Redux:', user);
 
     const coachName =
         user?.organizationName ||
         user?.clubName ||
         user?.organization ||
         user?.name ||
-        'Northside Elite Football';
+        '';
 
     const city = user?.city || user?.townCity || '';
     const country = user?.country || user?.countryName || '';
-    const locationText = [city, country].filter(Boolean).join(', ') || user?.location || 'Manchester, UK';
+    const locationText = [city, country].filter(Boolean).join(', ') || user?.address || '';
 
     const aboutText =
         user?.description ||
         user?.aboutService ||
         user?.aboutOrganization ||
         user?.bio ||
-        'Leading the way in youth female development. Our mission is to provide professional-grade training and competition for girls aged 12-18 across the North West.';
+        '';
 
     const coachImage = user?.logo || user?.avatar || user?.image ;
 
@@ -44,12 +45,16 @@ const ProfileHeader = () => {
 
             <div>
                <h1 className="text-2xl font-bold text-btn-primary">{coachName}</h1>
-                <p className="text-base text-secondary-text mt-1 flex items-center gap-1 ">
-                    <IoLocationOutline />{locationText}
-                </p>
-                <p className="text-base text-description mt-2 max-w-2xl">
-                    {aboutText}
-                </p>
+                {locationText && (
+                    <p className="text-base text-secondary-text mt-1 flex items-center gap-1 ">
+                        <IoLocationOutline />{locationText}
+                    </p>
+                )}
+                {aboutText && (
+                    <p className="text-base text-description mt-2 max-w-2xl">
+                        {aboutText}
+                    </p>
+                )}
             </div>
         </div>
     );

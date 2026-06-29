@@ -25,7 +25,8 @@ const formatSessionTypeForApi = (value) => (value === 'mixed' ? 'Mixed' : 'Women
 
 const normalizeProfileFromUser = (user) => ({
     clubName: user?.organizationName || user?.clubName || user?.organization || user?.name || '',
-    about: user?.aboutOrganization || user?.about || user?.bio || '',
+    bio: user?.bio || user?.aboutOrganization || user?.about || '',
+    address: user?.address || '',
     postcode: user?.postcode || '',
     sessionType: normalizeSessionType(user?.sessionType),
     sports: user?.sportsOffered || user?.sports || [],
@@ -78,7 +79,9 @@ const ProfileInfoSection = () => {
         const payload = {
             name: profile.clubName,
             organizationName: profile.clubName,
-            aboutOrganization: profile.about,
+            bio: profile.bio,
+            aboutOrganization: profile.bio,
+            address: profile.address,
             postcode: profile.postcode,
             sessionType: formatSessionTypeForApi(profile.sessionType),
             sportsOffered: profile.sports,
@@ -162,12 +165,12 @@ const ProfileInfoSection = () => {
                     />
                 </div>
 
-                {/* About Section */}
+                {/* Bio Section */}
                 <div>
                     <label className={labelClass}>About your organisation</label>
                     <textarea 
-                        name="about" 
-                        value={profile.about} 
+                        name="bio" 
+                        value={profile.bio} 
                         onChange={handleProfileChange} 
                         className={`${inputClass} min-h-37.5 resize-none`}
                         placeholder="Write about club"
@@ -195,6 +198,18 @@ const ProfileInfoSection = () => {
                             </button>
                         ))}
                     </div>
+                </div>
+
+                {/* Address */}
+                <div>
+                    <label className={labelClass}>Address</label>
+                    <input 
+                        name="address" 
+                        value={profile.address} 
+                        onChange={handleProfileChange} 
+                        className={inputClass}
+                        placeholder="Enter your address"
+                    />
                 </div>
 
                 {/* Postcode */}
