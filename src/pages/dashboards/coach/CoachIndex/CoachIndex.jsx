@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../../../../components/ui/Card';
 import Button from '../../../../components/ui/Button';
@@ -12,16 +12,6 @@ import RecentPlayerActivity from './components/RecentPlayerActivity';
 const CoachIndex = () => {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-
-  // Mock Data for Table
-  const playersActivity = [
-    { name: "Devon Lane", phone: "(405) 555-0128", email: "jackson.graham@example.com", message: "Aliquam porta nisl dolor, molestie pellentesque elit molestie in. Morbi metus neque, elementum ullam", date: "12 Mar 26" },
-    { name: "Wade Warren", phone: "(603) 555-0123", email: "alma.lawson@example.com", message: "Vestibulum eu quam nec neque pellentesque efficitur id eget nisl. Proin porta est convallis lacus bl", date: "12 Mar 26" },
-    { name: "Robert Fox", phone: "(209) 555-0104", email: "nevaeh.simmons@example.com", message: "Vestibulum eu quam nec neque pellentesque efficitur id eget nisl. Proin porta est convallis lacus bl", date: "12 Mar 26" },
-    { name: "Cameron Williamson", phone: "(303) 555-0105", email: "tim.jennings@example.com", message: "Donec sed erat ut magna suscipit mattis. Aliquam erat volutpat. Morbi in orci risus. Donec pretium f", date: "12 Mar 26" },
-    { name: "Marvin McKinney", phone: "(704) 555-0127", email: "michael.mitc@example.com", message: "In a laoreet purus. Integer turpis quam, laoreet id orci nec, ultrices lacinia nunc. Aliquam erat vo", date: "12 Mar 26" },
-    { name: "Esther Howard", phone: "(239) 555-0108", email: "georgia.young@example.com", message: "Aliquam pulvinar vestibulum blandit. Donec sed nisl libero. Fusce dignissim luctus sem eu dapibus. P", date: "12 Mar 26" },
-  ];
 
   return (
     <div className="dashboardPy dashboardSpaceY">
@@ -50,7 +40,7 @@ const CoachIndex = () => {
 
   
       
-        <RecentPlayerActivity players={playersActivity} />
+        <RecentPlayerActivity />
     
   
 
