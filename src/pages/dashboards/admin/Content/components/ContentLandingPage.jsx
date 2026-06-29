@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactQuill from 'react-quill-new';
 import { ImagePlus, Plus, Trash2, X } from 'lucide-react';
-import { DELETE as DELETE_REQUEST, GET, POST, PUT } from '../../../../../services/httpMethods';
+import { DELETE as DELETE_REQUEST, GET, PATCH, POST, PUT } from '../../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../../services/httpEndpoint';
 import { toast } from 'react-toastify';
 
@@ -59,6 +59,18 @@ const mapApiCard = (card, idx = 0) => ({
   isSaving: false,
 });
 
+const toPlainText = (value = '') =>
+  String(value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const ContentLandingPage = () => {
   const [form, setForm] = useState({
     title: '',
@@ -70,10 +82,12 @@ const ContentLandingPage = () => {
   });
   const [heroImagePreview, setHeroImagePreview] = useState('');
   const [heroImageFile, setHeroImageFile] = useState(null);
+  const [homeSectionId, setHomeSectionId] = useState('');
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cardsLoading, setCardsLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [savingHome, setSavingHome] = useState(false);
+  const [savingExplore, setSavingExplore] = useState(false);
   const heroFileRef = useRef(null);
   const cardFileRefs = useRef({});
 
@@ -89,6 +103,7 @@ const ContentLandingPage = () => {
 
         const latest = getLatestByPage(getSections(sectionsResponse), 'HOME');
         if (latest) {
+          setHomeSectionId(latest?.id || '');
           setForm({
             title: latest?.title || '',
             description: latest?.description || '',
@@ -135,29 +150,62 @@ const ContentLandingPage = () => {
   };
 
   const handleSaveHomeSection = async () => {
-    if (!form.title.trim() || !form.description.trim()) {
-      toast.error('Title and description are required');
+    if (!homeSectionId) {
+      toast.error('Home section id not found. Please reload the page.');
       return;
     }
+
     const payload = new FormData();
+    payload.append('id', homeSectionId);
     payload.append('page', 'HOME');
     payload.append('title', form.title.trim());
     payload.append('description', form.description);
     payload.append('sectionTitle', form.sectionTitle.trim());
-    payload.append('sectionSubTitle', form.sectionSubTitle);
+    payload.append('sectionSubTitle', toPlainText(form.sectionSubTitle));
     payload.append('sportTitle', form.sportTitle.trim());
-    payload.append('sportSubTitle', form.sportSubTitle);
+    payload.append('sportSubTitle', toPlainText(form.sportSubTitle));
     if (heroImageFile) payload.append('image', heroImageFile);
 
     try {
-      setSaving(true);
-      await POST(ENDPOINT.HOMEPAGE.SECTIONS, payload);
+      setSavingHome(true);
+      await PATCH(ENDPOINT.HOMEPAGE.SECTION_DETAIL(homeSectionId), payload);
       toast.success('Landing page content saved');
     } catch (error) {
       console.error('Failed to save HOME section:', error);
       toast.error(error?.response?.data?.message || 'Failed to save content');
     } finally {
-      setSaving(false);
+      setSavingHome(false);
+    }
+  };
+
+  const handleSaveExploreSection = async () => {
+    if (!homeSectionId) {
+      toast.error('Home section id not found. Please reload the page.');
+      return;
+    }
+
+    if (!form.title.trim()) {
+      toast.error('Hero title is required before saving Explore section');
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append('id', homeSectionId);
+    payload.append('page', 'HOME');
+    payload.append('title', form.title.trim());
+    payload.append('description', form.description || '');
+    payload.append('sectionTitle', form.sectionTitle.trim());
+    payload.append('sectionSubTitle', toPlainText(form.sectionSubTitle));
+
+    try {
+      setSavingExplore(true);
+      await PATCH(ENDPOINT.HOMEPAGE.SECTION_DETAIL(homeSectionId), payload);
+      toast.success('Explore ESSA Hub content saved');
+    } catch (error) {
+      console.error('Failed to save Explore ESSA Hub content:', error);
+      toast.error(error?.response?.data?.message || 'Failed to save Explore section');
+    } finally {
+      setSavingExplore(false);
     }
   };
 
@@ -250,11 +298,11 @@ const ContentLandingPage = () => {
         <div className="mt-4 flex justify-end">
           <button
             type="button"
-            onClick={handleSaveHomeSection}
-            disabled={saving}
+            onClick={handleSaveExploreSection}
+            disabled={savingExplore}
             className="rounded-lg bg-[#0f766e] px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save Changes'}
+            {savingExplore ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
 
@@ -326,8 +374,8 @@ const ContentLandingPage = () => {
       </div>
 
       <div className="flex justify-end">
-        <button type="button" onClick={handleSaveHomeSection} disabled={saving} className="rounded-lg bg-[#0f766e] px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
-          {saving ? 'Saving...' : 'Save Changes'}
+        <button type="button" onClick={handleSaveHomeSection} disabled={savingHome} className="rounded-lg bg-[#0f766e] px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
+          {savingHome ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
     </div>

@@ -108,6 +108,7 @@ export const ENDPOINT = {
   },
   HOMEPAGE: {
     SECTIONS: '/api/homepage/sections',
+    SECTION_DETAIL: (sectionId) => `/api/homepage/sections/${sectionId}`,
     CONTENT: '/api/homepage/content',
     CARDS: '/api/homepage/cards',
     CARD_DETAIL: (cardId) => `/api/homepage/cards/${cardId}`,

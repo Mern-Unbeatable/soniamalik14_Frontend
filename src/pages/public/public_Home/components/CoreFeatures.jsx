@@ -74,10 +74,12 @@ const sanitizeText = (value) =>
     .replace(/\s+/g, ' ')
     .trim();
 
-export default function CoreFeatures({ cards = [] }) {
+export default function CoreFeatures({ cards = [], textsections}) {
   const scrollRef = useRef(null);
-  const title = 'Explore ESSA Hub';
-  const subtitle = 'Everything you need - all in one place.';
+  const title = textsections[0]?.sectionTitle || '';
+  const subtitle = textsections[0]?.sectionSubTitle || '';
+console.log("title: ",title);
+console.log("subtitle: ",subtitle);
   const displayCards = Array.isArray(cards) && cards.length > 0
     ? cards.map((card, idx) => ({
       id: card?.id || `card-${idx + 1}`,

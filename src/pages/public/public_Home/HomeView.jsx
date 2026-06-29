@@ -70,11 +70,16 @@ const HomeView = () => {
     };
   }, [homeSection]);
 
+// console.log("normalizedHomeSection: ",normalizedHomeSection?.sportSubTitle);
+
+
+
+
   return (
     <div className=" " >
       <Hero section={normalizedHomeSection} />
       {/* <GetInvolved/> */}
-      <CoreFeatures cards={cards} />
+      <CoreFeatures cards={cards} textsections= {sections} />
       <HowItWorks/>
       <FindYourSport section={normalizedHomeSection} />
       {/* <InjurySupportHub/> */}

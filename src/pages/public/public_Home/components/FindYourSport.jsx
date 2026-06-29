@@ -64,10 +64,10 @@ const tiles = [
 const FindYourSport = ({ section }) => {
     const scrollRef = useRef(null);
     const [discoverCards, setDiscoverCards] = useState([]);
-    const heading = section?.sportTitle || 'Find your sport. Find your squad.';
+    const heading = section?.sportTitle || '';
     const subtitle =
         section?.sportSubTitle ||
-        "We're expanding our sports and local listings. If you can't find what you're looking for yet, help us shape what comes next.";
+        '';
 
     useEffect(() => {
         const controller = new AbortController();
@@ -141,7 +141,7 @@ const FindYourSport = ({ section }) => {
                     {subtitle}
                 </p>
 
-                <div className="relative flex justify-center w-full">
+                <div className="relative flex justify-center items-center w-full">
                     {/* Mobile Navigation Arrows (Visible only on small screens) */}
                     <button
                         onClick={() => scroll("left")}
@@ -173,9 +173,9 @@ const FindYourSport = ({ section }) => {
                                 key={t.id}
                                 to={discoverCards.length > 0 ? `/discover/${t.type}/${t.id}` : `/discover?sport=${encodeURIComponent(t.sport)}`}
                                 // Mobile: Takes 85% width (w-[85%]) for peeking effect. Desktop: Takes full grid column width (sm:w-auto).
-                                className="block w-[85%] sm:w-auto shrink-0 snap-center sm:snap-align-none rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200"
+                                className="block w-[85%] mx-auto sm:w-auto shrink-0 snap-center sm:snap-align-none rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200"
                             >
-                                <div className="relative flex flex-col h-full">
+                                <div className="relative flex flex-col mx-auto h-full">
                                     <img src={t.img} alt={t.title} className="w-full h-72 md:h-85 lg:h-160 object-cover block" />
                                     <div className="absolute left-0 right-0 bottom-0 bg-[#0d6b62] text-white py-3 md:py-4 lg:py-8 px-4">
                                         <span className="font-semibold text-2xl lg:text-3xl">{t.title}</span>
