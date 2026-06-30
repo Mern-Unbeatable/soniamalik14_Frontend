@@ -72,6 +72,7 @@ export const ENDPOINT = {
     APPROVE: (id) => `/api/services/${id}/approve`,
     REJECT: (id) => `/api/services/${id}/reject`,
     APPROVAL_STATUS: (id) => `/api/services/${id}/approval-status`,
+    FEATURE: (id) => `/api/services/${id}/feature`,
   },
   EVENTS: {
     LIST: '/api/events',
