@@ -115,7 +115,7 @@ const AddListing = () => {
                     {service.logo || service.image ? (
                       <img
                         src={service.logo || service.image}
-                        alt={service.title}
+                        alt={service.listingHeadline || service.title}
                         className="h-full w-full object-cover"
                       />
                     ) : null}
@@ -128,7 +128,7 @@ const AddListing = () => {
 
                   <div className="flex min-h-30 flex-col">
                     <h3 className="line-clamp-2 text-2xl font-semibold leading-[1.2] text-[#323232]">
-                      {service.title || 'Untitled service'}
+                      {service.listingHeadline || service.title || 'Untitled service'}
                     </h3>
 
                     <p className="mt-2 line-clamp-2 text-base text-[#4B5563]">
@@ -202,7 +202,7 @@ const AddListing = () => {
         onClose={() => setDeleteItem(null)}
         onConfirm={handleDeleteConfirm}
         title="Delete Service"
-        message={`Are you sure you want to delete "${deleteItem?.title || 'this service'}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete "${deleteItem?.listingHeadline || deleteItem?.title || 'this service'}"? This action cannot be undone.`}
       />
     </div>
   );
