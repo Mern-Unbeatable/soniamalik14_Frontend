@@ -5,6 +5,8 @@ import JoinMarketplaceModal from './JoinMarketplaceModal';
 const BrandsProductsSection = ({ section }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const sectionImage = section?.brandImg || '';
+    const sectionTitle = section?.sportTitle || '';
+    const sectionSubTitle = section?.sportSubTitle || '';
     const sectionDescription = section?.brandDescription || '';
 
     return (
@@ -20,9 +22,7 @@ const BrandsProductsSection = ({ section }) => {
                         className="w-full h-full object-cover object-center"
                     />
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gray-200 text-sm text-gray-500">
-                        No image
-                    </div>
+                    <div className="h-full w-full bg-gray-200" />
                 )}
                 {/* Subtle gradient to transition to white content below on mobile */}
                 <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white from-0% via-white/60 via-50% to-transparent to-100%"></div>
@@ -45,14 +45,22 @@ const BrandsProductsSection = ({ section }) => {
            
             <div className="relative z-10 p-6 sm:p-10 md:p-12 lg:p-16 w-full md:w-[65%] lg:w-[55%] bg-white md:bg-transparent  min-h-112.5] md:min-h-125 xl:min-h-137.5 flex flex-col justify-center">
 
-                <h2 className="text-3xl md:text-[32px] leading-tight font-medium text-[#0B544E] mb-5 tracking-tight">
-                    For Brands & Products
-                </h2>
+                {sectionTitle ? (
+                    <h2 className="text-3xl md:text-[32px] leading-tight font-medium text-[#0B544E] mb-5 tracking-tight">
+                        {sectionTitle}
+                    </h2>
+                ) : null}
+                {sectionSubTitle ? (
+                    <p className="mb-5 text-base text-[#0B544E]">
+                        {sectionSubTitle}
+                    </p>
+                ) : null}
 
                 {sectionDescription ? (
-                    <p className="text-[#333333] text-base md:text-lg mb-8 leading-relaxed pr-4 md:pr-10 max-w-md">
-                        {sectionDescription}
-                    </p>
+                    <div
+                        className="mb-8 max-w-md text-[#333333] [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mb-1"
+                        dangerouslySetInnerHTML={{ __html: sectionDescription }}
+                    />
                 ) : null}
 
                 <div>

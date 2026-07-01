@@ -1,8 +1,42 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { ImagePlus, X } from 'lucide-react';
 import { GET, PATCH, POST } from '../../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../../services/httpEndpoint';
 import { toast } from 'react-toastify';
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    [{ font: [] }],
+    [{ size: ['small', false, 'large', 'huge'] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ color: [] }, { background: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    [{ align: [] }],
+    ['link', 'image'],
+    ['clean'],
+  ],
+};
+
+const quillFormats = [
+  'header',
+  'font',
+  'size',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'color',
+  'background',
+  'list',
+  'indent',
+  'align',
+  'link',
+  'image',
+];
 
 const getSections = (response) => {
   const payload = response?.data || response;
@@ -27,23 +61,15 @@ const buildPreview = (file, existing) => {
   return existing || '';
 };
 
-const toPlainText = (value = '') =>
-  String(value || '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
-
 const ContentCollaboratePage = () => {
   const [form, setForm] = useState({
     title: '',
     subtitle: '',
     description: '',
+    sectionTitle: '',
+    sectionSubTitle: '',
+    sportTitle: '',
+    sportSubTitle: '',
     sportsProviderDescription: '',
     supportDescription: '',
     brandDescription: '',
@@ -55,6 +81,9 @@ const ContentCollaboratePage = () => {
     sportsProviderPreview: '',
     supportPreview: '',
     brandPreview: '',
+    sportsProviderRemoved: false,
+    supportRemoved: false,
+    brandRemoved: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -80,6 +109,10 @@ const ContentCollaboratePage = () => {
             title: latest?.title || '',
             subtitle: latest?.subtitle || '',
             description: latest?.description || '',
+            sectionTitle: latest?.sectionTitle || '',
+            sectionSubTitle: latest?.sectionSubTitle || '',
+            sportTitle: latest?.sportTitle || '',
+            sportSubTitle: latest?.sportSubTitle || '',
             sportsProviderDescription: latest?.sportsProviderDescription || '',
             supportDescription: latest?.supportDescription || '',
             brandDescription: latest?.brandDescription || '',
@@ -89,6 +122,9 @@ const ContentCollaboratePage = () => {
             sportsProviderPreview: latest?.sportsProviderImg || '',
             supportPreview: latest?.supportImg || '',
             brandPreview: latest?.brandImg || '',
+            sportsProviderRemoved: false,
+            supportRemoved: false,
+            brandRemoved: false,
           }));
         }
       } catch (error) {
@@ -126,7 +162,33 @@ const ContentCollaboratePage = () => {
   const handleUpload = (key) => (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImages((prev) => ({ ...prev, [key]: file }));
+    const removedKeyMap = {
+      sportsProviderFile: 'sportsProviderRemoved',
+      supportFile: 'supportRemoved',
+      brandFile: 'brandRemoved',
+    };
+    const removedKey = removedKeyMap[key];
+    setImages((prev) => ({ ...prev, [key]: file, [removedKey]: false }));
+  };
+
+  const clearFileInput = (key) => {
+    const refMap = {
+      sportsProviderFile: sportsProviderRef,
+      supportFile: supportRef,
+      brandFile: brandRef,
+    };
+    const ref = refMap[key];
+    if (ref?.current) ref.current.value = '';
+  };
+
+  const handleRemoveImage = (key, previewKey, removedKey) => {
+    setImages((prev) => ({
+      ...prev,
+      [key]: null,
+      [previewKey]: '',
+      [removedKey]: true,
+    }));
+    clearFileInput(key);
   };
 
   const renderImageUploader = (title, preview, onPick, onRemove) => (
@@ -169,14 +231,21 @@ const ContentCollaboratePage = () => {
     const payload = new FormData();
     payload.append('page', 'COLLABORATE');
     payload.append('title', form.title.trim());
-    payload.append('subtitle', toPlainText(form.subtitle));
-    payload.append('description', toPlainText(form.description));
-    payload.append('sportsProviderDescription', toPlainText(form.sportsProviderDescription));
-    payload.append('supportDescription', toPlainText(form.supportDescription));
-    payload.append('brandDescription', toPlainText(form.brandDescription));
+    payload.append('subtitle', form.subtitle || '');
+    payload.append('description', form.description || '');
+    payload.append('sectionTitle', form.sectionTitle || '');
+    payload.append('sectionSubTitle', form.sectionSubTitle || '');
+    payload.append('sportTitle', form.sportTitle || '');
+    payload.append('sportSubTitle', form.sportSubTitle || '');
+    payload.append('sportsProviderDescription', form.sportsProviderDescription || '');
+    payload.append('supportDescription', form.supportDescription || '');
+    payload.append('brandDescription', form.brandDescription || '');
     if (images.sportsProviderFile) payload.append('sportsProviderImg', images.sportsProviderFile);
     if (images.supportFile) payload.append('supportImg', images.supportFile);
     if (images.brandFile) payload.append('brandImg', images.brandFile);
+    if (images.sportsProviderRemoved && !images.sportsProviderFile) payload.append('sportsProviderImg', '');
+    if (images.supportRemoved && !images.supportFile) payload.append('supportImg', '');
+    if (images.brandRemoved && !images.brandFile) payload.append('brandImg', '');
 
     try {
       setSaving(true);
@@ -186,6 +255,12 @@ const ContentCollaboratePage = () => {
         await POST(ENDPOINT.HOMEPAGE.SECTIONS, payload);
       }
       toast.success('Collaborate content saved');
+      setImages((prev) => ({
+        ...prev,
+        sportsProviderRemoved: false,
+        supportRemoved: false,
+        brandRemoved: false,
+      }));
     } catch (error) {
       console.error('Failed to save COLLABORATE section:', error);
       toast.error(error?.response?.data?.message || 'Failed to save Collaborate content');
@@ -218,20 +293,20 @@ const ContentCollaboratePage = () => {
           </div>
           <div>
             <label className="mb-2 block text-base font-medium text-gray-900">Subtitle</label>
-            <textarea
+            <input
               value={form.subtitle}
               onChange={(e) => setForm((prev) => ({ ...prev, subtitle: e.target.value }))}
-              rows={3}
               className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
             />
           </div>
           <div>
             <label className="mb-2 block text-base font-medium text-gray-900">Description</label>
-            <textarea
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              formats={quillFormats}
               value={form.description}
-              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-              rows={4}
-              className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+              onChange={(value) => setForm((prev) => ({ ...prev, description: value }))}
             />
           </div>
         </div>
@@ -241,15 +316,23 @@ const ContentCollaboratePage = () => {
         'Sport Provider section',
         sportsProviderPreview,
         () => sportsProviderRef.current?.click(),
-        () => setImages((prev) => ({ ...prev, sportsProviderFile: null, sportsProviderPreview: '' }))
+        () => handleRemoveImage('sportsProviderFile', 'sportsProviderPreview', 'sportsProviderRemoved')
       )}
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <label className="mb-2 block text-base font-medium text-gray-900">Sport Provider Title</label>
+        <input
+          type="text"
+          value={form.sectionTitle}
+          onChange={(e) => setForm((prev) => ({ ...prev, sectionTitle: e.target.value }))}
+          className="mb-6 w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+        />
         <label className="mb-2 block text-base font-medium text-gray-900">Sport Provider Description</label>
-        <textarea
+        <ReactQuill
+          theme="snow"
+          modules={quillModules}
+          formats={quillFormats}
           value={form.sportsProviderDescription}
-          onChange={(e) => setForm((prev) => ({ ...prev, sportsProviderDescription: e.target.value }))}
-          rows={4}
-          className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+          onChange={(value) => setForm((prev) => ({ ...prev, sportsProviderDescription: value }))}
         />
       </div>
 
@@ -257,15 +340,23 @@ const ContentCollaboratePage = () => {
         'Supporting section',
         supportPreview,
         () => supportRef.current?.click(),
-        () => setImages((prev) => ({ ...prev, supportFile: null, supportPreview: '' }))
+        () => handleRemoveImage('supportFile', 'supportPreview', 'supportRemoved')
       )}
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <label className="mb-2 block text-base font-medium text-gray-900">Professional Support Title</label>
+        <input
+          type="text"
+          value={form.sectionSubTitle}
+          onChange={(e) => setForm((prev) => ({ ...prev, sectionSubTitle: e.target.value }))}
+          className="mb-6 w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+        />
         <label className="mb-2 block text-base font-medium text-gray-900">Supporting Description</label>
-        <textarea
+        <ReactQuill
+          theme="snow"
+          modules={quillModules}
+          formats={quillFormats}
           value={form.supportDescription}
-          onChange={(e) => setForm((prev) => ({ ...prev, supportDescription: e.target.value }))}
-          rows={4}
-          className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+          onChange={(value) => setForm((prev) => ({ ...prev, supportDescription: value }))}
         />
       </div>
 
@@ -273,15 +364,30 @@ const ContentCollaboratePage = () => {
         'Brand section',
         brandPreview,
         () => brandRef.current?.click(),
-        () => setImages((prev) => ({ ...prev, brandFile: null, brandPreview: '' }))
+        () => handleRemoveImage('brandFile', 'brandPreview', 'brandRemoved')
       )}
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+        <label className="mb-2 block text-base font-medium text-gray-900">Brand Title</label>
+        <input
+          type="text"
+          value={form.sportTitle}
+          onChange={(e) => setForm((prev) => ({ ...prev, sportTitle: e.target.value }))}
+          className="mb-4 w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+        />
+        <label className="mb-2 block text-base font-medium text-gray-900">Brand Subtitle</label>
+        <input
+          type="text"
+          value={form.sportSubTitle}
+          onChange={(e) => setForm((prev) => ({ ...prev, sportSubTitle: e.target.value }))}
+          className="mb-6 w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+        />
         <label className="mb-2 block text-base font-medium text-gray-900">Brand Description</label>
-        <textarea
+        <ReactQuill
+          theme="snow"
+          modules={quillModules}
+          formats={quillFormats}
           value={form.brandDescription}
-          onChange={(e) => setForm((prev) => ({ ...prev, brandDescription: e.target.value }))}
-          rows={4}
-          className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none focus:ring-2 focus:ring-[#0f766e]/20"
+          onChange={(value) => setForm((prev) => ({ ...prev, brandDescription: value }))}
         />
       </div>
 
