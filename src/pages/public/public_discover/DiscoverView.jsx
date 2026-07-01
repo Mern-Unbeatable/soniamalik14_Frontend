@@ -201,9 +201,6 @@ const DiscoverView = () => {
                 </svg>
               </div>
             </div>
-
-            
-
             {/* Distance Dropdown */}
             <div className="relative w-full sm:w-35">
               <select
