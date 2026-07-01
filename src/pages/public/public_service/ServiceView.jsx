@@ -32,6 +32,7 @@ const toServiceCardItem = (service) => {
         image: service?.logo || service?.provider?.avatar || '',
         location: service?.location || service?.city || '',
         postcode: service?.postcode || '',
+        isFeatured: !!service?.isFeatured,
     };
 };
 
@@ -66,7 +67,13 @@ const ServiceView = () => {
                         ? response.data
                         : [];
 
-                setServices(serviceList.map(toServiceCardItem));
+                const sortedServiceList = [...serviceList].sort((a, b) => {
+                    const aFeatured = a?.isFeatured === true || a?.isFeatured === 'true';
+                    const bFeatured = b?.isFeatured === true || b?.isFeatured === 'true';
+                    return bFeatured - aFeatured;
+                });
+
+                setServices(sortedServiceList.map(toServiceCardItem));
             } catch (err) {
                 if (err?.name === 'CanceledError' || err?.name === 'AbortError') return;
                 setError(err?.response?.data?.message || err?.message || 'Failed to load services.');
