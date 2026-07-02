@@ -283,8 +283,10 @@ const EventAnallyticsDetails = () => {
 
       try {
         const response = await GET(`/api/events/${id}/messages`, {}, abortController.signal);
+        console.log('Enquiries RAW Response from backend:', response);
         const payload = response?.data;
         const messagesData =
+          (Array.isArray(payload?.data?.messages) && payload.data.messages) ||
           (Array.isArray(payload?.data) && payload.data) ||
           (Array.isArray(payload) && payload) ||
           (Array.isArray(payload?.rows) && payload.rows) ||
@@ -292,6 +294,7 @@ const EventAnallyticsDetails = () => {
         setEventMessages(messagesData);
       } catch (error) {
         if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
+        console.error('Enquiries API Error:', error);
         setMessagesError(error?.response?.data?.message || 'Failed to load enquiries');
         setEventMessages([]);
       } finally {
@@ -305,6 +308,10 @@ const EventAnallyticsDetails = () => {
       abortController.abort();
     };
   }, [id]);
+
+  useEffect(() => {
+    console.log('Enquiries eventMessages state updated:', eventMessages);
+  }, [eventMessages]);
 
   useEffect(() => {
     if (!id) {
@@ -418,6 +425,7 @@ const EventAnallyticsDetails = () => {
       const res = await GET(`/api/events/${id}/messages`);
       const payload = res?.data;
       const messagesData =
+        (Array.isArray(payload?.data?.messages) && payload.data.messages) ||
         (Array.isArray(payload?.data) && payload.data) ||
         (Array.isArray(payload) && payload) ||
         (Array.isArray(payload?.rows) && payload.rows) ||

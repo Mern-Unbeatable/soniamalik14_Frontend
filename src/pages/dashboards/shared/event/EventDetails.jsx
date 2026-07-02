@@ -34,8 +34,7 @@ const getMapEmbedUrl = (event) => {
   return buildEmbed(fallbackQuery);
 };
 
-
-const EventDetails = ({ backRoute = "/provider/event", useOrganizerApi }) => {
+const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
   const { id } = useParams();
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -102,9 +101,9 @@ const EventDetails = ({ backRoute = "/provider/event", useOrganizerApi }) => {
   const mapEmbedUrl = getMapEmbedUrl(event);
 
   return (
-    <div className="min-h-screen bg-[#f4f6f8] px-4 pb-10 pt-5 md:px-6 lg:px-10">
+    <div className="min-h-screen bg-[#f4f6f8] px-4 pt-5 pb-10 md:px-6 lg:px-10">
       <div className="mx-auto w-full">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <button
             onClick={handleBack}
             className="inline-flex items-center gap-2 text-[18px] font-normal text-[#0F766E]"
@@ -113,18 +112,18 @@ const EventDetails = ({ backRoute = "/provider/event", useOrganizerApi }) => {
             <span>Back</span>
           </button>
           {event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING' ? (
-            <span className="text-sm text-gray-500 font-medium italic">
+            <span className="text-sm font-medium text-gray-500 italic">
               You can share your link after admin approved
             </span>
           ) : (
             <button
               onClick={handleCopyEventLink}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-[#0F766E] rounded-lg text-sm font-medium text-[#0F766E] bg-white hover:bg-[#E7F1F1] transition shadow-sm"
+              className="inline-flex items-center gap-2 rounded-lg border border-[#0F766E] bg-white px-4 py-2 text-sm font-medium text-[#0F766E] shadow-sm transition hover:bg-[#E7F1F1]"
             >
               {copiedEventLink ? (
                 <>
                   <Check className="h-4 w-4 text-emerald-600" />
-                  <span className="text-emerald-600 font-semibold">Event Link Copied!</span>
+                  <span className="font-semibold text-emerald-600">Event Link Copied!</span>
                 </>
               ) : (
                 <>
@@ -136,8 +135,12 @@ const EventDetails = ({ backRoute = "/provider/event", useOrganizerApi }) => {
           )}
         </div>
 
-        <div className=" overflow-hidden rounded-xl ">
-          <img src={event.image} alt={event.title} className="h-65 md:h-96 lg:h-100 xl:h-140 2xl:h-186 w-full object-cover rounded-xl " />
+        <div className="overflow-hidden rounded-xl">
+          <img
+            src={event.image}
+            alt={event.title}
+            className="h-65 w-full rounded-xl object-cover md:h-96 lg:h-100 xl:h-140 2xl:h-186"
+          />
         </div>
 
         <div className="relative -mt-6 ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:-mt-8 md:ml-4 md:h-21 md:w-21">
@@ -152,7 +155,7 @@ const EventDetails = ({ backRoute = "/provider/event", useOrganizerApi }) => {
         </div>
 
         <div className="mt-4">
-          <h1 className="text-[28px] font-semibold leading-tight text-[#0C0C0C] md:text-[32px]">
+          <h1 className="text-[28px] leading-tight font-semibold text-[#0C0C0C] md:text-[32px]">
             {event.title}
           </h1>
           <div className="mt-1 flex items-center gap-1 text-[16px] leading-6">
@@ -162,13 +165,13 @@ const EventDetails = ({ backRoute = "/provider/event", useOrganizerApi }) => {
         </div>
 
         <div className="mt-6 rounded-lg bg-white p-5">
-          <h2 className="text-[20px] font-semibold leading-8 text-black">Event Type</h2>
-          <p className="mt-2 whitespace-pre-line text-[14px] leading-5 text-[#2d2d2d]">
+          <h2 className="text-[20px] leading-8 font-semibold text-black">Event Type</h2>
+          <p className="mt-2 text-[14px] leading-5 whitespace-pre-line text-[#2d2d2d]">
             {event.description}
           </p>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-3 lg:gap-6">
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:gap-6 xl:grid-cols-3">
           <SessionOverview event={event} onBookPlace={handleBookPlace} />
           <VenueInformation event={event} mapEmbedUrl={mapEmbedUrl} />
           <ContactOrganiser
