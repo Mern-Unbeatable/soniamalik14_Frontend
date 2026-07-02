@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Table from '../../../../components/ui/Table';
 import Pagination from '../../../../components/ui/Pagination';
@@ -13,6 +13,10 @@ const EventAnalytics = ({ baseRoute = '/coach' }) => {
     const allEvents = useSelector(selectEventAnalytics);
     const loading = useSelector(selectAnalyticsLoading);
     const error = useSelector(selectAnalyticsError);
+
+    useEffect(() => {
+        console.log('Event Analytics Data (allEvents):', allEvents);
+    }, [allEvents]);
 
     const getInitialTab = () => {
         const tab = searchParams.get('tab');
@@ -59,7 +63,10 @@ const EventAnalytics = ({ baseRoute = '/coach' }) => {
             const startDate = event?.startDate ? new Date(event.startDate) : null;
             const endDate = event?.endDate ? new Date(event.endDate) : startDate;
             const normalizedStatus = String(event?.status || '').trim().toLowerCase();
-            const isCancelled = normalizedStatus === 'cancelled' || normalizedStatus === 'canceled';
+            const isCancelled =
+                normalizedStatus === 'cancelled' ||
+                normalizedStatus === 'canceled' ||
+                normalizedStatus === 'banned';
             const isPending = normalizedStatus === 'pending';
             const isComplete = normalizedStatus === 'completed' || (!!endDate && endDate < today && !isCancelled && !isPending);
             const isUpcoming = !isCancelled && !isPending && !isComplete;
