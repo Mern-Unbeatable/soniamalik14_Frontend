@@ -302,6 +302,7 @@ const ContentCollaboratePage = () => {
           <div>
             <label className="mb-2 block text-base font-medium text-gray-900">Description</label>
             <ReactQuill
+              className="collab-quill collab-quill-main"
               theme="snow"
               modules={quillModules}
               formats={quillFormats}
@@ -328,6 +329,7 @@ const ContentCollaboratePage = () => {
         />
         <label className="mb-2 block text-base font-medium text-gray-900">Sport Provider Description</label>
         <ReactQuill
+          className="collab-quill collab-quill-desc"
           theme="snow"
           modules={quillModules}
           formats={quillFormats}
@@ -352,6 +354,7 @@ const ContentCollaboratePage = () => {
         />
         <label className="mb-2 block text-base font-medium text-gray-900">Supporting Description</label>
         <ReactQuill
+          className="collab-quill collab-quill-desc"
           theme="snow"
           modules={quillModules}
           formats={quillFormats}
@@ -383,6 +386,7 @@ const ContentCollaboratePage = () => {
         />
         <label className="mb-2 block text-base font-medium text-gray-900">Brand Description</label>
         <ReactQuill
+          className="collab-quill collab-quill-desc"
           theme="snow"
           modules={quillModules}
           formats={quillFormats}
@@ -401,6 +405,31 @@ const ContentCollaboratePage = () => {
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .collab-quill .ql-toolbar {
+              border-radius: 10px 10px 0 0;
+              background: #ffffff;
+            }
+            .collab-quill .ql-container {
+              border-radius: 0 0 10px 10px;
+              background: #f5f5f5;
+            }
+            .collab-quill-main .ql-editor {
+              min-height: 170px;
+              max-height: 170px;
+              overflow-y: auto;
+            }
+            .collab-quill-desc .ql-editor {
+              min-height: 150px;
+              max-height: 150px;
+              overflow-y: auto;
+            }
+          `,
+        }}
+      />
     </div>
   );
 };

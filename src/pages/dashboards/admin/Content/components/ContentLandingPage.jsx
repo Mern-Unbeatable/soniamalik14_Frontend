@@ -285,7 +285,7 @@ const ContentLandingPage = () => {
         </div>
         <div className="space-y-6">
           <input type="text" value={form.title} onChange={(e) => handleInputChange('title', e.target.value)} className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none" placeholder="Write title" />
-          <ReactQuill theme="snow" modules={quillModules} value={form.description} onChange={(value) => handleInputChange('description', value)} />
+          <ReactQuill className="landing-quill landing-quill-main" theme="snow" modules={quillModules} value={form.description} onChange={(value) => handleInputChange('description', value)} />
         </div>
       </div>
 
@@ -293,7 +293,7 @@ const ContentLandingPage = () => {
         <h2 className="mb-6 text-2xl font-semibold text-gray-900 lg:text-3xl">Explore ESSA Hub</h2>
         <div className="space-y-6">
           <input type="text" value={form.sectionTitle} onChange={(e) => handleInputChange('sectionTitle', e.target.value)} className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none" placeholder="Section title" />
-          <ReactQuill theme="snow" modules={quillModules} value={form.sectionSubTitle} onChange={(value) => handleInputChange('sectionSubTitle', value)} />
+          <ReactQuill className="landing-quill landing-quill-short" theme="snow" modules={quillModules} value={form.sectionSubTitle} onChange={(value) => handleInputChange('sectionSubTitle', value)} />
         </div>
         <div className="mt-4 flex justify-end">
           <button
@@ -347,7 +347,7 @@ const ContentLandingPage = () => {
                   <div className="space-y-3">
                     <input type="text" value={card.title} onChange={(e) => updateCardState(card.id, { title: e.target.value })} className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm outline-none" placeholder="Card title" />
                     <input type="text" value={card.subtitle} onChange={(e) => updateCardState(card.id, { subtitle: e.target.value })} className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm outline-none" placeholder="Card subtitle" />
-                    <ReactQuill theme="snow" modules={quillModules} value={card.description} onChange={(value) => updateCardState(card.id, { description: value })} />
+                    <ReactQuill className="landing-quill landing-quill-card" theme="snow" modules={quillModules} value={card.description} onChange={(value) => updateCardState(card.id, { description: value })} />
                   </div>
 
                   <div className="mt-4 flex gap-2">
@@ -369,7 +369,7 @@ const ContentLandingPage = () => {
         <h2 className="mb-6 text-2xl font-semibold text-[#0B544E] lg:text-3xl">Find Your Sport</h2>
         <div className="space-y-6">
           <input type="text" value={form.sportTitle} onChange={(e) => handleInputChange('sportTitle', e.target.value)} className="w-full rounded-lg border-none bg-[#f5f5f5] px-4 py-3.5 text-base outline-none" placeholder="Section title" />
-          <ReactQuill theme="snow" modules={quillModules} value={form.sportSubTitle} onChange={(value) => handleInputChange('sportSubTitle', value)} />
+          <ReactQuill className="landing-quill landing-quill-short" theme="snow" modules={quillModules} value={form.sportSubTitle} onChange={(value) => handleInputChange('sportSubTitle', value)} />
         </div>
       </div>
 
@@ -378,6 +378,36 @@ const ContentLandingPage = () => {
           {savingHome ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .landing-quill .ql-toolbar {
+              border-radius: 10px 10px 0 0;
+              background: #ffffff;
+            }
+            .landing-quill .ql-container {
+              border-radius: 0 0 10px 10px;
+              background: #f5f5f5;
+            }
+            .landing-quill-main .ql-editor {
+              min-height: 170px;
+              max-height: 170px;
+              overflow-y: auto;
+            }
+            .landing-quill-short .ql-editor {
+              min-height: 120px;
+              max-height: 120px;
+              overflow-y: auto;
+            }
+            .landing-quill-card .ql-editor {
+              min-height: 110px;
+              max-height: 110px;
+              overflow-y: auto;
+            }
+          `,
+        }}
+      />
     </div>
   );
 };

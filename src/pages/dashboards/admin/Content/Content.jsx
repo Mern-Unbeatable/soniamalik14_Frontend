@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ContentLandingPage from './components/ContentLandingPage';
-// import ContentAboutUS from './components/ContentAboutUS';
+import ContentAboutUS from './components/ContentAboutUS';
 import ContentCollaboratePage from './components/ContentCollaboratePage';
 // import ContentNews from './components/ContentNews';
 import ContentTabs from './components/ContentTabs';
@@ -11,7 +11,7 @@ const ContentManagement = () => {
 
     const tabs = [
         'Landing Page',
-        // 'About US',
+        'About US',
         'Collaborate page',
         // 'News',
     ];
@@ -35,7 +35,7 @@ const ContentManagement = () => {
 
                 {/* Tab Content Rendering */}
                 {activeTab === 'Landing Page' && <ContentLandingPage />}
-                {/* {activeTab === 'About US' && <ContentAboutUS />} */}
+                {activeTab === 'About US' && <ContentAboutUS />}
                 {activeTab === 'Collaborate page' && <ContentCollaboratePage />}
                 {/* {activeTab === 'News' && <ContentNews />} */}
 
