@@ -192,7 +192,9 @@ const RecruitmentDetails = () => {
 
                 try {
                     const messagesResponse = await GET(ENDPOINT.SERVICES.MESSAGES(id));
+                    console.log('Recruitment Enquiries RAW Response:', messagesResponse);
                     const messagesPayload = messagesResponse?.data || messagesResponse;
+                    console.log('Recruitment Enquiries Payload:', messagesPayload);
                     const messages = extractArray(messagesPayload);
 
                     const mappedMessages = (Array.isArray(messages) ? messages : []).map((message, index) => ({
@@ -201,17 +203,21 @@ const RecruitmentDetails = () => {
                             message?.name ||
                             message?.fullName ||
                             message?.senderName ||
+                            message?.sender?.name ||
                             message?.user?.name ||
                             'N/A',
                         phone:
                             message?.phone ||
                             message?.phoneNumber ||
                             message?.senderPhone ||
+                            message?.sender?.phone ||
+                            message?.sender?.phoneNumber ||
                             message?.user?.phone ||
                             'N/A',
                         email:
                             message?.email ||
                             message?.senderEmail ||
+                            message?.sender?.email ||
                             message?.user?.email ||
                             'N/A',
                         msg:
@@ -224,7 +230,8 @@ const RecruitmentDetails = () => {
 
                     if (!active) return;
                     setMessagesData(mappedMessages);
-                } catch {
+                } catch (error) {
+                    console.error('Recruitment Enquiries API Error:', error);
                     if (!active) return;
                     setMessagesData([]);
                 }
