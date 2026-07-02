@@ -469,7 +469,7 @@ const EventAnallyticsDetails = () => {
         />
       </div>
 
-      {String(item?.status || '').toUpperCase() === 'BANNED' && (
+      {(String(item?.status || '').toUpperCase() === 'BANNED' || item?.bannedReason) && (
         <div className="mt-4 flex items-start gap-3 rounded-2xl bg-[#FFEBEB] p-5 text-red-700">
           <div className="flex-shrink-0 mt-0.5">
             <svg
@@ -491,13 +491,15 @@ const EventAnallyticsDetails = () => {
               This event was not approved
             </h4>
             <p className="mt-1 text-base text-[#E53E3E] leading-normal font-medium">
-              {item?.bannedReason || 'Your event could not be published because it does not meet our community or safety guidelines. Please review the feedback below, make the required changes, and submit again.'}
+              {!item?.bannedReason || String(item.bannedReason).trim() === '3'
+                ? 'Your event could not be published because it does not meet our community or safety guidelines. Please review the feedback below, make the required changes, and submit again.'
+                : item.bannedReason}
             </p>
           </div>
         </div>
       )}
 
-      <div className={`relative ${String(item?.status || '').toUpperCase() === 'BANNED' ? 'mt-4' : '-mt-6'} ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:${String(item?.status || '').toUpperCase() === 'BANNED' ? 'mt-4' : '-mt-8'} md:ml-4 md:h-21 md:w-21`}>
+      <div className={`relative ${(String(item?.status || '').toUpperCase() === 'BANNED' || item?.bannedReason) ? 'mt-4' : '-mt-6'} ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:${(String(item?.status || '').toUpperCase() === 'BANNED' || item?.bannedReason) ? 'mt-4' : '-mt-8'} md:ml-4 md:h-21 md:w-21`}>
         <img
           src={
             item.organizer?.avatar 

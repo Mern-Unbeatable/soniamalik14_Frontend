@@ -207,10 +207,12 @@ const InsightsPreview = () => {
 
       try {
         const response = await GET(ENDPOINT.EVENTS.DETAIL(id), {}, abortController.signal);
+        console.log('InsightsPreview RAW loadEvent Response:', response);
         const data = response?.data?.data || response?.data || null;
         setRawEvent(data);
       } catch (error) {
         if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
+        console.error('InsightsPreview loadEvent Error:', error);
         setEventError(error?.response?.data?.message || 'Failed to load event details');
         setRawEvent(null);
       } finally {
@@ -222,6 +224,12 @@ const InsightsPreview = () => {
 
     return () => abortController.abort();
   }, [id, state?.item]);
+
+  useEffect(() => {
+    if (rawEvent) {
+      console.log('InsightsPreview rawEvent state updated:', rawEvent);
+    }
+  }, [rawEvent]);
 
   const event = useMemo(() => {
     if (!rawEvent) return null;
@@ -530,22 +538,39 @@ const InsightsPreview = () => {
         </div>
 
         <div className="relative">
-          {event.bannedReason && (
-            <div className="mt-4 ml-3 max-w-3xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 md:ml-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
-                <div>
-                  <p className="text-sm font-semibold text-red-700">This event was not approved
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed text-red-600">{event.bannedReason}</p>
-                </div>
+          {(String(event?.status || '').toUpperCase() === 'BANNED' || event?.bannedReason) && (
+            <div className="mt-4 ml-3 max-w-3xl flex items-start gap-3 rounded-2xl bg-[#FFEBEB] p-5 text-red-700 md:ml-4">
+              <div className="flex-shrink-0 mt-0.5">
+                <svg
+                  className="h-6 w-6 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold leading-tight text-[#E53E3E]">
+                  This event was not approved
+                </h4>
+                <p className="mt-1 text-base text-[#E53E3E] leading-normal font-medium">
+                  {!event?.bannedReason || String(event.bannedReason).trim() === '3'
+                    ? 'Your event could not be published because it does not meet our community or safety guidelines. Please review the feedback below, make the required changes, and submit again.'
+                    : event.bannedReason}
+                </p>
               </div>
             </div>
           )}
 
           <div
             className={`relative ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:ml-4 md:h-21 md:w-21 ${
-              event.bannedReason ? 'mt-3' : '-mt-6 md:-mt-8'
+              (String(event?.status || '').toUpperCase() === 'BANNED' || event?.bannedReason) ? 'mt-3' : '-mt-6 md:-mt-8'
             }`}
           >
             <img
