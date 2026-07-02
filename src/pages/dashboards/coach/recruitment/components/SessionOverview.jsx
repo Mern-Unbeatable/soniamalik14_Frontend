@@ -55,7 +55,7 @@ const SessionOverview = ({ item, disableActions = false }) => {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3">
-                {(!Array.isArray(item.responseMethods) || item.responseMethods.length === 0 || item.responseMethods.includes('Add booking link')) ? (
+                {item.responseType !== 'INTERESTED' ? (
                     <button
                         type="button"
                         disabled={disableActions}

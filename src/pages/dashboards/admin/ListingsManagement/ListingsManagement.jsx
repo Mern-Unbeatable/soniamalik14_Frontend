@@ -20,13 +20,20 @@ const formatDate = (value) => {
 };
 
 const normalizeProviderType = (service) => {
-  const providerRole = String(service?.provider?.role || '').toLowerCase();
+  const providerRole = String(service?.provider?.role || '').toUpperCase();
+  
+  if (providerRole === 'COACH') {
+    return 'Sport Providers';
+  }
+  if (providerRole === 'PROVIDER') {
+    return 'Service Provider';
+  }
+
   const providerTypeValues = Array.isArray(service?.providerType)
     ? service.providerType.map((entry) => String(entry || '').toLowerCase())
     : [];
 
   const looksLikeSportProvider =
-    providerRole === 'coach' ||
     providerTypeValues.some((entry) =>
       ['coach', 'trainer', 'conditioning', 'football', 'tennis', 'cricket', 'sports'].some(
         (keyword) => entry.includes(keyword)
@@ -51,21 +58,32 @@ const normalizeStatus = (service) => {
   return 'Pending';
 };
 
-const mapServiceToRow = (service) => ({
-  id: service?.id,
-  listing:
-    service?.listingHeadline ||
-    service?.organizationName ||
-    service?.providerName ||
-    'Untitled Listing',
-  date: formatDate(service?.createdAt || service?.updatedAt),
-  provider: service?.providerName || service?.provider?.name || 'N/A',
-  providerType: normalizeProviderType(service),
-  category: Array.isArray(service?.sports) && service.sports.length > 0 ? service.sports[0] : 'N/A',
-  postcode: service?.postcode || 'N/A',
-  status: normalizeStatus(service),
-  engagement: null,
-});
+const mapServiceToRow = (service) => {
+  const providerRole = String(service?.provider?.role || '').toUpperCase();
+  let providerDisplay = service?.providerName || service?.provider?.name || 'N/A';
+  if (providerRole === 'COACH') {
+    providerDisplay = 'Sport Providers';
+  } else if (providerRole === 'PROVIDER') {
+    providerDisplay = 'Service Provider';
+  }
+
+  return {
+    id: service?.id,
+    listing:
+      service?.listingHeadline ||
+      service?.organizationName ||
+      service?.providerName ||
+      'Untitled Listing',
+    date: formatDate(service?.createdAt || service?.updatedAt),
+    provider: providerDisplay,
+    providerType: normalizeProviderType(service),
+    category: Array.isArray(service?.sports) && service.sports.length > 0 ? service.sports[0] : 'N/A',
+    postcode: service?.postcode || 'N/A',
+    status: normalizeStatus(service),
+    isFeatured: !!service?.isFeatured,
+    engagement: null,
+  };
+};
 
 const ListingsManagement = () => {
   // Filter States
@@ -83,15 +101,19 @@ const ListingsManagement = () => {
 
     try {
       const response = await GET(ENDPOINT.SERVICES.ADMIN_BY_PROVIDER_ROLE);
+      console.log('ListingsManagement admin response payload:', response);
       const payload = response?.data || response;
       const services = Array.isArray(payload?.data)
         ? payload.data
         : Array.isArray(payload)
           ? payload
           : [];
+      
+      console.log('ListingsManagement admin parsed services list:', services);
 
       setTableData(services.map(mapServiceToRow));
     } catch (err) {
+      console.error('ListingsManagement admin fetch error:', err);
       setError(err?.response?.data?.message || err?.message || 'Failed to load listings');
       setTableData([]);
     } finally {

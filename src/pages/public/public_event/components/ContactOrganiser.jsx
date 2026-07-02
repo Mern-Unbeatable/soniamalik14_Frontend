@@ -33,6 +33,8 @@ const ContactOrganiser = ({ event }) => {
         message: trimmedMessage,
       });
 
+      console.log('Backend response after sending message:', response);
+
       setMessage('');
       setMessageStatus('');
       await Swal.fire({
@@ -43,6 +45,7 @@ const ContactOrganiser = ({ event }) => {
         confirmButtonColor: '#0F766E',
       });
     } catch (error) {
+      console.error('Backend error after sending message:', error);
       setMessageStatus(error?.response?.data?.message || 'Failed to send message.');
     } finally {
       setIsSending(false);

@@ -457,6 +457,7 @@ const ProviderDashboard = () => {
         isOpen={eventModalOpen}
         onClose={() => setEventModalOpen(false)}
         mode="create"
+        useOrganizerApi={true}
         onSuccess={handleEventCreated}
       />
 

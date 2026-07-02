@@ -57,6 +57,7 @@ const createInitialForm = () => ({
   timeFrom: '',
   timeTo: '',
   bookingLink: '',
+  responseMethods: ['Add booking link'],
 });
 
 const appendIfPresent = (formData, key, value) => {
@@ -116,6 +117,12 @@ const logFormDataDebug = (label, formData) => {
   } catch (error) {
     console.error('[CreateRecruitmentModal] Failed to log FormData payload', error);
   }
+};
+
+const getResponseType = (methods = []) => {
+  if (methods.includes('Add booking link')) return 'REGISTER';
+  if (methods.includes('Allow users to register interest')) return 'INTERESTED';
+  return 'REGISTER';
 };
 
 const toArray = (value) => {
@@ -239,6 +246,9 @@ const mapInitialDataToForm = (initialData) => {
     timeFrom: timeRange.timeFrom,
     timeTo: timeRange.timeTo,
     bookingLink: initialData?.bookingLink || '',
+    responseMethods: initialData?.responseType === 'INTERESTED'
+      ? ['Allow users to register interest']
+      : ['Add booking link'],
   };
 };
 
@@ -366,6 +376,7 @@ const CreateRecruitmentModal = ({
         timeTo,
         timeSlote: timeSlot,
         bookingLink: String(form.bookingLink || '').trim(),
+        responseType: getResponseType(form.responseMethods),
       };
 
       Object.keys(updatePayload).forEach((key) => {
@@ -437,6 +448,7 @@ const CreateRecruitmentModal = ({
       appendIfPresent(payload, 'timeTo', timeTo);
       appendIfPresent(payload, 'timeSlote', timeSlot);
       appendIfPresent(payload, 'bookingLink', form.bookingLink);
+      payload.append('responseType', getResponseType(form.responseMethods));
 
       if (form.logo && typeof form.logo !== 'string') {
         payload.append('logo', form.logo);
@@ -741,6 +753,54 @@ const CreateRecruitmentModal = ({
                     className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Choose CTA */}
+            <div className="space-y-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+              <label className="block text-base font-semibold text-gray-700">
+                Choose the main action for this listing
+              </label>
+              <p className="text-sm text-gray-500">
+                Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
+              </p>
+              <div className="space-y-3">
+                {[
+                  {
+                    value: 'Add booking link',
+                    label: 'Register',
+                    desc: 'Choose this if the event or session is confirmed and people can sign up to attend. Note: If payment or final details are required, you should contact the person after they register.',
+                  },
+                  {
+                    value: 'Allow users to register interest',
+                    label: 'Register Interest',
+                    desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend. Note: You should follow up with anyone who registers interest to let them know the next steps.',
+                  },
+                ].map((option) => {
+                  const selected = form.responseMethods?.includes(option.value);
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleChange('responseMethods', [option.value])}
+                      className={`w-full text-left p-4 rounded-xl border transition-all ${
+                        selected
+                          ? 'border-[#0F766E] bg-[#E7F1F1] text-gray-900 shadow-sm'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-400">
+                          {selected && <div className="h-2 w-2 rounded-full bg-[#0F766E]" />}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-base text-gray-900">{option.label}</p>
+                          <p className="mt-1 text-sm text-gray-500 leading-normal">{option.desc}</p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </form>

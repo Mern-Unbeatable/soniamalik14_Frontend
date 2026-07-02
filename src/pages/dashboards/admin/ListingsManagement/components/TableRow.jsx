@@ -26,7 +26,7 @@ const TableRow = ({ row, onActionDone }) => {
                 <EngagementMetrics engagement={row.engagement} />
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-base">
-                <ActionButtons status={row.status} rowId={row.id} providerType={row.providerType} onActionDone={onActionDone} />
+                <ActionButtons status={row.status} isFeatured={row.isFeatured} rowId={row.id} providerType={row.providerType} onActionDone={onActionDone} />
             </td>
         </tr>
     );

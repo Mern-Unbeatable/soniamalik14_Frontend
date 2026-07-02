@@ -283,8 +283,10 @@ const EventAnallyticsDetails = () => {
 
       try {
         const response = await GET(`/api/events/${id}/messages`, {}, abortController.signal);
+        console.log('Enquiries RAW Response from backend:', response);
         const payload = response?.data;
         const messagesData =
+          (Array.isArray(payload?.data?.messages) && payload.data.messages) ||
           (Array.isArray(payload?.data) && payload.data) ||
           (Array.isArray(payload) && payload) ||
           (Array.isArray(payload?.rows) && payload.rows) ||
@@ -292,6 +294,7 @@ const EventAnallyticsDetails = () => {
         setEventMessages(messagesData);
       } catch (error) {
         if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
+        console.error('Enquiries API Error:', error);
         setMessagesError(error?.response?.data?.message || 'Failed to load enquiries');
         setEventMessages([]);
       } finally {
@@ -305,6 +308,10 @@ const EventAnallyticsDetails = () => {
       abortController.abort();
     };
   }, [id]);
+
+  useEffect(() => {
+    console.log('Enquiries eventMessages state updated:', eventMessages);
+  }, [eventMessages]);
 
   useEffect(() => {
     if (!id) {
@@ -418,6 +425,7 @@ const EventAnallyticsDetails = () => {
       const res = await GET(`/api/events/${id}/messages`);
       const payload = res?.data;
       const messagesData =
+        (Array.isArray(payload?.data?.messages) && payload.data.messages) ||
         (Array.isArray(payload?.data) && payload.data) ||
         (Array.isArray(payload) && payload) ||
         (Array.isArray(payload?.rows) && payload.rows) ||
@@ -461,7 +469,37 @@ const EventAnallyticsDetails = () => {
         />
       </div>
 
-      <div className="relative -mt-6 ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:-mt-8 md:ml-4 md:h-21 md:w-21">
+      {(String(item?.status || '').toUpperCase() === 'BANNED' || item?.bannedReason) && (
+        <div className="mt-4 flex items-start gap-3 rounded-2xl bg-[#FFEBEB] p-5 text-red-700">
+          <div className="flex-shrink-0 mt-0.5">
+            <svg
+              className="h-6 w-6 text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h4 className="text-lg font-semibold leading-tight text-[#E53E3E]">
+              This event was not approved
+            </h4>
+            <p className="mt-1 text-base text-[#E53E3E] leading-normal font-medium">
+              {!item?.bannedReason || String(item.bannedReason).trim() === '3'
+                ? 'Your event could not be published because it does not meet our community or safety guidelines. Please review the feedback below, make the required changes, and submit again.'
+                : item.bannedReason}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className={`relative ${(String(item?.status || '').toUpperCase() === 'BANNED' || item?.bannedReason) ? 'mt-4' : '-mt-6'} ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:${(String(item?.status || '').toUpperCase() === 'BANNED' || item?.bannedReason) ? 'mt-4' : '-mt-8'} md:ml-4 md:h-21 md:w-21`}>
         <img
           src={
             item.organizer?.avatar 

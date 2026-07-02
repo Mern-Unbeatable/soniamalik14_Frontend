@@ -26,13 +26,13 @@ const DiscoverEmptyPage = () => {
     }
 
     return (
-        <section className="py-6 lg:py-10 bg-[#F8FAFC]">
+        <section className="py-6   bg-[#F8FAFC]">
             <Container>
-                <div className="max-w-2xl mx-auto text-center ">
+                <div className="max-w-2xl mx-auto text-center">
                     <img
                         src="https://i.ibb.co.com/jPC3xh1x/Frame-2147226558-1.png"
                         alt="Search illustration"
-                        className="mx-auto w-[600px] h-48 md:h-[500px] object-contain mb-6"
+                        className="mx-auto w-[600px] h-48 md:h-[400px] object-contain "
                     />
 
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">Don’t see your sport locally?</h2>

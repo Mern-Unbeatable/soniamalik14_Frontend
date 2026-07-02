@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Heart } from 'lucide-react';
+import { ArrowLeft, Heart, User } from 'lucide-react';
 import Container from '../../../components/layout/Container';
 import { useDispatch, useSelector } from 'react-redux';
 import { ENV } from '../../../config/env';
@@ -95,10 +95,12 @@ const EventDetails = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     dispatch(fetchOrganizerEventById(id));
+    setAvatarError(false);
   }, [id, dispatch]);
 
   const data = apiItem?.data || apiItem;
@@ -183,8 +185,8 @@ const EventDetails = () => {
             : data.startTime || '',
         image: normalizeMediaUrl(data.image) || '/images/detaisPage/detailsBanner.png',
         organizerAvatar:
-          normalizeMediaUrl(data.organizer?.avatar) || '/images/detaisPage/coachAvatar.png',
-        avatar: normalizeMediaUrl(data.organizer?.avatar) || '/images/detaisPage/coachAvatar.png',
+          normalizeMediaUrl(data.organizer?.avatar) || null,
+        avatar: normalizeMediaUrl(data.organizer?.avatar) || null,
         mapEmbedUrl: getMapEmbedUrl(data),
         about: data.description || data.about || '',
         responseMethods: data.responseMethods || [],
@@ -267,23 +269,16 @@ const EventDetails = () => {
             </button>
 
             {/* Overlaid Avatar Picture */}
-            <div className="absolute -bottom-10 left-6 h-20 w-20 overflow-hidden rounded-full border-4 border-[#F8FAFC] bg-gray-200 md:left-10 md:h-24 md:w-24">
-              {event.organizerAvatar ? (
+            <div className="absolute -bottom-10 left-6 h-20 w-20 overflow-hidden rounded-full border-4 border-[#F8FAFC] bg-gray-200 md:left-10 md:h-24 md:w-24 flex items-center justify-center">
+              {event.organizerAvatar && !avatarError ? (
                 <img
                   src={event.organizerAvatar}
                   alt={event.coach}
                   className="h-full w-full object-cover"
-                  onError={(avatarEvent) => {
-                    avatarEvent.currentTarget.onerror = null;
-                    avatarEvent.currentTarget.src = '/images/detaisPage/coachAvatar.png';
-                  }}
+                  onError={() => setAvatarError(true)}
                 />
               ) : (
-                <img
-                  src="/images/detaisPage/coachAvatar.png"
-                  alt="fallback"
-                  className="h-full w-full object-cover"
-                />
+                <User className="h-12 w-12 text-gray-500" />
               )}
             </div>
           </div>

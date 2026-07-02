@@ -6,7 +6,7 @@ import BanModal from './BanModal';
 import { PATCH } from '../../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../../services/httpEndpoint';
 
-const ActionButtons = ({ status, rowId, providerType, onActionDone }) => {
+const ActionButtons = ({ status, isFeatured, rowId, providerType, onActionDone }) => {
     const navigate = useNavigate();
     const [isBanModalOpen, setIsBanModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
@@ -17,6 +17,21 @@ const ActionButtons = ({ status, rowId, providerType, onActionDone }) => {
             navigate(`/admin/listings/sport-provider/${rowId}`);
         } else if (providerType === 'Service Provider') {
             navigate(`/admin/listings/service-provider/${rowId}`);
+        }
+    };
+
+    const handleToggleFeature = async () => {
+        setIsSubmitting(true);
+        try {
+            const response = await PATCH(ENDPOINT.SERVICES.FEATURE(rowId), { isFeatured: !isFeatured });
+            const payload = response?.data || response;
+            toast.success(payload?.message || `Listing ${isFeatured ? 'unfeatured' : 'featured'} successfully`);
+            onActionDone?.();
+        } catch (error) {
+            const message = error?.response?.data?.message || error?.message || 'Failed to toggle featured status';
+            toast.error(message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -65,8 +80,13 @@ const ActionButtons = ({ status, rowId, providerType, onActionDone }) => {
                 >
                     <Eye className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
-                <button className="transition-colors" title={status === 'Featured' ? 'Unfeature' : 'Feature'}>
-                    <Star className={`w-4 h-4 md:w-5 md:h-5 ${status === 'Featured' ? 'fill-amber-400 text-amber-400' : 'text-amber-500 hover:fill-amber-100'}`} />
+                <button
+                    onClick={handleToggleFeature}
+                    className="transition-colors"
+                    title={isFeatured ? 'Unfeature' : 'Feature'}
+                    disabled={isSubmitting}
+                >
+                    <Star className={`w-4 h-4 md:w-5 md:h-5 ${isFeatured ? 'fill-amber-400 text-amber-400' : 'text-amber-500 hover:fill-amber-100'}`} />
                 </button>
                 <button
                     onClick={() => setIsBanModalOpen(true)}

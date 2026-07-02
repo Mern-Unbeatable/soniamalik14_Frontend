@@ -61,7 +61,35 @@ const mapServiceToDetailsItem = (service) => ({
     time: service?.timeSlote || 'N/A',
     bookingLink: service?.bookingLink || '',
     status: service?.status || '',
+    responseType: service?.responseType || (service?.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'INTERESTED' : 'REGISTER'),
 });
+
+const extractArray = (payload) => {
+    if (!payload) return [];
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload.data)) return payload.data;
+    if (payload.bookings && Array.isArray(payload.bookings)) return payload.bookings;
+    if (payload.bookings && Array.isArray(payload.bookings.data)) return payload.bookings.data;
+    if (payload.interests && Array.isArray(payload.interests)) return payload.interests;
+    if (payload.interests && Array.isArray(payload.interests.data)) return payload.interests.data;
+    if (payload.messages && Array.isArray(payload.messages)) return payload.messages;
+    if (payload.messages && Array.isArray(payload.messages.data)) return payload.messages.data;
+    
+    if (payload.data && typeof payload.data === 'object') {
+        return extractArray(payload.data);
+    }
+    if (payload.bookings && typeof payload.bookings === 'object') {
+        return extractArray(payload.bookings);
+    }
+    if (payload.interests && typeof payload.interests === 'object') {
+        return extractArray(payload.interests);
+    }
+    if (payload.messages && typeof payload.messages === 'object') {
+        return extractArray(payload.messages);
+    }
+    
+    return [];
+};
 
 const RecruitmentDetails = () => {
     const { id } = useParams();
@@ -99,7 +127,7 @@ const RecruitmentDetails = () => {
                 try {
                     const bookingsResponse = await GET(ENDPOINT.SERVICES.BOOKINGS(id));
                     const bookingsPayload = bookingsResponse?.data || bookingsResponse;
-                    const bookings = bookingsPayload?.data?.bookings || bookingsPayload?.bookings || [];
+                    const bookings = extractArray(bookingsPayload);
 
                     const mappedBookings = (Array.isArray(bookings) ? bookings : []).map((booking, index) => ({
                         id: booking?.id || `${id}-booking-${index}`,
@@ -132,7 +160,7 @@ const RecruitmentDetails = () => {
                 try {
                     const interestsResponse = await GET(ENDPOINT.SERVICES.INTERESTS(id));
                     const interestsPayload = interestsResponse?.data || interestsResponse;
-                    const interests = interestsPayload?.data?.interests || interestsPayload?.interests || [];
+                    const interests = extractArray(interestsPayload);
 
                     const mappedInterests = (Array.isArray(interests) ? interests : []).map((interest, index) => ({
                         id: interest?.id || `${id}-interest-${index}`,
@@ -164,8 +192,10 @@ const RecruitmentDetails = () => {
 
                 try {
                     const messagesResponse = await GET(ENDPOINT.SERVICES.MESSAGES(id));
+                    console.log('Recruitment Enquiries RAW Response:', messagesResponse);
                     const messagesPayload = messagesResponse?.data || messagesResponse;
-                    const messages = messagesPayload?.data?.messages || messagesPayload?.messages || [];
+                    console.log('Recruitment Enquiries Payload:', messagesPayload);
+                    const messages = extractArray(messagesPayload);
 
                     const mappedMessages = (Array.isArray(messages) ? messages : []).map((message, index) => ({
                         id: message?.id || `${id}-message-${index}`,
@@ -173,17 +203,21 @@ const RecruitmentDetails = () => {
                             message?.name ||
                             message?.fullName ||
                             message?.senderName ||
+                            message?.sender?.name ||
                             message?.user?.name ||
                             'N/A',
                         phone:
                             message?.phone ||
                             message?.phoneNumber ||
                             message?.senderPhone ||
+                            message?.sender?.phone ||
+                            message?.sender?.phoneNumber ||
                             message?.user?.phone ||
                             'N/A',
                         email:
                             message?.email ||
                             message?.senderEmail ||
+                            message?.sender?.email ||
                             message?.user?.email ||
                             'N/A',
                         msg:
@@ -196,7 +230,8 @@ const RecruitmentDetails = () => {
 
                     if (!active) return;
                     setMessagesData(mappedMessages);
-                } catch {
+                } catch (error) {
+                    console.error('Recruitment Enquiries API Error:', error);
                     if (!active) return;
                     setMessagesData([]);
                 }

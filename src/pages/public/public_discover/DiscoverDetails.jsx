@@ -106,6 +106,7 @@ const DiscoverDetails = () => {
       bookingLink: service.bookingLink || '',
       providerId: service.providerId || service.provider?.id || '',
       participantResponseType: service.participantResponseType || 'ADD_BOOKING_LINK',
+      responseType: service.responseType || (service.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'INTERESTED' : 'REGISTER'),
     };
   }, [service]);
 
@@ -344,7 +345,7 @@ const DiscoverDetails = () => {
               
               {/* Action Buttons */}
               <div className="hidden md:flex flex-wrap gap-3">
-                {item.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
+                {item.responseType !== 'INTERESTED' ? (
                   <button
                     onClick={handleBookPlace}
                     disabled={isBooking}
@@ -407,7 +408,7 @@ const DiscoverDetails = () => {
               </div>
 
             <div className="mt-5 flex flex-col sm:flex-row gap-3 md:hidden">
-                {item.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
+                {item.responseType !== 'INTERESTED' ? (
                   <button
                     onClick={handleBookPlace}
                     disabled={isBooking}
