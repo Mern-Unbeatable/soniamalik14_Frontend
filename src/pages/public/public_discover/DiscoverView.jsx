@@ -84,9 +84,14 @@ const DiscoverView = () => {
         setLoading(true);
         setError('');
 
+        const url = location ? '/api/services' : DISCOVER_API;
+        const params = location
+          ? { postcode: location }
+          : { status: 'ACTIVE', providerRole: 'COACH' };
+
         const response = await GET(
-          DISCOVER_API,
-          { status: 'ACTIVE', providerRole: 'COACH' },
+          url,
+          params,
           controller.signal,
           { skipAuth: true, withCredentials: false }
         );
@@ -107,10 +112,15 @@ const DiscoverView = () => {
       }
     };
 
-    fetchDiscoverServices();
+    const delayDebounceFn = setTimeout(() => {
+      fetchDiscoverServices();
+    }, location ? 500 : 0);
 
-    return () => controller.abort();
-  }, []);
+    return () => {
+      clearTimeout(delayDebounceFn);
+      controller.abort();
+    };
+  }, [location]);
 
   // Filter the data based on selected filters
   const filtered = useMemo(
