@@ -129,8 +129,15 @@ const router = createBrowserRouter(
         <Route path="*" element={<NotFound />} />
       </Route>
 
-      {/* Public Dashboard (no landing header) */}
-      <Route path="/dashboard" element={<DashboardLayout />}>
+      {/* Public Dashboard (no landing header) - Protected */}
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth>
+            <DashboardLayout />
+          </RequireAuth>
+        }
+      >
         <Route index element={<DashboardOverview />} />
         <Route path="/dashboard/notifications" element={<UserNotifications />} />
         <Route path="/dashboard/my-events" element={<MyEvents />} />
