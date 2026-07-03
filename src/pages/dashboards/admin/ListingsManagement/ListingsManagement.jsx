@@ -75,6 +75,7 @@ const mapServiceToRow = (service) => {
       service?.providerName ||
       'Untitled Listing',
     date: formatDate(service?.createdAt || service?.updatedAt),
+    rawDate: service?.createdAt || service?.updatedAt,
     provider: providerDisplay,
     providerType: normalizeProviderType(service),
     category: Array.isArray(service?.sports) && service.sports.length > 0 ? service.sports[0] : 'N/A',
@@ -91,6 +92,8 @@ const ListingsManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSport, setSelectedSport] = useState('All Sports');
   const [selectedStatus, setSelectedStatus] = useState('All Status');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -157,9 +160,27 @@ const ListingsManagement = () => {
       const matchesSport = selectedSport === 'All Sports' || item.category === selectedSport;
       const matchesStatus = selectedStatus === 'All Status' || item.status === selectedStatus;
 
-      return matchesTab && matchesSearch && matchesSport && matchesStatus;
+      // 4. Date Filter
+      let matchesDate = true;
+      if (fromDate || toDate) {
+        const itemTime = item.rawDate ? new Date(item.rawDate).getTime() : 0;
+        if (itemTime) {
+          if (fromDate) {
+            const fromTime = new Date(`${fromDate}T00:00:00`).getTime();
+            matchesDate = matchesDate && itemTime >= fromTime;
+          }
+          if (toDate) {
+            const toTime = new Date(`${toDate}T23:59:59`).getTime();
+            matchesDate = matchesDate && itemTime <= toTime;
+          }
+        } else {
+          matchesDate = false;
+        }
+      }
+
+      return matchesTab && matchesSearch && matchesSport && matchesStatus && matchesDate;
     });
-  }, [activeTab, searchQuery, selectedSport, selectedStatus, tableData]);
+  }, [activeTab, searchQuery, selectedSport, selectedStatus, fromDate, toDate, tableData]);
 
   if (loading) {
     return (
@@ -199,6 +220,10 @@ const ListingsManagement = () => {
             setSelectedStatus={setSelectedStatus}
             uniqueSports={uniqueSports}
             uniqueStatuses={uniqueStatuses}
+            fromDate={fromDate}
+            setFromDate={setFromDate}
+            toDate={toDate}
+            setToDate={setToDate}
           />
 
           {/* Table Area */}

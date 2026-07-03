@@ -11,7 +11,11 @@ const SearchAndFilters = ({
     selectedStatus,
     setSelectedStatus,
     uniqueSports,
-    uniqueStatuses
+    uniqueStatuses,
+    fromDate,
+    setFromDate,
+    toDate,
+    setToDate
 }) => {
     return (
         <div className="p-6">
@@ -78,16 +82,51 @@ const SearchAndFilters = ({
                     <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
 
-                {/* Dummy Date Buttons (Non-functional for now to keep design) */}
-                <button className="flex items-center justify-between w-40 px-4 py-2 text-base text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-                    Form date
-                    <Calendar className="w-4 h-4 ml-2 text-gray-400" />
-                </button>
+                {/* From Date */}
+                <div className="relative w-40 hover:bg-gray-50 bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center justify-between cursor-pointer">
+                    <span className="text-base text-gray-600 truncate">
+                        {fromDate ? fromDate : 'From date'}
+                    </span>
+                    <Calendar className="w-4 h-4 ml-2 text-gray-400 flex-shrink-0" />
+                    <input
+                        type="date"
+                        value={fromDate || ''}
+                        onChange={(e) => setFromDate(e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        onClick={(e) => {
+                            if (typeof e.target.showPicker === 'function') {
+                                try {
+                                    e.target.showPicker();
+                                } catch (err) {
+                                    console.warn('showPicker failed', err);
+                                }
+                            }
+                        }}
+                    />
+                </div>
 
-                <button className="flex items-center justify-between w-40 px-4 py-2 text-base text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-                    To date
-                    <Calendar className="w-4 h-4 ml-2 text-gray-400" />
-                </button>
+                {/* To Date */}
+                <div className="relative w-40 hover:bg-gray-50 bg-white border border-gray-200 rounded-lg px-4 py-2 flex items-center justify-between cursor-pointer">
+                    <span className="text-base text-gray-600 truncate">
+                        {toDate ? toDate : 'To date'}
+                    </span>
+                    <Calendar className="w-4 h-4 ml-2 text-gray-400 flex-shrink-0" />
+                    <input
+                        type="date"
+                        value={toDate || ''}
+                        onChange={(e) => setToDate(e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        onClick={(e) => {
+                            if (typeof e.target.showPicker === 'function') {
+                                try {
+                                    e.target.showPicker();
+                                } catch (err) {
+                                    console.warn('showPicker failed', err);
+                                }
+                            }
+                        }}
+                    />
+                </div>
             </div>
         </div>
     );
