@@ -99,6 +99,13 @@ const EventModal = ({
   onSuccess,
 }) => {
   const dispatch = useDispatch();
+  const todayStr = useMemo(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
   const { createEvent, updateEvent, createLoading, updateLoading } = useEvent();
   const authUser = useSelector(selectAuthUser);
   const createOrganizerLoading = useSelector(selectCreateOrganizerEventLoading);
@@ -471,6 +478,7 @@ const EventModal = ({
                   <input
                     type="date"
                     value={formData.startDate}
+                    min={todayStr}
                     onChange={(e) => handleChange('startDate', e.target.value)}
                     className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
                   />
@@ -485,6 +493,7 @@ const EventModal = ({
                   <input
                     type="date"
                     value={formData.endDate}
+                    min={formData.startDate || todayStr}
                     onChange={(e) => handleChange('endDate', e.target.value)}
                     className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
                   />
