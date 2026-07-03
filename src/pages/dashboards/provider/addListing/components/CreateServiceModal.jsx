@@ -349,20 +349,26 @@ const CreateServiceModal = ({
         }
         payloadFieldsList.push(key);
       }
-      console.log('[CreateServiceModal] FormData payload fields:', payloadFieldsList);
-      console.log('[CreateServiceModal] FormData payload data:', payloadDebug);
-      console.log('[CreateServiceModal] Total fields:', payloadFieldsList.length);
+      console.log('--- [CreateServiceModal] SUBMITTING PAYLOAD ---');
+      console.log('Payload data object:', payloadDebug);
+      console.log('Payload fields list:', payloadFieldsList);
+      console.log('Total fields:', payloadFieldsList.length);
     } catch (e) {
       console.error('[CreateServiceModal] Error logging payload:', e);
     }
 
     let result;
     if (mode === 'edit' && initialData?.id) {
+      console.log('[CreateServiceModal] Calling updateService API with id:', initialData.id);
       result = await updateService(initialData.id, payload);
     } else {
+      console.log('[CreateServiceModal] Calling createService API...');
       result = await createService(payload);
     }
-    console.log('[CreateServiceModal] API response result:', result);
+    
+    console.log('--- [CreateServiceModal] BACKEND RESPONSE RECEIVED ---');
+    console.log('Response result:', result);
+    console.log('----------------------------------------------------');
 
     if (result?.success) {
       onSuccess?.(result?.service || result, mode);

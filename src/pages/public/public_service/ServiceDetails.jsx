@@ -153,11 +153,13 @@ const ServiceDetails = () => {
       setError(null);
       try {
         const res = await GET(ENDPOINT.SERVICES.DETAIL(id));
+        console.log('ServiceDetails RAW Response:', res);
         let payload = res?.data;
         if (payload && payload.data) payload = payload.data;
         if (payload && payload.service) payload = payload.service;
         if (mounted) setItem(payload || null);
       } catch (err) {
+        console.error('ServiceDetails fetch error:', err);
         if (mounted) setError(err?.response?.data?.message || err.message || 'Failed to load service');
       } finally {
         if (mounted) setLoading(false);
@@ -167,6 +169,12 @@ const ServiceDetails = () => {
     fetchDetail();
     return () => { mounted = false; };
   }, [id, item]);
+
+  useEffect(() => {
+    if (item) {
+      console.log('ServiceDetails item state updated:', item);
+    }
+  }, [item]);
 
   /* ── Book Now handler ── */
   const handleBookNowClick = () => {
