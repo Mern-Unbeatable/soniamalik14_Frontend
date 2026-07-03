@@ -260,6 +260,13 @@ const CreateRecruitmentModal = ({
   onSuccess,
 }) => {
   const dispatch = useDispatch();
+  const todayStr = useMemo(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
   const user = useSelector(selectAuthUser);
   const createLoading = useSelector(selectCreateLoading);
   const [form, setForm] = useState(createInitialForm);
@@ -731,6 +738,7 @@ const CreateRecruitmentModal = ({
                   <input
                     type="date"
                     value={form.dateDay}
+                    min={todayStr}
                     onChange={(e) => handleChange('dateDay', e.target.value)}
                     className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
                   />
