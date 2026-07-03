@@ -255,7 +255,7 @@ const ServiceProviderListingDetails = () => {
                 </div>
 
                  {/* Contact Organiser */}
-                        <div>
+                        {/* <div>
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Organiser</h2>
                             <div className="bg-[#E7F1F1] p-4 rounded-xl border border-gray-100 max-w-2xl">
                                 <p className="text-base text-gray-900 mb-3 font-medium">Ask the organiser a question</p>
@@ -267,7 +267,7 @@ const ServiceProviderListingDetails = () => {
                                     Send message
                                 </button>
                             </div>
-                        </div>
+                        </div> */}
 
             </div>
         </div>

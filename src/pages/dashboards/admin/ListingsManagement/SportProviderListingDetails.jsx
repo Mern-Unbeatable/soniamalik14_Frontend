@@ -291,7 +291,7 @@ const SportProviderListingDetails = () => {
                         </div>
 
                         {/* Contact Organiser */}
-                        <div>
+                        {/* <div>
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Organiser</h2>
                             <div className="bg-[#E7F1F1] p-4 rounded-xl border border-gray-100">
                                 <p className="text-base text-gray-900 mb-3 font-medium">Ask the organiser a question</p>
@@ -303,7 +303,7 @@ const SportProviderListingDetails = () => {
                                     Send message
                                 </button>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Right Column */}

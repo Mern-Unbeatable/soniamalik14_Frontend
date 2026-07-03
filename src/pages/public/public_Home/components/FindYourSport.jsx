@@ -105,7 +105,7 @@ const FindYourSport = ({ section }) => {
                     {/* Cards Grid / Slider */}
                     <div
                         ref={scrollRef}
-                        className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 w-full overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-smooth pb-4 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                        className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 w-full overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-smooth pb-4 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
                     >
                         {displayTiles.map((t) => (
                             <Link
