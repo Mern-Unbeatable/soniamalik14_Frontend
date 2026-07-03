@@ -210,6 +210,7 @@ const RecruitmentDetails = () => {
                     console.log('Recruitment Enquiries Resolved Array:', messages);
 
                     const mappedMessages = (Array.isArray(messages) ? messages : []).map((message, index) => ({
+                        ...message,
                         id: message?.id || `${id}-message-${index}`,
                         name:
                             message?.name ||
@@ -363,7 +364,7 @@ const RecruitmentDetails = () => {
                 {/* Tables Section */}
                 <BookingsTable data={bookingsData} />
                 <RegisteredInterestTable data={interestsData} />
-                <EnquiriesTable data={messagesData} />
+                <EnquiriesTable data={messagesData} serviceId={id} />
 
             </div>
         </div>

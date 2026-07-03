@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import ApplicantModal from './ApplicantModal';
 
-const EnquiriesTable = ({ data }) => {
+const EnquiriesTable = ({ data, serviceId }) => {
   const safeData = Array.isArray(data) ? data : [];
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -147,7 +147,7 @@ const EnquiriesTable = ({ data }) => {
         </div>
       </div>
       {/* Modal for applicant details */}
-      <ApplicantModal enquiry={selected} onClose={() => setSelected(null)} />
+      <ApplicantModal enquiry={selected} serviceId={serviceId} onClose={() => setSelected(null)} />
     </div>
   );
 };
