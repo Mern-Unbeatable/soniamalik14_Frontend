@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, Upload } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from '../../../../../context/AuthContext';
 import { useService } from '../../../../../context/ServiceContext';
+import { fetchSportsCategories } from '../../../../../features/sportsCategories/sportsCategoriesAPI';
+import { selectSportsCategories } from '../../../../../features/sportsCategories/sportsCategoriesSlice';
 
 const providerTypeOptions = [
   'Physiotherapist',
@@ -197,6 +200,24 @@ const CreateServiceModal = ({
 }) => {
   const { user } = useAuth();
   const { createService, createLoading, updateService, updateLoading } = useService();
+  const dispatch = useDispatch();
+  const sportsCategories = useSelector(selectSportsCategories);
+
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchSportsCategories());
+    }
+  }, [dispatch, isOpen]);
+
+  const dynamicSports = useMemo(() => {
+    if (!sportsCategories || sportsCategories.length === 0) {
+      return sportOptions;
+    }
+    const names = sportsCategories.map(cat => cat.name).filter(Boolean);
+    const filtered = names.filter(n => n !== 'Other');
+    return [...filtered, 'Other'];
+  }, [sportsCategories]);
+
   const [formData, setFormData] = useState(() => buildInitialState(initialData));
   const [previewImage, setPreviewImage] = useState(
     typeof (initialData?.logo || initialData?.image) === 'string'
@@ -558,7 +579,7 @@ const CreateServiceModal = ({
             <div className="space-y-3">
               <label className="text-base font-medium text-[#0A0A0A]">Sport</label>
               <div className="flex flex-wrap gap-2">
-                {sportOptions.map((sport) => (
+                {dynamicSports.map((sport) => (
                   <CheckboxPill
                     key={sport}
                     active={formData.sports.includes(sport)}

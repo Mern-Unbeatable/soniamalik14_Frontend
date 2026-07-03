@@ -12,6 +12,8 @@ import {
   selectAdminEventsError,
   selectAdminEventsLoading,
 } from '../../../../features/events/eventsSlice';
+import { fetchSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesAPI';
+import { selectSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesSlice';
 
 const normalizeEventsList = (value) => {
   if (Array.isArray(value)) return value;
@@ -114,17 +116,25 @@ const Events = () => {
     }));
   }, [eventsData]);
 
+  const sportsCategories = useSelector(selectSportsCategories);
+
   useEffect(() => {
     dispatch(fetchAdminEvents());
+    dispatch(fetchSportsCategories());
   }, [dispatch]);
 
   const tabs = ['All Events', 'Pending', 'Featured', 'Live', 'Past', 'Banned'];
 
   // Get unique sports for the dropdown
-  const uniqueSports = [
-    'All Sports',
-    ...Array.from(new Set(renderedEvents.map((item) => item.sport).filter(Boolean))),
-  ];
+  const uniqueSports = useMemo(() => {
+    if (sportsCategories && sportsCategories.length > 0) {
+      return ['All Sports', ...sportsCategories.map(c => c.name).filter(Boolean)];
+    }
+    return [
+      'All Sports',
+      ...Array.from(new Set(renderedEvents.map((item) => item.sport).filter(Boolean))),
+    ];
+  }, [sportsCategories, renderedEvents]);
 
   // Helper function to parse "DD/MM/YYYY" to a comparable Date object
   const parseDate = (dateString) => {

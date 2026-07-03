@@ -23,6 +23,8 @@ import {
   selectSuspendedLoading,
   selectPagination,
 } from '../../../../features/users/usersSlice';
+import { fetchSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesAPI';
+import { selectSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesSlice';
 
 const Users = () => {
   const dispatch = useDispatch();
@@ -34,6 +36,14 @@ const Users = () => {
   const [limit] = useState(6);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [selectedSport, setSelectedSport] = useState('All Sports');
+  const [selectedStatus, setSelectedStatus] = useState('All Status');
+
+  const sportsCategories = useSelector(selectSportsCategories);
+
+  useEffect(() => {
+    dispatch(fetchSportsCategories());
+  }, [dispatch]);
 
   const currentRole = useMemo(() => {
     if (activeTab === 'players') return 'USER';
@@ -221,6 +231,22 @@ const Users = () => {
       });
     }
 
+    if (selectedSport && selectedSport !== 'All Sports') {
+      rawList = rawList.filter((row) => {
+        const interests = Array.isArray(row?.sportsInterests) ? row.sportsInterests : [];
+        const offered = Array.isArray(row?.sportsOffered) ? row.sportsOffered : [];
+        const types = Array.isArray(row?.serviceTypes) ? row.serviceTypes : [];
+        const allSports = [...interests, ...offered, ...types].map(s => String(s || '').toLowerCase());
+        return allSports.includes(selectedSport.toLowerCase());
+      });
+    }
+
+    if (selectedStatus && selectedStatus !== 'All Status') {
+      rawList = rawList.filter((row) => {
+        return String(row?.status || '').trim().toLowerCase() === selectedStatus.trim().toLowerCase();
+      });
+    }
+
     if (activeTab === 'players') {
       return mapPlayerRows(rawList);
     }
@@ -241,6 +267,8 @@ const Users = () => {
     suspendedData,
     fromDate,
     toDate,
+    selectedSport,
+    selectedStatus,
   ]);
 
   const getExportConfig = () => {
@@ -412,6 +440,11 @@ const Users = () => {
             setFromDate={setFromDate}
             toDate={toDate}
             setToDate={setToDate}
+            sportsCategories={sportsCategories}
+            selectedSport={selectedSport}
+            setSelectedSport={setSelectedSport}
+            selectedStatus={selectedStatus}
+            setSelectedStatus={setSelectedStatus}
           />
 
           {/* Dynamic Table */}

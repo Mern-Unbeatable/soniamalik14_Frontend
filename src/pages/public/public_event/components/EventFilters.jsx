@@ -1,7 +1,10 @@
-﻿
 
-import React from 'react';
+
+import React, { useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { ListFilter } from 'lucide-react';
+import { fetchSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesAPI';
+import { selectSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesSlice';
 
 // Reusable wrapper for the filter sections
 const FilterSection = ({ title, children, icon: Icon }) => (
@@ -41,6 +44,22 @@ const SPORT_OPTIONS = [
 ];
 
 const EventFilters = ({ filters = {}, onChange = () => { } }) => {
+  const dispatch = useDispatch();
+  const sportsCategories = useSelector(selectSportsCategories);
+
+  useEffect(() => {
+    dispatch(fetchSportsCategories());
+  }, [dispatch]);
+
+  const dynamicSports = useMemo(() => {
+    if (!sportsCategories || sportsCategories.length === 0) {
+      return SPORT_OPTIONS;
+    }
+    const names = sportsCategories.map(cat => cat.name).filter(Boolean);
+    const filtered = names.filter(n => n !== 'Other');
+    return [...filtered, 'Other'];
+  }, [sportsCategories]);
+
   const update = (patch) => onChange({ ...filters, ...patch });
 
   // Generic toggler for checkbox arrays
@@ -116,7 +135,7 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
       {/* Sport */}
       <FilterSection title="Sport">
         <div className="space-y-3">
-          {SPORT_OPTIONS.map((s) => (
+          {dynamicSports.map((s) => (
             <label key={s} className="flex items-center gap-2.5 cursor-pointer group">
               <input
                 type="checkbox"

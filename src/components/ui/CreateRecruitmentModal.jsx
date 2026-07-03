@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { createService, updateService } from '../../features/service/serviceApi';
 import { selectCreateLoading } from '../../features/service/serviceSlice';
 import { selectAuthUser } from '../../features/auth/authSlice';
+import { fetchSportsCategories } from '../../features/sportsCategories/sportsCategoriesAPI';
+import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
 
 const sportOptions = [
   'Badminton',
@@ -267,6 +269,23 @@ const CreateRecruitmentModal = ({
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }, []);
+  const sportsCategories = useSelector(selectSportsCategories);
+
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchSportsCategories());
+    }
+  }, [dispatch, isOpen]);
+
+  const dynamicSports = useMemo(() => {
+    if (!sportsCategories || sportsCategories.length === 0) {
+      return sportOptions;
+    }
+    const names = sportsCategories.map(cat => cat.name).filter(Boolean);
+    const filtered = names.filter(n => n !== 'Other');
+    return [...filtered, 'Other'];
+  }, [sportsCategories]);
+
   const user = useSelector(selectAuthUser);
   const createLoading = useSelector(selectCreateLoading);
   const [form, setForm] = useState(createInitialForm);
@@ -587,7 +606,7 @@ const CreateRecruitmentModal = ({
               <div className="space-y-2">
                 <label className="text-base font-medium text-gray-700">Sport</label>
                 <div className="flex flex-wrap gap-2">
-                  {sportOptions.map((sport) => {
+                  {dynamicSports.map((sport) => {
                     const isChecked = form.sports.includes(sport);
                     return (
                       <label

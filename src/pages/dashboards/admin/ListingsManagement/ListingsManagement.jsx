@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import HeaderSection from './components/HeaderSection';
 import SearchAndFilters from './components/SearchAndFilters';
 import TableHeader from './components/TableHeader';
@@ -8,6 +9,8 @@ import Pagination from './components/Pagination';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
+import { fetchSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesAPI';
+import { selectSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesSlice';
 
 const formatDate = (value) => {
   if (!value) return 'N/A';
@@ -98,6 +101,13 @@ const ListingsManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const dispatch = useDispatch();
+  const sportsCategories = useSelector(selectSportsCategories);
+
+  useEffect(() => {
+    dispatch(fetchSportsCategories());
+  }, [dispatch]);
+
   const loadListings = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -137,10 +147,15 @@ const ListingsManagement = () => {
   }, [loadListings]);
 
   // Get unique categories and statuses for the dropdowns
-  const uniqueSports = [
-    'All Sports',
-    ...Array.from(new Set(tableData.map((item) => item.category))),
-  ];
+  const uniqueSports = useMemo(() => {
+    if (sportsCategories && sportsCategories.length > 0) {
+      return ['All Sports', ...sportsCategories.map(c => c.name).filter(Boolean)];
+    }
+    return [
+      'All Sports',
+      ...Array.from(new Set(tableData.map((item) => item.category))),
+    ];
+  }, [sportsCategories, tableData]);
   const uniqueStatuses = ['All Status', 'Featured', 'Pending', 'Live', 'Banned'];
 
   // Filter Logic
