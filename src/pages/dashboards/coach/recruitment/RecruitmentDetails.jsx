@@ -111,8 +111,11 @@ const RecruitmentDetails = () => {
 
             try {
                 const response = await GET(ENDPOINT.SERVICES.DETAIL(id));
+                console.log('Recruitment Detail RAW Response:', response);
                 const payload = response?.data || response;
+                console.log('Recruitment Detail Payload:', payload);
                 const service = payload?.data?.service || payload?.service || payload?.data || null;
+                console.log('Recruitment Detail Resolved Service:', service);
 
                 if (!active) return;
 
@@ -126,8 +129,11 @@ const RecruitmentDetails = () => {
 
                 try {
                     const bookingsResponse = await GET(ENDPOINT.SERVICES.BOOKINGS(id));
+                    console.log('Recruitment Bookings RAW Response:', bookingsResponse);
                     const bookingsPayload = bookingsResponse?.data || bookingsResponse;
+                    console.log('Recruitment Bookings Payload:', bookingsPayload);
                     const bookings = extractArray(bookingsPayload);
+                    console.log('Recruitment Bookings Resolved Array:', bookings);
 
                     const mappedBookings = (Array.isArray(bookings) ? bookings : []).map((booking, index) => ({
                         id: booking?.id || `${id}-booking-${index}`,
@@ -152,15 +158,19 @@ const RecruitmentDetails = () => {
 
                     if (!active) return;
                     setBookingsData(mappedBookings);
-                } catch {
+                } catch (bookingErr) {
+                    console.error('Recruitment Bookings fetch error:', bookingErr);
                     if (!active) return;
                     setBookingsData([]);
                 }
 
                 try {
                     const interestsResponse = await GET(ENDPOINT.SERVICES.INTERESTS(id));
+                    console.log('Recruitment Interests RAW Response:', interestsResponse);
                     const interestsPayload = interestsResponse?.data || interestsResponse;
+                    console.log('Recruitment Interests Payload:', interestsPayload);
                     const interests = extractArray(interestsPayload);
+                    console.log('Recruitment Interests Resolved Array:', interests);
 
                     const mappedInterests = (Array.isArray(interests) ? interests : []).map((interest, index) => ({
                         id: interest?.id || `${id}-interest-${index}`,
@@ -185,7 +195,8 @@ const RecruitmentDetails = () => {
 
                     if (!active) return;
                     setInterestsData(mappedInterests);
-                } catch {
+                } catch (interestErr) {
+                    console.error('Recruitment Interests fetch error:', interestErr);
                     if (!active) return;
                     setInterestsData([]);
                 }
@@ -196,6 +207,7 @@ const RecruitmentDetails = () => {
                     const messagesPayload = messagesResponse?.data || messagesResponse;
                     console.log('Recruitment Enquiries Payload:', messagesPayload);
                     const messages = extractArray(messagesPayload);
+                    console.log('Recruitment Enquiries Resolved Array:', messages);
 
                     const mappedMessages = (Array.isArray(messages) ? messages : []).map((message, index) => ({
                         id: message?.id || `${id}-message-${index}`,
