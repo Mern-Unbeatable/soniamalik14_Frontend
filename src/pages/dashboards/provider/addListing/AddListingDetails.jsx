@@ -17,6 +17,7 @@ import TablePagination from '../../../../components/ui/TablePagination';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
+import ApplicantModal from '../../coach/recruitment/components/ApplicantModal';
 
 const ServiceOverviewItem = ({ icon, label, value }) => (
   <div className="rounded-xl border border-[#DEE6E8] bg-[#F3F5F8] p-4">
@@ -77,6 +78,19 @@ const AddListingDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [selectedEnquiry, setSelectedEnquiry] = useState(null);
+
+  const handleOpenEnquiryModal = (rawEnquiry) => {
+    setSelectedEnquiry({
+      ...rawEnquiry,
+      name: rawEnquiry.sender?.name || rawEnquiry.playerName || rawEnquiry.fullName || '—',
+      phone: rawEnquiry.sender?.phone?.trim() || rawEnquiry.phone || '—',
+      email: rawEnquiry.sender?.email || rawEnquiry.email || '—',
+      msg: rawEnquiry.message || rawEnquiry.msg || '—',
+      date: rawEnquiry.createdAt ? new Date(rawEnquiry.createdAt).toLocaleDateString('en-GB') : rawEnquiry.date || '—',
+      senderId: rawEnquiry.senderId || rawEnquiry.sender?.id || rawEnquiry.userId || rawEnquiry.user?.id || rawEnquiry.sender?.Id
+    });
+  };
 
   const handleCopy = () => {
     if (item?.bookingLink) {
@@ -418,7 +432,10 @@ const AddListingDetails = () => {
           <div className="space-y-3 p-4 md:hidden">
             {paginatedEnquiries.map((enquiry, idx) => (
               <article key={`${enquiry.id || enquiry.email || idx}`} className="rounded-xl border border-[#E2E8EA] bg-[#F8FAFB] p-4">
-                <div className="flex items-start justify-between gap-3">
+                <div
+                  className="flex items-start justify-between gap-3 cursor-pointer"
+                  onClick={() => handleOpenEnquiryModal(enquiry)}
+                >
                   <h4 className="text-base font-semibold text-[#1D1D1D]">
                     {enquiry.sender?.name || enquiry.playerName || enquiry.fullName || '—'}
                   </h4>
@@ -473,7 +490,13 @@ const AddListingDetails = () => {
                       {enquiry.createdAt ? new Date(enquiry.createdAt).toLocaleDateString('en-GB') : enquiry.date || '—'}
                     </td>
                     <td className="px-4 py-2 text-base text-[#1D1D1D] flex justify-center">
-                      <ChevronRight className="h-4 w-4" />
+                      <button
+                        onClick={() => handleOpenEnquiryModal(enquiry)}
+                        className="flex items-center justify-center rounded-full p-2 transition-colors hover:bg-gray-100 cursor-pointer"
+                        aria-label="View Details"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -491,6 +514,13 @@ const AddListingDetails = () => {
             buttonClass="px-3 py-1 text-sm rounded-md"
           />
         </section>
+
+        {/* Modal for applicant details */}
+        <ApplicantModal
+          enquiry={selectedEnquiry}
+          serviceId={id}
+          onClose={() => setSelectedEnquiry(null)}
+        />
       </div>
     </div>
   );
