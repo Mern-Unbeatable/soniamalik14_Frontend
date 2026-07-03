@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { GET, POST } from '../../services/httpMethods';
+import { GET, POST, PUT } from '../../services/httpMethods';
 import { toast } from 'react-toastify';
 
 const getApiErrorMessage = (error, fallbackMessage) => {
@@ -43,3 +43,20 @@ export const createSportsCategory = createAsyncThunk(
     }
   }
 );
+
+export const updateSportsCategory = createAsyncThunk(
+  'sportsCategories/update',
+  async ({ id, name }, { rejectWithValue, signal }) => {
+    try {
+      const response = await PUT(`/api/sports-categories/${id}`, { name }, signal);
+      const result = response?.data || response;
+      toast.success(result?.message || 'Category updated successfully');
+      return result?.data || result;
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Failed to update category');
+      toast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+

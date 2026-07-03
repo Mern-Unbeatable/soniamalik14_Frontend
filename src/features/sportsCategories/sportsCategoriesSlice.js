@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchSportsCategories, createSportsCategory } from './sportsCategoriesAPI';
+import { fetchSportsCategories, createSportsCategory, updateSportsCategory } from './sportsCategoriesAPI';
 
 const initialState = {
   list: [],
@@ -60,6 +60,16 @@ const sportsCategoriesSlice = createSlice({
         state.createLoading = false;
         state.createSuccess = false;
         state.createError = action.payload || 'Failed to add category';
+      })
+      // Update category name
+      .addCase(updateSportsCategory.fulfilled, (state, action) => {
+        const updated = action.payload;
+        if (updated && updated.id) {
+          const index = state.list.findIndex((item) => item.id === updated.id);
+          if (index !== -1) {
+            state.list[index] = updated;
+          }
+        }
       });
   }
 });

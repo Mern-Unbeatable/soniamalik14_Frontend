@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-// import { ChevronDown } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 import AddCategoryModal from './components/AddCategoryModal';
-import { fetchSportsCategories, createSportsCategory } from '../../../../features/sportsCategories/sportsCategoriesAPI';
-import { selectSportsCategories, selectSportsCategoriesLoading } from '../../../../features/sportsCategories/sportsCategoriesSlice';
+import {
+  fetchSportsCategories,
+  createSportsCategory,
+  updateSportsCategory,
+} from '../../../../features/sportsCategories/sportsCategoriesAPI';
+import {
+  selectSportsCategories,
+  selectSportsCategoriesLoading,
+} from '../../../../features/sportsCategories/sportsCategoriesSlice';
 
 const Settings = () => {
   const dispatch = useDispatch();
   // const [inviteEmail, setInviteEmail] = useState('');
   // const [inviteRole, setInviteRole] = useState('Moderator');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
   const sportsCategories = useSelector(selectSportsCategories);
   const isLoadingCategories = useSelector(selectSportsCategoriesLoading);
 
@@ -26,12 +34,16 @@ const Settings = () => {
     }
   };
 
-  // const handleSendInvite = (e) => {
-  //   e.preventDefault();
-  //   // Implement invite logic here
-  //   console.log(`Inviting ${inviteEmail} as ${inviteRole}`);
-  //   setInviteEmail('');
-  // };
+  const handleEditCategory = async (sportName) => {
+    try {
+      if (editingCategory?.id) {
+        await dispatch(updateSportsCategory({ id: editingCategory.id, name: sportName })).unwrap();
+        setEditingCategory(null);
+      }
+    } catch (err) {
+      // Keep modal open on error
+    }
+  };
 
   return (
     <div className="dashboardPy dashboardSpaceY flex-1 overflow-auto bg-gray-50">
@@ -57,8 +69,20 @@ const Settings = () => {
           <div className="mt-6 flex flex-wrap gap-3">
             {isLoadingCategories ? (
               <div className="flex items-center gap-2 text-sm text-gray-500">
-                <svg className="h-4 w-4 animate-spin text-[#0f766e]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <svg
+                  className="h-4 w-4 animate-spin text-[#0f766e]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
                 Loading categories...
@@ -69,9 +93,18 @@ const Settings = () => {
                 return (
                   <span
                     key={sport?.id || index}
-                    className="rounded-full bg-[#0f766e] px-5 py-2.5 text-sm font-medium text-white shadow-sm"
+                    className="flex items-center gap-2 rounded-full bg-[#0f766e] pl-5 pr-3 py-2 text-sm font-medium text-white shadow-sm"
                   >
-                    {name}
+                    <span>{name}</span>
+                    {sport?.id && (
+                      <button
+                        onClick={() => setEditingCategory(sport)}
+                        className="rounded-full p-1 text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                        title="Edit category"
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </span>
                 );
               })
@@ -80,62 +113,16 @@ const Settings = () => {
             )}
           </div>
         </section>
-
-        {/* --- Role & Permission Strategy Section --- */}
-        {/* <section>
-          <h2 className="text-2xl md:text-[28px] font-bold text-gray-900 mb-6">Role & Permission Strategy</h2>
-
-         
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 max-w-[700px]">
-            <h3 className="text-[26px] font-semibold text-gray-900 mb-2">Invite your team</h3>
-            <p className="text-[15px] text-gray-600 leading-relaxed mb-6">
-              Easily add new members to a role by entering their email addresses<br className="hidden md:block" />
-              below. Once invited, they'll receive an email with a link to join.
-            </p>
-
-            <form onSubmit={handleSendInvite} className="flex flex-col sm:flex-row items-stretch gap-3">
-
-              <div className="flex-1">
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="Email Address"
-                  className="w-full bg-[#f1f5f9] border-none text-gray-800 text-sm px-4 py-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f766e]/20 placeholder-gray-400"
-                  required
-                />
-              </div>
-
-   
-              <div className="relative">
-                <select
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="appearance-none w-full sm:w-[140px] bg-[#042f2e] text-white text-sm font-medium px-4 py-3.5 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f766e]/50 cursor-pointer"
-                >
-                  <option value="Moderator">Moderator</option>
-                  <option value="Admin">Admin</option>
-                  <option value="Editor">Editor</option>
-                </select>
-                <ChevronDown className="w-4 h-4 text-white absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-
-             
-              <button
-                type="submit"
-                className="px-6 py-3.5 bg-[#0f766e] text-white text-sm font-medium rounded-lg hover:bg-teal-800 transition-colors shadow-sm whitespace-nowrap"
-              >
-                Send Invite
-              </button>
-            </form>
-          </div>
-        </section> */}
       </div>
 
       <AddCategoryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleAddCategory}
+        isOpen={isModalOpen || !!editingCategory}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingCategory(null);
+        }}
+        onSave={editingCategory ? handleEditCategory : handleAddCategory}
+        initialName={editingCategory ? editingCategory.name : ''}
       />
     </div>
   );

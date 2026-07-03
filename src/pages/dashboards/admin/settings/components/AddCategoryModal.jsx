@@ -3,15 +3,17 @@ import { X } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectCreateCategoryLoading } from '../../../../../features/sportsCategories/sportsCategoriesSlice';
 
-const AddCategoryModal = ({ isOpen, onClose, onSave }) => {
+const AddCategoryModal = ({ isOpen, onClose, onSave, initialName = '' }) => {
     const [sportName, setSportName] = useState('');
     const isLoading = useSelector(selectCreateCategoryLoading);
 
     useEffect(() => {
-        if (!isOpen) {
+        if (isOpen) {
+            setSportName(initialName);
+        } else {
             setSportName('');
         }
-    }, [isOpen]);
+    }, [isOpen, initialName]);
 
     const handleSave = () => {
         if (sportName.trim() && !isLoading) {

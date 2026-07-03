@@ -10,6 +10,8 @@ import {
   selectCreateOrganizerEventLoading,
   selectUpdateOrganizerEventLoading,
 } from '../../features/events/eventsSlice';
+import { fetchSportsCategories } from '../../features/sportsCategories/sportsCategoriesAPI';
+import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
 
 const toDateInputValue = (value) => {
   if (!value) return '';
@@ -106,6 +108,13 @@ const EventModal = ({
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }, []);
+  const sportsCategories = useSelector(selectSportsCategories);
+
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchSportsCategories());
+    }
+  }, [dispatch, isOpen]);
   const { createEvent, updateEvent, createLoading, updateLoading } = useEvent();
   const authUser = useSelector(selectAuthUser);
   const createOrganizerLoading = useSelector(selectCreateOrganizerEventLoading);
@@ -419,11 +428,17 @@ const EventModal = ({
                   className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
                 >
                   <option value="">Select sport</option>
-                  {SPORT_OPTIONS.map((sport) => (
-                    <option key={sport} value={sport}>
-                      {sport}
-                    </option>
-                  ))}
+                  {sportsCategories && sportsCategories.length > 0
+                    ? sportsCategories.map((sport) => (
+                        <option key={sport.id || sport.name} value={sport.name}>
+                          {sport.name}
+                        </option>
+                      ))
+                    : SPORT_OPTIONS.map((sport) => (
+                        <option key={sport} value={sport}>
+                          {sport}
+                        </option>
+                      ))}
                 </select>
                 {errors.sportType && (
                   <p className="mt-1 text-base text-red-600">{errors.sportType}</p>
