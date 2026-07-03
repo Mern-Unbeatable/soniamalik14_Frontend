@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Edit2 } from 'lucide-react';
+import { Edit2, Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 import AddCategoryModal from './components/AddCategoryModal';
 import {
   fetchSportsCategories,
   createSportsCategory,
   updateSportsCategory,
+  deleteSportsCategory,
 } from '../../../../features/sportsCategories/sportsCategoriesAPI';
 import {
   selectSportsCategories,
@@ -42,6 +44,27 @@ const Settings = () => {
       }
     } catch (err) {
       // Keep modal open on error
+    }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to delete this category?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'No, cancel',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await dispatch(deleteSportsCategory(id)).unwrap();
+      } catch (err) {
+        console.error('Failed to delete category:', err);
+      }
     }
   };
 
@@ -97,13 +120,22 @@ const Settings = () => {
                   >
                     <span>{name}</span>
                     {sport?.id && (
-                      <button
-                        onClick={() => setEditingCategory(sport)}
-                        className="rounded-full p-1 text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-                        title="Edit category"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          onClick={() => setEditingCategory(sport)}
+                          className="rounded-full p-1 text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                          title="Edit category"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCategory(sport.id)}
+                          className="rounded-full p-1 text-white/70 hover:bg-red-500/20 hover:text-red-200 transition-colors cursor-pointer"
+                          title="Delete category"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     )}
                   </span>
                 );

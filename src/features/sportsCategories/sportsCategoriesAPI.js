@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { GET, POST, PUT } from '../../services/httpMethods';
+import { GET, POST, PUT, DELETE } from '../../services/httpMethods';
 import { toast } from 'react-toastify';
 
 const getApiErrorMessage = (error, fallbackMessage) => {
@@ -54,6 +54,22 @@ export const updateSportsCategory = createAsyncThunk(
       return result?.data || result;
     } catch (error) {
       const message = getApiErrorMessage(error, 'Failed to update category');
+      toast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const deleteSportsCategory = createAsyncThunk(
+  'sportsCategories/delete',
+  async (id, { rejectWithValue, signal }) => {
+    try {
+      const response = await DELETE(`/api/sports-categories/${id}`, signal);
+      const result = response?.data || response;
+      toast.success(result?.message || 'Category deleted successfully');
+      return id;
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Failed to delete category');
       toast.error(message);
       return rejectWithValue(message);
     }

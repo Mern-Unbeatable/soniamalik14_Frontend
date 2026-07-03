@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchSportsCategories, createSportsCategory, updateSportsCategory } from './sportsCategoriesAPI';
+import { fetchSportsCategories, createSportsCategory, updateSportsCategory, deleteSportsCategory } from './sportsCategoriesAPI';
 
 const initialState = {
   list: [],
@@ -69,6 +69,13 @@ const sportsCategoriesSlice = createSlice({
           if (index !== -1) {
             state.list[index] = updated;
           }
+        }
+      })
+      // Delete category
+      .addCase(deleteSportsCategory.fulfilled, (state, action) => {
+        const deletedId = action.payload;
+        if (deletedId) {
+          state.list = state.list.filter((item) => item.id !== deletedId);
         }
       });
   }
