@@ -32,6 +32,8 @@ const Users = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [page, setPage] = useState(1);
   const [limit] = useState(6);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const currentRole = useMemo(() => {
     if (activeTab === 'players') return 'USER';
@@ -191,26 +193,45 @@ const Users = () => {
 
   const currentTableData = useMemo(() => {
     const isSuspendedView = activeSubTab === 'suspended';
+    let rawList = [];
 
     if (activeTab === 'players') {
-      return isSuspendedView
-        ? mapPlayerRows(suspendedData || [])
-        : mapPlayerRows(playersData || []);
+      rawList = isSuspendedView ? (suspendedData || []) : (playersData || []);
+    } else if (activeTab === 'sportProviders') {
+      rawList = isSuspendedView ? (suspendedData || []) : (sportProvidersData || []);
+    } else if (activeTab === 'serviceProviders') {
+      rawList = isSuspendedView ? (suspendedData || []) : (serviceProvidersData || []);
     }
 
+    if (fromDate || toDate) {
+      rawList = rawList.filter((row) => {
+        const rowTime = row?.createdAt ? new Date(row.createdAt).getTime() : 0;
+        if (!rowTime) return false;
+
+        let matches = true;
+        if (fromDate) {
+          const fromTime = new Date(`${fromDate}T00:00:00`).getTime();
+          matches = matches && rowTime >= fromTime;
+        }
+        if (toDate) {
+          const toTime = new Date(`${toDate}T23:59:59`).getTime();
+          matches = matches && rowTime <= toTime;
+        }
+        return matches;
+      });
+    }
+
+    if (activeTab === 'players') {
+      return mapPlayerRows(rawList);
+    }
     if (activeTab === 'sportProviders') {
-      return isSuspendedView
-        ? mapSportProviderRows(suspendedData || [])
-        : mapSportProviderRows(sportProvidersData || []);
+      return mapSportProviderRows(rawList);
     }
-
     if (activeTab === 'serviceProviders') {
-      return isSuspendedView
-        ? mapServiceProviderRows(suspendedData || [])
-        : mapServiceProviderRows(serviceProvidersData || []);
+      return mapServiceProviderRows(rawList);
     }
 
-    return isSuspendedView ? suspendedData || [] : [];
+    return [];
   }, [
     activeSubTab,
     activeTab,
@@ -218,6 +239,8 @@ const Users = () => {
     serviceProvidersData,
     sportProvidersData,
     suspendedData,
+    fromDate,
+    toDate,
   ]);
 
   const getExportConfig = () => {
@@ -307,6 +330,14 @@ const Users = () => {
       return <LoadingSpinner label="Loading users..." containerClassName="py-12" />;
     }
 
+    if (!currentTableData || currentTableData.length === 0) {
+      return (
+        <div className="py-12 text-center text-base font-medium text-gray-500 border border-dashed border-gray-200 rounded-lg">
+          No users found.
+        </div>
+      );
+    }
+
     if (activeTab === 'players') {
       return (
         <PlayersTable
@@ -376,7 +407,12 @@ const Users = () => {
           />
 
           {/* Filters */}
-          <FilterSection />
+          <FilterSection
+            fromDate={fromDate}
+            setFromDate={setFromDate}
+            toDate={toDate}
+            setToDate={setToDate}
+          />
 
           {/* Dynamic Table */}
           {renderTableContent()}

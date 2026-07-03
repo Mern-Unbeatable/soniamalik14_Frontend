@@ -1,12 +1,14 @@
 import React from 'react';
 
-const FilterSection = () => {
+const FilterSection = ({ fromDate, setFromDate, toDate, setToDate }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="relative">
                 <input
                     type="date"
                     placeholder="From date"
+                    value={fromDate || ''}
+                    onChange={(e) => setFromDate(e.target.value)}
                     className="w-full pl-3 pr-10 py-2 border border-gray-200 rounded-md text-base focus:outline-none focus:ring-1 focus:ring-[#117b73]"
                 />
             </div>
@@ -14,6 +16,8 @@ const FilterSection = () => {
                 <input
                     type="date"
                     placeholder="To date"
+                    value={toDate || ''}
+                    onChange={(e) => setToDate(e.target.value)}
                     className="w-full pl-3 pr-10 py-2 border  border-gray-200 rounded-md text-base focus:outline-none focus:ring-1 focus:ring-[#117b73]"
                 />
 
