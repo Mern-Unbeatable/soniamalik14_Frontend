@@ -170,7 +170,7 @@ const EventDetails = () => {
         suitableFor:
           Array.isArray(data.suitableFor) && data.suitableFor.length > 0
             ? data.suitableFor.join(', ')
-            : 'All participants',
+            : '',
         womensOnly: getWomenOnlyValue(data),
         location: data.venueName || '',
         locationFull: data.fullAddress || '',
@@ -183,7 +183,7 @@ const EventDetails = () => {
           data.startTime && data.endTime
             ? `${data.startTime} - ${data.endTime}`
             : data.startTime || '',
-        image: normalizeMediaUrl(data.image) || '/images/detaisPage/detailsBanner.png',
+        image: normalizeMediaUrl(data.image),
         organizerAvatar:
           normalizeMediaUrl(data.organizer?.avatar) || null,
         avatar: normalizeMediaUrl(data.organizer?.avatar) || null,

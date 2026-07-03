@@ -395,12 +395,10 @@ const EventAnallyticsDetails = () => {
 
   const handleSendReply = async () => {
     if (!selectedMessage || !id) return;
-    const recipientId =
-      selectedMessage.senderId ||
-      selectedMessage.sender?.id ||
-      selectedMessage.user?.id ||
-      selectedMessage.userId ||
-      selectedMessage.sender?.userId ||
+    const parentId =
+      selectedMessage.id ||
+      selectedMessage._id ||
+      selectedMessage.uuid ||
       null;
 
     if (!replyText.trim()) {
@@ -408,7 +406,7 @@ const EventAnallyticsDetails = () => {
       return;
     }
 
-    if (!recipientId) {
+    if (!parentId) {
       setReplyStatus('error');
       return;
     }
@@ -416,7 +414,7 @@ const EventAnallyticsDetails = () => {
     setReplyStatus('loading');
     try {
       await POST(`/api/events/${id}/messages`, {
-        recipientId,
+        parentId,
         message: replyText.trim(),
       });
       setReplyStatus('success');
