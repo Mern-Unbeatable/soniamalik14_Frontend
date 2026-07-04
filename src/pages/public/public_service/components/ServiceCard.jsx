@@ -128,7 +128,7 @@ const ServiceCard = ({ item }) => {
           className="block w-full"
         >
           <button className="w-full bg-[#147B6B] hover:bg-[#0D655D] text-white py-2.5 rounded-lg text-[14px] font-medium transition-colors">
-            View Provider
+            View details
           </button>
         </Link>
       </div>

@@ -148,7 +148,6 @@ const ServiceDetails = () => {
   useEffect(() => {
     let mounted = true;
     const fetchDetail = async () => {
-      if (item) return;
       setLoading(true);
       setError(null);
       try {
@@ -168,7 +167,7 @@ const ServiceDetails = () => {
 
     fetchDetail();
     return () => { mounted = false; };
-  }, [id, item]);
+  }, [id]);
 
   useEffect(() => {
     if (item) {
@@ -400,7 +399,7 @@ const ServiceDetails = () => {
                             </p>
                           </div>
                         </div>
-                        <OverviewRow icon={FileCheck} label="Professional Registration" value={displayData.registration} />
+                        <OverviewRow icon={FileCheck} label="Professional Registration" value={displayData.professionalRegistration} />
                         <OverviewRow icon={ShieldCheck} label="Insurance in place" value={displayData.insurance} />
                       </div>
 
