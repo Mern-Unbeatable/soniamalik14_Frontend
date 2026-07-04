@@ -469,7 +469,7 @@ const EventAnallyticsDetails = () => {
 
       {(String(item?.status || '').toUpperCase() === 'BANNED' || item?.bannedReason) && (
         <div className="mt-4 flex items-start gap-3 rounded-2xl bg-[#FFEBEB] p-5 text-red-700">
-          <div className="flex-shrink-0 mt-0.5">
+          <div className="shrink-0 mt-0.5">
             <svg
               className="h-6 w-6 text-red-600"
               fill="none"
