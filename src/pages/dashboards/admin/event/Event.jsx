@@ -63,8 +63,15 @@ const formatProviderSub = (event) =>
 const formatSport = (event) =>
   event?.sport || event?.sportType || event?.category || 'Sport not set';
 
+const extractPostcode = (address) => {
+  if (!address) return 'N/A';
+  // Regex matches UK Postcodes: e.g. SW11 4NJ, EC1A 1BB, W1A 0AX etc.
+  const match = address.match(/[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}/i);
+  return match ? match[0].toUpperCase() : 'N/A';
+};
+
 const formatPostcode = (event) =>
-  event?.postcode || event?.zipCode || event?.postalCode || event?.venue?.postcode || 'N/A';
+  event?.postcode || event?.zipCode || event?.postalCode || event?.venue?.postcode || extractPostcode(event?.fullAddress);
 
 const formatEngagement = (event) => ({
   currentParticipants: event?.currentParticipants ?? 0,
@@ -92,6 +99,7 @@ const Events = () => {
   const [toDate, setToDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const eventsData = useSelector(selectAdminEvents);
+  console.log('Event.jsx raw events data:', eventsData);
   const loading = useSelector(selectAdminEventsLoading);
   const error = useSelector(selectAdminEventsError);
   const errorMessage = useMemo(() => {
@@ -209,11 +217,39 @@ const Events = () => {
     return filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredData, safeCurrentPage]);
 
+  const handleExportCSV = () => {
+    if (!filteredData || filteredData.length === 0) return;
+
+    const headers = ['Event Name', 'Date', 'Provider', 'Sport', 'Postcode', 'Status', 'Is Featured'];
+    const csvRows = [
+      headers.join(','),
+      ...filteredData.map(event => [
+        `"${(event.name || '').replace(/"/g, '""')}"`,
+        `"${(event.date || '')}"`,
+        `"${(event.provider || '').replace(/"/g, '""')}"`,
+        `"${(event.sport || '').replace(/"/g, '""')}"`,
+        `"${(event.postcode || '').replace(/"/g, '""')}"`,
+        `"${(event.status || '')}"`,
+        event.isFeatured ? 'Yes' : 'No'
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `events_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="dashboardPy dashboardSpaceY flex-1 overflow-auto bg-gray-50">
       <div className="">
         {/* Header Section */}
-        <EventHeaderSection />
+        <EventHeaderSection onExport={handleExportCSV} />
 
         {/* Main Content Area */}
         <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
