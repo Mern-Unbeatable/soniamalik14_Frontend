@@ -18,7 +18,7 @@ export default function SettingsPage() {
   };
 
   const handleSave = () => {
-    console.log('Settings saved:', formData);
+    // console.log('Settings saved:', formData);
     alert('Settings saved successfully!');
   };
 

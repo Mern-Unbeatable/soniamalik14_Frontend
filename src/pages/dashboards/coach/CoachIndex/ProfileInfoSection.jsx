@@ -46,7 +46,7 @@ const normalizeProfileFromUser = (user) => ({
 
 const ProfileInfoSection = () => {
   const { user, fetchMe } = useAuth();
-  console.log('ProfileInfoSection user data:', user);
+//   console.log('ProfileInfoSection user data:', user);
   const userId = resolveUserId(user);
 
   const [profile, setProfile] = useState(() => normalizeProfileFromUser(user));

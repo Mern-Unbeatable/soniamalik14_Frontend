@@ -57,7 +57,7 @@ const ContentNews = () => {
     const handleSaveNews = () => {
         if (formData.title.trim() && formData.description.trim()) {
             // Add your save logic here
-            console.log('Saving news:', formData);
+            // console.log('Saving news:', formData);
             // Reset form and close modal
             setFormData({ title: '', description: '', image: null });
             setIsModalOpen(false);
@@ -86,13 +86,13 @@ const ContentNews = () => {
     // Handle card edit
     const handleEditCard = (newsId) => {
         // Add your edit logic here
-        console.log('Edit news with ID:', newsId);
+        // console.log('Edit news with ID:', newsId);
     };
 
     // Handle card delete
     const handleDeleteCard = (newsId) => {
         // Add your delete logic here
-        console.log('Delete news with ID:', newsId);
+        // console.log('Delete news with ID:', newsId);
     };
 
     return (

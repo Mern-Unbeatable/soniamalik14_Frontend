@@ -168,7 +168,6 @@ const CommunityView = () => {
     try {
       setIsLoadingPosts(true);
       const response = await GET(ENDPOINT.COMMUNITY.LIST_POSTS, params);
-      console.log('CommunityView backend response data:', response?.data || response);
       const payload = response?.data?.data || {};
       const fetchedPosts = Array.isArray(payload?.posts) ? payload.posts : [];
       const pagination = payload?.pagination || {};

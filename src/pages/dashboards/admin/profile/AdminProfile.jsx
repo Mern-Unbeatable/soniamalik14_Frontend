@@ -61,7 +61,7 @@ const AdminProfile = () => {
   const handlePersonalSubmit = (e) => {
     e.preventDefault();
     // TODO: dispatch update profile thunk
-    console.log('Save personal:', personal);
+    // console.log('Save personal:', personal);
   };
 
   /* ── Password state ── */
@@ -84,7 +84,7 @@ const AdminProfile = () => {
       return;
     }
     // TODO: dispatch change password thunk
-    console.log('Change password submitted');
+    // console.log('Change password submitted');
     setPasswords({ current: '', newPass: '', confirm: '' });
   };
 

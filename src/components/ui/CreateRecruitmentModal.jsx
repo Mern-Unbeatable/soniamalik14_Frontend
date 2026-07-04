@@ -112,9 +112,6 @@ const logFormDataDebug = (label, formData) => {
     }
 
     console.groupCollapsed(label);
-    console.log('fields:', payloadFields);
-    console.log('data:', payloadDebug);
-    console.log('totalFields:', payloadFields.length);
     console.groupEnd();
   } catch (error) {
     console.error('[CreateRecruitmentModal] Failed to log FormData payload', error);

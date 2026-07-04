@@ -334,9 +334,6 @@ const EventModal = ({
     payload.append('organizerPhone', organizerPhone);
     payload.append('organizerEmail', organizerEmail);
 
-    // Debug: Log FormData entries
-    console.log('Submitting event with data:', Object.fromEntries(payload.entries()));
-
     // Add image if present
     if (formData.image instanceof File) {
       payload.append('image', formData.image);

@@ -99,7 +99,6 @@ const Events = () => {
   const [toDate, setToDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const eventsData = useSelector(selectAdminEvents);
-  console.log('Event.jsx raw events data:', eventsData);
   const loading = useSelector(selectAdminEventsLoading);
   const error = useSelector(selectAdminEventsError);
   const errorMessage = useMemo(() => {

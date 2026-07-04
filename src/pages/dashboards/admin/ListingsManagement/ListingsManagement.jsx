@@ -114,7 +114,7 @@ const ListingsManagement = () => {
 
     try {
       const response = await GET(ENDPOINT.SERVICES.ADMIN_BY_PROVIDER_ROLE);
-      console.log('ListingsManagement admin response payload:', response);
+      // console.log('ListingsManagement admin response payload:', response);
       const payload = response?.data || response;
       const services = Array.isArray(payload?.data)
         ? payload.data
@@ -122,7 +122,7 @@ const ListingsManagement = () => {
           ? payload
           : [];
       
-      console.log('ListingsManagement admin parsed services list:', services);
+      // console.log('ListingsManagement admin parsed services list:', services);
 
       setTableData(services.map(mapServiceToRow));
     } catch (err) {
