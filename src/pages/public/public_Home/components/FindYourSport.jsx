@@ -1,64 +1,32 @@
-﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Container from '../../../../components/layout/Container';
-import { GET } from '../../../../services/httpMethods';
 
 const FindYourSport = ({ section }) => {
     const scrollRef = useRef(null);
-    const [discoverCards, setDiscoverCards] = useState([]);
-    const heading = section?.sportTitle || '';
-    const subtitle =
-        section?.sportSubTitle ||
-        '';
+    const heading = section?.sportTitle || 'Find your sport';
+    const subtitle = section?.sportSubTitle || '';
 
-    useEffect(() => {
-        const controller = new AbortController();
-
-        const loadDiscoverCards = async () => {
-            try {
-                const response = await GET(
-                    '/api/services/by-role',
-                    { status: 'ACTIVE', providerRole: 'COACH' },
-                    controller.signal,
-                    { skipAuth: true, withCredentials: false }
-                );
-                const serviceList = Array.isArray(response?.data?.data)
-                    ? response.data.data
-                    : Array.isArray(response?.data)
-                        ? response.data
-                        : [];
-
-                const mapped = serviceList
-                    .filter((item) => item?.id)
-                    .map((item, index) => {
-                        const sports = Array.isArray(item?.sports) ? item.sports.filter(Boolean) : [];
-                        const title =
-                            item?.listingHeadline ||
-                            item?.organizationName ||
-                            item?.providerName ||
-                            item?.contactName ||
-                            `Discover ${index + 1}`;
-
-                        return {
-                            id: item.id,
-                            title,
-                            img: item?.logo || item?.provider?.avatar || '',
-                            type: encodeURIComponent(item?.sessionTypes?.[0] || 'service'),
-                        };
-                    })
-                    .slice(0, 4);
-
-                setDiscoverCards(mapped);
-            } catch {
-                setDiscoverCards([]);
-            }
-        };
-
-        loadDiscoverCards();
-        return () => controller.abort();
-    }, []);
-
-    const displayTiles = useMemo(() => discoverCards, [discoverCards]);
+    const displayTiles = [
+        {
+            id: 'football',
+            title: 'Football',
+            img: '/images/Football.jpg',
+            sport: 'Football',
+        },
+        {
+            id: 'padel',
+            title: 'Padel',
+            img: '/images/Padel.jpg',
+            sport: 'Padel',
+        },
+        {
+            id: 'squash',
+            title: 'Squash',
+            img: '/images/Squash.jpg',
+            sport: 'Squash',
+        },
+    ];
 
     // Function to handle manual scrolling via arrows on mobile
     const scroll = (direction) => {
@@ -76,9 +44,11 @@ const FindYourSport = ({ section }) => {
                         {heading}
                     </h2>
                 </div>
-                <p className="text-center text-gray-600 text-base mb-6 md:mb-12 ">
-                    {subtitle}
-                </p>
+                {subtitle && (
+                    <p className="text-center text-gray-600 text-base mb-6 md:mb-12 ">
+                        {subtitle}
+                    </p>
+                )}
 
                 <div className="relative flex justify-center items-center w-full">
                     {/* Mobile Navigation Arrows (Visible only on small screens) */}
@@ -110,15 +80,15 @@ const FindYourSport = ({ section }) => {
                         {displayTiles.map((t) => (
                             <Link
                                 key={t.id}
-                                to={`/discover/${t.type}/${t.id}`}
-                                // Mobile: Takes 85% width (w-[85%]) for peeking effect. Desktop: Takes full grid column width (sm:w-auto).
-                                className="block w-[85%] mx-auto sm:w-auto shrink-0 snap-center sm:snap-align-none rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200"
+                                to={`/discover?sport=${encodeURIComponent(t.sport)}`}
+                                // Mobile: Takes 85% width (w-[85%]) for peeking effect. Desktop: Takes full grid column width (sm:w-full).
+                                className="block w-[85%] mx-auto sm:mx-0 sm:w-full shrink-0 snap-center sm:snap-align-none rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200"
                             >
-                                <div className="relative flex flex-col mx-auto h-full">
+                                <div className="relative flex flex-col h-full">
                                     {t.img ? (
-                                        <img src={t.img} alt={t.title} className="w-full h-72 md:h-85 lg:h-160 object-cover block" />
+                                        <img src={t.img} alt={t.title} className="w-full h-[500px] sm:h-[350px] lg:h-150 object-cover block" />
                                     ) : (
-                                        <div className="flex h-72 w-full items-center justify-center bg-gray-200 text-sm text-gray-500 md:h-85 lg:h-160">
+                                        <div className="flex h-[400px] sm:h-[350px] lg:h-[300px] w-full items-center justify-center bg-gray-200 text-sm text-gray-500">
                                             No image
                                         </div>
                                     )}
@@ -128,11 +98,6 @@ const FindYourSport = ({ section }) => {
                                 </div>
                             </Link>
                         ))}
-                        {displayTiles.length === 0 && (
-                            <div className="col-span-full rounded-lg bg-white/70 p-6 text-center text-sm text-gray-600">
-                                No discover cards available right now.
-                            </div>
-                        )}
                     </div>
                 </div>
             </Container>

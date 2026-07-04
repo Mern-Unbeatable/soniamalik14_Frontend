@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import Container from '../../../components/layout/Container';
 import PageHeader from '../../../components/ui/PageHeader';
 import DiscoverCard from './components/DiscoverCard';
@@ -62,15 +63,22 @@ const toDiscoverItem = (service) => {
 
 const DiscoverView = () => {
   const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sportParam = searchParams.get('sport') || '';
+
   const [services, setServices] = useState([]);
   const categories = useSelector(selectSportsCategories);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedSport, setSelectedSport] = useState('');
+  const [selectedSport, setSelectedSport] = useState(sportParam);
   const [location, setLocation] = useState('');
   const [distance, setDistance] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 6;
+
+  useEffect(() => {
+    setSelectedSport(sportParam);
+  }, [sportParam]);
 
   useEffect(() => {
     dispatch(fetchSportsCategories());
@@ -185,8 +193,14 @@ const DiscoverView = () => {
               <select
                 value={selectedSport}
                 onChange={(e) => {
-                  setSelectedSport(e.target.value);
+                  const val = e.target.value;
+                  setSelectedSport(val);
                   setPage(1);
+                  if (val) {
+                    setSearchParams({ sport: val });
+                  } else {
+                    setSearchParams({});
+                  }
                 }}
                 className="w-full cursor-pointer appearance-none rounded-md border-none bg-white px-3 py-3 text-base text-gray-700 shadow-sm outline-none focus:ring-1 focus:ring-teal-500"
               >
