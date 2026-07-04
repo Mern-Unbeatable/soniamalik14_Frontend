@@ -341,14 +341,14 @@ const AddListingDetails = () => {
               </div>
             </div>
 
-            <div className="mt-2 flex items-center gap-2">
+            {/* <div className="mt-2 flex items-center gap-2">
               <button
                 disabled
                 className="rounded-md bg-gray-300 px-6 py-3.5 text-base font-semibold text-gray-500 cursor-not-allowed transition opacity-60 shadow-sm"
               >
                 Book Now
               </button>
-            </div>
+            </div> */}
           </section>
 
           <aside className="h-fit xl:sticky xl:top-6">
@@ -360,7 +360,10 @@ const AddListingDetails = () => {
                 placeholder="Write your message"
                 className="mt-3 w-full resize-none rounded-xl border-0 bg-[#B5D5D2] px-5 py-4  outline-none placeholder:text-[#4B5563] focus:ring-2 focus:ring-[#0F766E]"
               />
-              <button className="mt-6 rounded-lg bg-[#0F766E] px-10 py-3 text-base font-semibold text-white hover:bg-[#0d655d]">
+              <button
+                disabled
+                className="mt-6 rounded-lg bg-gray-300 px-10 py-3 text-base font-semibold text-gray-500 cursor-not-allowed transition opacity-60 shadow-sm"
+              >
                 Submit
               </button>
             </div>
