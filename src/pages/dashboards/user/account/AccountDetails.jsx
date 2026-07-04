@@ -3,6 +3,7 @@ import { Camera, ChevronDown } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../../context/AuthContext';
 import { getUserProfile, updateUserProfile } from '../../../../services/authService';
+import { GET } from '../../../../services/httpMethods';
 import ChangePassword from './ChangePassword';
 
 const AccountDetails = () => {
@@ -16,6 +17,7 @@ const AccountDetails = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    name: '',
     email: '',
     phone: '',
     postcode: '',
@@ -27,21 +29,30 @@ const AccountDetails = () => {
   const hydratedUserIdRef = useRef(null);
 
   const normalizeProfile = (profile) => {
+    const firstNameVal =
+      profile?.firstName ||
+      profile?.givenName ||
+      profile?.first_name ||
+      profile?.name?.split(' ')?.[0] ||
+      profile?.fullName?.split(' ')?.[0] ||
+      '';
+    const lastNameVal =
+      profile?.lastName ||
+      profile?.familyName ||
+      profile?.last_name ||
+      profile?.name?.split(' ')?.slice(1).join(' ') ||
+      profile?.fullName?.split(' ')?.slice(1).join(' ') ||
+      '';
+    const nameVal =
+      profile?.name ||
+      profile?.fullName ||
+      [firstNameVal, lastNameVal].filter(Boolean).join(' ') ||
+      '';
+
     const normalized = {
-      firstName:
-        profile?.firstName ||
-        profile?.givenName ||
-        profile?.first_name ||
-        profile?.name?.split(' ')?.[0] ||
-        profile?.fullName?.split(' ')?.[0] ||
-        '',
-      lastName:
-        profile?.lastName ||
-        profile?.familyName ||
-        profile?.last_name ||
-        profile?.name?.split(' ')?.slice(1).join(' ') ||
-        profile?.fullName?.split(' ')?.slice(1).join(' ') ||
-        '',
+      firstName: firstNameVal,
+      lastName: lastNameVal,
+      name: nameVal,
       email: profile?.email || profile?.emailAddress || '',
       phone: profile?.phone || profile?.phoneNumber || profile?.mobile || '',
       postcode: profile?.postcode || profile?.zip || profile?.postalCode || '',
@@ -72,6 +83,7 @@ const AccountDetails = () => {
     return {
       firstName: normalizedNext.firstName || current.firstName,
       lastName: normalizedNext.lastName || current.lastName,
+      name: normalizedNext.name || current.name,
       email: normalizedNext.email || current.email,
       phone: normalizedNext.phone || current.phone,
       postcode: normalizedNext.postcode || current.postcode,
@@ -107,19 +119,19 @@ const AccountDetails = () => {
 
       setLoadingProfile(true);
       try {
-        const response = await getUserProfile(userId);
-        console.log('getUserProfile response:', response);
+        const response = await GET('/api/users/me/profile');
+        console.log('getUserProfile response from /api/users/me/profile:', response);
         
         // Extract the actual user object from the response wrapper
-        const profile = response?.user || response?.data || response;
+        const profile = response?.data?.user || response?.data || response;
         console.log('selected profile:', profile);
 
         if (profile) {
           console.log('profile.avatar:', profile?.avatar);
           setFormData((current) => mergeProfile(current, profile));
           if (profile?.avatar) {
-  setProfileImage(profile.avatar);
-}
+            setProfileImage(profile.avatar);
+          }
         }
 
         hydratedUserIdRef.current = userId;
@@ -174,8 +186,6 @@ const AccountDetails = () => {
       // Build payload with only non-empty values
       const payload = {};
       
-      const firstName = formData.firstName?.trim();
-      const lastName = formData.lastName?.trim();
       const email = formData.email?.trim();
       const phone = formData.phone?.trim();
       const postcode = formData.postcode?.trim();
@@ -184,8 +194,6 @@ const AccountDetails = () => {
       const city = formData.city?.trim();
 
       // Only add fields that have values
-      if (firstName) payload.firstName = firstName;
-      if (lastName) payload.lastName = lastName;
       if (email) payload.email = email;
       if (phone) payload.phone = phone;
       if (postcode) payload.postcode = postcode;
@@ -193,9 +201,10 @@ const AccountDetails = () => {
       if (region) payload.region = region;
       if (city) payload.city = city;
 
-      // Add full name if either first or last name exists
-      if (firstName || lastName) {
-        payload.name = [firstName, lastName].filter(Boolean).join(' ').trim();
+      // Send name to backend
+      const name = formData.name?.trim();
+      if (name) {
+        payload.name = name;
       }
 
       // Add avatar if file exists
@@ -206,9 +215,8 @@ const AccountDetails = () => {
         });
         formDataPayload.append('avatar', imageFile);
         
-        console.log('Uploading FormData with avatar:', imageFile.name);
-
         const result = await updateUserProfile(userId, formDataPayload);
+        console.log('updateUserProfile (with avatar) response:', result);
         if (result?.success) {
           // Extract the new avatar URL from the response
           const updatedUser = result?.user;
@@ -226,6 +234,7 @@ const AccountDetails = () => {
       } else {
         // Send JSON payload if no image
         const result = await updateUserProfile(userId, payload);
+        console.log('updateUserProfile (JSON) response:', result);
         if (result?.success) {
           await fetchMe();
         }
@@ -271,23 +280,12 @@ const AccountDetails = () => {
 
           {/* Form Fields */}
           <form className="grow grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleProfileSubmit}>
-            <div className="space-y-1">
-              <label className="text-base text-gray-700">First name</label>
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-base text-gray-700">Name</label>
               <input
-                name="firstName"
+                name="name"
                 type="text"
-                value={formData.firstName}
-                onChange={handleProfileChange}
-                className="w-full p-2.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-600 text-gray-600"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-base text-gray-700">Last name</label>
-              <input
-                name="lastName"
-                type="text"
-                value={formData.lastName}
+                value={formData.name}
                 onChange={handleProfileChange}
                 className="w-full p-2.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-600 text-gray-600"
               />
@@ -315,40 +313,7 @@ const AccountDetails = () => {
               />
             </div>
 
-            {/* Location Selects */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:col-span-2">
-              <div className="space-y-1">
-                <label className="text-base text-gray-700">Region/State</label>
-                <div className="relative">
-                  <select
-                    name="region"
-                    value={formData.region}
-                    onChange={handleProfileChange}
-                    className="w-full appearance-none p-2.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-600 text-gray-600 bg-white"
-                  >
-                    <option value="">Select region</option>
-                    <option>Albama</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-base text-gray-700">City</label>
-                <div className="relative">
-                  <select
-                    name="city"
-                    value={formData.city}
-                    onChange={handleProfileChange}
-                    className="w-full appearance-none p-2.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-600 text-gray-700 font-bold bg-white"
-                  >
-                    <option value="">Select city</option>
-                    <option>Montgomery</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
               <div className="space-y-1">
                 <label className="text-base text-gray-700">Postcode</label>
                 <input
@@ -356,20 +321,20 @@ const AccountDetails = () => {
                   type="text"
                   value={formData.postcode}
                   onChange={handleProfileChange}
-                  className="w-full p-2.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-600 text-gray-700 font-bold"
+                  className="w-full p-2.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-600 text-gray-600"
                 />
               </div>
-            </div>
 
-            <div className="space-y-1 md:col-span-2">
-              <label className="text-base text-gray-700">Address</label>
-              <input
-                name="address"
-                type="text"
-                value={formData.address}
-                onChange={handleProfileChange}
-                className="w-full p-2.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-600 text-gray-600"
-              />
+              <div className="space-y-1">
+                <label className="text-base text-gray-700">Address</label>
+                <input
+                  name="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={handleProfileChange}
+                  className="w-full p-2.5 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-teal-600 text-gray-600"
+                />
+              </div>
             </div>
 
             <div className="pt-4 md:col-span-2 flex items-center gap-3">
