@@ -1,5 +1,5 @@
-﻿import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ThumbsUp, Heart, MessageSquare, Send, MapPin, Calendar, Clock } from 'lucide-react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ThumbsUp, Heart, MessageSquare, Send, MapPin, Calendar, Clock, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { GET, POST } from '../../../../services/httpMethods';
@@ -26,26 +26,19 @@ const ForumTopicCard = ({ topic, isLoggedIn = false }) => {
 
   // Merging passed topic data with fallbacks to match the UI in your screenshots
   const {
-    author = 'Ralph Edwards',
-    title = 'How to balance strength training with competitive netball?',
-    titleColor = '#1A1D1F',
-    description = "I'm starting to play more on asphalt courts and my current trainers are wearing down fast. Any recommendations for durable soles?",
-    replies = 4,
-   
-    tags = ['Football', 'New to sport'],
-    likes = 4,
-    hearts = 4,
-    
-    location = topic.location || null, 
-    date = topic.date || '1 Mar 2026',
-    time = topic.time || '1 Mar 2026',
-    
-    // Mock comments for the expanded state
-    comments = [
-      { author: 'Ralph Edwards', text: 'I usually train for 40-45 minutes a day, focusing on ball control and passing. Even simple drills help a lot when done consistently.' },
-      { author: 'Ralph Edwards', text: 'Morning stretching and light cardio have really improved my flexibility and reduced muscle soreness after matches.' },
-      { author: 'Ralph Edwards', text: "I watch professional women's matches to learn positioning and decision-making. It helps me understand the game better." }
-    ]
+    author = '',
+    authorAvatar = '',
+    title = '',
+    titleColor = '',
+    description = '',
+    replies = 0,
+    tags = [],
+    likes = 0,
+    hearts = 0,
+    location = null, 
+    date = null,
+    time = null,
+    comments = []
   } = topic || {};
 
   const postId = topic?.id || topic?.postId || topic?._id;
@@ -365,11 +358,17 @@ const ForumTopicCard = ({ topic, isLoggedIn = false }) => {
     <div className="bg-white border border-gray-200 rounded-lg p-5 mb-4 transition-all">
       {/* Header: Avatar & Name */}
       <div className="flex items-center gap-2.5 mb-4">
-        <img
-          src={'/images/login/image_2.jpg'} 
-          alt={author}
-          className="w-8 h-8 rounded-full object-cover border border-gray-100"
-        />
+        {authorAvatar ? (
+          <img
+            src={authorAvatar} 
+            alt={author}
+            className="w-8 h-8 rounded-full object-cover border border-gray-100"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+            <User className="w-4.5 h-4.5 text-gray-500" />
+          </div>
+        )}
         <span className="text-base text-gray-700 font-medium">
           {author}
         </span>

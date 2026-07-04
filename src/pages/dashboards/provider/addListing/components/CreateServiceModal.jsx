@@ -490,7 +490,7 @@ const CreateServiceModal = ({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-base font-medium text-[#0A0A0A]">Address Line 1</label>
+                <label className="text-base font-medium text-[#0A0A0A]">Address Line </label>
                 <input
                   className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
                   placeholder="e.g. 123 High Street"

@@ -207,7 +207,7 @@ const ServiceProviderListingDetails = () => {
                             <span className="text-gray-700">{data.clinicName}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Address line 1:</span>
+                            <span className="font-semibold text-gray-900">Address line </span>
                             <span className="text-gray-700">{data.addressLine1}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">

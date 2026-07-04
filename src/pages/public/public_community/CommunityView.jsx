@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../context/AuthContext';
@@ -135,6 +135,7 @@ const CommunityView = () => {
     return {
       id: post?.id,
       author: authorName,
+      authorAvatar: post?.author?.avatar || null,
       title: post?.title || '',
       titleColor: '#0B544E',
       description: post?.description || '',
@@ -167,6 +168,7 @@ const CommunityView = () => {
     try {
       setIsLoadingPosts(true);
       const response = await GET(ENDPOINT.COMMUNITY.LIST_POSTS, params);
+      console.log('CommunityView backend response data:', response?.data || response);
       const payload = response?.data?.data || {};
       const fetchedPosts = Array.isArray(payload?.posts) ? payload.posts : [];
       const pagination = payload?.pagination || {};
