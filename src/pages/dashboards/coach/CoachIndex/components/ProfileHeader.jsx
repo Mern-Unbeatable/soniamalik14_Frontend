@@ -22,7 +22,7 @@ const ProfileHeader = () => {
     const aboutText =
         user?.description ||
         user?.aboutService ||
-        user?.aboutOrganization ||
+        // user?.aboutOrganization ||
         user?.bio ||
         '';
 
