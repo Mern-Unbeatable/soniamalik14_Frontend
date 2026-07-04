@@ -1,10 +1,43 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Container from '../../../../components/layout/Container';
 import Button from '../../../../components/ui/Button';
 import HeroTitle from '../../../../components/ui/HeroTitle';
 import { useAuth } from '../../../../context/AuthContext';
+import { ENV } from '../../../../config/env';
 
 const CORE_FEATURES_SECTION_ID = 'core-features';
+
+const resolveImageUrl = (value, fallback) => {
+  if (!value) return fallback;
+  const imageUrl = String(value).trim();
+  if (!imageUrl) return fallback;
+
+  if (/^https?:\/\//i.test(imageUrl)) {
+    try {
+      const parsedImageUrl = new URL(imageUrl);
+      const apiBaseUrl = String(ENV.API_BASE_URL || '').trim();
+      const parsedApiBaseUrl = apiBaseUrl ? new URL(apiBaseUrl) : null;
+
+      if (
+        parsedApiBaseUrl &&
+        parsedImageUrl.pathname.includes('/uploads/') &&
+        parsedImageUrl.hostname !== parsedApiBaseUrl.hostname
+      ) {
+        return `${parsedApiBaseUrl.origin}${parsedImageUrl.pathname}${parsedImageUrl.search}${parsedImageUrl.hash}`;
+      }
+      return imageUrl;
+    } catch {
+      return imageUrl;
+    }
+  }
+
+  const apiBaseUrl = String(ENV.API_BASE_URL || '').replace(/\/+$/, '');
+  if (apiBaseUrl && imageUrl.startsWith('/uploads/')) {
+    return `${apiBaseUrl}${imageUrl}`;
+  }
+
+  return imageUrl;
+};
 
 const Hero = ({ section }) => {
   const navigate = useNavigate();
@@ -12,8 +45,8 @@ const Hero = ({ section }) => {
   const heading = section?.title || 'Women. Sport. Community.';
   const description =
     section?.description || "A platform built for women in sport-whatever level you're starting at.";
-  const desktopImage = section?.image || '/heroWebp.webp';
-  const mobileImage = section?.image || '/hero23.png';
+  const desktopImage = resolveImageUrl(section?.image, '/heroWebp.webp');
+  const mobileImage = resolveImageUrl(section?.image, '/hero23.png');
 
   const buttonLabel = isAuthenticated ? 'Explore ESSA Hub' : 'Join ESSA Hub';
 
@@ -37,7 +70,7 @@ const Hero = ({ section }) => {
           <div
             className="h-full w-full bg-cover bg-center"
             style={{
-              backgroundImage: `url(${mobileImage})`,
+              backgroundImage: `url(${mobileImage}), url('/hero23.png')`,
               maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
               WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
             }}
@@ -70,7 +103,7 @@ const Hero = ({ section }) => {
 
       <div
         className="relative hidden h-[70vh] w-full items-end justify-center bg-white bg-cover bg-center md:flex md:h-150 lg:h-screen"
-        style={{ backgroundImage: `url(${desktopImage})` }}
+        style={{ backgroundImage: `url(${desktopImage}), url('/heroWebp.webp')` }}
       >
         <div className="absolute inset-0 z-0 bg-black/10 md:bg-black/10" />
 
