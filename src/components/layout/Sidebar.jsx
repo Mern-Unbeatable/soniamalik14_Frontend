@@ -91,7 +91,7 @@ const getMenuItems = (role, basePath) => {
     },
     {
       id: 'add_listing',
-      label: 'Add Listing',
+      label: 'Add Service',
       icon: <PlusCircle className="h-5 w-5" />,
       path: `${basePath}/add-listing`,
     },

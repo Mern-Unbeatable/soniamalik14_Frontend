@@ -255,7 +255,7 @@ const AddListingDetails = () => {
 
               {item?.bookingLink && (
                 <div className="mt-4 bg-[#FFFFFF] rounded-xl p-5 shadow-sm border border-gray-100">
-                  <h3 className="text-lg font-bold text-[#1A1D1F]">Booking Link</h3>
+                  <h3 className="text-lg font-bold text-[#1A1D1F]">Share this listing.</h3>
                   {item?.status === 'PENDING_APPROVAL' || item?.status === 'PENDING' ? (
                     <p className="text-base text-gray-500 font-medium italic mt-1">
                       You can share after admin approved
@@ -263,7 +263,7 @@ const AddListingDetails = () => {
                   ) : (
                     <>
                       <p className="text-sm text-gray-500 mb-3">
-                        Share this link with players so they can book their place directly.
+                        Use this link to share your ESSA Hub listing on your website, social media or messages.
                       </p>
                       <div className="flex items-center gap-3 w-full">
                         <a
@@ -301,7 +301,6 @@ const AddListingDetails = () => {
               <div className="rounded-2xl border border-[#DDE4E8] bg-[#F9FBFB] p-4 shadow-[0_2px_10px_rgba(15,118,110,0.08)] md:p-5">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
                   <div>
-                    <h4 className="mb-3 text-lg font-semibold text-[#1D1D1D] ">Location &amp; Clinic</h4>
                     <div className="space-y-3">
                       <ServiceOverviewItem
                         icon={<MapPin className="h-5 w-5" />}
@@ -310,7 +309,7 @@ const AddListingDetails = () => {
                       />
                       <ServiceOverviewItem
                         icon={<FileBadge2 className="h-5 w-5" />}
-                        label="Professional Registration"
+                        label="Professional registration / qualifications."
                         value={serviceOverview.professionalRegistration || '-'}
                       />
                       <ServiceOverviewItem
@@ -322,19 +321,18 @@ const AddListingDetails = () => {
                   </div>
 
                   <div>
-                    <h4 className="mb-3 text-lg font-semibold text-[#1D1D1D] ">Professional Details</h4>
                     <div className="space-y-3">
                       <ServiceOverviewItem
                         icon={<Briefcase className="h-5 w-5" />}
-                        label="Primary Profession"
+                        label="Service type"
                         value={serviceOverview.primaryProfession || '-'}
                       />
                       <ServiceOverviewItem
                         icon={<CalendarDays className="h-5 w-5" />}
-                        label="Session Type"
+                        label="Delivery type"
                         value={serviceOverview.sessionType || '-'}
                       />
-                      <ServiceOverviewItem icon={<Trophy className="h-5 w-5" />} label="Sport" value={serviceOverview.sport || '-'} />
+                      <ServiceOverviewItem icon={<Trophy className="h-5 w-5" />} label="Sports supported" value={serviceOverview.sport || '-'} />
                     </div>
                   </div>
                 </div>
@@ -354,7 +352,7 @@ const AddListingDetails = () => {
           <aside className="h-fit xl:sticky xl:top-6">
             <div className="rounded-xl bg-[#E7F1F1] p-4">
               <h3 className="text-xl font-semibold text-[#111827]">Contact</h3>
-              <p className="mt-3 text-lg leading-11 text-[#374151]">Ask the organiser a question</p>
+              <p className="mt-3 text-lg leading-11 text-[#374151]">Enquire about this service.</p>
               <textarea
                 rows={8}
                 placeholder="Write your message"
@@ -364,7 +362,7 @@ const AddListingDetails = () => {
                 disabled
                 className="mt-6 rounded-lg bg-gray-300 px-10 py-3 text-base font-semibold text-gray-500 cursor-not-allowed transition opacity-60 shadow-sm"
               >
-                Submit
+                Send enquiry
               </button>
             </div>
           </aside>
