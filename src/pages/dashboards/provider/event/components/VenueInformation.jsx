@@ -1,6 +1,17 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return 'N/A';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
 const VenueInformation = ({ event, mapEmbedUrl }) => {
   if (!event) return null;
 
@@ -20,7 +31,12 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
 
         <div className="mb-2 mt-4 space-y-2 text-base text-[#101828]">
           <p>
-            <span className="font-medium">Day of session:</span> Saturday
+            <span className="font-medium">Date:</span>{' '}
+            {event.startDate
+              ? event.endDate && event.startDate !== event.endDate
+                ? `${formatDate(event.startDate)} - ${formatDate(event.endDate)}`
+                : formatDate(event.startDate)
+              : 'N/A'}
           </p>
           <p>
             <span className="font-medium">Session Time:</span>{' '}

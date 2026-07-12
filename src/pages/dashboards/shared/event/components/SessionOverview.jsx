@@ -3,6 +3,12 @@ import { CalendarDays, Target, Trophy, Users, Copy, Check, ExternalLink } from '
 import { useSelector } from 'react-redux';
 import { getUser } from '../../../../../utils/storage';
 
+const toNormalText = (str) => {
+  if (!str) return '';
+  const cleaned = String(str).toLowerCase().replace(/_/g, ' ');
+  return cleaned.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 const SessionOverview = ({ event, onBookPlace }) => {
   const [copied, setCopied] = useState(false);
 
@@ -17,12 +23,16 @@ const SessionOverview = ({ event, onBookPlace }) => {
   };
 
   const overviewItems = [
-    { label: 'Sport', value: event.sportType || 'Football', icon: Trophy },
-    { label: 'Event Type', value: event.eventType || 'Training Camp', icon: CalendarDays },
-    { label: 'Suitable For', value: event.skillLevel || 'New to the sport', icon: Target },
+    { label: 'Sport', value: toNormalText(event.sportType) || 'Football', icon: Trophy },
+    { label: 'Event Type', value: toNormalText(event.eventType) || 'Training Camp', icon: CalendarDays },
+    { label: 'Suitable For', value: toNormalText(event.skillLevel) || 'New to the sport', icon: Target },
     {
-      label: "Women's only",
-      value: typeof event.womensOnly === 'boolean' ? (event.womensOnly ? 'Yes' : 'No') : event.womensOnly || 'No',
+      label: 'Participation',
+      value: typeof event.womensOnly === 'boolean'
+        ? (event.womensOnly ? 'Women only' : 'Mixed, women welcome')
+        : (String(event.womensOnly || '').toLowerCase() === 'yes' || String(event.womensOnly || '').toLowerCase() === 'women-only'
+            ? 'Women only'
+            : 'Mixed, women welcome'),
       icon: Users,
     },
   ];
@@ -61,7 +71,7 @@ const SessionOverview = ({ event, onBookPlace }) => {
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E7F1F1] text-[#0F766E]">
                 <ExternalLink className="h-5 w-5" />
               </div>
-              <p className="text-[16px] font-medium leading-6 text-[#101828]">Booking Link</p>
+              <p className="text-[16px] font-medium leading-6 text-[#101828]">Share this listing</p>
             </div>
             {!(event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING') && (
               <button
@@ -82,6 +92,9 @@ const SessionOverview = ({ event, onBookPlace }) => {
               </button>
             )}
           </div>
+          <p className="mb-3 text-[14px] text-gray-500 leading-normal">
+            Use this link to share your ESSA Hub listing on your website, social media or messages.
+          </p>
           {event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING' ? (
             <p className="mt-2 text-sm text-gray-500 font-medium italic">
               You can share your link after admin approved
