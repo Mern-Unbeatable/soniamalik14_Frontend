@@ -7,44 +7,48 @@ import { fetchSportsCategories } from '../../../../../features/sportsCategories/
 import { selectSportsCategories } from '../../../../../features/sportsCategories/sportsCategoriesSlice';
 
 const providerTypeOptions = [
-  'Physiotherapist',
-  'Sports Massage Therapist',
-  'Strength & Conditioning Coach',
-  'Nutritionist',
-  'Mental Health & Wellbeing',
-  'Coach / Trainer',
-
+  'Nutrition',
+  'Physiotherapy & injury recovery',
+  'Sports massage',
+  'Strength & conditioning',
+  'Mental wellbeing',
+  '1:1 coaching',
+  'Other'
 ];
 
-const sessionTypeOptions = ['In clinic', 'At-home visits', 'Online video'];
+const sessionTypeOptions = ['In clinic', 'Online', 'At venue'];
 
 const sportOptions = [
+  'Football',
+  'Netball',
+  'Squash',
+  'Padel',
+  'Tennis',
   'Badminton',
   'Cricket',
-  'Football',
-  'Golf',
-  'Netball', 
-  'Padel',
   'Rugby',
+  'Golf',
   'Running',
-  'Squash',
-  'Tennis',
+  'All sports',
   'Other'
 ];
 
 const normalizeSessionType = (value) => {
   const val = String(value || '').trim().toLowerCase();
   if (val === 'in clinic') return 'In Clinic';
-  if (val === 'at-home visits') return 'At-home Visits';
-  if (val === 'online video') return 'Online Video';
+  if (val === 'online') return 'Online';
+  if (val === 'at venue') return 'At Venue';
   return value;
 };
 
 const mapSessionTypeToUi = (value) => {
   const val = String(value || '').trim().toLowerCase();
   if (val === 'in clinic') return 'In clinic';
-  if (val === 'at-home visits') return 'At-home visits';
-  if (val === 'online video') return 'Online video';
+  if (val === 'online') return 'Online';
+  if (val === 'at venue') return 'At venue';
+  // Fallbacks for old values
+  if (val === 'online video') return 'Online';
+  if (val === 'at-home visits') return 'At venue';
   return String(value || '').trim();
 };
 
@@ -403,12 +407,15 @@ const CreateServiceModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div className="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-[#F9FAFB] shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
-          <h2 className="text-2xl font-bold text-[#1A1A1A]">
-            {mode === 'edit' ? 'Edit Listing' : 'Add Listing'}
+        <div className="flex items-center justify-between border-b border-[#E3EBEA] bg-white px-5 py-4 sm:px-6">
+          <h2 className="text-xl font-bold text-[#0F766E]">
+            {mode === 'edit' ? 'Edit Service' : 'Add Service'}
           </h2>
-          <button onClick={onClose} className="rounded-full bg-[#E5E7EB] p-1.5 hover:bg-gray-300">
-            <X className="h-5 w-5 text-gray-600" />
+          <button
+            onClick={onClose}
+            className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          >
+            <X className="h-5 w-5" />
           </button>
         </div>
 
@@ -420,9 +427,6 @@ const CreateServiceModal = ({
           {/* Section 1: Service Provider Form */}
           <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
             <div>
-              <h3 className="text-lg font-semibold text-[#0A0A0A]">
-                Service Provider Listing Form
-              </h3>
               <p className="text-base font-medium text-gray-500">
                 Join our community of professional support services aimed at empowering women in
                 sport and fitness.
@@ -454,24 +458,34 @@ const CreateServiceModal = ({
 
             <div className="space-y-1.5">
               <label className="text-base font-medium text-[#0A0A0A]">Logo</label>
-              <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-white py-10">
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => updateField('logo', e.target.files?.[0])}
-                />
+              <label className="relative block h-65 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-400 p-10 text-center hover:bg-gray-50 bg-white">
                 {previewImage ? (
-                  <img src={previewImage} className="h-20 object-contain" alt="preview" />
+                  <>
+                    <img
+                      src={previewImage}
+                      alt="Uploaded preview"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/30" />
+                    <div className="relative z-10 flex h-full items-center justify-center">
+                      <span className="rounded-md bg-white/90 px-4 py-2 text-base font-medium text-[#1D1D1D]">
+                        Click to change image
+                      </span>
+                    </div>
+                  </>
                 ) : (
                   <>
-                    <Upload className="mb-2 h-8 w-8 text-[#22C55E]" />
-                    <span className="text-base font-semibold text-[#22C55E]">Upload Image</span>
-                    <span className="mt-1 text-sm text-gray-400">
-                      JPEG or PNG accepted. Max 10MB
-                    </span>
+                    <Upload className="mx-auto mb-3 h-10 w-10 text-[#22A547]" />
+                    <p className="text-xl font-medium text-[#22A547]">Upload Image</p>
+                    <p className="mt-1 text-base text-gray-500">JPEG or PNG accepted. Max 10MB</p>
                   </>
                 )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={(e) => updateField('logo', e.target.files?.[0] || null)}
+                  className="hidden"
+                />
               </label>
             </div>
           </div>
@@ -481,7 +495,7 @@ const CreateServiceModal = ({
             <h3 className="text-lg font-semibold text-[#0A0A0A]">Location Details</h3>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="text-base font-medium text-[#0A0A0A]">Clinic Name</label>
+                <label className="text-base font-medium text-[#0A0A0A]">Clinic / venue name</label>
                 <input
                   className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
                   placeholder="e.g. The Wellness Centre"
@@ -519,25 +533,26 @@ const CreateServiceModal = ({
             </div>
           </div>
 
-          {/* Section 3: Provider Type */}
-          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-            <h3 className="text-lg font-semibold text-[#0A0A0A]">Provider Type</h3>
-            <div className="flex flex-wrap gap-2">
+          {/* Section 3: Service type */}
+          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+            <label className="block text-base font-semibold text-gray-700">Service type</label>
+            <select
+              value={formData.providerTypes?.[0] || ''}
+              onChange={(e) => updateField('providerTypes', [e.target.value])}
+              className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+            >
+              <option value="">Select service type</option>
               {providerTypeOptions.map((opt) => (
-                <PillButton
-                  key={opt}
-                  active={formData.providerTypes.includes(opt)}
-                  onClick={() => toggleMulti('providerTypes', opt)}
-                >
+                <option key={opt} value={opt}>
                   {opt}
-                </PillButton>
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
-          {/* Section 4: About & Services */}
+          {/* Section 4: About your service */}
           <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-            <h3 className="text-lg font-semibold text-[#0A0A0A]">About & Services</h3>
+            <h3 className="text-lg font-semibold text-[#0A0A0A]">About your service</h3>
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-base font-medium text-[#0A0A0A]">Listing Headline</label>
@@ -550,11 +565,11 @@ const CreateServiceModal = ({
               </div>
               <div className="space-y-1.5">
                 <label className="text-base font-medium text-[#0A0A0A]">
-                  About you / your service
+                  About your service
                 </label>
                 <textarea
                   className="h-28 w-full resize-none rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
-                  placeholder="e.g. 123 High Street"
+                  placeholder="Provide a short description of the service, including what clients can expect."
                   value={formData.about}
                   onChange={(e) => updateField('about', e.target.value)}
                 />
@@ -562,7 +577,7 @@ const CreateServiceModal = ({
             </div>
 
             <div className="space-y-3">
-              <label className="text-base font-medium text-[#0A0A0A]">Session Types</label>
+              <label className="text-base font-medium text-[#0A0A0A]">Delivery type</label>
               <div className="flex flex-wrap gap-2">
                 {sessionTypeOptions.map((opt) => (
                   <PillButton
@@ -577,18 +592,25 @@ const CreateServiceModal = ({
             </div>
 
             <div className="space-y-3">
-              <label className="text-base font-medium text-[#0A0A0A]">Sport</label>
-              <div className="flex flex-wrap gap-2">
-                {dynamicSports.map((sport) => (
-                  <CheckboxPill
-                    key={sport}
-                    active={formData.sports.includes(sport)}
-                    onClick={() => toggleMulti('sports', sport)}
-                  >
+              <label className="text-base font-medium text-[#0A0A0A]">Sports supported</label>
+              <p className="text-sm text-gray-500">
+                Optional - leave blank if your service is not sport-specific.
+              </p>
+              <select
+                value={formData.sports?.[0] || ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateField('sports', val ? [val] : []);
+                }}
+                className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+              >
+                <option value="">Select sport</option>
+                {sportOptions.map((sport) => (
+                  <option key={sport} value={sport}>
                     {sport}
-                  </CheckboxPill>
+                  </option>
                 ))}
-              </div>
+              </select>
               {formData.sports.includes('Other') && (
                 <div className="mt-3">
                   <input
@@ -609,7 +631,7 @@ const CreateServiceModal = ({
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-base font-medium text-[#0A0A0A]">
-                  Professional Registration
+                  Professional registration / qualifications.
                 </label>
                 <input
                   className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
@@ -634,54 +656,6 @@ const CreateServiceModal = ({
               </div>
             </div>
           </div>
-
-          {/* Section 6: Choose CTA */}
-          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-            <label className="block text-base font-semibold text-gray-700">
-              Choose the main action for this listing
-            </label>
-            <p className="text-sm text-gray-500">
-              Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
-            </p>
-            <div className="space-y-3">
-              {[
-                {
-                  value: 'Add booking link',
-                  label: 'Register',
-                  desc: 'Choose this if the event or session is confirmed and people can sign up to attend. Note: If payment or final details are required, you should contact the person after they register.',
-                },
-                {
-                  value: 'Allow users to register interest',
-                  label: 'Register Interest',
-                  desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend. Note: You should follow up with anyone who registers interest to let them know the next steps.',
-                },
-              ].map((option) => {
-                const selected = formData.responseMethods.includes(option.value);
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => updateField('responseMethods', [option.value])}
-                    className={`w-full text-left p-4 rounded-xl border transition-all ${
-                      selected
-                        ? 'border-[#0F766E] bg-[#E7F1F1] text-gray-900 shadow-sm'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-400">
-                        {selected && <div className="h-2 w-2 rounded-full bg-[#0F766E]" />}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-base text-gray-900">{option.label}</p>
-                        <p className="mt-1 text-sm text-gray-500 leading-normal">{option.desc}</p>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </form>
         {/* Sticky Footer */}
         <div className="sticky bottom-0 z-20 flex items-center gap-3 border-t border-gray-100 bg-white px-6 py-4">
@@ -691,7 +665,7 @@ const CreateServiceModal = ({
             disabled={isBusy}
             className="bg-btn-primary hover:bg-btn-primary-dark rounded-md px-6 py-2 text-[15px] font-semibold text-white transition-colors disabled:opacity-60"
           >
-            {isBusy ? 'Submitting...' : 'Submit For Approval'}
+            {isBusy ? 'Submitting...' : 'Submit for approval'}
           </button>
 
       

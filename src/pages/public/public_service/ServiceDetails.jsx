@@ -416,22 +416,18 @@ const ServiceDetails = () => {
 
                   {/* CTA Buttons */}
                   <div className="flex flex-wrap gap-3">
-                    {displayData.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
-                      <button
-                        onClick={handleBookNowClick}
-                        className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors"
-                      >
-                        Register
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleRegisterInterest}
-                        disabled={isInterest}
-                        className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors disabled:opacity-75"
-                      >
-                        {isInterest ? 'Registering...' : 'Register Interest'}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
+                        if (contactArea) {
+                          contactArea.scrollIntoView({ behavior: 'smooth' });
+                          contactArea.focus();
+                        }
+                      }}
+                      className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors"
+                    >
+                      Enquire
+                    </button>
                   </div>
                 </div>
               )}

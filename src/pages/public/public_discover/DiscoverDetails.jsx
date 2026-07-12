@@ -487,23 +487,18 @@ const DiscoverDetails = () => {
               
               {/* Action Buttons */}
               <div className="hidden md:flex flex-wrap gap-3">
-                {item.responseType !== 'INTERESTED' ? (
-                  <button
-                    onClick={handleOpenRegister}
-                    disabled={isBooking}
-                    className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    {isBooking ? 'Registering...' : 'Register'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleOpenInterest}
-                    disabled={isInterest}
-                    className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    {isInterest ? 'Registering...' : 'Register Interest'}
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
+                    if (contactArea) {
+                      contactArea.scrollIntoView({ behavior: 'smooth' });
+                      contactArea.focus();
+                    }
+                  }}
+                  className="bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Enquire
+                </button>
               </div>
             </div>
 
@@ -550,25 +545,20 @@ const DiscoverDetails = () => {
               </div>
 
             <div className="mt-5 flex flex-col sm:flex-row gap-3 md:hidden">
-                {item.responseType !== 'INTERESTED' ? (
-                  <button
-                    onClick={handleOpenRegister}
-                    disabled={isBooking}
-                    className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
-                  >
-                    {isBooking ? 'Registering...' : 'Register'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleOpenInterest}
-                    disabled={isInterest}
-                    className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    {isInterest ? 'Registering...' : 'Register Interest'}
-                  </button>
-                )}
-              </div>
+              <button
+                onClick={() => {
+                  const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
+                  if (contactArea) {
+                    contactArea.scrollIntoView({ behavior: 'smooth' });
+                    contactArea.focus();
+                  }
+                }}
+                className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
+              >
+                Enquire
+              </button>
             </div>
+          </div>
 
             {/* Column 3: Contact Organiser */}
             <div>
