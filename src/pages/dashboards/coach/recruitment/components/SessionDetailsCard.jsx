@@ -8,9 +8,9 @@ const SessionDetailsCard = ({ item }) => {
                 {item.about || item.description}
             </div>
 
-            <div className='text-base mt-4'>
+            {/* <div className='text-base mt-4'>
                 <p>No trials. No pressure.</p>
-            </div>
+            </div> */}
         </div>
     );
 };

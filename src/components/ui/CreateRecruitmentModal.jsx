@@ -740,7 +740,7 @@ const CreateRecruitmentModal = ({
                     placeholder="Paste Google Maps link"
                   />
                 </div>
-                <div className="space-y-1">
+                {/* <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">Sesson Day</label>
                   <input
                     value={form.sessonDay}
@@ -748,7 +748,7 @@ const CreateRecruitmentModal = ({
                     className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
                     placeholder="e.g Tuesday"
                   />
-                </div>
+                </div> */}
                 <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">Session Date</label>
                   <input
