@@ -156,7 +156,7 @@ const ServiceView = () => {
                         <select
                             value={selectedService}
                             onChange={(e) => { setSelectedService(e.target.value); setPage(1); }}
-                            className="appearance-none w-full bg-white border-none text-gray-700 text-base rounded-md px-3 py-3 outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer shadow-sm"
+                            className="appearance-none w-full bg-white border-none text-gray-700 text-base rounded-md pl-3 pr-10 py-3 outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer shadow-sm truncate"
                         >
                             {serviceTypeOptions.map((option) => (
                                 <option key={option.label} value={option.value}>
@@ -172,7 +172,7 @@ const ServiceView = () => {
                     </div>
 
                     {/* Distance Dropdown */}
-                    <div className="relative w-full sm:w-35">
+                    <div className="relative w-full sm:w-40">
                         <select
                             value={distance}
                             onChange={(e) => {
