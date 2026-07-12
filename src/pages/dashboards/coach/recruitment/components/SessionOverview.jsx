@@ -30,7 +30,7 @@ const SessionOverview = ({ item, disableActions = false }) => {
                 </div>
 
                 {/* Info Row: Skill Level */}
-                <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
+                {/* <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
                     <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
                         <Users className="w-5 h-5" />
                     </div>
@@ -38,7 +38,7 @@ const SessionOverview = ({ item, disableActions = false }) => {
                         <p className="text-base text-[#101828] font-medium mb-0.5">Skill Level</p>
                         <p className="text-base text-[#4A5565]">{item.skillLevel || 'N/A'}</p>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Info Row: Suitable For */}
                 <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
