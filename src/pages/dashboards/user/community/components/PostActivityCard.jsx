@@ -10,8 +10,8 @@ const formatDate = (value) => {
   });
 };
 
-const getAuthorLabel = (author) =>
-  author?.displayName || author?.name || 'Community member';
+// const getAuthorLabel = (author) =>
+//   author?.displayName || author?.name || 'Community member';
 
 const PostActivityCard = ({ post, isExpanded, onToggle, comments = [] }) => {
   const commentsCount = post?.commentsCount ?? post?._count?.comments ?? comments.length ?? 0;
@@ -19,12 +19,12 @@ const PostActivityCard = ({ post, isExpanded, onToggle, comments = [] }) => {
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
-      <button
+      {/* <button
         type="button"
         onClick={onToggle}
-        className="w-full p-5 md:p-6 text-left transition-colors hover:bg-gray-50"
-      >
-        <div className="flex items-start justify-between gap-4">
+        className=""
+      > */}
+        <div className=" w-full p-5 md:p-6 text-left transition-colors hover:bg-gray-50  flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex flex-wrap items-center gap-2">
               {post?.hasNewActivity && (
@@ -76,13 +76,13 @@ const PostActivityCard = ({ post, isExpanded, onToggle, comments = [] }) => {
             )}
           </div>
 
-          <div className="shrink-0 pt-1 text-gray-400">
+          {/* <div className="shrink-0 pt-1 text-gray-400">
             {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-          </div>
+          </div> */}
         </div>
-      </button>
+      {/* </button> */}
 
-      {isExpanded && (
+      {/* {isExpanded && (
         <div className="border-t border-gray-100 bg-gray-50/60 px-5 py-4 md:px-6 md:py-5">
           <h4 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
             Comments on this post
@@ -114,7 +114,7 @@ const PostActivityCard = ({ post, isExpanded, onToggle, comments = [] }) => {
             <p className="py-4 text-center text-sm text-gray-500">No comments on this post yet.</p>
           )}
         </div>
-      )}
+      )} */}
     </div>
   );
 };

@@ -43,7 +43,7 @@ const BrandsProductsSection = ({ section }) => {
 
             {/* Content Container */}
            
-            <div className="relative z-10 p-6 sm:p-10 md:p-12 lg:p-16 w-full md:w-[65%] lg:w-[55%] bg-white md:bg-transparent  min-h-112.5] md:min-h-125 xl:min-h-137.5 flex flex-col justify-center">
+            <div className="relative z-10 p-4 sm:p-6 md:p-8 lg:p-10 w-full md:w-[65%] lg:w-[55%] bg-white md:bg-transparent  min-h-112.5] md:min-h-125 xl:min-h-137.5 flex flex-col justify-center">
 
                 {sectionTitle ? (
                     <h2 className="text-3xl md:text-[32px] leading-tight font-medium text-[#0B544E] mb-5 tracking-tight">
@@ -56,12 +56,12 @@ const BrandsProductsSection = ({ section }) => {
                     </p>
                 ) : null}
 
-                {sectionDescription ? (
-                    <div
-                        className="mb-8 max-w-md text-[#333333] [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mb-1"
-                        dangerouslySetInnerHTML={{ __html: sectionDescription }}
-                    />
-                ) : null}
+             {sectionDescription ? (
+    <div
+        className="mb-8 max-w-md break-words text-[#333333] [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mb-1"
+        dangerouslySetInnerHTML={{ __html: sectionDescription }}
+    />
+) : null}
 
                 <div>
                     <button
