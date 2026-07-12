@@ -740,16 +740,16 @@ const CreateRecruitmentModal = ({
                     placeholder="Paste Google Maps link"
                   />
                 </div>
-                {/* <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Sesson Day</label>
+                <div className="space-y-1">
+                  <label className="text-base font-medium text-gray-700">Session Day</label>
                   <input
                     value={form.sessonDay}
                     onChange={(e) => handleChange('sessonDay', e.target.value)}
                     className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
                     placeholder="e.g Tuesday"
                   />
-                </div> */}
-                <div className="space-y-1">
+                </div>
+                {/* <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">Session Date</label>
                   <input
                     type="date"
@@ -758,7 +758,7 @@ const CreateRecruitmentModal = ({
                     onChange={(e) => handleChange('dateDay', e.target.value)}
                     className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
                   />
-                </div>
+                </div> */}
                 <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">Start Time</label>
                   <input
