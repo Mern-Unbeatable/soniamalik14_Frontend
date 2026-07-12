@@ -65,7 +65,6 @@ const CollaborateView = () => {
   return (
     <section className="bg-[#F8FAFC] py-6 font-sans lg:py-10">
       <Container>
-        {/* Header Section */}
         <div className="mb-8 max-w-7xl">
           <h1 className="mb-4 text-3xl font-semibold break-words text-[#0B544E] lg:text-[40px]">
             {normalizedCollaborateSection?.title || ''}
