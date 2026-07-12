@@ -48,7 +48,7 @@ const Hero = ({ section }) => {
   const desktopImage = resolveImageUrl(section?.image, '/heroWebp.webp');
   const mobileImage = resolveImageUrl(section?.image, '/hero23.png');
 
-  const buttonLabel = isAuthenticated ? 'Explore ESSA Hub' : 'Join ESSA Hub';
+  const buttonLabel = isAuthenticated ? 'Join ESSA Hub' : 'Join ESSA Hub';
 
   const handleCtaClick = () => {
     if (!isAuthenticated) {
