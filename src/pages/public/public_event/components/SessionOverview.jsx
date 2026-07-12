@@ -186,15 +186,22 @@ const SessionOverview = ({ event }) => {
           </div>
         </div>
 
-        {/* Info Row: Women's only */}
-        <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
-            <Users className="h-5 w-5" />
+        {/* Info Row: Participation */}
+        <div className="flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
+              <Users className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="mb-0.5 text-base font-medium text-[#101828]">Participation</p>
+              <p className="text-base text-[#4A5565]">{event.womensOnly}</p>
+            </div>
           </div>
-          <div>
-            <p className="mb-0.5 text-base font-medium text-[#101828]">Women's only</p>
-            <p className="text-base text-[#4A5565]">{event.womensOnly}</p>
-          </div>
+          {event.womensOnly === 'Women-only' && (
+            <p className="text-[12px] text-gray-500 italic mt-1 pl-14 leading-normal">
+              Women-only refers to participants. Coaches, organisers, officials or venue staff may be male unless stated otherwise.
+            </p>
+          )}
         </div>
       </div>
 

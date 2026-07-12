@@ -677,26 +677,29 @@ const CreateRecruitmentModal = ({
                     </label>
                   ))}
                 </div>
-              </div>
 
-              <div className="space-y-2 pt-2">
-                <label className="text-base font-medium text-gray-700">Women's Only</label>
-                <div className="flex flex-col gap-2">
-                  {['YES', 'NO'].map((val) => (
-                    <label
-                      key={val}
-                      className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
-                    >
-                      <input
-                        type="radio"
-                        name="womensOnly"
-                        checked={form.womensOnly === val}
-                        onChange={() => handleChange('womensOnly', val)}
-                        className="border-gray-300"
-                      />
-                      {val}
-                    </label>
-                  ))}
+                <div className="space-y-2">
+                  <label className="text-base font-medium text-gray-700">Who can take part?</label>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { label: 'Women only', value: 'YES' },
+                      { label: 'Mixed, women welcome', value: 'NO' },
+                    ].map((item) => (
+                      <label
+                        key={item.value}
+                        className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
+                      >
+                        <input
+                          type="radio"
+                          name="womensOnly"
+                          checked={form.womensOnly === item.value}
+                          onChange={() => handleChange('womensOnly', item.value)}
+                          className="border-gray-300"
+                        />
+                        {item.label}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

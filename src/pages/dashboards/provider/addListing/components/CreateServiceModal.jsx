@@ -160,6 +160,7 @@ const buildInitialState = (initialData) => ({
   availableDays: initialData?.availableDays || '',
   timeSlots: initialData?.timeSlots || '',
   category: initialData?.category || '',
+  womensOnly: initialData?.womensOnly ?? initialData?.womenOnly ?? true,
 });
 
 const PillButton = ({ active, onClick, children }) => (
@@ -337,6 +338,8 @@ const CreateServiceModal = ({
     payload.append('registration', String(formData.registration || '').trim());
     payload.append('professionalRegistration', String(formData.registration || '').trim());
     payload.append('insuranceInPlace', String(formData.insuranceInPlace === 'Yes'));
+    payload.append('womensOnly', String(formData.womensOnly === true));
+    payload.append('womenOnly', String(formData.womensOnly === true));
     payload.append('participantResponseType', getParticipantResponseType(formData.responseMethods));
     payload.append('bookingLink', String(formData.bookingLink || '').trim());
     // Note: status and isApproved are set by backend, not sent by frontend
@@ -548,6 +551,31 @@ const CreateServiceModal = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Section: Participation */}
+          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+            <label className="block text-base font-semibold text-gray-700">Participation</label>
+            <div className="flex flex-col sm:flex-row gap-4 mt-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.womensOnly === true}
+                  onChange={() => updateField('womensOnly', true)}
+                  className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                />
+                <span className="text-base text-gray-700">Women-only</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.womensOnly === false}
+                  onChange={() => updateField('womensOnly', false)}
+                  className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                />
+                <span className="text-base text-gray-700">Mixed, women welcome</span>
+              </label>
+            </div>
           </div>
 
           {/* Section 4: About your service */}
