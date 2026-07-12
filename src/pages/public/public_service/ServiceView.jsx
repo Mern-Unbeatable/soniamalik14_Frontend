@@ -88,20 +88,23 @@ const ServiceView = () => {
         return () => controller.abort();
     }, []);
 
-    const serviceTypeOptions = useMemo(() => {
-        const unique = new Set(
-            services
-                .map((item) => item.type)
-                .filter((type) => type && String(type).trim().length > 0)
-        );
-
-        return ['All', ...Array.from(unique)];
-    }, [services]);
+    const serviceTypeOptions = useMemo(() => [
+        { label: 'Services', value: 'All' },
+        { label: 'All services', value: 'All services' },
+        { label: 'Nutrition', value: 'Nutrition' },
+        { label: 'Physiotherapy & injury recovery', value: 'Physiotherapy & injury recovery' },
+        { label: 'Sports massage', value: 'Sports massage' },
+        { label: 'Strength & conditioning', value: 'Strength & conditioning' },
+        { label: 'Mental wellbeing', value: 'Mental wellbeing' },
+        { label: '1:1 coaching', value: '1:1 coaching' },
+        { label: 'Other', value: 'Other' }
+    ], []);
 
     const filtered = useMemo(() => {
         return services.filter((item) => {
             const serviceMatch =
                 selectedService === 'All' ||
+                selectedService === 'All services' ||
                 selectedService === '' ||
                 item.type?.toLowerCase() === selectedService.toLowerCase();
 
@@ -148,6 +151,26 @@ const ServiceView = () => {
                         className="w-full sm:w-55 bg-white border-none text-gray-700 text-base rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-teal-500 shadow-sm placeholder-gray-400"
                     />
 
+                    {/* Services Dropdown */}
+                    <div className="relative w-full sm:w-45">
+                        <select
+                            value={selectedService}
+                            onChange={(e) => { setSelectedService(e.target.value); setPage(1); }}
+                            className="appearance-none w-full bg-white border-none text-gray-700 text-base rounded-md px-3 py-3 outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer shadow-sm"
+                        >
+                            {serviceTypeOptions.map((option) => (
+                                <option key={option.label} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
                     {/* Distance Dropdown */}
                     <div className="relative w-full sm:w-35">
                         <select
@@ -158,32 +181,12 @@ const ServiceView = () => {
                             }}
                             className="appearance-none w-full bg-white border-none text-gray-700 text-base rounded-md px-3 py-3 outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer shadow-sm"
                         >
-                            <option value="">Distance</option>
-                            <option value="5">5 Miles</option>
-                            <option value="10">10 Miles</option>
-                            <option value="20">20 Miles</option>
+                          <option value="">Any distance</option>
+                <option value="5">Within 5 miles</option>
+                <option value="10">Within 10 miles</option>
+                <option value="15">Within 15 miles</option>
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-800">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    </div>
-
-                    {/* Select Services Dropdown */}
-                    <div className="relative w-full sm:w-45">
-                        <select
-                            value={selectedService}
-                            onChange={(e) => { setSelectedService(e.target.value); setPage(1); }}
-                            className="appearance-none w-full bg-white border-none text-gray-700 text-base rounded-md px-3 py-3 outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer shadow-sm"
-                        >
-                            {serviceTypeOptions.map((option) => (
-                                <option key={option} value={option}>
-                                    {option === 'All' ? 'Select Services' : option}
-                                </option>
-                            ))}
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                             </svg>
