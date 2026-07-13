@@ -229,7 +229,7 @@ const SportProviderListingDetails = () => {
                     <p className="text-base text-[#000000] leading-relaxed mb-4 xl:max-w-6xl">
                         {data.about}
                     </p>
-                    <p className="text-base text-[#000000]">Join and improve with confidence.</p>
+                    {/* <p className="text-base text-[#000000]">Join and improve with confidence.</p> */}
                 </div>
 
                 {/* Bottom Grid Layout */}
