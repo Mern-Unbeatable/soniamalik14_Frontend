@@ -204,7 +204,7 @@ const DiscoverView = () => {
                 }}
                 className="w-full cursor-pointer appearance-none rounded-md border-none bg-white px-3 py-3 text-base text-gray-700 shadow-sm outline-none focus:ring-1 focus:ring-teal-500"
               >
-                <option value="">Select sports</option>
+                
                 {categories.map((cat, index) => {
                   const name = typeof cat === 'object' ? cat?.name : cat;
                   return (
