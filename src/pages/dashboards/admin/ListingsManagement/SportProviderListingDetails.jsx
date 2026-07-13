@@ -173,7 +173,6 @@ const SportProviderListingDetails = () => {
                         className="w-full h-72 md:h-96 object-cover rounded-2xl shadow-sm"
                     />
 
-                    {/* Back Button Added Here */}
                     <button
                         onClick={() => navigate(-1)}
                         className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-white/80 hover:bg-white rounded-lg text-btn-primary font-medium transition-colors shadow-md z-10"
