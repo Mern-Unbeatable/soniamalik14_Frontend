@@ -677,26 +677,29 @@ const CreateRecruitmentModal = ({
                     </label>
                   ))}
                 </div>
-              </div>
 
-              <div className="space-y-2 pt-2">
-                <label className="text-base font-medium text-gray-700">Women's Only</label>
-                <div className="flex flex-col gap-2">
-                  {['YES', 'NO'].map((val) => (
-                    <label
-                      key={val}
-                      className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
-                    >
-                      <input
-                        type="radio"
-                        name="womensOnly"
-                        checked={form.womensOnly === val}
-                        onChange={() => handleChange('womensOnly', val)}
-                        className="border-gray-300"
-                      />
-                      {val}
-                    </label>
-                  ))}
+                <div className="space-y-2">
+                  <label className="text-base font-medium text-gray-700">Who can take part?</label>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { label: 'Women only', value: 'YES' },
+                      { label: 'Mixed, women welcome', value: 'NO' },
+                    ].map((item) => (
+                      <label
+                        key={item.value}
+                        className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
+                      >
+                        <input
+                          type="radio"
+                          name="womensOnly"
+                          checked={form.womensOnly === item.value}
+                          onChange={() => handleChange('womensOnly', item.value)}
+                          className="border-gray-300"
+                        />
+                        {item.label}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -741,7 +744,7 @@ const CreateRecruitmentModal = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Sesson Day</label>
+                  <label className="text-base font-medium text-gray-700">Session Day</label>
                   <input
                     value={form.sessonDay}
                     onChange={(e) => handleChange('sessonDay', e.target.value)}
@@ -749,7 +752,7 @@ const CreateRecruitmentModal = ({
                     placeholder="e.g Tuesday"
                   />
                 </div>
-                <div className="space-y-1">
+                {/* <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">Session Date</label>
                   <input
                     type="date"
@@ -758,7 +761,7 @@ const CreateRecruitmentModal = ({
                     onChange={(e) => handleChange('dateDay', e.target.value)}
                     className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
                   />
-                </div>
+                </div> */}
                 <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">Start Time</label>
                   <input

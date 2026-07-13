@@ -48,7 +48,7 @@ const Hero = ({ section }) => {
   const desktopImage = resolveImageUrl(section?.image, '/heroWebp.webp');
   const mobileImage = resolveImageUrl(section?.image, '/hero23.png');
 
-  const buttonLabel = isAuthenticated ? 'Explore ESSA Hub' : 'Join ESSA Hub';
+  const buttonLabel = isAuthenticated ? 'Join ESSA Hub' : 'Join ESSA Hub';
 
   const handleCtaClick = () => {
     if (!isAuthenticated) {
@@ -65,7 +65,7 @@ const Hero = ({ section }) => {
   return (
     <>
       <div className="w-full bg-white md:hidden">
-        {/* Image Section with Masking Effect */}
+       
         <div className="relative h-72 w-full">
           <div
             className="h-full w-full bg-cover bg-center"

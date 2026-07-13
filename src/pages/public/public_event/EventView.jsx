@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Container from '../../../components/layout/Container';
 import { X, Filter } from 'lucide-react';
@@ -162,6 +162,7 @@ const EventView = () => {
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [filters, setFilters] = useState({
     city: '',
+    distance: '',
     eventTypes: [],
     date: [],
     sport: [],

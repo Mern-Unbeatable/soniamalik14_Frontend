@@ -320,7 +320,7 @@ const SportProviderListingDetails = () => {
                                 <span className="text-gray-500">Town/City:</span>
                                 <span className="text-gray-900 font-medium">{data.townCity}</span>
 
-                                <span className="text-gray-500">Day of session:</span>
+                                <span className="text-gray-500">Session Day:</span>
                                 <span className="text-gray-900 font-medium">{data.sessionDays}</span>
 
                                 <span className="text-gray-500">Session Time:</span>

@@ -8,8 +8,11 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
         name: '',
         email: '',
         phone: '',
-        sports: '',
+        brandName: '',
+        websiteLink: '',
+        whatYouOffer: '',
         postCode: '',
+        message: '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,24 +28,37 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const response = await POST('/api/brands', formData);
+            const payload = {
+                ...formData,
+                sports: formData.whatYouOffer, // map for backwards compatibility
+            };
+            const response = await POST('/api/brands', payload);
             
             await Swal.fire({
                 icon: 'success',
                 title: 'Success',
-                text: response?.data?.message || 'Successfully joined the marketplace!',
+                text: response?.data?.message || 'Successfully submitted application to join the marketplace!',
                 confirmButtonText: 'Okay',
                 confirmButtonColor: '#107C66',
             });
             
-            setFormData({ name: '', email: '', phone: '', sports: '', postCode: '' });
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                brandName: '',
+                websiteLink: '',
+                whatYouOffer: '',
+                postCode: '',
+                message: '',
+            });
             onClose();
         } catch (error) {
             console.error('Error submitting brand form:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: error?.response?.data?.message || 'Failed to join the marketplace. Please try again.',
+                text: error?.response?.data?.message || 'Failed to submit application. Please try again.',
                 confirmButtonText: 'Okay',
                 confirmButtonColor: '#107C66',
             });
@@ -119,15 +135,45 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                             />
                         </div>
 
-                        {/* Sports Field */}
+                        {/* Brand / business name Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Sports</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Brand / business name</label>
                             <input
                                 type="text"
-                                name="sports"
-                                value={formData.sports}
+                                name="brandName"
+                                value={formData.brandName}
                                 onChange={handleInputChange}
-                                placeholder="e.g., Football, Cricket, Running"
+                                placeholder="enter brand or business name"
+                                required
+                                disabled={isSubmitting}
+                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                            />
+                        </div>
+
+                        {/* Website or social media link Field */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Website or social media link</label>
+                            <input
+                                type="text"
+                                name="websiteLink"
+                                value={formData.websiteLink}
+                                onChange={handleInputChange}
+                                placeholder="e.g., website or instagram link"
+                                required
+                                disabled={isSubmitting}
+                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                            />
+                        </div>
+
+                        {/* What do you offer? Field */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">What do you offer?</label>
+                            <input
+                                type="text"
+                                name="whatYouOffer"
+                                value={formData.whatYouOffer}
+                                onChange={handleInputChange}
+                                placeholder="e.g., Products, Services, Events"
                                 required
                                 disabled={isSubmitting}
                                 className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
@@ -148,6 +194,21 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                                 className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
                             />
                         </div>
+
+                        {/* Message Field */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            <textarea
+                                name="message"
+                                value={formData.message}
+                                onChange={handleInputChange}
+                                placeholder="write your message"
+                                required
+                                disabled={isSubmitting}
+                                rows={3}
+                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50 resize-none"
+                            />
+                        </div>
                     </div>
 
                     {/* Sticky Submit Button / Footer */}
@@ -157,7 +218,7 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                             disabled={isSubmitting}
                             className="w-full bg-[#107C66] hover:bg-[#0c6150] transition-colors duration-200 text-white font-semibold py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isSubmitting ? 'Submitting...' : 'Submit'}
+                            {isSubmitting ? 'Applying...' : 'Apply to join'}
                         </button>
                     </div>
                 </form>

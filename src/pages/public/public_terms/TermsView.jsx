@@ -293,14 +293,11 @@ const TermsView = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(15,118,110,0.4),transparent)]" />
         <Container className="relative z-10">
           <div className="max-w-3xl">
-            <span className="bg-[#f6bc09] text-white text-sm font-semibold uppercase tracking-widest px-3 py-1 rounded-full">
-              Legal Document
-            </span>
-            <h1 className="text-3xl md:text-5xl font-semibold mt-4 mb-3 tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-semibold mb-3 tracking-tight">
               Terms & Conditions
             </h1>
             <p className="text-white/80 text-sm md:text-base">
-              Last Updated: July 2026 • Please read these terms carefully before using the ESSA Hub platform.
+              Last updated: July 2026
             </p>
           </div>
         </Container>

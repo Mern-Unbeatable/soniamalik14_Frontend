@@ -34,6 +34,12 @@ const getMapEmbedUrl = (event) => {
   return buildEmbed(fallbackQuery);
 };
 
+const toNormalText = (str) => {
+  if (!str) return '';
+  const cleaned = String(str).toLowerCase().replace(/_/g, ' ');
+  return cleaned.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
   const { id } = useParams();
   const { state } = useLocation();
@@ -160,7 +166,7 @@ const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
           </h1>
           <div className="mt-1 flex items-center gap-1 text-[16px] leading-6">
             <span className="font-medium text-[#373737]">Event Type:</span>
-            <span className="text-[#0C0C0C]">{event.eventType}</span>
+            <span className="text-[#0C0C0C]">{toNormalText(event.eventType)}</span>
           </div>
         </div>
 

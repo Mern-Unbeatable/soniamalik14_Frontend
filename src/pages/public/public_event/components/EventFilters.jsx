@@ -81,18 +81,42 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
 
   return (
     <div className="w-full">
-      {/* City/Area Filter */}
+      {/* City/Area & Distance Filter */}
       <FilterSection title="Filters" icon={ListFilter}>
-        <div>
-          <label className="block text-base text-[#1A1D1F] mb-1.5">
-            City/Area
-          </label>
-          <input
-            value={filters.city || ''}
-            onChange={(e) => update({ city: e.target.value })}
-            placeholder="City, area or postcode"
-            className="w-full bg-[#F8F9F9] border-none rounded-md px-3 py-2 text-base placeholder-gray-400 focus:ring-1 focus:ring-[#147B6B] outline-none"
-          />
+        <div className="space-y-3">
+          <div>
+            <label className="block text-base text-[#1A1D1F] mb-1.5">
+              City/Area
+            </label>
+            <input
+              value={filters.city || ''}
+              onChange={(e) => update({ city: e.target.value })}
+              placeholder="City, area or postcode"
+              className="w-full bg-[#F8F9F9] border-none rounded-md px-3 py-2 text-base placeholder-gray-400 focus:ring-1 focus:ring-[#147B6B] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-base text-[#1A1D1F] mb-1.5">
+              Distance
+            </label>
+            <div className="relative">
+              <select
+                value={filters.distance || ''}
+                onChange={(e) => update({ distance: e.target.value })}
+                className="w-full bg-[#F8F9F9] border-none rounded-md px-3 py-2 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:ring-[#147B6B] outline-none appearance-none cursor-pointer"
+              >
+                <option value="">Any distance</option>
+                <option value="5">Within 5 miles</option>
+                <option value="10">Within 10 miles</option>
+                <option value="15">Within 15 miles</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
       </FilterSection>
 

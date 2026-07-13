@@ -45,7 +45,7 @@ const VenueInformation = ({ item }) => {
             <span className="text-[#1A1D1F]">{item.town || 'N/A'}</span>
           </p>
           <p className="flex text-base">
-            <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Day of session:</span>
+            <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Session Day:</span>
             <span className="text-[#1A1D1F]">
               {item.typicalSessionDays || item.matchDays || item.day || 'N/A'}
             </span>

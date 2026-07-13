@@ -22,8 +22,17 @@ const toTitleCase = (value = '') =>
     .join(' ');
 
 const getWomenOnlyValue = (item) => {
-  if (typeof item?.womensOnly === 'boolean') return item.womensOnly ? 'Yes' : 'No';
-  if (typeof item?.womensOnly === 'string') return item.womensOnly;
+  const val = item?.womensOnly ?? item?.womenOnly;
+  if (typeof val === 'boolean') {
+    return val ? 'Women-only' : 'Mixed, women welcome';
+  }
+  const str = String(val || '').trim().toLowerCase();
+  if (str === 'yes' || str === 'women-only' || str === 'women_only' || str === 'true') {
+    return 'Women-only';
+  }
+  if (str === 'no' || str === 'mixed' || str === 'mixed, women welcome' || str === 'false') {
+    return 'Mixed, women welcome';
+  }
 
   const description = String(item?.description || '').toLowerCase();
   const suitableFor = Array.isArray(item?.suitableFor)
@@ -35,7 +44,7 @@ const getWomenOnlyValue = (item) => {
     womenKeywords.some((keyword) => description.includes(keyword)) ||
     suitableFor.some((entry) => womenKeywords.some((keyword) => entry.includes(keyword)));
 
-  return isWomenOnly ? 'Yes' : 'No';
+  return isWomenOnly ? 'Women-only' : 'Mixed, women welcome';
 };
 
 const getMapEmbedUrl = (item) => {

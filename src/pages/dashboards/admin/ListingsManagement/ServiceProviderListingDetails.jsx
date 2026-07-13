@@ -242,7 +242,7 @@ const ServiceProviderListingDetails = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-4">
+                {/* <div className="flex flex-wrap gap-4">
                     {data.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
                         <button className="px-5 py-2.5 bg-btn-primary text-white text-sm md:text-base font-semibold rounded-lg hover:bg-teal-800 transition-colors">
                             Register
@@ -252,7 +252,7 @@ const ServiceProviderListingDetails = () => {
                             Register Interest
                         </button>
                     )}
-                </div>
+                </div> */}
 
                  {/* Contact Organiser */}
                         {/* <div>

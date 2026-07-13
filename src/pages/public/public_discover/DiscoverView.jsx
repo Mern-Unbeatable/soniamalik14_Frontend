@@ -226,7 +226,7 @@ const DiscoverView = () => {
               </div>
             </div>
             {/* Distance Dropdown */}
-            <div className="relative w-full sm:w-35">
+            <div className="relative w-full sm:w-40">
               <select
                 value={distance}
                 onChange={(e) => {
@@ -235,10 +235,10 @@ const DiscoverView = () => {
                 }}
                 className="w-full cursor-pointer appearance-none rounded-md border-none bg-white px-3 py-3 text-base text-gray-700 shadow-sm outline-none focus:ring-1 focus:ring-teal-500"
               >
-                <option value="">Distance</option>
-                <option value="5">5 Miles</option>
-                <option value="10">10 Miles</option>
-                <option value="20">20 Miles</option>
+                <option value="">Any distance</option>
+                <option value="5">Within 5 miles</option>
+                <option value="10">Within 10 miles</option>
+                <option value="15">Within 15 miles</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-800">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

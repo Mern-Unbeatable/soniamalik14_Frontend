@@ -35,14 +35,11 @@ const ContactView = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(15,118,110,0.4),transparent)]" />
         <Container className="relative z-10">
           <div className="max-w-3xl">
-            <span className="bg-[#f6bc09] text-[#1c1c1c] text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-              Get In Touch
-            </span>
-            <h1 className="text-3xl md:text-5xl font-semibold mt-4 mb-3 tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-semibold mb-3 tracking-tight">
               Contact Us
             </h1>
             <p className="text-white/80 text-sm md:text-base">
-              Have questions or feedback about ESSA Hub? We'd love to hear from you.
+              Have a question, suggestion or want to get involved? We’d love to hear from you.
             </p>
           </div>
         </Container>
@@ -51,13 +48,13 @@ const ContactView = () => {
       <Container className="mt-8 md:mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Info Card */}
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
+          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 h-fit lg:sticky lg:top-28">
             <div>
               <h2 className="text-xl md:text-2xl font-semibold text-[#0B544E] mb-4">
-                Contact Information
+                Get in touch
               </h2>
-              <p className="text-gray-500 text-sm md:text-base mb-8">
-                Fill out the form and our team will get back to you as soon as possible.
+              <p className="text-gray-500 text-sm md:text-base mb-6">
+                Send us a message and we’ll get back to you as soon as we can.
               </p>
 
               <div className="space-y-6">
@@ -99,7 +96,7 @@ const ContactView = () => {
               </div>
             </div>
 
-            <div className="mt-12 pt-6 border-t border-gray-100">
+            <div className="mt-8 pt-4 border-t border-gray-100">
               <p className="text-xs text-gray-400">
                 © 2026 ESSA Hub. All rights reserved.
               </p>
@@ -157,7 +154,7 @@ const ContactView = () => {
                   </div>
                 </div>
 
-                <div>
+                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Subject
                   </label>
@@ -166,7 +163,7 @@ const ContactView = () => {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    placeholder="Message subject"
+                    placeholder="What is your message about?"
                     required
                     className="w-full bg-slate-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-[#0f766e] focus:outline-none transition duration-200"
                   />
@@ -181,7 +178,7 @@ const ContactView = () => {
                     value={formData.message}
                     onChange={handleChange}
                     rows="5"
-                    placeholder="Type your message here..."
+                    placeholder="Tell us how we can help..."
                     required
                     className="w-full bg-slate-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-[#0f766e] focus:outline-none transition duration-200 resize-none"
                   />
@@ -192,7 +189,7 @@ const ContactView = () => {
                   className="w-full md:w-auto px-8 py-3.5 bg-[#0f766e] text-white rounded-lg hover:bg-[#0d6962] hover:shadow-lg transition duration-200 font-semibold flex items-center justify-center gap-2"
                 >
                   <Send className="h-4 w-4" />
-                  <span>Send Message</span>
+                  <span>Send message</span>
                 </button>
               </form>
             )}

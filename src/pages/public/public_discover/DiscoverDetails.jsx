@@ -14,8 +14,12 @@ const formatList = (value) => {
 };
 
 const getWomenOnlyText = (value) => {
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-  return String(value || '').trim();
+  if (typeof value === 'boolean') return value ? 'Women-only' : 'Mixed, women welcome';
+  const str = String(value || '').trim().toLowerCase();
+  if (str === 'yes' || str === 'women-only' || str === 'women_only' || str === 'true') {
+    return 'Women-only';
+  }
+  return 'Mixed, women welcome';
 };
 
 const getMapEmbedUrl = (service) => {
@@ -472,38 +476,40 @@ const DiscoverDetails = () => {
                   </div>
                 </div>
 
-                {/* Info Row: Women's only */}
-                <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
-                    <Users className="w-5 h-5" />
+                {/* Info Row: Participation */}
+                <div className="flex flex-col gap-2 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-base text-[#101828] font-medium mb-0.5">Participation</p>
+                      <p className="text-base  text-[#4A5565]">{item.womensOnly}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-base text-[#101828] font-medium mb-0.5">Women's only</p>
-                    <p className="text-base  text-[#4A5565]">{item.womensOnly}</p>
-                  </div>
+                  {item.womensOnly === 'Women-only' && (
+                    <p className="text-[12px] text-gray-500 italic mt-1 pl-14 leading-normal">
+                      Women-only refers to participants. Coaches, organisers, officials or venue staff may be male unless stated otherwise.
+                    </p>
+                  )}
                 </div>
 
               </div>
               
               {/* Action Buttons */}
               <div className="hidden md:flex flex-wrap gap-3">
-                {item.responseType !== 'INTERESTED' ? (
-                  <button
-                    onClick={handleOpenRegister}
-                    disabled={isBooking}
-                    className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    {isBooking ? 'Registering...' : 'Register'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleOpenInterest}
-                    disabled={isInterest}
-                    className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    {isInterest ? 'Registering...' : 'Register Interest'}
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
+                    if (contactArea) {
+                      contactArea.scrollIntoView({ behavior: 'smooth' });
+                      contactArea.focus();
+                    }
+                  }}
+                  className="bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Enquire
+                </button>
               </div>
             </div>
 
@@ -550,25 +556,20 @@ const DiscoverDetails = () => {
               </div>
 
             <div className="mt-5 flex flex-col sm:flex-row gap-3 md:hidden">
-                {item.responseType !== 'INTERESTED' ? (
-                  <button
-                    onClick={handleOpenRegister}
-                    disabled={isBooking}
-                    className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
-                  >
-                    {isBooking ? 'Registering...' : 'Register'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleOpenInterest}
-                    disabled={isInterest}
-                    className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-70 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    {isInterest ? 'Registering...' : 'Register Interest'}
-                  </button>
-                )}
-              </div>
+              <button
+                onClick={() => {
+                  const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
+                  if (contactArea) {
+                    contactArea.scrollIntoView({ behavior: 'smooth' });
+                    contactArea.focus();
+                  }
+                }}
+                className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
+              >
+                Enquire
+              </button>
             </div>
+          </div>
 
             {/* Column 3: Contact Organiser */}
             <div>

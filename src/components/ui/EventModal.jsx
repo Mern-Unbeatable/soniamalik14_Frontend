@@ -80,16 +80,16 @@ const SPORT_OPTIONS = [
 const SUITABLE_FOR_OPTIONS = ['Women', 'College Students', 'Professionals'];
 
 const getSuitableForValue = (value) => {
-  if (Array.isArray(value) && value.length > 0) {
-    return String(value[0] || '').trim();
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item || '').trim()).filter(Boolean);
   }
   if (typeof value === 'string') {
     return value
       .split(',')
       .map((item) => item.trim())
-      .filter(Boolean)[0] || '';
+      .filter(Boolean);
   }
-  return '';
+  return [];
 };
 
 const EventModal = ({
@@ -122,7 +122,7 @@ const EventModal = ({
   const [formData, setFormData] = useState({
     eventTitle: '',
     sportType: '',
-    suitableFor: '',
+    suitableFor: [],
     eventType: 'TRAINING',
     description: '',
     startDate: '',
@@ -175,13 +175,14 @@ const EventModal = ({
           initialData.organizerPhone || authUser?.phone || authUser?.phoneNumber || '',
         organizerEmail: initialData.organizerEmail || authUser?.email || '',
         image: initialData.image || null,
+        womensOnly: initialData?.womensOnly ?? initialData?.womenOnly ?? true,
       });
     } else if (mode === 'create') {
       // Reset form for create mode
       setFormData({
         eventTitle: '',
         sportType: '',
-        suitableFor: '',
+        suitableFor: [],
         eventType: 'TRAINING',
         description: '',
         startDate: '',
@@ -202,6 +203,7 @@ const EventModal = ({
         organizerPhone: authUser?.phone || authUser?.phoneNumber || '',
         organizerEmail: authUser?.email || '',
         image: null,
+        womensOnly: true,
       });
     }
   }, [initialData, mode, isOpen, authUser]);
@@ -229,6 +231,18 @@ const EventModal = ({
           : [...prev.responseMethods, method],
       };
     });
+  };
+
+  const toggleSuitableFor = (option) => {
+    setFormData((prev) => {
+      const current = Array.isArray(prev.suitableFor) ? prev.suitableFor : [];
+      const hasOption = current.includes(option);
+      const next = hasOption
+        ? current.filter((item) => item !== option)
+        : [...current, option];
+      return { ...prev, suitableFor: next };
+    });
+    setErrors((prev) => ({ ...prev, suitableFor: undefined }));
   };
 
   useEffect(() => {
@@ -264,7 +278,12 @@ const EventModal = ({
     const newErrors = {};
     requiredFields.forEach((key) => {
       const val = formData[key];
-      if (val === null || (typeof val === 'string' && val.trim() === '')) {
+      if (
+        val === null ||
+        val === undefined ||
+        (Array.isArray(val) && val.length === 0) ||
+        (typeof val === 'string' && val.trim() === '')
+      ) {
         newErrors[key] = 'This field is required';
       }
     });
@@ -291,7 +310,12 @@ const EventModal = ({
     const payload = new FormData();
     payload.append('title', formData.eventTitle);
     payload.append('sportType', formData.sportType);
-    payload.append('suitableFor', formData.suitableFor);
+    const finalSuitableFor = Array.isArray(formData.suitableFor)
+      ? formData.suitableFor
+      : [formData.suitableFor].filter(Boolean);
+    finalSuitableFor.forEach((option) => {
+      payload.append('suitableFor', option);
+    });
     payload.append('eventType', formData.eventType);
     payload.append('description', formData.description);
     payload.append('startDate', formData.startDate);
@@ -333,6 +357,8 @@ const EventModal = ({
     payload.append('organizerName', organizerName);
     payload.append('organizerPhone', organizerPhone);
     payload.append('organizerEmail', organizerEmail);
+    payload.append('womensOnly', String(formData.womensOnly === true));
+    payload.append('womenOnly', String(formData.womensOnly === true));
 
     // Add image if present
     if (formData.image instanceof File) {
@@ -611,23 +637,58 @@ const EventModal = ({
             </div>
 
             {/* Who it's suitable for */}
-            <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">Suitable For</label>
-              <select
-                value={formData.suitableFor}
-                onChange={(e) => handleChange('suitableFor', e.target.value)}
-                className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
-              >
-                <option value="">Select suitable audience</option>
-                {SUITABLE_FOR_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+            <div className="space-y-2">
+              <label className="text-base font-medium text-gray-700">
+                Suitable for (more than one can be selected)
+              </label>
+              <div className="flex flex-col gap-2">
+                {SUITABLE_FOR_OPTIONS.map((option) => {
+                  const isChecked =
+                    Array.isArray(formData.suitableFor) && formData.suitableFor.includes(option);
+                  return (
+                    <label
+                      key={option}
+                      className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleSuitableFor(option)}
+                        className="rounded border-gray-300 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                      />
+                      {option}
+                    </label>
+                  );
+                })}
+              </div>
               {errors.suitableFor && (
                 <p className="mt-1 text-base text-red-600">{errors.suitableFor}</p>
               )}
+            </div>
+
+            {/* Who can take part? */}
+            <div>
+              <label className="mb-2 block text-base font-medium text-gray-700">Who can take part?</label>
+              <div className="flex flex-col sm:flex-row gap-4 mt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.womensOnly === true}
+                    onChange={() => handleChange('womensOnly', true)}
+                    className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                  />
+                  <span className="text-base text-gray-700">Women only</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.womensOnly === false}
+                    onChange={() => handleChange('womensOnly', false)}
+                    className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                  />
+                  <span className="text-base text-gray-700">Mixed, women welcome</span>
+                </label>
+              </div>
             </div>
 
             <div>

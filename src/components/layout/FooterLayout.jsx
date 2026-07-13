@@ -115,14 +115,14 @@ const FooterLayout = () => {
                       News
                     </Link>
                   </li> */}
-                  <li>
+                  {/* <li>
                     <Link
                       to="/services"
                       className="text-[#4D4D4D] transition hover:text-btn-primary"
                     >
                       Injury & Recovery Support
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       to="/contact"

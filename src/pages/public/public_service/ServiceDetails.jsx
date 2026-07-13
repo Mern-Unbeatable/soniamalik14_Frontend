@@ -385,7 +385,6 @@ const ServiceDetails = () => {
                   <div className="mb-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:p-6">
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
                       <div className="flex flex-col gap-2.5">
-                        <h4 className="text-lg font-semibold text-[#1A1D1F]">Location & Clinic</h4>
                         <div className="flex items-start gap-4 rounded-xl bg-[#F8FAFC] p-3.5 border border-[#ECF1F4]">
                           <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center shrink-0">
                             <Hospital className="w-5 h-5 text-[#147B6B]" />
@@ -399,16 +398,15 @@ const ServiceDetails = () => {
                             </p>
                           </div>
                         </div>
-                        <OverviewRow icon={FileCheck} label="Professional Registration" value={displayData.professionalRegistration} />
+                        <OverviewRow icon={FileCheck} label="Professional registration / qualifications." value={displayData.professionalRegistration} />
                         <OverviewRow icon={ShieldCheck} label="Insurance in place" value={displayData.insurance} />
                       </div>
 
                       <div>
-                        <h4 className="text-lg font-semibold text-[#1A1D1F] mb-3">Professional Details</h4>
                         <div className="space-y-3">
-                          <OverviewRow icon={BriefcaseMedical} label="Primary Profession" value={displayData.profession} />
-                          <OverviewRow icon={Target} label="Session Type" value={displayData.sessionType} />
-                          <OverviewRow icon={Medal} label="Sport" value={displayData.sport} />
+                          <OverviewRow icon={BriefcaseMedical} label="Service type" value={displayData.profession} />
+                          <OverviewRow icon={Target} label="Delivery type" value={displayData.sessionType} />
+                          <OverviewRow icon={Medal} label="Sports supported" value={displayData.sport} />
                         </div>
                       </div>
                     </div>
@@ -416,22 +414,18 @@ const ServiceDetails = () => {
 
                   {/* CTA Buttons */}
                   <div className="flex flex-wrap gap-3">
-                    {displayData.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
-                      <button
-                        onClick={handleBookNowClick}
-                        className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors"
-                      >
-                        Register
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleRegisterInterest}
-                        disabled={isInterest}
-                        className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors disabled:opacity-75"
-                      >
-                        {isInterest ? 'Registering...' : 'Register Interest'}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
+                        if (contactArea) {
+                          contactArea.scrollIntoView({ behavior: 'smooth' });
+                          contactArea.focus();
+                        }
+                      }}
+                      className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors"
+                    >
+                      Enquire
+                    </button>
                   </div>
                 </div>
               )}
@@ -441,7 +435,7 @@ const ServiceDetails = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-45 bg-[#E7F1F1] rounded-lg p-4 shadow-sm">
                 <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Contact</h3>
-                <p className="text-[#1A1D1F] text-base mb-3">Ask the organiser a question</p>
+                <p className="text-[#1A1D1F] text-base mb-3">Enquire about this service.</p>
                 <form onSubmit={handleSubmit} className="flex flex-col">
                   <textarea
                     value={message}
@@ -454,7 +448,7 @@ const ServiceDetails = () => {
                     disabled={submitLoading}
                     className="bg-btn-primary text-white px-6 py-2.5 rounded-lg text-[14px] font-medium hover:bg-[#0D655D] transition-colors w-fit disabled:opacity-70"
                   >
-                    {submitLoading ? 'Sending...' : 'Submit'}
+                    {submitLoading ? 'Sending...' : 'Send enquiry'}
                   </button>
                 </form>
               </div>

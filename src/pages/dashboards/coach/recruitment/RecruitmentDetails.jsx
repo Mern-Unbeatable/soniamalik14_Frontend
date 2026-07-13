@@ -4,7 +4,6 @@ import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
-
 import HeroBanner from './components/HeroBanner';
 import TitleCoachInfo from './components/TitleCoachInfo';
 import SessionDetailsCard from './components/SessionDetailsCard';
