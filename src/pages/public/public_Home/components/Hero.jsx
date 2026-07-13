@@ -65,7 +65,7 @@ const Hero = ({ section }) => {
   return (
     <>
       <div className="w-full bg-white md:hidden">
-        {/* Image Section with Masking Effect */}
+       
         <div className="relative h-72 w-full">
           <div
             className="h-full w-full bg-cover bg-center"
