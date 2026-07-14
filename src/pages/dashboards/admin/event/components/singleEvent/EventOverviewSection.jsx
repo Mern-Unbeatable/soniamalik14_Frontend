@@ -16,13 +16,17 @@ const EventOverviewSection = ({
   ageGroupValue,
   skillLevel,
 }) => {
+  console.log("===============",views,trend,
+  messages,
+  participants,);
+  
   return (
     <>
       <div>
         <h1 className="mb-3 text-2xl font-semibold text-gray-900 md:text-3xl">
           {title || 'Untitled Event'}
         </h1>
-        <div className="mb-6 flex items-center gap-4 text-base font-medium text-gray-500">
+        {/* <div className="mb-6 flex items-center gap-4 text-base font-medium text-gray-500">
           <span className="flex items-center gap-1.5">
             <Eye className="h-4 w-4" /> {views ?? 0}
           </span>
@@ -33,9 +37,9 @@ const EventOverviewSection = ({
             <MessageSquare className="h-4 w-4" /> {messages ?? 0}
           </span>
           <span className="flex items-center gap-1.5">
-            <ExternalLink className="h-4 w-4" /> {participants ?? 0}
+            <ExternalLink className="h-4 w-4" /> {participants ?? 10}
           </span>
-        </div>
+        </div> */}
       </div>
 
       <div className="space-y-4">
@@ -45,7 +49,7 @@ const EventOverviewSection = ({
         </div>
         <div>
           <h3 className="mb-1 text-base font-bold text-gray-900">Event Type</h3>
-          <p className="text-base text-gray-600">{eventType}</p>
+          <p className="text-base text-gray-600">{eventType || 'N/A'}</p>
         </div>
       </div>
 
