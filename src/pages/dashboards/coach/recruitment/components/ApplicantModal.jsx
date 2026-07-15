@@ -10,32 +10,64 @@ const ApplicantModal = ({ enquiry, serviceId, onClose }) => {
 
   if (!enquiry) return null;
 
+  const extractUuid = (value) => {
+    if (!value) return null;
+    if (typeof value !== 'string') return null;
+    const uuidMatch = value.match(
+      /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i
+    );
+    return uuidMatch?.[0] || null;
+  };
+
   const handleSendReply = async (e) => {
     e.preventDefault();
     const trimmed = String(replyText || '').trim();
     if (!trimmed) return;
 
-    const recipientId =
-      enquiry?.senderId ||
-      enquiry?.sender?.id ||
-      enquiry?.userId ||
-      enquiry?.user?.id ||
-      enquiry?.sender?.Id;
+    const resolveParentId = (row) => {
+      const lastMessageValue = row?.lastMessage;
+      const lastMessageIdFromObject =
+        lastMessageValue?.id ||
+        lastMessageValue?._id ||
+        lastMessageValue?.messageId ||
+        lastMessageValue?.uuid ||
+        null;
+
+      if (lastMessageIdFromObject) return extractUuid(String(lastMessageIdFromObject));
+
+      if (typeof lastMessageValue === 'string') {
+        const lastMessageUuid = extractUuid(lastMessageValue);
+        if (lastMessageUuid) return lastMessageUuid;
+      }
+
+      const parentIdFromReply = extractUuid(String(row?.parentId || ''));
+      if (parentIdFromReply) return parentIdFromReply;
+
+      return (
+        extractUuid(String(row?.messageId || '')) ||
+        extractUuid(String(row?.id || '')) ||
+        extractUuid(String(row?._id || '')) ||
+        extractUuid(String(row?.uuid || '')) ||
+        null
+      );
+    };
+
+    const parentId = resolveParentId(enquiry);
 
     if (!serviceId) {
       toast.error('Service ID is missing.');
       return;
     }
-    if (!recipientId) {
-      toast.error('Recipient ID is missing.');
+    if (!parentId) {
+      toast.error('Parent message ID is missing.');
       return;
     }
 
     try {
       setSending(true);
       const response = await POST(ENDPOINT.SERVICES.MESSAGES(serviceId), {
-        recipientId,
         message: trimmed,
+        parentId,
       });
       toast.success(response?.data?.message || 'Reply sent successfully!');
       setReplyText('');
@@ -78,11 +110,11 @@ const ApplicantModal = ({ enquiry, serviceId, onClose }) => {
           <div className="flex gap-2">
             <textarea
               value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
+              onChange={(event) => setReplyText(event.target.value)}
               placeholder="Type your reply here..."
               disabled={sending}
               rows={3}
-              className="flex-1 rounded-lg border border-gray-200 p-3 text-base outline-none focus:ring-1 focus:ring-[#0F766E] resize-none"
+              className="flex-1 resize-none rounded-lg border border-gray-200 p-3 text-base outline-none focus:ring-1 focus:ring-[#0F766E]"
               required
             />
           </div>
@@ -90,7 +122,7 @@ const ApplicantModal = ({ enquiry, serviceId, onClose }) => {
             <button
               type="submit"
               disabled={sending || !replyText.trim()}
-              className="bg-[#0F766E] hover:bg-[#0D655D] disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#0F766E] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#0D655D] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {sending ? 'Sending...' : 'Send Reply'}
               <Send className="w-4 h-4" />

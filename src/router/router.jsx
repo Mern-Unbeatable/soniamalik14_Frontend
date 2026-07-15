@@ -72,6 +72,7 @@ import UserNotifications from '../pages/dashboards/user/notifications/Notificati
 import MyEvents from '../pages/dashboards/user/myEvents/MyEvents.jsx';
 import UserCommunity from '../pages/dashboards/user/community/Community.jsx';
 import Saved from '../pages/dashboards/user/saved/Saved.jsx';
+import UserInsights from '../pages/dashboards/user/insights/Insights.jsx';
 
 import AdminSettings from '../pages/dashboards/admin/settings/Settings.jsx';
 
@@ -141,6 +142,7 @@ const router = createBrowserRouter(
         <Route index element={<DashboardOverview />} />
         <Route path="/dashboard/notifications" element={<UserNotifications />} />
         <Route path="/dashboard/my-events" element={<MyEvents />} />
+        <Route path="/dashboard/insights" element={<UserInsights />} />
         <Route path="/dashboard/my-events/:id" element={<EventDetails />} />
         <Route path="/dashboard/community" element={<UserCommunity />} />
         <Route path="/dashboard/saved" element={<Saved />} />

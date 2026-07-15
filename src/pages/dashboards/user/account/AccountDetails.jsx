@@ -258,7 +258,7 @@ const AccountDetails = () => {
           {/* Profile Picture */}
           <div className="relative w-40 h-40 shrink-0">
             <img
-              src={profileImage }
+              src={profileImage || 'https://img.magnific.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3407.jpg?semt=ais_hybrid&w=740&q=80' }
               alt="Profile"
               className="w-full h-full object-cover rounded-full"
             />

@@ -73,6 +73,7 @@ export const ENDPOINT = {
     REJECT: (id) => `/api/services/${id}/reject`,
     APPROVAL_STATUS: (id) => `/api/services/${id}/approval-status`,
     FEATURE: (id) => `/api/services/${id}/feature`,
+    MY_CONVERSATIONS: '/api/services/conversations/my',
   },
   EVENTS: {
     LIST: '/api/events',

@@ -8,9 +8,9 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
         name: '',
         email: '',
         phone: '',
-        brandName: '',
-        websiteLink: '',
-        whatYouOffer: '',
+        businessname: '',
+        offer: '',
+        socialMediaLinks: '',
         postCode: '',
         message: '',
     });
@@ -29,8 +29,14 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
         setIsSubmitting(true);
         try {
             const payload = {
-                ...formData,
-                sports: formData.whatYouOffer, // map for backwards compatibility
+                name: formData.name.trim(),
+                email: formData.email.trim(),
+                phone: formData.phone.trim(),
+                postCode: formData.postCode.trim(),
+                businessname: formData.businessname.trim(),
+                offer: formData.offer.trim(),
+                socialMediaLinks: formData.socialMediaLinks.trim(),
+                message: formData.message.trim(),
             };
             const response = await POST('/api/brands', payload);
             
@@ -46,9 +52,9 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                 name: '',
                 email: '',
                 phone: '',
-                brandName: '',
-                websiteLink: '',
-                whatYouOffer: '',
+                businessname: '',
+                offer: '',
+                socialMediaLinks: '',
                 postCode: '',
                 message: '',
             });
@@ -140,8 +146,8 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Brand / business name</label>
                             <input
                                 type="text"
-                                name="brandName"
-                                value={formData.brandName}
+                                name="businessname"
+                                value={formData.businessname}
                                 onChange={handleInputChange}
                                 placeholder="enter brand or business name"
                                 required
@@ -150,30 +156,30 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                             />
                         </div>
 
-                        {/* Website or social media link Field */}
+                        {/* Offer Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Website or social media link</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">What do you offer?</label>
                             <input
                                 type="text"
-                                name="websiteLink"
-                                value={formData.websiteLink}
+                                name="offer"
+                                value={formData.offer}
                                 onChange={handleInputChange}
-                                placeholder="e.g., website or instagram link"
+                                placeholder="e.g., Free website audit and 15% off"
                                 required
                                 disabled={isSubmitting}
                                 className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
                             />
                         </div>
 
-                        {/* What do you offer? Field */}
+                        {/* Social media links Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">What do you offer?</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Website or social media links</label>
                             <input
                                 type="text"
-                                name="whatYouOffer"
-                                value={formData.whatYouOffer}
+                                name="socialMediaLinks"
+                                value={formData.socialMediaLinks}
                                 onChange={handleInputChange}
-                                placeholder="e.g., Products, Services, Events"
+                                placeholder="e.g., linkedin link, facebook link"
                                 required
                                 disabled={isSubmitting}
                                 className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"

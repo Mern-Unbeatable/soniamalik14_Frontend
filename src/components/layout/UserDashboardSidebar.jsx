@@ -1,12 +1,13 @@
 ﻿import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Home, Box, ShoppingCart, DollarSign, User, LogOut, X, Bell, Calendar, Users, Bookmark, Settings } from 'lucide-react';
+import { Home, LogOut, X, Bell, Calendar, Users, Bookmark, Settings, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const items = [
   { id: 'dashboard', label: 'Dashboard', icon: <Home className="w-5 h-5" />, path: '/dashboard' },
   { id: 'notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" />, path: '/dashboard/notifications' },
   { id: 'myEvents', label: 'My Events', icon: <Calendar className="w-5 h-5" />, path: '/dashboard/my-events' },
+  { id: 'insights', label: 'Insights', icon: <MessageSquare className="w-5 h-5" />, path: '/dashboard/insights' },
   { id: 'community', label: 'Community', icon: <Users className="w-5 h-5" />, path: '/dashboard/community' },
   { id: 'saved', label: 'Saved', icon: <Bookmark className="w-5 h-5" />, path: '/dashboard/saved' },
   { id: 'account', label: 'Account Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/account' },
