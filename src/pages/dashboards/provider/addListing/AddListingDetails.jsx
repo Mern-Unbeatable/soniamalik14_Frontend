@@ -486,11 +486,15 @@ const AddListingDetails = () => {
                     <td className="break-all px-4 py-2 text-base text-[#2F3B3A]">
                       {enquiry.sender?.email || enquiry.email || '—'}
                     </td>
-                    <td className="max-w-65 px-4 py-2 text-base text-[#2F3B3A]">{enquiry.message}</td>
+                    <td className="max-w-[260px] px-4 py-2 text-base text-[#2F3B3A]">
+                      <p className="truncate" title={enquiry.message || enquiry.msg || ''}>
+                        {enquiry.message || enquiry.msg || '—'}
+                      </p>
+                    </td>
                     <td className="px-4 py-2 text-base text-[#2F3B3A]">
                       {enquiry.createdAt ? new Date(enquiry.createdAt).toLocaleDateString('en-GB') : enquiry.date || '—'}
                     </td>
-                    <td className="px-4 py-2 text-base text-[#1D1D1D] flex justify-center">
+                    <td className="px-4 py-2 text-base text-[#1D1D1D] flex justify-center items-center">
                       <button
                         onClick={() => handleOpenEnquiryModal(enquiry)}
                         className="flex items-center justify-center rounded-full p-2 transition-colors hover:bg-gray-100 cursor-pointer"
