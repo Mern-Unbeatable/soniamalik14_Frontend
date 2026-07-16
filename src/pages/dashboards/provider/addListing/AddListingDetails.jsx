@@ -367,7 +367,7 @@ const AddListingDetails = () => {
             </div>
           </aside>
         </div>
-
+{/* 
         <section className="mt-4 rounded-lg bg-white shadow-sm">
           <div className="border-b border-gray-100 px-4 py-3">
             <h3 className="text-2xl font-semibold text-[#1D1D1D]">Bookings</h3>
@@ -424,7 +424,7 @@ const AddListingDetails = () => {
             resultsTextClass="text-sm text-[#0F766E]"
             buttonClass="px-3 py-1 text-sm rounded-md"
           />
-        </section>
+        </section> */}
 
         <section className="mt-4 rounded-lg bg-white shadow-sm">
           <div className="border-b border-gray-100 px-4 py-3">
