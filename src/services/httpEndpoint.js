@@ -108,6 +108,9 @@ export const ENDPOINT = {
   INQUIRIES: {
     LIST: '/api/inquiries',
   },
+  CONTACTS: {
+    CREATE: '/api/contacts',
+  },
   HOMEPAGE: {
     SECTIONS: '/api/homepage/sections',
     SECTION_DETAIL: (sectionId) => `/api/homepage/sections/${sectionId}`,

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Container from '../../../components/layout/Container';
 import { Mail, Globe, Send, CheckCircle } from 'lucide-react';
+import { POST } from '../../../services/httpMethods';
+import { ENDPOINT } from '../../../services/httpEndpoint';
+import { toast } from 'react-toastify';
 
 const ContactView = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +13,7 @@ const ContactView = () => {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -20,12 +24,30 @@ const ContactView = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate form submission
-    console.log('Contact form submitted:', formData);
-    setSubmitted(true);
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
+      };
+
+      const response = await POST(ENDPOINT.CONTACTS.CREATE, payload);
+      const result = response?.data || response;
+
+      toast.success(result?.message || 'Message sent successfully');
+      setSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to send message');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -135,6 +157,7 @@ const ContactView = () => {
                       onChange={handleChange}
                       placeholder="Your name"
                       required
+                      disabled={isSubmitting}
                       className="w-full bg-slate-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-[#0f766e] focus:outline-none transition duration-200"
                     />
                   </div>
@@ -149,6 +172,7 @@ const ContactView = () => {
                       onChange={handleChange}
                       placeholder="Your email address"
                       required
+                      disabled={isSubmitting}
                       className="w-full bg-slate-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-[#0f766e] focus:outline-none transition duration-200"
                     />
                   </div>
@@ -165,6 +189,7 @@ const ContactView = () => {
                     onChange={handleChange}
                     placeholder="What is your message about?"
                     required
+                    disabled={isSubmitting}
                     className="w-full bg-slate-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-[#0f766e] focus:outline-none transition duration-200"
                   />
                 </div>
@@ -180,16 +205,18 @@ const ContactView = () => {
                     rows="5"
                     placeholder="Tell us how we can help..."
                     required
+                    disabled={isSubmitting}
                     className="w-full bg-slate-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-[#0f766e] focus:outline-none transition duration-200 resize-none"
                   />
                 </div>
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="w-full md:w-auto px-8 py-3.5 bg-[#0f766e] text-white rounded-lg hover:bg-[#0d6962] hover:shadow-lg transition duration-200 font-semibold flex items-center justify-center gap-2"
                 >
                   <Send className="h-4 w-4" />
-                  <span>Send message</span>
+                  <span>{isSubmitting ? 'Sending...' : 'Send message'}</span>
                 </button>
               </form>
             )}
