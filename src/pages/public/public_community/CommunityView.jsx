@@ -244,7 +244,6 @@ const CommunityView = () => {
             </div>
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Mobile Title - Above Dropdown (Mobile Only) */}
             <div className="mb-4 lg:hidden">
