@@ -12,6 +12,22 @@ import { ENDPOINT } from '../../../../services/httpEndpoint';
 import { fetchSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesSlice';
 
+const CSV_COLUMNS = [
+  { label: 'Listing', key: 'listing' },
+  { label: 'Date', key: 'date' },
+  { label: 'Provider', key: 'provider' },
+  { label: 'Provider Type', key: 'providerType' },
+  { label: 'Category', key: 'category' },
+  { label: 'Postcode', key: 'postcode' },
+  { label: 'Status', key: 'status' },
+];
+
+const escapeCsvValue = (value) => {
+  const normalizedValue = value == null ? '' : String(value);
+  const escapedValue = normalizedValue.replace(/"/g, '""');
+  return `"${escapedValue}"`;
+};
+
 const formatDate = (value) => {
   if (!value) return 'N/A';
   const parsed = new Date(value);
@@ -197,6 +213,29 @@ const ListingsManagement = () => {
     });
   }, [activeTab, searchQuery, selectedSport, selectedStatus, fromDate, toDate, tableData]);
 
+  const handleExportCsv = useCallback(() => {
+    if (!filteredData.length) return;
+
+    const headerRow = CSV_COLUMNS.map((column) => escapeCsvValue(column.label)).join(',');
+    const dataRows = filteredData.map((row) =>
+      CSV_COLUMNS.map((column) => escapeCsvValue(row[column.key])).join(',')
+    );
+    const csvContent = [headerRow, ...dataRows].join('\n');
+    const csvBlob = new Blob([`\uFEFF${csvContent}`], {
+      type: 'text/csv;charset=utf-8;',
+    });
+
+    const fileName = `listings-${new Date().toISOString().slice(0, 10)}.csv`;
+    const blobUrl = URL.createObjectURL(csvBlob);
+    const anchor = document.createElement('a');
+    anchor.href = blobUrl;
+    anchor.setAttribute('download', fileName);
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(blobUrl);
+  }, [filteredData]);
+
   if (loading) {
     return (
       <div className="dashboardPy dashboardSpaceY flex-1 overflow-auto bg-gray-50">
@@ -219,7 +258,7 @@ const ListingsManagement = () => {
     <div className="dashboardPy dashboardSpaceY flex-1 overflow-auto bg-gray-50">
       <div className="">
         {/* Header Section */}
-        <HeaderSection />
+        <HeaderSection onExportCsv={handleExportCsv} isExportDisabled={!filteredData.length} />
 
         {/* Main Content Area */}
         <div className="rounded-xl border border-gray-100 bg-white shadow-sm">

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import DemandHeader from './components/DemandHeader';
 import DemandTabs from './components/DemandTabs';
 import DemandFilters from './components/DemandFilters';
@@ -295,7 +295,14 @@ const DemandSignals = () => {
         return `"${escaped}"`;
     };
 
-    const handleExportCsv = () => {
+    const isExportDisabled = useMemo(() => {
+        if (activeTab === 'Register Interest') return registerInterests.length === 0;
+        if (activeTab === 'Missing Sports') return missingSports.length === 0;
+        if (activeTab === 'Contact Metadata') return contactMetadata.length === 0;
+        return true;
+    }, [activeTab, registerInterests.length, missingSports.length, contactMetadata.length]);
+
+    const handleExportCsv = useCallback(() => {
         let csvContent = '';
         let fileName = '';
 
@@ -373,7 +380,7 @@ const DemandSignals = () => {
 
         if (!csvContent) return;
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
         const downloadUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = downloadUrl;
@@ -382,14 +389,14 @@ const DemandSignals = () => {
         link.click();
         link.remove();
         window.URL.revokeObjectURL(downloadUrl);
-    };
+    }, [activeTab, registerInterests, riPage, missingSports, contactMetadata, cmPage]);
 
     return (
         <div className="flex-1 overflow-auto bg-gray-50 dashboardPy dashboardSpaceY">
             <div className="">
 
                 {/* 1. Header Section */}
-                <DemandHeader onExport={handleExportCsv} />
+                <DemandHeader onExport={handleExportCsv} isExportDisabled={isExportDisabled} />
 
                 {/* 2. Tabs Section */}
                 <DemandTabs activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />

@@ -108,27 +108,29 @@ const ProviderDashboard = () => {
   const [listingsLoading, setListingsLoading] = useState(true);
   const [listingsError, setListingsError] = useState(null);
 
+  const fetchActiveListings = useCallback(async () => {
+    try {
+      setListingsLoading(true);
+      setListingsError(null);
+      const res = await axiosInstance.get('/api/services/provider/my', {
+        params: { limit: 3, page: 1 },
+      });
+      setActiveListings((res?.data?.data ?? []).slice(0, 3));
+    } catch (err) {
+      setListingsError('Failed to load listings.');
+    } finally {
+      setListingsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
-    const fetchListings = async () => {
-      try {
-        setListingsLoading(true);
-        setListingsError(null);
-        const res = await axiosInstance.get('/api/services/provider/my', {
-          params: { limit: 3, page: 1 },
-        });
-        if (!cancelled) {
-          setActiveListings((res?.data?.data ?? []).slice(0, 3));
-        }
-      } catch (err) {
-        if (!cancelled) setListingsError('Failed to load listings.');
-      } finally {
-        if (!cancelled) setListingsLoading(false);
-      }
+    const load = async () => {
+      await fetchActiveListings();
     };
-    fetchListings();
+    load();
     return () => { cancelled = true; };
-  }, []);
+  }, [fetchActiveListings]);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -189,16 +191,9 @@ const ProviderDashboard = () => {
   }, [page, totalPages]);
 
   // After creating a new listing, re-fetch to keep the list fresh
-  const handleLocalSubmit = async () => {
-    try {
-      const res = await axiosInstance.get('/api/services/provider/my', {
-        params: { limit: 3, page: 1 },
-      });
-      setActiveListings((res?.data?.data ?? []).slice(0, 3));
-    } catch (_) {
-      // silently ignore refresh errors
-    }
-  };
+  const handleServiceCreated = useCallback(async () => {
+    await fetchActiveListings();
+  }, [fetchActiveListings]);
 
   const handleEventCreated = async () => {
     await fetchDashboardData();
@@ -449,8 +444,7 @@ const ProviderDashboard = () => {
         isOpen={serviceModalOpen}
         onClose={() => setServiceModalOpen(false)}
         mode="create"
-        localMode={true}
-        onLocalSubmit={handleLocalSubmit}
+        onSuccess={handleServiceCreated}
       />
 
       <EventModal
