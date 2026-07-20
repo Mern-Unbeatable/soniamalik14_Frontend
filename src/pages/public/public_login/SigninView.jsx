@@ -29,25 +29,31 @@ const LoginView = () => {
     try {
       const result = await dispatch(loginThunk({ email: formData.email, password: formData.password })).unwrap();
       const intended = location?.state?.from;
-      const userRoleRaw = result?.user?.role || result?.role || '';
-      const role = String(userRoleRaw).toLowerCase();
+      const userRoleRaw = result?.user?.role ?? result?.role ?? '';
+      const normalizedRole = String(userRoleRaw)
+        .trim()
+        .toLowerCase()
+        .replace(/^role[_\s-]*/, '');
+      const normalizedRoles = {
+        user: String(ROLES.USER || '').trim().toLowerCase(),
+        admin: String(ROLES.ADMIN || '').trim().toLowerCase(),
+        provider: String(ROLES.PROVIDER || '').trim().toLowerCase(),
+        coach: String(ROLES.COACH || '').trim().toLowerCase(),
+      };
+      const dashboardByRole = {
+        [normalizedRoles.admin]: '/admin',
+        [normalizedRoles.provider]: '/provider',
+        [normalizedRoles.coach]: '/coach',
+        [normalizedRoles.user]: '/',
+      };
+      const targetRoute = dashboardByRole[normalizedRole] || '/';
 
       if (intended) {
         navigate(intended, { replace: true });
         return;
       }
 
-      if (role === ROLES.USER) {
-        navigate('/');
-      } else if (role === ROLES.ADMIN) {
-        navigate('/admin');
-      } else if (role === ROLES.PROVIDER) {
-        navigate('/provider');
-      } else if (role === ROLES.COACH) {
-        navigate('/coach');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate(targetRoute, { replace: true });
     } catch (err) {
       const message = err?.message || 'Login failed';
       setError(message);
