@@ -56,12 +56,12 @@ const getMenuItems = (role, basePath) => {
       icon: <TrendingUp className="h-5 w-5" />,
       path: `${basePath}/demand`,
     },
-    {
-      id: 'content',
-      label: 'Content',
-      icon: <FileText className="h-5 w-5" />,
-      path: `${basePath}/content`,
-    },
+    // {
+    //   id: 'content',
+    //   label: 'Content',
+    //   icon: <FileText className="h-5 w-5" />,
+    //   path: `${basePath}/content`,
+    // },
     {
       id: 'revenue',
       label: 'Revenue',
