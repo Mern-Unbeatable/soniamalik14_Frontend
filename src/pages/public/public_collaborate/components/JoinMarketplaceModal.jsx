@@ -101,7 +101,7 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                     </button>
                     <div className="text-center pr-6">
                         <h3 className="text-2xl font-bold text-[#107C66]">Join the Marketplace</h3>
-                        <p className="mt-2 text-sm text-gray-700 leading-relaxed">
+                        <p className="mt-2 text-sm text-secondary-text leading-relaxed">
                             Tell us a bit about your brand or service and we&apos;ll review your request.
                         </p>
                     </div>
@@ -232,7 +232,6 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                         </div>
                     </div>
 
-                    {/* Sticky Submit Button / Footer */}
                     <div className="px-8 pb-8 pt-2 bg-white sticky bottom-0 z-10">
                         <button
                             type="submit"
