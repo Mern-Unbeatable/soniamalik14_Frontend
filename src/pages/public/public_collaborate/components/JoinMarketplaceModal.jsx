@@ -3,6 +3,15 @@ import { X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { POST } from '../../../../services/httpMethods';
 
+const RequiredLabel = ({ children }) => (
+    <label className="block text-sm font-medium text-[#107C66] mb-2">
+        {children} <span className="text-red-500">*</span>
+    </label>
+);
+
+const inputClassName =
+    'w-full px-4 py-3 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50';
+
 const JoinMarketplaceModal = ({ isOpen, onClose }) => {
     const [formData, setFormData] = useState({
         name: '',
@@ -78,18 +87,24 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             {/* Modal Content */}
-            <div className="bg-white rounded-lg shadow-lg max-w-md w-full relative max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="bg-white rounded-lg shadow-lg max-w-xl w-full relative max-h-[90vh] flex flex-col overflow-hidden">
 
                 {/* Sticky Header */}
-                <div className="flex items-center justify-between px-8 pt-6 pb-4 border-b border-gray-100 bg-white sticky top-0 z-10">
-                    <h3 className="text-2xl font-bold text-gray-900">Join Marketplace</h3>
+                <div className="relative px-8 pt-8 pb-4 bg-white sticky top-0 z-10">
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
                         disabled={isSubmitting}
+                        aria-label="Close"
                     >
                         <X className="w-6 h-6" />
                     </button>
+                    <div className="text-center pr-6">
+                        <h3 className="text-2xl font-bold text-[#107C66]">Join the Marketplace</h3>
+                        <p className="mt-2 text-sm text-gray-700 leading-relaxed">
+                            Tell us a bit about your brand or service and we&apos;ll review your request.
+                        </p>
+                    </div>
                 </div>
 
                 {/* Form */}
@@ -98,127 +113,127 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                     <div className="flex-1 overflow-y-auto px-8 py-6 space-y-4">
                         {/* Name Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                            <RequiredLabel>Full name</RequiredLabel>
                             <input
                                 type="text"
                                 name="name"
                                 value={formData.name}
                                 onChange={handleInputChange}
-                                placeholder="enter your name"
+                                placeholder="Your name"
                                 required
                                 disabled={isSubmitting}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                                className={inputClassName}
                             />
                         </div>
 
                         {/* Email Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <RequiredLabel>Email address</RequiredLabel>
                             <input
                                 type="email"
                                 name="email"
                                 value={formData.email}
                                 onChange={handleInputChange}
-                                placeholder="enter your email"
+                                placeholder="you@example.com"
                                 required
                                 disabled={isSubmitting}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                                className={inputClassName}
                             />
                         </div>
 
                         {/* Phone Number Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <RequiredLabel>Phone number</RequiredLabel>
                             <input
                                 type="tel"
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleInputChange}
-                                placeholder="enter your phone number"
+                                placeholder="Your phone number"
                                 required
                                 disabled={isSubmitting}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                                className={inputClassName}
                             />
                         </div>
 
                         {/* Brand / business name Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Brand / business name</label>
+                            <RequiredLabel>Brand / business name</RequiredLabel>
                             <input
                                 type="text"
                                 name="businessname"
                                 value={formData.businessname}
                                 onChange={handleInputChange}
-                                placeholder="enter brand or business name"
+                                placeholder="Business name"
                                 required
                                 disabled={isSubmitting}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                                className={inputClassName}
                             />
                         </div>
 
                         {/* Offer Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">What do you offer?</label>
+                            <RequiredLabel>What do you offer?</RequiredLabel>
                             <input
                                 type="text"
                                 name="offer"
                                 value={formData.offer}
                                 onChange={handleInputChange}
-                                placeholder="e.g., Free website audit and 15% off"
+                                placeholder="e.g. sportswear, kit, equipment"
                                 required
                                 disabled={isSubmitting}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                                className={inputClassName}
                             />
                         </div>
 
                         {/* Social media links Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Website or social media links</label>
+                            <RequiredLabel>Website or social media link</RequiredLabel>
                             <input
                                 type="text"
                                 name="socialMediaLinks"
                                 value={formData.socialMediaLinks}
                                 onChange={handleInputChange}
-                                placeholder="e.g., linkedin link, facebook link"
+                                placeholder="Website or Instagram link"
                                 required
                                 disabled={isSubmitting}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                                className={inputClassName}
                             />
                         </div>
 
                         {/* Post Code Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Post Code</label>
+                            <RequiredLabel>Postcode / location</RequiredLabel>
                             <input
                                 type="text"
                                 name="postCode"
                                 value={formData.postCode}
                                 onChange={handleInputChange}
-                                placeholder="e.g., 1212"
+                                placeholder="e.g. SW1A 1AA"
                                 required
                                 disabled={isSubmitting}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50"
+                                className={inputClassName}
                             />
                         </div>
 
                         {/* Message Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            <RequiredLabel>Message</RequiredLabel>
                             <textarea
                                 name="message"
                                 value={formData.message}
                                 onChange={handleInputChange}
-                                placeholder="write your message"
+                                placeholder="Tell us a little more"
                                 required
                                 disabled={isSubmitting}
                                 rows={3}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50 resize-none"
+                                className={`${inputClassName} resize-none`}
                             />
                         </div>
                     </div>
 
                     {/* Sticky Submit Button / Footer */}
-                    <div className="px-8 py-4 border-t border-gray-100 bg-white sticky bottom-0 z-10">
+                    <div className="px-8 pb-8 pt-2 bg-white sticky bottom-0 z-10">
                         <button
                             type="submit"
                             disabled={isSubmitting}
