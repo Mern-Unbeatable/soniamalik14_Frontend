@@ -286,6 +286,7 @@ const CreateRecruitmentModal = ({
   const user = useSelector(selectAuthUser);
   const createLoading = useSelector(selectCreateLoading);
   const [form, setForm] = useState(createInitialForm);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (!isOpen) return;
@@ -294,6 +295,7 @@ const CreateRecruitmentModal = ({
 
     queueMicrotask(() => {
       setForm(nextForm);
+      setErrors({});
     });
   }, [isOpen, initialData, mode]);
 
@@ -351,20 +353,27 @@ const CreateRecruitmentModal = ({
       .filter(Boolean)
       .join(', ');
 
-    if (!serviceTitle || !serviceDescription) {
-      toast.error('Organization name and about are required.');
+    const newErrors = {};
+    if (!serviceTitle) newErrors.organisationName = true;
+    if (!serviceDescription) newErrors.about = true;
+    if (normalizedSuitableFor.length === 0 && normalizedSports.length === 0) newErrors.suitableFor = true;
+    if (!sessionDay) newErrors.sessonDay = true;
+    if (!timeFrom) newErrors.timeFrom = true;
+    if (!timeTo) newErrors.timeTo = true;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const messages = [];
+      if (newErrors.organisationName) messages.push('Organisation name');
+      if (newErrors.about) messages.push('About');
+      if (newErrors.suitableFor) messages.push('Suitable for');
+      if (newErrors.sessonDay) messages.push('Session day');
+      if (newErrors.timeFrom) messages.push('Start time');
+      if (newErrors.timeTo) messages.push('End time');
+      toast.error(`Required: ${messages.join(', ')}`);
       return;
     }
-
-    // if (!providerPhone || !providerEmail) {
-    //   toast.error('Provider phone and email are missing from your profile.');
-    //   return;
-    // }
-
-    if (!sessionDay || !timeFrom || !timeTo) {
-      toast.error('Sesson day and time range (from/to) are required.');
-      return;
-    }
+    setErrors({});
 
     let resultAction;
 
@@ -465,10 +474,13 @@ const CreateRecruitmentModal = ({
       appendIfPresent(payload, 'womenOnly', String(form.womensOnly === 'YES'));
       appendArrayField(payload, 'sports', normalizedSports);
       appendIfPresent(payload, 'whoServiceFor', normalizedSports.join(', '));
+      appendIfPresent(payload, 'whoCanTakePart', normalizedSuitableFor.join(', ') || normalizedSports.join(', '));
       appendIfPresent(payload, 'sessonDay', sessionDay);
       appendIfPresent(payload, 'date', dateValue);
       appendIfPresent(payload, 'timeFrom', timeFrom);
       appendIfPresent(payload, 'timeTo', timeTo);
+      appendIfPresent(payload, 'startTime', timeFrom);
+      appendIfPresent(payload, 'endTime', timeTo);
       appendIfPresent(payload, 'timeSlote', timeSlot);
       appendIfPresent(payload, 'bookingLink', form.bookingLink);
       payload.append('responseType', getResponseType(form.responseMethods));
@@ -520,12 +532,12 @@ const CreateRecruitmentModal = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">
-                    Organisation / Club Name
+                    Organisation / Club Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     value={form.organisationName}
-                    onChange={(e) => handleChange('organisationName', e.target.value)}
-                    className="w-full rounded-md bg-[#f3f4f6] p-2.5 text-sm outline-none"
+                    onChange={(e) => { handleChange('organisationName', e.target.value); setErrors(prev => ({ ...prev, organisationName: false })); }}
+                    className={`w-full rounded-md bg-[#f3f4f6] p-2.5 text-sm outline-none border ${errors.organisationName ? 'border-red-500' : 'border-transparent'}`}
                     placeholder="Enter organisation name"
                   />
                 </div>
@@ -550,11 +562,11 @@ const CreateRecruitmentModal = ({
               </div>
 
               <div className="space-y-1">
-                <label className="text-base font-medium text-gray-700">About your organisation</label>
+                <label className="text-base font-medium text-gray-700">About your organisation <span className="text-red-500">*</span></label>
                 <textarea
                   value={form.about}
-                  onChange={(e) => handleChange('about', e.target.value)}
-                  className="h-24 w-full resize-none rounded-md bg-[#f3f4f6] p-2.5 text-sm outline-none"
+                  onChange={(e) => { handleChange('about', e.target.value); setErrors(prev => ({ ...prev, about: false })); }}
+                  className={`h-24 w-full resize-none rounded-md bg-[#f3f4f6] p-2.5 text-sm outline-none border ${errors.about ? 'border-red-500' : 'border-transparent'}`}
                   placeholder="Write a short introduction about what you offer"
                 />
               </div>
@@ -658,9 +670,9 @@ const CreateRecruitmentModal = ({
                   ))}
                 </div>
 
-                <div className="space-y-2">
+                <div className={`space-y-2 rounded-md p-2 border ${errors.suitableFor ? 'border-red-500' : 'border-transparent'}`}>
                   <label className="text-base font-medium text-gray-700">
-                    Suitable for (more than one can be selected)
+                    Suitable for (more than one can be selected) <span className="text-red-500">*</span>
                   </label>
                   {suitabilityOptions.map((opt) => (
                     <label
@@ -670,7 +682,7 @@ const CreateRecruitmentModal = ({
                       <input
                         type="checkbox"
                         checked={form.suitableFor.includes(opt)}
-                        onChange={() => toggleArrayField('suitableFor', opt)}
+                        onChange={() => { toggleArrayField('suitableFor', opt); setErrors(prev => ({ ...prev, suitableFor: false })); }}
                         className="rounded border-gray-300"
                       />
                       {opt}
@@ -744,11 +756,11 @@ const CreateRecruitmentModal = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Session Day</label>
+                  <label className="text-base font-medium text-gray-700">Session Day <span className="text-red-500">*</span></label>
                   <input
                     value={form.sessonDay}
-                    onChange={(e) => handleChange('sessonDay', e.target.value)}
-                    className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                    onChange={(e) => { handleChange('sessonDay', e.target.value); setErrors(prev => ({ ...prev, sessonDay: false })); }}
+                    className={`w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none border ${errors.sessonDay ? 'border-red-500' : 'border-transparent'}`}
                     placeholder="e.g Tuesday"
                   />
                 </div>
@@ -763,21 +775,21 @@ const CreateRecruitmentModal = ({
                   />
                 </div> */}
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Start Time</label>
+                  <label className="text-base font-medium text-gray-700">Start Time <span className="text-red-500">*</span></label>
                   <input
                     type="time"
                     value={form.timeFrom}
-                    onChange={(e) => handleChange('timeFrom', e.target.value)}
-                    className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                    onChange={(e) => { handleChange('timeFrom', e.target.value); setErrors(prev => ({ ...prev, timeFrom: false })); }}
+                    className={`w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none border ${errors.timeFrom ? 'border-red-500' : 'border-transparent'}`}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">End Time</label>
+                  <label className="text-base font-medium text-gray-700">End Time <span className="text-red-500">*</span></label>
                   <input
                     type="time"
                     value={form.timeTo}
-                    onChange={(e) => handleChange('timeTo', e.target.value)}
-                    className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                    onChange={(e) => { handleChange('timeTo', e.target.value); setErrors(prev => ({ ...prev, timeTo: false })); }}
+                    className={`w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none border ${errors.timeTo ? 'border-red-500' : 'border-transparent'}`}
                   />
                 </div>
               </div>
