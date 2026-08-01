@@ -91,8 +91,12 @@ const DiscoverDetails = () => {
           { skipAuth: true, withCredentials: false }
         );
 
+        console.log('[DiscoverDetails] backend response:', response);
+        console.log('[DiscoverDetails] response.data:', response?.data);
+
         const payload = response?.data;
         const resolvedService = payload?.data?.service || payload?.service || payload?.data || null;
+        console.log('[DiscoverDetails] resolvedService:', resolvedService);
         setService(resolvedService);
       } catch (fetchError) {
         if (fetchError?.name === 'CanceledError' || fetchError?.name === 'AbortError') return;
@@ -500,15 +504,15 @@ const DiscoverDetails = () => {
               <div className="hidden md:flex flex-wrap gap-3">
                 <button
                   onClick={() => {
-                    const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
-                    if (contactArea) {
-                      contactArea.scrollIntoView({ behavior: 'smooth' });
-                      contactArea.focus();
+                    if (item.responseType === 'INTERESTED') {
+                      handleOpenInterest();
+                    } else {
+                      handleOpenRegister();
                     }
                   }}
                   className="bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
                 >
-                  Enquire
+                  {item.responseType === 'INTERESTED' ? 'Register Interest' : 'Register'}
                 </button>
               </div>
             </div>
@@ -558,15 +562,15 @@ const DiscoverDetails = () => {
             <div className="mt-5 flex flex-col sm:flex-row gap-3 md:hidden">
               <button
                 onClick={() => {
-                  const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
-                  if (contactArea) {
-                    contactArea.scrollIntoView({ behavior: 'smooth' });
-                    contactArea.focus();
+                  if (item.responseType === 'INTERESTED') {
+                    handleOpenInterest();
+                  } else {
+                    handleOpenRegister();
                   }
                 }}
                 className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
               >
-                Enquire
+                {item.responseType === 'INTERESTED' ? 'Register Interest' : 'Register'}
               </button>
             </div>
           </div>

@@ -424,7 +424,7 @@ const ServiceDetails = () => {
                       }}
                       className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors"
                     >
-                      Enquire
+                     Register interest
                     </button>
                   </div>
                 </div>
