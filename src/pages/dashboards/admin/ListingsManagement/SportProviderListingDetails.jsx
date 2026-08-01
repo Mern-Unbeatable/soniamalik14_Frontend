@@ -4,6 +4,7 @@ import {
     Award,
     CalendarDays,
     Users,
+    User,
     Code,
     AlertCircle,
     Eye,
@@ -184,11 +185,17 @@ const SportProviderListingDetails = () => {
 
                     {/* Profile Picture overlapping */}
                     <div className="absolute -bottom-10 left-8">
-                        <img
-                            src={data.avatar || data.coverImage || 'https://randomuser.me/api/portraits/men/32.jpg'}
-                            alt="Coach"
-                            className="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover"
-                        />
+                        {data.avatar ? (
+                            <img
+                                src={data.avatar}
+                                alt="Coach"
+                                className="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover bg-white"
+                            />
+                        ) : (
+                            <div className="flex w-24 h-24 items-center justify-center rounded-full border-4 border-white bg-gray-200 shadow-md">
+                                <User className="w-10 h-10 text-gray-500" />
+                            </div>
+                        )}
                     </div>
                 </div>
 

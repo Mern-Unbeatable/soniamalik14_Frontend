@@ -194,6 +194,39 @@ const toTimeRangeInputValue = (value) => {
   return { timeFrom: normalized, timeTo: '' };
 };
 
+const mapUserToForm = (user) => {
+  const organisationName =
+    user?.organizationName ||
+    user?.clubName ||
+    user?.organization ||
+    user?.name ||
+    '';
+  const contactPerson =
+    user?.firstName ||
+    user?.fullName ||
+    user?.displayName ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+    user?.name ||
+    '';
+  const about = user?.bio || user?.aboutOrganization || user?.about || '';
+  const logo = user?.avatar || user?.profileImage || user?.photo || null;
+  const role =
+    user?.providerRole ||
+    user?.jobTitle ||
+    (Array.isArray(user?.providerType) ? user.providerType[0] : user?.providerType) ||
+    'Coach / Trainer';
+
+  return {
+    ...createInitialForm(),
+    organisationName,
+    contactPerson,
+    role,
+    about,
+    logo,
+    postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
+  };
+};
+
 const mapInitialDataToForm = (initialData) => {
   const sportsFromService = toArray(initialData?.sports);
   const sportsFromWhoServiceFor = toArray(initialData?.whoServiceFor);
@@ -291,13 +324,15 @@ const CreateRecruitmentModal = ({
   useEffect(() => {
     if (!isOpen) return;
     const nextForm =
-      initialData && mode === 'edit' ? mapInitialDataToForm(initialData) : createInitialForm();
+      initialData && mode === 'edit'
+        ? mapInitialDataToForm(initialData)
+        : mapUserToForm(user);
 
     queueMicrotask(() => {
       setForm(nextForm);
       setErrors({});
     });
-  }, [isOpen, initialData, mode]);
+  }, [isOpen, initialData, mode, user]);
 
   const logoPreviewUrl = useMemo(() => {
     if (!form.logo) return '';
@@ -527,7 +562,7 @@ const CreateRecruitmentModal = ({
             <div className="space-y-4 rounded-lg border border-gray-100 bg-white p-5">
               <h3 className="text-lg font-semibold text-gray-800">Organisation Details</h3>
               <p className="-mt-2.5 text-base text-gray-500">
-              Tell us about your organisation or club
+                Prefilled from your account. Update these in your profile if needed.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -535,73 +570,61 @@ const CreateRecruitmentModal = ({
                     Organisation / Club Name <span className="text-red-500">*</span>
                   </label>
                   <input
+                    readOnly
                     value={form.organisationName}
-                    onChange={(e) => { handleChange('organisationName', e.target.value); setErrors(prev => ({ ...prev, organisationName: false })); }}
-                    className={`w-full rounded-md bg-[#f3f4f6] p-2.5 text-sm outline-none border ${errors.organisationName ? 'border-red-500' : 'border-transparent'}`}
-                    placeholder="Enter organisation name"
+                    className={`w-full rounded-md bg-[#eef1f4] p-2.5 text-sm outline-none border cursor-not-allowed ${errors.organisationName ? 'border-red-500' : 'border-transparent'}`}
+                    placeholder="From your account"
                   />
                 </div>
                 <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">Contact Person Name</label>
                   <input
+                    readOnly
                     value={form.contactPerson}
-                    onChange={(e) => handleChange('contactPerson', e.target.value)}
-                    className="w-full rounded-md bg-[#f3f4f6] p-2.5 text-sm outline-none"
-                    placeholder="Enter contact person name"
+                    className="w-full rounded-md bg-[#eef1f4] p-2.5 text-sm outline-none cursor-not-allowed border border-transparent"
+                    placeholder="From your account"
                   />
                 </div>
               </div>
               <div className="space-y-1">
                 <label className="text-base font-medium text-gray-700">Your Role</label>
                 <input
+                  readOnly
                   value={form.role}
-                  onChange={(e) => handleChange('role', e.target.value)}
-                  className="w-full rounded-md bg-[#f3f4f6] p-2.5 text-sm text-gray-700 outline-none"
-                  placeholder="e.g. Coach, Founder, Trainer"
+                  className="w-full rounded-md bg-[#eef1f4] p-2.5 text-sm text-gray-700 outline-none cursor-not-allowed border border-transparent"
+                  placeholder="From your account"
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="text-base font-medium text-gray-700">About your organisation <span className="text-red-500">*</span></label>
                 <textarea
+                  readOnly
                   value={form.about}
-                  onChange={(e) => { handleChange('about', e.target.value); setErrors(prev => ({ ...prev, about: false })); }}
-                  className={`h-24 w-full resize-none rounded-md bg-[#f3f4f6] p-2.5 text-sm outline-none border ${errors.about ? 'border-red-500' : 'border-transparent'}`}
-                  placeholder="Write a short introduction about what you offer"
+                  className={`h-24 w-full resize-none rounded-md bg-[#eef1f4] p-2.5 text-sm outline-none border cursor-not-allowed ${errors.about ? 'border-red-500' : 'border-transparent'}`}
+                  placeholder="From your account"
                 />
               </div>
 
               <div className="relative flex h-60 flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-white">
-                <input
-                  type="file"
-                  id="file-upload"
-                  className="hidden"
-                  onChange={(e) => handleChange('logo', e.target.files[0])}
-                />
                 {logoPreviewUrl ? (
                   <div className="relative h-full w-full">
                     <img
                       src={logoPreviewUrl}
-                      alt="Preview"
+                      alt="Organisation"
                       className="h-full w-full object-cover"
                     />
-                    <label
-                      htmlFor="file-upload"
-                      className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center bg-black/40 opacity-0 transition-opacity hover:opacity-100"
-                    >
-                      <Upload className="mb-2 h-8 w-8 text-white" />
-                      <span className="text-base font-semibold text-white">Change Image</span>
-                    </label>
+                    <div className="absolute bottom-3 left-3 rounded bg-black/50 px-2 py-1 text-xs text-white">
+                      From your account
+                    </div>
                   </div>
                 ) : (
-                  <label
-                    htmlFor="file-upload"
-                    className="flex cursor-pointer flex-col items-center"
-                  >
-                    <Upload className="mb-2 h-8 w-8 text-green-500" />
-                    <span className="font-semibold text-green-600">Upload Image</span>
-                    <span className="text-sm text-gray-400">JPEG or PNG accepted. Max 10MB</span>
-                  </label>
+                  <div className="flex flex-col items-center text-center px-4">
+                    <Upload className="mb-2 h-8 w-8 text-gray-400" />
+                    <span className="text-sm text-gray-500">
+                      No organisation image on your account yet.
+                    </span>
+                  </div>
                 )}
               </div>
             </div>

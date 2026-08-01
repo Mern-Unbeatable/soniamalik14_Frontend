@@ -263,7 +263,7 @@ const AddListingDetails = () => {
                   ) : (
                     <>
                       <p className="text-sm text-gray-500 mb-3">
-                        Use this link to share your ESSA Hub listing on your website, social media or messages.
+                      Use this link to share your ESSA Hub listing on your website, social media or messages.
                       </p>
                       <div className="flex items-center gap-3 w-full">
                         <a

@@ -93,7 +93,7 @@ const SessionOverview = ({ event, onBookPlace }) => {
             )}
           </div>
           <p className="mb-3 text-[14px] text-gray-500 leading-normal">
-            Use this link to share your ESSA Hub listing on your website, social media or messages.
+          Use this link to share your ESSA Hub listing on your website, social media or messages
           </p>
           {event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING' ? (
             <p className="mt-2 text-sm text-gray-500 font-medium italic">
