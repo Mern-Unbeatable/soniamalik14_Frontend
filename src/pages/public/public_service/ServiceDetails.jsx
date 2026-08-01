@@ -416,15 +416,24 @@ const ServiceDetails = () => {
                   <div className="flex flex-wrap gap-3">
                     <button
                       onClick={() => {
-                        const contactArea = document.querySelector('textarea[placeholder="Write your message"]');
-                        if (contactArea) {
-                          contactArea.scrollIntoView({ behavior: 'smooth' });
-                          contactArea.focus();
+                        const isInterestOnly =
+                          item?.responseType === 'INTERESTED' ||
+                          item?.participantResponseType === 'ALLOW_REGISTER_INTEREST';
+                        if (isInterestOnly) {
+                          handleRegisterInterest();
+                        } else {
+                          handleBookNowClick();
                         }
                       }}
-                      className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors"
+                      disabled={isInterest || bookLoading}
+                      className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors disabled:opacity-70"
                     >
-                     Register interest
+                      {item?.responseType === 'INTERESTED' ||
+                      item?.participantResponseType === 'ALLOW_REGISTER_INTEREST'
+                        ? isInterest
+                          ? 'Registering…'
+                          : 'Register interest'
+                        : 'Register'}
                     </button>
                   </div>
                 </div>
