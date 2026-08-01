@@ -286,10 +286,10 @@ const CommunityView = () => {
               <Button
                 variant="primary"
                 disabled={isAuthenticated && !canCreatePost}
-                className="w-full rounded-md bg-[#147B6B] px-6 py-3 font-medium text-white transition-colors hover:bg-[#0D655D]"
+                className="w-full rounded-md bg-[#147B6B] px-6 py-3 font-medium text-white transition-colors hover:bg-[#0D655D] text-xs"
                 onClick={handleOpenModal}
               >
-                {!isAuthenticated ? 'Log in To Post' : canCreatePost ? 'Ask Or Share' : 'Only users and admins can post'}
+                {!isAuthenticated ? 'Log in To Post' : canCreatePost ? 'Ask Or Share' : 'Community discussions are for individual members only'}
               </Button>
             </div>
 
@@ -327,7 +327,7 @@ const CommunityView = () => {
                 className="w-full shrink-0 rounded-md bg-[#147B6B] px-6 py-2.5 font-medium text-white transition-colors hover:bg-[#0D655D] sm:w-auto"
                 onClick={handleOpenModal}
               >
-                {!isAuthenticated ? 'Log in To Post' : canCreatePost ? currentHeader.buttonText : 'Only users and admins can post'}
+                {!isAuthenticated ? 'Log in To Post' : canCreatePost ? currentHeader.buttonText : 'Community discussions are for individual members only'}
               </Button>
             </div>
 
