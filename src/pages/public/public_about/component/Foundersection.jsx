@@ -24,7 +24,7 @@ const Foundersection = () => {
 
           {/* Title */}
           <div className="mt-0 flex-1 md:mt-2">
-            <h1 className="pb-2 text-xl leading-tight font-normal text-[#0B544E] italic sm:text-3xl sm:not-italic">
+            <h1 className="pb-2 text-xl leading-tight font-normal text-[#0B544E]  sm:text-3xl">
               Founder’s Note
             </h1>
             {/**for large device */}
@@ -39,7 +39,7 @@ const Foundersection = () => {
         <div className="space-y-5">
           {/**for mobile device */}
           <p className="text-[15px] leading-relaxed text-[#1A1D1F]/80 md:text-lg lg:hidden">
-            EJoining a football team and taking up squash in my 40s opened my eyes to something I
+            Joining a football team and taking up squash in my 40s opened my eyes to something I
             wish more women could experience.
           </p>
           <p className="text-[15px] leading-relaxed text-[#1A1D1F]/80 md:text-lg">

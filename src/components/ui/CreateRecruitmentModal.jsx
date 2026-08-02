@@ -214,7 +214,7 @@ const mapUserToForm = (user) => {
     user?.providerRole ||
     user?.jobTitle ||
     (Array.isArray(user?.providerType) ? user.providerType[0] : user?.providerType) ||
-    'Coach / Trainer';
+    '';
 
   return {
     ...createInitialForm(),
@@ -249,7 +249,7 @@ const mapInitialDataToForm = (initialData) => {
         ? initialData.providerType[0]
         : initialData?.providerType) ||
       initialData?.category ||
-      'Coach / Trainer',
+      '',
     about: initialData?.description || initialData?.aboutService || '',
     logo: initialData?.logo || initialData?.image || null,
     sports: customSports.length
@@ -417,7 +417,7 @@ const CreateRecruitmentModal = ({
         listingHeadline: serviceTitle,
         aboutService: serviceDescription,
         serviceType: 'COACHING',
-        providerType: [form.role || 'Coach / Trainer'],
+        providerType: [form.role || ''],
         sessionTypes: normalizedSessionTypes,
         availableDays: normalizedAvailableDays,
         organizationName: serviceTitle,
@@ -488,13 +488,13 @@ const CreateRecruitmentModal = ({
       payload.append('serviceType', 'COACHING');
       appendIfPresent(payload, 'listingHeadline', serviceTitle);
       appendIfPresent(payload, 'aboutService', serviceDescription);
-      appendArrayField(payload, 'providerType', [form.role || 'Coach / Trainer']);
+      appendArrayField(payload, 'providerType', [form.role || '']);
       appendArrayField(payload, 'sessionTypes', normalizedSessionTypes);
       appendArrayField(payload, 'availableDays', normalizedAvailableDays);
       payload.append('title', serviceTitle);
       payload.append('description', serviceDescription);
       payload.append('organizationName', serviceTitle);
-      appendIfPresent(payload, 'role', form.role || 'Coach / Trainer');
+      appendIfPresent(payload, 'role', form.role || '');
       appendIfPresent(payload, 'contactName', form.contactPerson || serviceTitle);
       appendIfPresent(payload, 'providerPhone', providerPhone);
       appendIfPresent(payload, 'providerEmail', providerEmail);

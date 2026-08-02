@@ -235,7 +235,7 @@ const RegisterView = () => {
               className="w-full px-4 py-3 bg-[#C2DBD9] rounded-lg outline-none appearance-none cursor-pointer font-medium"
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
             >
-              <option value="Player">Participant</option>
+              <option value="Player">Player / Participant</option>
               <option value="Sport provider">Sport provider</option>
               <option value="Service Provider">Service Provider</option>
             </select>
