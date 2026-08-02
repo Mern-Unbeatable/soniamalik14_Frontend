@@ -57,8 +57,9 @@ const Foundersection = () => {
 
         {/* Sign-off */}
         <footer className="mt-8 pt-2">
-          <p className="text-[15px] font-medium text-[#1A1D1F] md:text-lg">Welcome to ESSA Hub</p>
-          <p className='text-[15px]  text-[#1A1D1F] md:text-lg'>Sonia Malik</p>
+          <p className="text-lg font-bold text-[#1A1D1F] md:text-xl">Welcome to ESSA Hub</p>
+          <br />
+          <p className='text-base  text-[#1A1D1F] md:text-lg'>Sonia Malik</p>
           <p> Founder, ESSA Hub</p>
         </footer>
       </article>
