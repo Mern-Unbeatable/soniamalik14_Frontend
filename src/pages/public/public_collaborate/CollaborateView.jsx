@@ -19,7 +19,6 @@ const CollaborateView = () => {
           </p>
         </div>
 
-        {/* Individual Sections Container */}
         <div className="flex flex-col gap-8 md:gap-12">
           <SportProvidersSection />
           <ProfessionalSupportSection />
