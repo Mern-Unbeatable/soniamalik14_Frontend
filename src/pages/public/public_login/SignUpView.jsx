@@ -17,7 +17,7 @@ const InputField = ({ label, name, placeholder, type = "text", optional = false,
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className="w-full px-4 py-3 bg-[#C2DBD9]/60 rounded-lg outline-none focus:ring-1 focus:ring-[#00796B] transition-all placeholder-gray-500 text-[#1A1D1F]"
+      className="form-field text-base rounded-lg py-3"
     />
   </div>
 );
@@ -210,7 +210,7 @@ const RegisterView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#E7F1F1] flex items-center justify-center p-4 sm:p-8">
+    <div className="min-h-screen form-shell flex items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-xl bg-transparent">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-black mb-2">Create Account</h1>
@@ -232,7 +232,7 @@ const RegisterView = () => {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-3 bg-[#C2DBD9] rounded-lg outline-none appearance-none cursor-pointer font-medium"
+              className="form-field text-base rounded-lg py-3 appearance-none cursor-pointer font-medium"
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
             >
               <option value="Player">Player / Participant</option>
@@ -266,7 +266,7 @@ const RegisterView = () => {
                   name="ageRange"
                   value={formData.ageRange}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-[#C2DBD9]/60 rounded-lg outline-none focus:ring-1 focus:ring-[#00796B] transition-all text-[#1A1D1F] appearance-none cursor-pointer"
+                  className="form-field text-base rounded-lg py-3 appearance-none cursor-pointer"
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
                 >
                   <option value="">Select age range</option>
@@ -281,7 +281,7 @@ const RegisterView = () => {
                 <div className="flex flex-wrap gap-2">
                   {sportsOptions.map(sport => (
                     <button key={sport} type="button" onClick={() => handleCheckboxChange('interestedSports', sport)}
-                      className={`px-4 py-1.5 rounded-full border text-sm transition-all ${formData.interestedSports.includes(sport) ? 'bg-[#00796B] text-white border-[#00796B]' : 'bg-[#C2DBD9]/60 text-[#00796B] border-[#00796B]/20'}`}>{sport}</button>
+                      className={`px-4 py-1.5 rounded-full border text-sm transition-all ${formData.interestedSports.includes(sport) ? 'bg-[#00796B] text-white border-[#00796B]' : 'bg-[#A7C8C7] text-[#1F2B2A] border-[#00796B]/20'}`}>{sport}</button>
                   ))}
                 </div>
               </div>
@@ -294,7 +294,7 @@ const RegisterView = () => {
               <InputField label="Organisation or coach name" name="orgName" placeholder="e.g. Woking Warriors FC" value={formData.orgName} onChange={handleChange} />
               <div>
                 <label className="block text-[#1A1D1F] font-medium mb-2">About your organisation</label>
-                <textarea name="aboutOrg" placeholder="Tell us briefly about your club, coaching or sports group." className="w-full px-4 py-3 bg-[#C2DBD9]/60 rounded-lg outline-none h-28 text-[#1A1D1F]" value={formData.aboutOrg} onChange={handleChange} />
+                <textarea name="aboutOrg" placeholder="Tell us briefly about your club, coaching or sports group." className="form-field text-base rounded-lg h-28 resize-none" value={formData.aboutOrg} onChange={handleChange} />
               </div>
               <InputField label="Main location postcode" name="postcode" placeholder="e.g. SW1A 1AA" value={formData.postcode} onChange={handleChange} />
               <div>
@@ -302,7 +302,7 @@ const RegisterView = () => {
                 <div className="flex flex-wrap gap-2">
                   {sportsOptions.map(sport => (
                     <button key={sport} type="button" onClick={() => handleCheckboxChange('sportsOffered', sport)}
-                      className={`px-4 py-1.5 rounded-full border text-sm ${formData.sportsOffered.includes(sport) ? 'bg-[#00796B] text-white' : 'bg-[#C2DBD9]/60 text-[#00796B]'}`}>{sport}</button>
+                      className={`px-4 py-1.5 rounded-full border text-sm ${formData.sportsOffered.includes(sport) ? 'bg-[#00796B] text-white' : 'bg-[#A7C8C7] text-[#1F2B2A]'}`}>{sport}</button>
                   ))}
                 </div>
               </div>
@@ -321,14 +321,14 @@ const RegisterView = () => {
                 <div className="flex flex-wrap gap-2">
                   {serviceOptions.map(service => (
                     <button key={service} type="button" onClick={() => handleCheckboxChange('serviceType', service)}
-                      className={`px-4 py-1.5 rounded-full border text-sm ${formData.serviceType.includes(service) ? 'bg-[#00796B] text-white' : 'bg-[#C2DBD9]/60 text-[#00796B]'}`}>{service}</button>
+                      className={`px-4 py-1.5 rounded-full border text-sm ${formData.serviceType.includes(service) ? 'bg-[#00796B] text-white' : 'bg-[#A7C8C7] text-[#1F2B2A]'}`}>{service}</button>
                   ))}
                 </div>
               </div>
               <InputField label="Organisation or practitioner name" name="practitionerName" placeholder="Your business or practice name" value={formData.practitionerName} onChange={handleChange} />
               <div>
                 <label className="block text-[#1A1D1F] font-medium mb-2">About your services</label>
-                <textarea name="aboutService" placeholder="Tell us briefly about the services you offer." className="w-full px-4 py-3 bg-[#C2DBD9]/60 rounded-lg outline-none h-28 text-[#1A1D1F]" value={formData.aboutService} onChange={handleChange} />
+                <textarea name="aboutService" placeholder="Tell us briefly about the services you offer." className="form-field text-base rounded-lg h-28 resize-none" value={formData.aboutService} onChange={handleChange} />
               </div>
               <InputField label="Main location postcode" name="postcode" placeholder="e.g. SW1A 1AA" value={formData.postcode} onChange={handleChange} />
               <div className="pt-4"><h3 className="font-bold text-xl text-black">Primary contact details</h3></div>

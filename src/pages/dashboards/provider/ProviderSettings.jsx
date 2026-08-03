@@ -17,10 +17,10 @@ const ProviderSettings = () => {
     const [showConfirmPass, setShowConfirmPass] = useState(false);
 
     const inputClass =
-        'w-full rounded-lg border border-[#D4E3E2] bg-white px-4 py-3 text-sm text-[#1D1D1D] outline-none placeholder:text-gray-400 focus:border-[#0F766E]';
+        'form-field text-sm rounded-lg';
 
     return (
-        <div className="min-h-screen bg-[#F9FAFB] p-4 md:p-8">
+        <div className="min-h-screen form-shell p-4 md:p-8">
             {/* Header Section */}
             <div className="mx-auto  mb-6 flex items-center justify-between">
                 <div>

@@ -10,7 +10,7 @@ const RequiredLabel = ({ children }) => (
 );
 
 const inputClassName =
-    'w-full px-4 py-3 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#107C66] focus:border-transparent transition-colors disabled:opacity-50';
+    'form-field text-base rounded-lg disabled:opacity-50';
 
 const JoinMarketplaceModal = ({ isOpen, onClose }) => {
     const [formData, setFormData] = useState({
@@ -85,22 +85,22 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/55 z-50 flex items-center justify-center p-3 sm:p-4">
             {/* Modal Content */}
-            <div className="bg-white rounded-lg shadow-lg max-w-xl w-full relative max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="max-w-xl w-full relative max-h-[90vh] flex flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] form-shell shadow-2xl">
 
                 {/* Sticky Header */}
-                <div className="relative px-8 pt-8 pb-4 bg-white sticky top-0 z-10">
+                <div className="relative border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-8 sticky top-0 z-10">
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute top-4 right-4 rounded-full bg-[#D9D9D9] p-1 text-[#000000] transition-colors hover:bg-[#CFCFCF]"
                         disabled={isSubmitting}
                         aria-label="Close"
                     >
                         <X className="w-6 h-6" />
                     </button>
                     <div className="text-center pr-6">
-                        <h3 className="text-2xl font-bold text-[#107C66]">Join the Marketplace</h3>
+                        <h3 className="text-2xl font-semibold text-[#1D1D1D]">Join the Marketplace</h3>
                         <p className="mt-2 text-sm text-secondary-text leading-relaxed">
                             Tell us a bit about your brand or service and we&apos;ll review your request.
                         </p>
@@ -110,7 +110,7 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
                     {/* Scrollable Middle Content */}
-                    <div className="flex-1 overflow-y-auto px-8 py-6 space-y-4">
+                    <div className="form-shell flex-1 overflow-y-auto px-5 py-6 sm:px-8 space-y-4">
                         {/* Name Field */}
                         <div>
                             <RequiredLabel>Full name</RequiredLabel>
@@ -232,7 +232,7 @@ const JoinMarketplaceModal = ({ isOpen, onClose }) => {
                         </div>
                     </div>
 
-                    <div className="px-8 pb-8 pt-2 bg-white sticky bottom-0 z-10">
+                    <div className="sticky bottom-0 z-10 border-t border-[#E3EBEA] form-shell px-5 py-4 sm:px-8">
                         <button
                             type="submit"
                             disabled={isSubmitting}

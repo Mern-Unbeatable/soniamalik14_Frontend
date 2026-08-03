@@ -150,7 +150,7 @@ const ProfileInfoSection = () => {
 
   // Styling constant image er moto
   const inputClass =
-    'w-full rounded-md border border-gray-300 bg-white px-4 py-2.5 text-base text-[#1D1D1D] outline-none focus:border-[#0F766E] transition-all placeholder:text-gray-400';
+    'form-field text-base';
   const labelClass = 'mb-2 block text-base font-medium text-[#1D1D1D]';
 
   return (
@@ -295,7 +295,7 @@ const ProfileInfoSection = () => {
                 name="email"
                 value={profile.email}
                 disabled
-                className={`${inputClass} cursor-not-allowed bg-gray-100 text-gray-500`}
+                className="form-field-readonly text-base"
                 placeholder="Write your email"
               />
             </div>

@@ -408,9 +408,9 @@ const EventModal = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] bg-white shadow-2xl">
+      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] form-shell shadow-2xl">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] bg-white px-5 py-4 sm:px-6">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
           <h2 className="text-2xl font-semibold text-[#1D1D1D]">
             {mode === 'edit' ? 'Edit Event' : 'Add Event '}
           </h2>
@@ -424,7 +424,7 @@ const EventModal = ({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto bg-[#F8FAFB] p-4 sm:p-6">
+        <div className="form-shell flex-1 overflow-y-auto p-4 sm:p-6">
           <form id="event-form" onSubmit={handleSubmit} className="space-y-5">
             {/* Event Title & Sport Type */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -437,7 +437,7 @@ const EventModal = ({
                   placeholder="enter event title"
                   value={formData.eventTitle}
                   onChange={(e) => handleChange('eventTitle', e.target.value)}
-                  className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                  className="form-field text-base"
                 />
                 {errors.eventTitle && (
                   <p className="mt-1 text-base text-red-600">{errors.eventTitle}</p>
@@ -448,7 +448,7 @@ const EventModal = ({
                 <select
                   value={formData.sportType}
                   onChange={(e) => handleChange('sportType', e.target.value)}
-                  className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                  className="form-field text-base"
                 >
                   <option value="">Select sport</option>
                   {sportsCategories && sportsCategories.length > 0
@@ -475,7 +475,7 @@ const EventModal = ({
               <select
                 value={formData.eventType}
                 onChange={(e) => handleChange('eventType', e.target.value)}
-                className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                className="form-field text-base"
               >
                 <option value="MATCH">Match</option>
                 <option value="TOURNAMENT">Tournament</option>
@@ -501,7 +501,7 @@ const EventModal = ({
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
                 rows={4}
-                className="focus:ring-btn-primary w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                className="form-field min-h-24 resize-none text-base"
               />
               {errors.description && (
                 <p className="mt-1 text-base text-red-600">{errors.description}</p>
@@ -518,7 +518,7 @@ const EventModal = ({
                     value={formData.startDate}
                     min={todayStr}
                     onChange={(e) => handleChange('startDate', e.target.value)}
-                    className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                    className="form-field text-base"
                   />
                   {errors.startDate && (
                     <p className="mt-1 text-base text-red-600">{errors.startDate}</p>
@@ -533,7 +533,7 @@ const EventModal = ({
                     value={formData.endDate}
                     min={formData.startDate || todayStr}
                     onChange={(e) => handleChange('endDate', e.target.value)}
-                    className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                    className="form-field text-base"
                   />
                   {errors.endDate && (
                     <p className="mt-1 text-base text-red-600">{errors.endDate}</p>
@@ -551,7 +551,7 @@ const EventModal = ({
                     type="time"
                     value={formData.startTime}
                     onChange={(e) => handleChange('startTime', e.target.value)}
-                    className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                    className="form-field text-base"
                   />
                   {errors.startTime && (
                     <p className="mt-1 text-base text-red-600">{errors.startTime}</p>
@@ -565,7 +565,7 @@ const EventModal = ({
                     type="time"
                     value={formData.endTime}
                     onChange={(e) => handleChange('endTime', e.target.value)}
-                    className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                    className="form-field text-base"
                   />
                   {errors.endTime && (
                     <p className="mt-1 text-base text-red-600">{errors.endTime}</p>
@@ -583,7 +583,7 @@ const EventModal = ({
                   placeholder="e.g. Clapham Leisure Centre"
                   value={formData.venueName}
                   onChange={(e) => handleChange('venueName', e.target.value)}
-                  className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                  className="form-field text-base"
                 />
                 {errors.venueName && (
                   <p className="mt-1 text-base text-red-600">{errors.venueName}</p>
@@ -596,7 +596,7 @@ const EventModal = ({
                   placeholder="City"
                   value={formData.city}
                   onChange={(e) => handleChange('city', e.target.value)}
-                  className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                  className="form-field text-base"
                 />
                 {errors.city && <p className="mt-1 text-base text-red-600">{errors.city}</p>}
               </div>
@@ -612,7 +612,7 @@ const EventModal = ({
                 placeholder="Enter full venue address"
                 value={formData.fullAddress}
                 onChange={(e) => handleChange('fullAddress', e.target.value)}
-                className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                className="form-field text-base"
               />
               {errors.fullAddress && (
                 <p className="mt-1 text-base text-red-600">{errors.fullAddress}</p>
@@ -629,7 +629,7 @@ const EventModal = ({
                 placeholder="Paste Google Maps link"
                 value={formData.googleMapLinks}
                 onChange={(e) => handleChange('googleMapLinks', e.target.value)}
-                className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                className="form-field text-base"
               />
               {errors.googleMapLinks && (
                 <p className="mt-1 text-base text-red-600">{errors.googleMapLinks}</p>
@@ -751,7 +751,7 @@ const EventModal = ({
                   value={formData.price}
                   onChange={(e) => handleChange('price', e.target.value)}
                   disabled={formData.costType !== 'Paid'}
-                  className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-100"
+                  className="form-field text-base disabled:cursor-not-allowed disabled:opacity-70"
                 />
                 {errors.price && <p className="mt-1 text-base text-red-600">{errors.price}</p>}
               </div>
@@ -786,8 +786,8 @@ const EventModal = ({
                       onClick={() => handleChange('responseMethods', [option.value])}
                       className={`w-full text-left p-4 rounded-xl border transition-all ${
                         selected
-                          ? 'border-[#0F766E] bg-[#E7F1F1] text-gray-900 shadow-sm'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                          ? 'border-[#0F766E] bg-loginInput text-gray-900 shadow-sm'
+                          : 'border-[#DCE7E6] bg-transparent text-gray-700 hover:border-[#0F766E]/40'
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -810,7 +810,7 @@ const EventModal = ({
 
             {/* Upload Image */}
             <div>
-              <label className="relative block h-65 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-400 p-10 text-center hover:bg-gray-50">
+              <label className="relative block h-65 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-400 p-10 text-center hover:bg-loginInput/40 bg-transparent">
                 {imagePreview ? (
                   <>
                     <img
@@ -820,7 +820,7 @@ const EventModal = ({
                     />
                     <div className="absolute inset-0 bg-black/30" />
                     <div className="relative z-10 flex h-full items-center justify-center">
-                      <span className="rounded-md bg-white/90 px-4 py-2 text-base font-medium text-[#1D1D1D]">
+                      <span className="rounded-md bg-loginInput px-4 py-2 text-base font-medium text-[#1D1D1D]">
                         Click to change image
                       </span>
                     </div>
@@ -845,7 +845,7 @@ const EventModal = ({
         </div>
 
         {/* Sticky Footer */}
-        <div className="sticky bottom-0 z-10 border-t border-[#E3EBEA] bg-white px-5 py-4 sm:px-6">
+        <div className="sticky bottom-0 z-10 border-t border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"

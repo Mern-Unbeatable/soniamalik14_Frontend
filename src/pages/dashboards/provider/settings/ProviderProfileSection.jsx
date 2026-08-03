@@ -58,7 +58,7 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
   );
 
   const inputClass =
-    'w-full rounded-lg border border-[#D4E3E2] bg-white px-4 py-3 text-base text-[#1D1D1D] outline-none focus:border-[#0F766E]';
+    'form-field text-base rounded-lg';
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;

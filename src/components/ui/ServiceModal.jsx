@@ -128,27 +128,27 @@ const ServiceModal = ({ isOpen, onClose, initialData = null, mode = 'create' }) 
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
             onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 sm:mx-6 flex flex-col max-h-[86vh]">
+            <div className="flex max-h-[86vh] w-full max-w-lg mx-4 sm:mx-6 flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] form-shell shadow-xl">
                 {/* Sticky Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 sticky top-0 bg-white rounded-t-lg z-10">
-                    <h2 className="text-xl font-semibold text-gray-900">{mode === 'edit' ? 'Edit Service' : 'Add Service'}</h2>
-                    <button onClick={onClose} className="text-[#000000] bg-[#D9D9D9] rounded-full p-1" aria-label="Close">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 rounded-t-2xl">
+                    <h2 className="text-2xl font-semibold text-[#1D1D1D]">{mode === 'edit' ? 'Edit Service' : 'Add Service'}</h2>
+                    <button onClick={onClose} className="rounded-full bg-[#D9D9D9] p-1 text-[#000000] transition-colors hover:bg-[#CFCFCF]" aria-label="Close">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
 
                 {/* Scrollable body */}
-                <div className="overflow-y-auto flex-1 p-4 sm:p-6">
+                <div className="form-shell overflow-y-auto flex-1 p-4 sm:p-6">
                     <form id="service-form" onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Service Title</label>
-                            <input type="text" placeholder="enter event title" value={formData.title} onChange={(e) => handleChange('title', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                            <input type="text" placeholder="enter event title" value={formData.title} onChange={(e) => handleChange('title', e.target.value)} className="form-field text-base" />
                             {errors.title && <p className="text-base text-red-600 mt-1">{errors.title}</p>}
                         </div>
 
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Service Type</label>
-                            <select value={formData.serviceType} onChange={(e) => handleChange('serviceType', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary">
+                            <select value={formData.serviceType} onChange={(e) => handleChange('serviceType', e.target.value)} className="form-field text-base">
                                 <option value="COACHING">Coaching</option>
                                 <option value="TRAINING">Training</option>
                                 <option value="THERAPY">Therapy</option>
@@ -160,47 +160,47 @@ const ServiceModal = ({ isOpen, onClose, initialData = null, mode = 'create' }) 
 
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Full Description</label>
-                            <textarea placeholder="Describe your event in details" value={formData.description} onChange={(e) => handleChange('description', e.target.value)} rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary resize-none" />
+                            <textarea placeholder="Describe your event in details" value={formData.description} onChange={(e) => handleChange('description', e.target.value)} rows={4} className="form-field text-base resize-none" />
                             {errors.description && <p className="text-base text-red-600 mt-1">{errors.description}</p>}
                         </div>
 
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Full Address</label>
-                            <input type="text" placeholder="enter full address" value={formData.fullAddress} onChange={(e) => handleChange('fullAddress', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                            <input type="text" placeholder="enter full address" value={formData.fullAddress} onChange={(e) => handleChange('fullAddress', e.target.value)} className="form-field text-base" />
                         </div>
 
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Google Maps Link</label>
-                            <input type="text" placeholder="enter Google Maps Link" value={formData.googleMapLinks} onChange={(e) => handleChange('googleMapLinks', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                            <input type="text" placeholder="enter Google Maps Link" value={formData.googleMapLinks} onChange={(e) => handleChange('googleMapLinks', e.target.value)} className="form-field text-base" />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-base font-medium text-gray-700 mb-1">Service Provider Name</label>
-                                <input type="text" placeholder="name" value={formData.providerName} onChange={(e) => handleChange('providerName', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                                <input type="text" placeholder="name" value={formData.providerName} onChange={(e) => handleChange('providerName', e.target.value)} className="form-field text-base" />
                                 {errors.providerName && <p className="text-base text-red-600 mt-1">{errors.providerName}</p>}
                             </div>
                             <div>
                                 <label className="block text-base font-medium text-gray-700 mb-1">Phone Number</label>
-                                <input type="text" placeholder="Phone number" value={formData.phone} onChange={(e) => handleChange('phone', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                                <input type="text" placeholder="Phone number" value={formData.phone} onChange={(e) => handleChange('phone', e.target.value)} className="form-field text-base" />
                                 {errors.phone && <p className="text-base text-red-600 mt-1">{errors.phone}</p>}
                             </div>
                         </div>
 
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" placeholder="enter your email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                            <input type="email" placeholder="enter your email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} className="form-field text-base" />
                             {errors.email && <p className="text-base text-red-600 mt-1">{errors.email}</p>}
                         </div>
 
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Available Days</label>
-                            <input type="text" placeholder="e.g., Monday, Wednesday, Friday" value={formData.availableDays} onChange={(e) => handleChange('availableDays', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                            <input type="text" placeholder="e.g., Monday, Wednesday, Friday" value={formData.availableDays} onChange={(e) => handleChange('availableDays', e.target.value)} className="form-field text-base" />
                         </div>
 
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Category</label>
-                            <select value={formData.category} onChange={(e) => handleChange('category', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary">
+                            <select value={formData.category} onChange={(e) => handleChange('category', e.target.value)} className="form-field text-base">
                                 <option value="">Select category</option>
                                 <option value="Physio">Physio</option>
                                 <option value="Nutrition">Nutrition</option>
@@ -213,7 +213,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null, mode = 'create' }) 
 
                         <div>
                             <label className="block text-base font-medium text-gray-700 mb-1">Who This Service Is For</label>
-                            <input type="text" placeholder="e.g., Female athletes, Coaches" value={formData.whoServiceFor} onChange={(e) => handleChange('whoServiceFor', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-btn-primary" />
+                            <input type="text" placeholder="e.g., Female athletes, Coaches" value={formData.whoServiceFor} onChange={(e) => handleChange('whoServiceFor', e.target.value)} className="form-field text-base" />
                         </div>
 
                         {/* Upload Image */}
@@ -234,7 +234,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null, mode = 'create' }) 
                 </div>
 
                 {/* Sticky Footer */}
-                <div className="p-4 border-t border-gray-200 sticky bottom-0 bg-white rounded-b-lg z-10">
+                <div className="sticky bottom-0 z-10 border-t border-[#E3EBEA] form-shell p-4 rounded-b-2xl">
                     <Button
                         type="submit"
                         form="service-form"

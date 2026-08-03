@@ -407,28 +407,29 @@ const CreateServiceModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-[#F9FAFB] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 sm:p-4 backdrop-blur-sm">
+      <div className="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] form-shell shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#E3EBEA] bg-white px-5 py-4 sm:px-6">
-          <h2 className="text-xl font-bold text-[#0F766E]">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
+          <h2 className="text-2xl font-semibold text-[#1D1D1D]">
             {mode === 'edit' ? 'Edit Service' : 'Add Service'}
           </h2>
           <button
             onClick={onClose}
-            className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            className="rounded-full bg-[#D9D9D9] p-1 text-[#000000] transition-colors hover:bg-[#CFCFCF]"
+            aria-label="Close"
           >
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
           </button>
         </div>
 
         <form
           id="service-form"
           onSubmit={handleSubmit}
-          className="flex-1 space-y-6 overflow-y-auto p-4 md:p-6"
+          className="form-shell flex-1 space-y-6 overflow-y-auto p-4 md:p-6"
         >
           {/* Section 1: Service Provider Form */}
-          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="space-y-4 rounded-xl p-5">
             <div>
               <p className="text-base font-medium text-gray-500">
                 Join our community of professional support services aimed at empowering women in
@@ -444,7 +445,7 @@ const CreateServiceModal = ({
                 <input
                   value={formData.providerBusinessName}
                   onChange={(e) => updateField('providerBusinessName', e.target.value)}
-                  className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field rounded-lg"
                   placeholder="e.g. Richmond Women's Physios"
                 />
               </div>
@@ -453,7 +454,7 @@ const CreateServiceModal = ({
                 <input
                   value={formData.contactName}
                   onChange={(e) => updateField('contactName', e.target.value)}
-                  className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field rounded-lg"
                   placeholder="Enter name"
                 />
               </div>
@@ -461,7 +462,7 @@ const CreateServiceModal = ({
 
             <div className="space-y-1.5">
               <label className="text-base font-medium text-[#0A0A0A]">Logo</label>
-              <label className="relative block h-65 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-400 p-10 text-center hover:bg-gray-50 bg-white">
+              <label className="relative block h-65 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-400 p-10 text-center hover:bg-loginInput/40 bg-transparent">
                 {previewImage ? (
                   <>
                     <img
@@ -471,7 +472,7 @@ const CreateServiceModal = ({
                     />
                     <div className="absolute inset-0 bg-black/30" />
                     <div className="relative z-10 flex h-full items-center justify-center">
-                      <span className="rounded-md bg-white/90 px-4 py-2 text-base font-medium text-[#1D1D1D]">
+                      <span className="rounded-md bg-loginInput px-4 py-2 text-base font-medium text-[#1D1D1D]">
                         Click to change image
                       </span>
                     </div>
@@ -494,13 +495,13 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section 2: Location */}
-          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="space-y-4 rounded-xl p-5">
             <h3 className="text-lg font-semibold text-[#0A0A0A]">Location Details</h3>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
                 <label className="text-base font-medium text-[#0A0A0A]">Clinic / venue name</label>
                 <input
-                  className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field rounded-lg"
                   placeholder="e.g. The Wellness Centre"
                   value={formData.clinicName}
                   onChange={(e) => updateField('clinicName', e.target.value)}
@@ -509,7 +510,7 @@ const CreateServiceModal = ({
               <div className="space-y-1.5">
                 <label className="text-base font-medium text-[#0A0A0A]">Address Line </label>
                 <input
-                  className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field rounded-lg"
                   placeholder="e.g. 123 High Street"
                   value={formData.address1}
                   onChange={(e) => updateField('address1', e.target.value)}
@@ -518,7 +519,7 @@ const CreateServiceModal = ({
               <div className="space-y-1.5">
                 <label className="text-base font-medium text-[#0A0A0A]">Town/City</label>
                 <input
-                  className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field rounded-lg"
                   placeholder="e.g. Richmond"
                   value={formData.townCity}
                   onChange={(e) => updateField('townCity', e.target.value)}
@@ -527,7 +528,7 @@ const CreateServiceModal = ({
               <div className="space-y-1.5">
                 <label className="text-base font-medium text-[#0A0A0A]">Postcode</label>
                 <input
-                  className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field rounded-lg"
                   placeholder="e.g. TW9 1AB"
                   value={formData.postcode}
                   onChange={(e) => updateField('postcode', e.target.value)}
@@ -537,12 +538,12 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section 3: Service type */}
-          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="space-y-4 rounded-xl p-5">
             <label className="block text-base font-semibold text-gray-700">Service type</label>
             <select
               value={formData.providerTypes?.[0] || ''}
               onChange={(e) => updateField('providerTypes', [e.target.value])}
-              className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+              className="form-field text-base"
             >
               <option value="">Select service type</option>
               {providerTypeOptions.map((opt) => (
@@ -554,7 +555,7 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section: Participation */}
-          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="space-y-4 rounded-xl p-5">
             <label className="block text-base font-semibold text-gray-700">Participation</label>
             <div className="flex flex-col sm:flex-row gap-4 mt-2">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -579,13 +580,13 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section 4: About your service */}
-          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="space-y-4 rounded-xl p-5">
             <h3 className="text-lg font-semibold text-[#0A0A0A]">About your service</h3>
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-base font-medium text-[#0A0A0A]">Listing Headline</label>
                 <input
-                  className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field rounded-lg"
                   placeholder="e.g. The Wellness Centre"
                   value={formData.listingHeadline}
                   onChange={(e) => updateField('listingHeadline', e.target.value)}
@@ -596,7 +597,7 @@ const CreateServiceModal = ({
                   About your service
                 </label>
                 <textarea
-                  className="h-28 w-full resize-none rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field h-28 resize-none rounded-lg"
                   placeholder="Provide a short description of the service, including what clients can expect."
                   value={formData.about}
                   onChange={(e) => updateField('about', e.target.value)}
@@ -630,7 +631,7 @@ const CreateServiceModal = ({
                   const val = e.target.value;
                   updateField('sports', val ? [val] : []);
                 }}
-                className="focus:ring-btn-primary w-full rounded-md border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:outline-none"
+                className="form-field text-base"
               >
                 <option value="">Select sport</option>
                 {sportOptions.map((sport) => (
@@ -646,7 +647,7 @@ const CreateServiceModal = ({
                     placeholder="Please specify"
                     value={formData.otherSport}
                     onChange={(e) => updateField('otherSport', e.target.value)}
-                    className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                    className="form-field rounded-lg"
                   />
                 </div>
               )}
@@ -654,7 +655,7 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section 5: Credentials */}
-          <div className="space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="space-y-4 rounded-xl p-5">
             <h3 className="text-lg font-semibold text-[#0A0A0A]">Professional Credentials</h3>
             <div className="space-y-4">
               <div className="space-y-1.5">
@@ -662,7 +663,7 @@ const CreateServiceModal = ({
                   Professional registration / qualifications.
                 </label>
                 <input
-                  className="w-full rounded-lg bg-[#F3F3F5] p-3 text-sm outline-none"
+                  className="form-field rounded-lg"
                   placeholder="e.g. HCPC Registered, CSP Member"
                   value={formData.registration}
                   onChange={(e) => updateField('registration', e.target.value)}
@@ -686,7 +687,7 @@ const CreateServiceModal = ({
           </div>
         </form>
         {/* Sticky Footer */}
-        <div className="sticky bottom-0 z-20 flex items-center gap-3 border-t border-gray-100 bg-white px-6 py-4">
+        <div className="sticky bottom-0 z-20 flex items-center gap-3 border-t border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
           <button
             type="submit"
             form="service-form"

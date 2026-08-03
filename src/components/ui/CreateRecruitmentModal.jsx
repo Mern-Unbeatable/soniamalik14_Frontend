@@ -547,19 +547,23 @@ const CreateRecruitmentModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="mx-4 flex max-h-[95vh] w-full max-w-2xl flex-col rounded-xl bg-[#f9fafb] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1a1a1a]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 sm:p-4 backdrop-blur-sm">
+      <div className="mx-4 flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] form-shell shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
+          <h2 className="text-2xl font-semibold text-[#1D1D1D]">
             {mode === 'edit' ? 'Edit Listing' : 'Add Listing'}
           </h2>
-          <button onClick={onClose} className="rounded-full bg-gray-200 p-1 hover:bg-gray-300">
-            <X className="h-5 w-5 text-gray-600" />
+          <button
+            onClick={onClose}
+            className="rounded-full bg-[#D9D9D9] p-1 text-[#000000] transition-colors hover:bg-[#CFCFCF]"
+            aria-label="Close"
+          >
+            <X className="h-6 w-6" />
           </button>
         </div>
-        <div className="flex-1 space-y-6 overflow-y-auto p-4 md:p-6">
+        <div className="form-shell flex-1 space-y-6 overflow-y-auto p-4 md:p-6">
           <form id="add-listing-form" className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-4 rounded-lg border border-gray-100 bg-white p-5">
+            <div className="space-y-4 rounded-lg p-5">
               <h3 className="text-lg font-semibold text-gray-800">Organisation Details</h3>
               <p className="-mt-2.5 text-base text-gray-500">
                 Prefilled from your account. Update these in your profile if needed.
@@ -572,7 +576,7 @@ const CreateRecruitmentModal = ({
                   <input
                     readOnly
                     value={form.organisationName}
-                    className={`w-full rounded-md bg-[#eef1f4] p-2.5 text-sm outline-none border cursor-not-allowed ${errors.organisationName ? 'border-red-500' : 'border-transparent'}`}
+                    className={`form-field-readonly ${errors.organisationName ? 'border-red-500' : ''}`}
                     placeholder="From your account"
                   />
                 </div>
@@ -581,7 +585,7 @@ const CreateRecruitmentModal = ({
                   <input
                     readOnly
                     value={form.contactPerson}
-                    className="w-full rounded-md bg-[#eef1f4] p-2.5 text-sm outline-none cursor-not-allowed border border-transparent"
+                    className="form-field-readonly"
                     placeholder="From your account"
                   />
                 </div>
@@ -591,7 +595,7 @@ const CreateRecruitmentModal = ({
                 <input
                   readOnly
                   value={form.role}
-                  className="w-full rounded-md bg-[#eef1f4] p-2.5 text-sm text-gray-700 outline-none cursor-not-allowed border border-transparent"
+                  className="form-field-readonly"
                   placeholder="From your account"
                 />
               </div>
@@ -601,12 +605,12 @@ const CreateRecruitmentModal = ({
                 <textarea
                   readOnly
                   value={form.about}
-                  className={`h-24 w-full resize-none rounded-md bg-[#eef1f4] p-2.5 text-sm outline-none border cursor-not-allowed ${errors.about ? 'border-red-500' : 'border-transparent'}`}
+                  className={`form-field-readonly h-24 resize-none ${errors.about ? 'border-red-500' : ''}`}
                   placeholder="From your account"
                 />
               </div>
 
-              <div className="relative flex h-60 flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-white">
+              <div className="relative flex h-60 flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-transparent">
                 {logoPreviewUrl ? (
                   <div className="relative h-full w-full">
                     <img
@@ -629,7 +633,7 @@ const CreateRecruitmentModal = ({
               </div>
             </div>
 
-            <div className="space-y-4 rounded-lg border border-gray-100 bg-white p-5">
+            <div className="space-y-4 rounded-lg p-5">
               <h3 className="text-lg font-semibold text-gray-800">Sport & Session Information</h3>
               <p className="-mt-2.5 text-base text-gray-500">
                 Details about your sport sessions or activities
@@ -646,7 +650,7 @@ const CreateRecruitmentModal = ({
                         className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-all select-none ${
                           isChecked
                             ? 'border-btn-primary bg-btn-primary text-white'
-                            : 'text-cardTitle border-transparent bg-[#b8d9d6]'
+                            : 'text-[#1F2B2A] border-transparent bg-[#A7C8C7]'
                         }`}
                       >
                         {/* Default Browser Checkbox */}
@@ -669,7 +673,7 @@ const CreateRecruitmentModal = ({
                       placeholder="Please specify"
                       value={form.otherSport || ''}
                       onChange={(e) => handleChange('otherSport', e.target.value)}
-                      className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                      className="form-field"
                     />
                   </div>
                 )}
@@ -739,7 +743,7 @@ const CreateRecruitmentModal = ({
               </div>
             </div>
 
-            <div className="space-y-4 rounded-lg border border-gray-100 bg-white p-5">
+            <div className="space-y-4 rounded-lg p-5">
               <h3 className="text-lg font-semibold text-gray-800">Location & Timing</h3>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
@@ -747,7 +751,7 @@ const CreateRecruitmentModal = ({
                   <input
                     value={form.venueName}
                     onChange={(e) => handleChange('venueName', e.target.value)}
-                    className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                    className="form-field"
                     placeholder="Venue name"
                   />
                 </div>
@@ -756,7 +760,7 @@ const CreateRecruitmentModal = ({
                   <input
                     value={form.postcode}
                     onChange={(e) => handleChange('postcode', e.target.value)}
-                    className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                    className="form-field"
                     placeholder="Postcode"
                   />
                 </div>
@@ -765,7 +769,7 @@ const CreateRecruitmentModal = ({
                   <input
                     value={form.townCity}
                     onChange={(e) => handleChange('townCity', e.target.value)}
-                    className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                    className="form-field"
                     placeholder="e.g london"
                   />
                 </div>
@@ -774,7 +778,7 @@ const CreateRecruitmentModal = ({
                   <input
                     value={form.googleMapLink}
                     onChange={(e) => handleChange('googleMapLink', e.target.value)}
-                    className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                    className="form-field"
                     placeholder="Paste Google Maps link"
                   />
                 </div>
@@ -783,7 +787,7 @@ const CreateRecruitmentModal = ({
                   <input
                     value={form.sessonDay}
                     onChange={(e) => { handleChange('sessonDay', e.target.value); setErrors(prev => ({ ...prev, sessonDay: false })); }}
-                    className={`w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none border ${errors.sessonDay ? 'border-red-500' : 'border-transparent'}`}
+                    className={`form-field ${errors.sessonDay ? 'border-red-500' : ''}`}
                     placeholder="e.g Tuesday"
                   />
                 </div>
@@ -794,7 +798,7 @@ const CreateRecruitmentModal = ({
                     value={form.dateDay}
                     min={todayStr}
                     onChange={(e) => handleChange('dateDay', e.target.value)}
-                    className="w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none"
+                    className="form-field"
                   />
                 </div> */}
                 <div className="space-y-1">
@@ -803,7 +807,7 @@ const CreateRecruitmentModal = ({
                     type="time"
                     value={form.timeFrom}
                     onChange={(e) => { handleChange('timeFrom', e.target.value); setErrors(prev => ({ ...prev, timeFrom: false })); }}
-                    className={`w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none border ${errors.timeFrom ? 'border-red-500' : 'border-transparent'}`}
+                    className={`form-field ${errors.timeFrom ? 'border-red-500' : ''}`}
                   />
                 </div>
                 <div className="space-y-1">
@@ -812,14 +816,14 @@ const CreateRecruitmentModal = ({
                     type="time"
                     value={form.timeTo}
                     onChange={(e) => { handleChange('timeTo', e.target.value); setErrors(prev => ({ ...prev, timeTo: false })); }}
-                    className={`w-full rounded bg-[#f3f4f6] p-2 text-sm outline-none border ${errors.timeTo ? 'border-red-500' : 'border-transparent'}`}
+                    className={`form-field ${errors.timeTo ? 'border-red-500' : ''}`}
                   />
                 </div>
               </div>
             </div>
 
             {/* Choose CTA */}
-            <div className="space-y-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+            <div className="space-y-4 rounded-lg p-5">
               <label className="block text-base font-semibold text-gray-700">
                 Choose the main action for this listing
               </label>
@@ -847,8 +851,8 @@ const CreateRecruitmentModal = ({
                       onClick={() => handleChange('responseMethods', [option.value])}
                       className={`w-full text-left p-4 rounded-xl border transition-all ${
                         selected
-                          ? 'border-[#0F766E] bg-[#E7F1F1] text-gray-900 shadow-sm'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                          ? 'border-[#0F766E] bg-loginInput text-gray-900 shadow-sm'
+                          : 'border-[#DCE7E6] bg-transparent text-gray-700 hover:border-[#0F766E]/40'
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -868,7 +872,7 @@ const CreateRecruitmentModal = ({
           </form>
         </div>
 
-        <div className="flex gap-4 rounded-b-xl border-t border-gray-200 bg-gray-50 p-4 px-6">
+        <div className="sticky bottom-0 z-10 flex gap-4 border-t border-[#E3EBEA] form-shell p-4 px-5 sm:px-6">
           <button
             type="submit"
             form="add-listing-form"

@@ -213,6 +213,19 @@
     @apply font-secondary text-center text-xl leading-tight font-semibold text-white md:text-3xl lg:text-left lg:text-[42px];
   }
 
+  /* FORM FIELDS — brand teal input scheme */
+  .form-field {
+    @apply w-full rounded-md bg-loginInput px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-[#0F766E]/30 border border-transparent;
+  }
+
+  .form-field-readonly {
+    @apply w-full cursor-not-allowed rounded-md bg-[#A7C8C7] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none border border-transparent;
+  }
+
+  .form-shell {
+    background-color: #e7f1f1;
+  }
+
   /* BUTTONS */
   .btn-primary {
     @apply rounded-lg px-5 py-2.5 font-semibold text-white;

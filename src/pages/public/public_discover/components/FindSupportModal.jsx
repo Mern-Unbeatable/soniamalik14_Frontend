@@ -159,7 +159,7 @@ const FindSupportModal = ({ open, onClose }) => {
 
             <div className="relative w-full max-w-md mx-4 bg-white rounded-lg shadow-lg overflow-hidden">
                 {/* Header - sticky */}
-                <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                <div className="sticky top-0 form-shell border-b border-[#DCE7E6] px-4 py-3 flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Fill the form</h3>
                     <button onClick={onClose} aria-label="Close" className="text-gray-600 hover:text-gray-900 bg-[#D9D9D9] rounded-full p-1"><X className="w-5 h-5" /></button>
                 </div>
@@ -278,7 +278,7 @@ const FindSupportModal = ({ open, onClose }) => {
                 </div>
 
                 {/* Footer - sticky */}
-                <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 py-3">
+                <div className="sticky bottom-0 form-shell border-t border-[#DCE7E6] px-4 py-3">
                     <div className="flex items-center justify-end">
                         <Button
                             variant="primary"
