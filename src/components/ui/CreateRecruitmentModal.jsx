@@ -561,13 +561,15 @@ const CreateRecruitmentModal = ({
             <X className="h-6 w-6" />
           </button>
         </div>
-        <div className="form-shell flex-1 space-y-6 overflow-y-auto p-4 ">
-          <form id="add-listing-form" className="" onSubmit={handleSubmit}>
+        <div className="form-shell flex-1 overflow-y-auto p-4 sm:p-5 md:p-6">
+          <form id="add-listing-form" className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4 rounded-lg ">
-              <h3 className="text-lg font-semibold text-gray-800">Organisation Details</h3>
-              <p className="-mt-2.5 text-base text-gray-500">
-                Prefilled from your account. Update these in your profile if needed.
-              </p>
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold text-gray-800">Organisation Details</h3>
+                <p className="text-sm text-gray-500">
+                  Prefilled from your account. Update these in your profile if needed.
+                </p>
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">
@@ -632,11 +634,13 @@ const CreateRecruitmentModal = ({
                 )}
               </div>
             </div>
-            <div className="space-y-4 rounded-lg py-2">
-              <h3 className="text-lg font-semibold text-gray-800">Sport & Session Information</h3>
-              <p className="-mt-2.5 text-base text-gray-500">
-                Details about your sport sessions or activities
-              </p>
+            <div className="space-y-4 rounded-lg">
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold text-gray-800">Sport & Session Information</h3>
+                <p className="text-sm text-gray-500">
+                  Details about your sport sessions or activities
+                </p>
+              </div>
 
               <div className="space-y-2">
                 <label className="text-base font-medium text-gray-700">Sport</label>
@@ -677,7 +681,7 @@ const CreateRecruitmentModal = ({
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-1 gap-6 pt-2">
+              <div className="grid grid-cols-1 gap-4 pt-1">
                 <div className="space-y-2">
                   <label className="text-base font-medium text-gray-700">Session Type</label>
                   {sessionTypeOptions.map((type) => (
@@ -696,7 +700,7 @@ const CreateRecruitmentModal = ({
                   ))}
                 </div>
 
-                <div className={`space-y-2 rounded-md  border ${errors.suitableFor ? 'border-red-500' : 'border-transparent'}`}>
+                <div className={`space-y-2 rounded-md border p-2 ${errors.suitableFor ? 'border-red-500' : 'border-transparent'}`}>
                   <label className="text-base font-medium text-gray-700">
                     Suitable for (more than one can be selected) <span className="text-red-500">*</span>
                   </label>
@@ -742,7 +746,7 @@ const CreateRecruitmentModal = ({
               </div>
             </div>
 
-            <div className="space-y-2 rounded-lg">
+            <div className="space-y-4 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800">Location & Timing</h3>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
@@ -822,13 +826,15 @@ const CreateRecruitmentModal = ({
             </div>
 
             {/* Choose CTA */}
-            <div className="space-y-2 rounded-lg py-2 ">
-              <label className="block text-base font-semibold text-gray-700">
-                Choose the main action for this listing
-              </label>
-              <p className="text-sm text-gray-500">
-                Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
-              </p>
+            <div className="space-y-4 rounded-lg">
+              <div className="space-y-1">
+                <label className="block text-base font-semibold text-gray-700">
+                  Choose the main action for this listing
+                </label>
+                <p className="text-sm text-gray-500">
+                  Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
+                </p>
+              </div>
               <div className="space-y-3">
                 {[
                   {
