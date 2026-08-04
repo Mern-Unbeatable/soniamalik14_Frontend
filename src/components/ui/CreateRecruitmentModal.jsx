@@ -547,8 +547,8 @@ const CreateRecruitmentModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 sm:p-4 backdrop-blur-sm">
-      <div className="mx-4 flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] form-shell shadow-2xl">
+    <div className="fixed inset-0 z-50 form-shell sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm">
+      <div className="flex h-full w-full flex-col overflow-hidden form-shell sm:mx-4 sm:max-h-[95vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#DCE7E6] sm:shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
           <h2 className="text-2xl font-semibold text-[#1D1D1D]">
             {mode === 'edit' ? 'Edit Listing' : 'Add Listing'}
@@ -561,14 +561,14 @@ const CreateRecruitmentModal = ({
             <X className="h-6 w-6" />
           </button>
         </div>
-        <div className="form-shell flex-1 space-y-6 overflow-y-auto p-4 md:p-6">
-          <form id="add-listing-form" className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-4 rounded-lg p-5">
+        <div className="form-shell flex-1 space-y-6 overflow-y-auto p-4 ">
+          <form id="add-listing-form" className="" onSubmit={handleSubmit}>
+            <div className="space-y-4 rounded-lg ">
               <h3 className="text-lg font-semibold text-gray-800">Organisation Details</h3>
               <p className="-mt-2.5 text-base text-gray-500">
                 Prefilled from your account. Update these in your profile if needed.
               </p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
                   <label className="text-base font-medium text-gray-700">
                     Organisation / Club Name <span className="text-red-500">*</span>
@@ -632,8 +632,7 @@ const CreateRecruitmentModal = ({
                 )}
               </div>
             </div>
-
-            <div className="space-y-4 rounded-lg p-5">
+            <div className="space-y-4 rounded-lg py-2">
               <h3 className="text-lg font-semibold text-gray-800">Sport & Session Information</h3>
               <p className="-mt-2.5 text-base text-gray-500">
                 Details about your sport sessions or activities
@@ -697,7 +696,7 @@ const CreateRecruitmentModal = ({
                   ))}
                 </div>
 
-                <div className={`space-y-2 rounded-md p-2 border ${errors.suitableFor ? 'border-red-500' : 'border-transparent'}`}>
+                <div className={`space-y-2 rounded-md  border ${errors.suitableFor ? 'border-red-500' : 'border-transparent'}`}>
                   <label className="text-base font-medium text-gray-700">
                     Suitable for (more than one can be selected) <span className="text-red-500">*</span>
                   </label>
@@ -743,7 +742,7 @@ const CreateRecruitmentModal = ({
               </div>
             </div>
 
-            <div className="space-y-4 rounded-lg p-5">
+            <div className="space-y-2 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800">Location & Timing</h3>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
@@ -823,7 +822,7 @@ const CreateRecruitmentModal = ({
             </div>
 
             {/* Choose CTA */}
-            <div className="space-y-4 rounded-lg p-5">
+            <div className="space-y-2 rounded-lg py-2 ">
               <label className="block text-base font-semibold text-gray-700">
                 Choose the main action for this listing
               </label>
