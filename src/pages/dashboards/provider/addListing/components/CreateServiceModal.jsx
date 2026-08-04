@@ -407,8 +407,8 @@ const CreateServiceModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 sm:p-4 backdrop-blur-sm">
-      <div className="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] form-shell shadow-2xl">
+    <div className="fixed inset-0 z-50 form-shell sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm">
+      <div className="flex h-full w-full flex-col overflow-hidden form-shell sm:max-h-[95vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#DCE7E6] sm:shadow-2xl">
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
           <h2 className="text-2xl font-semibold text-[#1D1D1D]">
@@ -426,19 +426,17 @@ const CreateServiceModal = ({
         <form
           id="service-form"
           onSubmit={handleSubmit}
-          className="form-shell flex-1 space-y-6 overflow-y-auto p-4 md:p-6"
+          className="form-shell flex-1 space-y-6 overflow-y-auto p-4 sm:p-5 md:p-6"
         >
           {/* Section 1: Service Provider Form */}
-          <div className="space-y-4 rounded-xl p-5">
-            <div>
-              <p className="text-base font-medium text-gray-500">
-                Join our community of professional support services aimed at empowering women in
-                sport and fitness.
-              </p>
-            </div>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500">
+              Join our community of professional support services aimed at empowering women in
+              sport and fitness.
+            </p>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">
                   Provider / Business Name
                 </label>
@@ -449,7 +447,7 @@ const CreateServiceModal = ({
                   placeholder="e.g. Richmond Women's Physios"
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">Contact Name</label>
                 <input
                   value={formData.contactName}
@@ -460,9 +458,9 @@ const CreateServiceModal = ({
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-base font-medium text-[#0A0A0A]">Logo</label>
-              <label className="relative block h-65 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-400 p-10 text-center hover:bg-loginInput/40 bg-transparent">
+              <label className="relative block h-48 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-400 p-6 text-center hover:bg-loginInput/40 bg-transparent">
                 {previewImage ? (
                   <>
                     <img
@@ -479,9 +477,9 @@ const CreateServiceModal = ({
                   </>
                 ) : (
                   <>
-                    <Upload className="mx-auto mb-3 h-10 w-10 text-[#22A547]" />
-                    <p className="text-xl font-medium text-[#22A547]">Upload Image</p>
-                    <p className="mt-1 text-base text-gray-500">JPEG or PNG accepted. Max 10MB</p>
+                    <Upload className="mx-auto mb-2 h-8 w-8 text-[#22A547]" />
+                    <p className="text-lg font-medium text-[#22A547]">Upload Image</p>
+                    <p className="mt-1 text-sm text-gray-500">JPEG or PNG accepted. Max 10MB</p>
                   </>
                 )}
                 <input
@@ -495,10 +493,10 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section 2: Location */}
-          <div className="space-y-4 rounded-xl p-5">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-[#0A0A0A]">Location Details</h3>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">Clinic / venue name</label>
                 <input
                   className="form-field rounded-lg"
@@ -507,7 +505,7 @@ const CreateServiceModal = ({
                   onChange={(e) => updateField('clinicName', e.target.value)}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">Address Line </label>
                 <input
                   className="form-field rounded-lg"
@@ -516,7 +514,7 @@ const CreateServiceModal = ({
                   onChange={(e) => updateField('address1', e.target.value)}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">Town/City</label>
                 <input
                   className="form-field rounded-lg"
@@ -525,7 +523,7 @@ const CreateServiceModal = ({
                   onChange={(e) => updateField('townCity', e.target.value)}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">Postcode</label>
                 <input
                   className="form-field rounded-lg"
@@ -538,7 +536,7 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section 3: Service type */}
-          <div className="space-y-4 rounded-xl p-5">
+          <div className="space-y-2">
             <label className="block text-base font-semibold text-gray-700">Service type</label>
             <select
               value={formData.providerTypes?.[0] || ''}
@@ -555,15 +553,15 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section: Participation */}
-          <div className="space-y-4 rounded-xl p-5">
+          <div className="space-y-2">
             <label className="block text-base font-semibold text-gray-700">Participation</label>
-            <div className="flex flex-col sm:flex-row gap-4 mt-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.womensOnly === true}
                   onChange={() => updateField('womensOnly', true)}
-                  className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                  className="h-3.75 w-3.75 rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
                 />
                 <span className="text-base text-gray-700">Women-only</span>
               </label>
@@ -572,7 +570,7 @@ const CreateServiceModal = ({
                   type="checkbox"
                   checked={formData.womensOnly === false}
                   onChange={() => updateField('womensOnly', false)}
-                  className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                  className="h-3.75 w-3.75 rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
                 />
                 <span className="text-base text-gray-700">Mixed, women welcome</span>
               </label>
@@ -580,10 +578,10 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section 4: About your service */}
-          <div className="space-y-4 rounded-xl p-5">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-[#0A0A0A]">About your service</h3>
             <div className="space-y-4">
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">Listing Headline</label>
                 <input
                   className="form-field rounded-lg"
@@ -592,7 +590,7 @@ const CreateServiceModal = ({
                   onChange={(e) => updateField('listingHeadline', e.target.value)}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">
                   About your service
                 </label>
@@ -605,7 +603,7 @@ const CreateServiceModal = ({
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <label className="text-base font-medium text-[#0A0A0A]">Delivery type</label>
               <div className="flex flex-wrap gap-2">
                 {sessionTypeOptions.map((opt) => (
@@ -620,11 +618,13 @@ const CreateServiceModal = ({
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-base font-medium text-[#0A0A0A]">Sports supported</label>
-              <p className="text-sm text-gray-500">
-                Optional - leave blank if your service is not sport-specific.
-              </p>
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <label className="text-base font-medium text-[#0A0A0A]">Sports supported</label>
+                <p className="text-sm text-gray-500">
+                  Optional - leave blank if your service is not sport-specific.
+                </p>
+              </div>
               <select
                 value={formData.sports?.[0] || ''}
                 onChange={(e) => {
@@ -641,7 +641,7 @@ const CreateServiceModal = ({
                 ))}
               </select>
               {formData.sports.includes('Other') && (
-                <div className="mt-3">
+                <div>
                   <input
                     type="text"
                     placeholder="Please specify"
@@ -655,10 +655,10 @@ const CreateServiceModal = ({
           </div>
 
           {/* Section 5: Credentials */}
-          <div className="space-y-4 rounded-xl p-5">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold text-[#0A0A0A]">Professional Credentials</h3>
             <div className="space-y-4">
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-base font-medium text-[#0A0A0A]">
                   Professional registration / qualifications.
                 </label>
@@ -669,8 +669,8 @@ const CreateServiceModal = ({
                   onChange={(e) => updateField('registration', e.target.value)}
                 />
               </div>
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-[#0A0A0A]">Insurance in place?</label>
+              <div className="space-y-2">
+                <label className="text-base font-medium text-[#0A0A0A]">Insurance in place?</label>
                 <div className="flex gap-2">
                   {['Yes', 'No'].map((v) => (
                     <PillButton
