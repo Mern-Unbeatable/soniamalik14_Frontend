@@ -403,12 +403,12 @@ const EventModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 sm:p-4"
+      className="fixed inset-0 z-50 form-shell sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#DCE7E6] form-shell shadow-2xl">
+      <div className="flex h-full w-full flex-col overflow-hidden form-shell sm:max-h-[88vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#DCE7E6] sm:shadow-2xl">
         {/* Sticky Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
           <h2 className="text-2xl font-semibold text-[#1D1D1D]">
@@ -424,8 +424,8 @@ const EventModal = ({
         </div>
 
         {/* Scrollable Content */}
-        <div className="form-shell flex-1 overflow-y-auto p-4 sm:p-6">
-          <form id="event-form" onSubmit={handleSubmit} className="space-y-5">
+        <div className="form-shell flex-1 overflow-y-auto p-4 sm:p-5 md:p-6">
+          <form id="event-form" onSubmit={handleSubmit} className="space-y-6">
             {/* Event Title & Sport Type */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
