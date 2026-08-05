@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, Upload } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import Button from './Button';
 import { useEvent } from '../../context/EventContext';
 import { toast } from 'react-toastify';
 import { createOrganizerEvent, updateOrganizerEvent } from '../../features/events/eventsAPI';
@@ -401,22 +400,27 @@ const EventModal = ({
 
   if (!isOpen) return null;
 
+  const fieldClass =
+    'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500';
+  const labelClass = 'mb-1 block text-base font-medium text-white';
+  const errorClass = 'mt-1 text-sm text-red-300';
+
   return (
     <div
-      className="fixed inset-0 z-50 form-shell sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm"
+      className="fixed inset-0 z-50 bg-[#0F766E] sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex h-full w-full flex-col overflow-hidden form-shell sm:max-h-[88vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#DCE7E6] sm:shadow-2xl">
+      <div className="flex h-full w-full flex-col overflow-hidden bg-[#0F766E] sm:max-h-[88vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#0A4A45] sm:shadow-2xl">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
-          <h2 className="text-2xl font-semibold text-[#1D1D1D]">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
+          <h2 className="text-2xl font-semibold text-white">
             {mode === 'edit' ? 'Edit Event' : 'Add Event '}
           </h2>
           <button
             onClick={onClose}
-            className="rounded-full bg-[#D9D9D9] p-1 text-[#000000] transition-colors hover:bg-[#CFCFCF]"
+            className="rounded-full bg-white/20 p-1 text-white transition-colors hover:bg-white/30"
             aria-label="Close"
           >
             <X className="h-6 w-6" />
@@ -424,31 +428,27 @@ const EventModal = ({
         </div>
 
         {/* Scrollable Content */}
-        <div className="form-shell flex-1 overflow-y-auto p-4 sm:p-5 md:p-6">
+        <div className="flex-1 overflow-y-auto bg-[#0F766E] p-4 sm:p-5 md:p-6">
           <form id="event-form" onSubmit={handleSubmit} className="space-y-6">
             {/* Event Title & Sport Type */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">
-                  Event Title
-                </label>
+                <label className={labelClass}>Event Title</label>
                 <input
                   type="text"
                   placeholder="enter event title"
                   value={formData.eventTitle}
                   onChange={(e) => handleChange('eventTitle', e.target.value)}
-                  className="form-field text-base"
+                  className={fieldClass}
                 />
-                {errors.eventTitle && (
-                  <p className="mt-1 text-base text-red-600">{errors.eventTitle}</p>
-                )}
+                {errors.eventTitle && <p className={errorClass}>{errors.eventTitle}</p>}
               </div>
               <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">Sport</label>
+                <label className={labelClass}>Sport</label>
                 <select
                   value={formData.sportType}
                   onChange={(e) => handleChange('sportType', e.target.value)}
-                  className="form-field text-base"
+                  className={fieldClass}
                 >
                   <option value="">Select sport</option>
                   {sportsCategories && sportsCategories.length > 0
@@ -463,19 +463,17 @@ const EventModal = ({
                         </option>
                       ))}
                 </select>
-                {errors.sportType && (
-                  <p className="mt-1 text-base text-red-600">{errors.sportType}</p>
-                )}
+                {errors.sportType && <p className={errorClass}>{errors.sportType}</p>}
               </div>
             </div>
 
             {/* Event Type */}
             <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">Event Type</label>
+              <label className={labelClass}>Event Type</label>
               <select
                 value={formData.eventType}
                 onChange={(e) => handleChange('eventType', e.target.value)}
-                className="form-field text-base"
+                className={fieldClass}
               >
                 <option value="MATCH">Match</option>
                 <option value="TOURNAMENT">Tournament</option>
@@ -486,58 +484,48 @@ const EventModal = ({
                 <option value="COMPETITION">Competition</option>
                 <option value="MEETUP">Meetup</option>
               </select>
-              {errors.eventType && (
-                <p className="mt-1 text-base text-red-600">{errors.eventType}</p>
-              )}
+              {errors.eventType && <p className={errorClass}>{errors.eventType}</p>}
             </div>
 
             {/* Event Description */}
             <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">
-                Event Description
-              </label>
+              <label className={labelClass}>Event Description</label>
               <textarea
                 placeholder="Tell people what to expect, who it’s for and what to bring"
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
                 rows={4}
-                className="form-field min-h-24 resize-none text-base"
+                className={`${fieldClass} min-h-24 resize-none`}
               />
-              {errors.description && (
-                <p className="mt-1 text-base text-red-600">{errors.description}</p>
-              )}
+              {errors.description && <p className={errorClass}>{errors.description}</p>}
             </div>
 
             {/* Start Date & End Date */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">Start Date</label>
+                <label className={labelClass}>Start Date</label>
                 <div className="relative">
                   <input
                     type="date"
                     value={formData.startDate}
                     min={todayStr}
                     onChange={(e) => handleChange('startDate', e.target.value)}
-                    className="form-field text-base"
+                    className={fieldClass}
                   />
-                  {errors.startDate && (
-                    <p className="mt-1 text-base text-red-600">{errors.startDate}</p>
-                  )}
+                  {errors.startDate && <p className={errorClass}>{errors.startDate}</p>}
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">End Date</label>
+                <label className={labelClass}>End Date</label>
                 <div className="relative">
                   <input
                     type="date"
                     value={formData.endDate}
                     min={formData.startDate || todayStr}
                     onChange={(e) => handleChange('endDate', e.target.value)}
-                    className="form-field text-base"
+                    className={fieldClass}
                   />
-                  {errors.endDate && (
-                    <p className="mt-1 text-base text-red-600">{errors.endDate}</p>
-                  )}
+                  {errors.endDate && <p className={errorClass}>{errors.endDate}</p>}
                 </div>
               </div>
             </div>
@@ -545,31 +533,27 @@ const EventModal = ({
             {/* Start Time & End Time */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">Start Time</label>
+                <label className={labelClass}>Start Time</label>
                 <div className="relative">
                   <input
                     type="time"
                     value={formData.startTime}
                     onChange={(e) => handleChange('startTime', e.target.value)}
-                    className="form-field text-base"
+                    className={fieldClass}
                   />
-                  {errors.startTime && (
-                    <p className="mt-1 text-base text-red-600">{errors.startTime}</p>
-                  )}
+                  {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">End Time</label>
+                <label className={labelClass}>End Time</label>
                 <div className="relative">
                   <input
                     type="time"
                     value={formData.endTime}
                     onChange={(e) => handleChange('endTime', e.target.value)}
-                    className="form-field text-base"
+                    className={fieldClass}
                   />
-                  {errors.endTime && (
-                    <p className="mt-1 text-base text-red-600">{errors.endTime}</p>
-                  )}
+                  {errors.endTime && <p className={errorClass}>{errors.endTime}</p>}
                 </div>
               </div>
             </div>
@@ -577,68 +561,58 @@ const EventModal = ({
             {/* Venue Name & City */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">Venue Name</label>
+                <label className={labelClass}>Venue Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Clapham Leisure Centre"
                   value={formData.venueName}
                   onChange={(e) => handleChange('venueName', e.target.value)}
-                  className="form-field text-base"
+                  className={fieldClass}
                 />
-                {errors.venueName && (
-                  <p className="mt-1 text-base text-red-600">{errors.venueName}</p>
-                )}
+                {errors.venueName && <p className={errorClass}>{errors.venueName}</p>}
               </div>
               <div>
-                <label className="mb-1 block text-base font-medium text-gray-700">City</label>
+                <label className={labelClass}>City</label>
                 <input
                   type="text"
                   placeholder="City"
                   value={formData.city}
                   onChange={(e) => handleChange('city', e.target.value)}
-                  className="form-field text-base"
+                  className={fieldClass}
                 />
-                {errors.city && <p className="mt-1 text-base text-red-600">{errors.city}</p>}
+                {errors.city && <p className={errorClass}>{errors.city}</p>}
               </div>
             </div>
 
             {/* Venue Address */}
             <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">
-                Venue Address
-              </label>
+              <label className={labelClass}>Venue Address</label>
               <input
                 type="text"
                 placeholder="Enter full venue address"
                 value={formData.fullAddress}
                 onChange={(e) => handleChange('fullAddress', e.target.value)}
-                className="form-field text-base"
+                className={fieldClass}
               />
-              {errors.fullAddress && (
-                <p className="mt-1 text-base text-red-600">{errors.fullAddress}</p>
-              )}
+              {errors.fullAddress && <p className={errorClass}>{errors.fullAddress}</p>}
             </div>
 
             {/* Google Maps Link */}
             <div>
-              <label className="mb-1 block text-base font-medium text-gray-700">
-                Google Maps Link
-              </label>
+              <label className={labelClass}>Google Maps Link</label>
               <input
                 type="text"
                 placeholder="Paste Google Maps link"
                 value={formData.googleMapLinks}
                 onChange={(e) => handleChange('googleMapLinks', e.target.value)}
-                className="form-field text-base"
+                className={fieldClass}
               />
-              {errors.googleMapLinks && (
-                <p className="mt-1 text-base text-red-600">{errors.googleMapLinks}</p>
-              )}
+              {errors.googleMapLinks && <p className={errorClass}>{errors.googleMapLinks}</p>}
             </div>
 
             {/* Who it's suitable for */}
             <div className="space-y-2">
-              <label className="text-base font-medium text-gray-700">
+              <label className="text-base font-medium text-white">
                 Suitable for (more than one can be selected)
               </label>
               <div className="flex flex-col gap-2">
@@ -648,53 +622,49 @@ const EventModal = ({
                   return (
                     <label
                       key={option}
-                      className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
+                      className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleSuitableFor(option)}
-                        className="rounded border-gray-300 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                        className="cursor-pointer rounded border-white/40 accent-[#0B544E]"
                       />
                       {option}
                     </label>
                   );
                 })}
               </div>
-              {errors.suitableFor && (
-                <p className="mt-1 text-base text-red-600">{errors.suitableFor}</p>
-              )}
+              {errors.suitableFor && <p className={errorClass}>{errors.suitableFor}</p>}
             </div>
 
             {/* Who can take part? */}
             <div>
-              <label className="mb-2 block text-base font-medium text-gray-700">Who can take part?</label>
-              <div className="flex flex-col sm:flex-row gap-4 mt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <label className="mb-2 block text-base font-medium text-white">Who can take part?</label>
+              <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:gap-4">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     checked={formData.womensOnly === true}
                     onChange={() => handleChange('womensOnly', true)}
-                    className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                    className="h-[15px] w-[15px] cursor-pointer rounded-sm border-white/40 accent-[#0B544E]"
                   />
-                  <span className="text-base text-gray-700">Women only</span>
+                  <span className="text-base text-white/90">Women only</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     checked={formData.womensOnly === false}
                     onChange={() => handleChange('womensOnly', false)}
-                    className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
+                    className="h-[15px] w-[15px] cursor-pointer rounded-sm border-white/40 accent-[#0B544E]"
                   />
-                  <span className="text-base text-gray-700">Mixed, women welcome</span>
+                  <span className="text-base text-white/90">Mixed, women welcome</span>
                 </label>
               </div>
             </div>
 
             <div>
-              <label className="mb-2 block text-base font-medium text-gray-700">
-                Who is this for?
-              </label>
+              <label className="mb-2 block text-base font-medium text-white">Who is this for?</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   'New To Sport',
@@ -709,23 +679,21 @@ const EventModal = ({
                     onClick={() => handleChange('skillLevel', level)}
                     className={`rounded-sm px-4 py-2 text-base font-medium transition-colors ${
                       formData.skillLevel === level
-                        ? 'bg-[#0F766E] text-white'
-                        : 'bg-[#A7C8C7] text-[#1F2B2A] hover:bg-[#97BCBA]'
+                        ? 'bg-white text-[#0B544E]'
+                        : 'bg-white/20 text-white hover:bg-white/30'
                     }`}
                   >
                     {level}
                   </button>
                 ))}
               </div>
-              {errors.skillLevel && (
-                <p className="mt-1 text-base text-red-600">{errors.skillLevel}</p>
-              )}
+              {errors.skillLevel && <p className={errorClass}>{errors.skillLevel}</p>}
             </div>
 
             {/* Cost and Price */}
             <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[auto_1fr]">
               <div>
-                <label className="mb-2 block text-base font-medium text-gray-700">Pricing</label>
+                <label className="mb-2 block text-base font-medium text-white">Pricing</label>
                 <div className="flex gap-2">
                   {['Free', 'Paid'].map((type) => (
                     <button
@@ -734,8 +702,8 @@ const EventModal = ({
                       onClick={() => handleChange('costType', type)}
                       className={`rounded-sm px-5 py-2 text-base font-medium transition-colors ${
                         formData.costType === type
-                          ? 'bg-[#0F766E] text-white'
-                          : 'bg-[#A7C8C7] text-[#1F2B2A] hover:bg-[#97BCBA]'
+                          ? 'bg-white text-[#0B544E]'
+                          : 'bg-white/20 text-white hover:bg-white/30'
                       }`}
                     >
                       {type}
@@ -744,27 +712,29 @@ const EventModal = ({
                 </div>
               </div>
               <div>
-                <label className="mb-2 block text-base font-medium text-gray-700">Price</label>
+                <label className="mb-2 block text-base font-medium text-white">Price</label>
                 <input
                   type="text"
                   placeholder="e.g. £8 per session"
                   value={formData.price}
                   onChange={(e) => handleChange('price', e.target.value)}
                   disabled={formData.costType !== 'Paid'}
-                  className="form-field text-base disabled:cursor-not-allowed disabled:opacity-70"
+                  className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-70`}
                 />
-                {errors.price && <p className="mt-1 text-base text-red-600">{errors.price}</p>}
+                {errors.price && <p className={errorClass}>{errors.price}</p>}
               </div>
             </div>
 
             {/* Response methods */}
-            <div>
-              <label className="mb-1 block text-base font-semibold text-gray-700">
-                Choose the main action for this listing
-              </label>
-              <p className="mb-3 text-sm text-gray-500">
-                Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
-              </p>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="block text-base font-semibold text-white">
+                  Choose the main action for this listing
+                </label>
+                <p className="text-sm text-white/80">
+                  Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
+                </p>
+              </div>
               <div className="space-y-3">
                 {[
                   {
@@ -784,19 +754,35 @@ const EventModal = ({
                       key={option.value}
                       type="button"
                       onClick={() => handleChange('responseMethods', [option.value])}
-                      className={`w-full text-left p-4 rounded-xl border transition-all ${
+                      className={`w-full rounded-xl border p-4 text-left transition-all ${
                         selected
-                          ? 'border-[#0F766E] bg-loginInput text-gray-900 shadow-sm'
-                          : 'border-[#DCE7E6] bg-transparent text-gray-700 hover:border-[#0F766E]/40'
+                          ? 'border-white bg-[#F5F1EB] text-[#0B544E] shadow-sm'
+                          : 'border-white/30 bg-transparent text-white hover:border-white/60'
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-400">
-                          {selected && <div className="h-2 w-2 rounded-full bg-[#0F766E]" />}
+                        <div
+                          className={`mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                            selected ? 'border-[#0B544E]' : 'border-white/60'
+                          }`}
+                        >
+                          {selected && <div className="h-2 w-2 rounded-full bg-[#0B544E]" />}
                         </div>
                         <div>
-                          <p className="font-semibold text-base text-gray-900">{option.label}</p>
-                          <p className="mt-1 text-sm text-gray-500 leading-normal">{option.desc}</p>
+                          <p
+                            className={`text-base font-semibold ${
+                              selected ? 'text-[#0B544E]' : 'text-white'
+                            }`}
+                          >
+                            {option.label}
+                          </p>
+                          <p
+                            className={`mt-1 text-sm leading-normal ${
+                              selected ? 'text-[#0B544E]/70' : 'text-white/70'
+                            }`}
+                          >
+                            {option.desc}
+                          </p>
                         </div>
                       </div>
                     </button>
@@ -804,13 +790,13 @@ const EventModal = ({
                 })}
               </div>
               {errors.responseMethods && (
-                <p className="mt-1 text-base text-red-600">{errors.responseMethods}</p>
+                <p className={errorClass}>{errors.responseMethods}</p>
               )}
             </div>
 
             {/* Upload Image */}
             <div>
-              <label className="relative block h-65 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-400 p-10 text-center hover:bg-loginInput/40 bg-transparent">
+              <label className="relative block h-48 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-white/30 bg-transparent p-6 text-center hover:bg-white/10">
                 {imagePreview ? (
                   <>
                     <img
@@ -820,16 +806,16 @@ const EventModal = ({
                     />
                     <div className="absolute inset-0 bg-black/30" />
                     <div className="relative z-10 flex h-full items-center justify-center">
-                      <span className="rounded-md bg-loginInput px-4 py-2 text-base font-medium text-[#1D1D1D]">
+                      <span className="rounded-md bg-[#F5F1EB] px-4 py-2 text-base font-medium text-[#0B544E]">
                         Click to change image
                       </span>
                     </div>
                   </>
                 ) : (
                   <>
-                    <Upload className="mx-auto mb-3 h-10 w-10 text-[#22A547]" />
-                    <p className="text-xl font-medium text-[#22A547]">Upload Image</p>
-                    <p className="mt-1 text-base text-gray-500">JPEG files accepted. Max 100MB</p>
+                    <Upload className="mx-auto mb-2 h-8 w-8 text-white/80" />
+                    <p className="text-lg font-medium text-white">Upload Image</p>
+                    <p className="mt-1 text-sm text-white/70">JPEG files accepted. Max 100MB</p>
                   </>
                 )}
                 <input
@@ -839,26 +825,25 @@ const EventModal = ({
                   className="hidden"
                 />
               </label>
-              {errors.image && <p className="mt-2 text-base text-red-600">{errors.image}</p>}
+              {errors.image && <p className={`mt-2 ${errorClass}`}>{errors.image}</p>}
             </div>
           </form>
         </div>
 
         {/* Sticky Footer */}
-        <div className="sticky bottom-0 z-10 border-t border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
+        <div className="sticky bottom-0 z-10 border-t border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-[#0F766E] px-5 py-2.5 text-sm font-medium text-[#0F766E] hover:bg-[#F0FAF9]"
+              className="rounded-lg border border-white/40 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/10"
             >
               Cancel
             </button>
-            <Button
+            <button
               type="submit"
               form="event-form"
-              variant="primary"
-              className="rounded-lg px-6 py-2.5 text-sm font-semibold"
+              className="rounded-lg bg-[#F5F1EB] px-6 py-2.5 text-sm font-semibold text-[#0B544E] hover:bg-white disabled:opacity-60"
               disabled={isSubmitting}
             >
               {isSubmitting
@@ -866,7 +851,7 @@ const EventModal = ({
                 : mode === 'edit'
                   ? 'Update Event'
                   : 'Submit For Approval'}
-            </Button>
+            </button>
           </div>
         </div>
       </div>

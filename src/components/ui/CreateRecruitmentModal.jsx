@@ -547,72 +547,72 @@ const CreateRecruitmentModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 form-shell sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm">
-      <div className="flex h-full w-full flex-col overflow-hidden form-shell sm:mx-4 sm:max-h-[95vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#DCE7E6] sm:shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E3EBEA] form-shell px-5 py-4 sm:px-6">
-          <h2 className="text-2xl font-semibold text-[#1D1D1D]">
+    <div className="fixed inset-0 z-50 bg-[#0F766E] sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm">
+      <div className="flex h-full w-full flex-col overflow-hidden bg-[#0F766E] sm:mx-4 sm:max-h-[95vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#0A4A45] sm:shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
+          <h2 className="text-2xl font-semibold text-white">
             {mode === 'edit' ? 'Edit Listing' : 'Add Listing'}
           </h2>
           <button
             onClick={onClose}
-            className="rounded-full bg-[#D9D9D9] p-1 text-[#000000] transition-colors hover:bg-[#CFCFCF]"
+            className="rounded-full bg-white/20 p-1 text-white transition-colors hover:bg-white/30"
             aria-label="Close"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
-        <div className="form-shell flex-1 overflow-y-auto p-4 sm:p-5 md:p-6">
+        <div className="flex-1 overflow-y-auto bg-[#0F766E] p-4 sm:p-5 md:p-6">
           <form id="add-listing-form" className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4 rounded-lg ">
               <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-gray-800">Organisation Details</h3>
-                <p className="text-sm text-gray-500">
+                <h3 className="text-lg font-semibold text-white">Organisation Details</h3>
+                <p className="text-sm text-white/80">
                   Prefilled from your account. Update these in your profile if needed.
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">
-                    Organisation / Club Name <span className="text-red-500">*</span>
+                  <label className="text-base font-medium text-white">
+                    Organisation / Club Name <span className="text-red-300">*</span>
                   </label>
                   <input
                     readOnly
                     value={form.organisationName}
-                    className={`form-field-readonly ${errors.organisationName ? 'border-red-500' : ''}`}
+                    className={`w-full cursor-not-allowed rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none ${errors.organisationName ? 'border-red-400' : ''}`}
                     placeholder="From your account"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Contact Person Name</label>
+                  <label className="text-base font-medium text-white">Contact Person Name</label>
                   <input
                     readOnly
                     value={form.contactPerson}
-                    className="form-field-readonly"
+                    className="w-full cursor-not-allowed rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none"
                     placeholder="From your account"
                   />
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-base font-medium text-gray-700">Your Role</label>
+                <label className="text-base font-medium text-white">Your Role</label>
                 <input
                   readOnly
                   value={form.role}
-                  className="form-field-readonly"
+                  className="w-full cursor-not-allowed rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none"
                   placeholder="From your account"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-base font-medium text-gray-700">About your organisation <span className="text-red-500">*</span></label>
+                <label className="text-base font-medium text-white">About your organisation <span className="text-red-300">*</span></label>
                 <textarea
                   readOnly
                   value={form.about}
-                  className={`form-field-readonly h-24 resize-none ${errors.about ? 'border-red-500' : ''}`}
+                  className={`h-24 w-full resize-none cursor-not-allowed rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none ${errors.about ? 'border-red-400' : ''}`}
                   placeholder="From your account"
                 />
               </div>
 
-              <div className="relative flex h-60 flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-transparent">
+              <div className="relative flex h-60 flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-white/30 bg-transparent">
                 {logoPreviewUrl ? (
                   <div className="relative h-full w-full">
                     <img
@@ -626,8 +626,8 @@ const CreateRecruitmentModal = ({
                   </div>
                 ) : (
                   <div className="flex flex-col items-center text-center px-4">
-                    <Upload className="mb-2 h-8 w-8 text-gray-400" />
-                    <span className="text-sm text-gray-500">
+                    <Upload className="mb-2 h-8 w-8 text-white/70" />
+                    <span className="text-sm text-white/70">
                       No organisation image on your account yet.
                     </span>
                   </div>
@@ -636,14 +636,14 @@ const CreateRecruitmentModal = ({
             </div>
             <div className="space-y-4 rounded-lg">
               <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-gray-800">Sport & Session Information</h3>
-                <p className="text-sm text-gray-500">
+                <h3 className="text-lg font-semibold text-white">Sport & Session Information</h3>
+                <p className="text-sm text-white/80">
                   Details about your sport sessions or activities
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-base font-medium text-gray-700">Sport</label>
+                <label className="text-base font-medium text-white">Sport</label>
                 <div className="flex flex-wrap gap-2">
                   {dynamicSports.map((sport) => {
                     const isChecked = form.sports.includes(sport);
@@ -652,14 +652,13 @@ const CreateRecruitmentModal = ({
                         key={sport}
                         className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-all select-none ${
                           isChecked
-                            ? 'border-btn-primary bg-btn-primary text-white'
-                            : 'text-[#1F2B2A] border-transparent bg-[#A7C8C7]'
+                            ? 'border-white bg-white text-[#0B544E]'
+                            : 'border-transparent bg-white/20 text-white'
                         }`}
                       >
-                        {/* Default Browser Checkbox */}
                         <input
                           type="checkbox"
-                          className="accent-btn-primary h-4 w-4 cursor-pointer rounded"
+                          className="h-4 w-4 cursor-pointer rounded accent-[#0B544E]"
                           checked={isChecked}
                           onChange={() => toggleArrayField('sports', sport)}
                         />
@@ -676,44 +675,44 @@ const CreateRecruitmentModal = ({
                       placeholder="Please specify"
                       value={form.otherSport || ''}
                       onChange={(e) => handleChange('otherSport', e.target.value)}
-                      className="form-field"
+                      className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
                     />
                   </div>
                 )}
               </div>
               <div className="grid grid-cols-1 gap-4 pt-1">
                 <div className="space-y-2">
-                  <label className="text-base font-medium text-gray-700">Session Type</label>
+                  <label className="text-base font-medium text-white">Session Type</label>
                   {sessionTypeOptions.map((type) => (
                     <label
                       key={type}
-                      className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
+                      className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
                     >
                       <input
                         type="checkbox"
                         checked={form.sessionTypes.includes(type)}
                         onChange={() => toggleArrayField('sessionTypes', type)}
-                        className="rounded border-gray-300"
+                        className="rounded border-white/40 accent-[#0B544E]"
                       />
                       {type}
                     </label>
                   ))}
                 </div>
 
-                <div className={`space-y-2 rounded-md border p-2 ${errors.suitableFor ? 'border-red-500' : 'border-transparent'}`}>
-                  <label className="text-base font-medium text-gray-700">
-                    Suitable for (more than one can be selected) <span className="text-red-500">*</span>
+                <div className={`space-y-2 rounded-md border p-2 ${errors.suitableFor ? 'border-red-400' : 'border-transparent'}`}>
+                  <label className="text-base font-medium text-white">
+                    Suitable for (more than one can be selected) <span className="text-red-300">*</span>
                   </label>
                   {suitabilityOptions.map((opt) => (
                     <label
                       key={opt}
-                      className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
+                      className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
                     >
                       <input
                         type="checkbox"
                         checked={form.suitableFor.includes(opt)}
                         onChange={() => { toggleArrayField('suitableFor', opt); setErrors(prev => ({ ...prev, suitableFor: false })); }}
-                        className="rounded border-gray-300"
+                        className="rounded border-white/40 accent-[#0B544E]"
                       />
                       {opt}
                     </label>
@@ -721,7 +720,7 @@ const CreateRecruitmentModal = ({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-base font-medium text-gray-700">Who can take part?</label>
+                  <label className="text-base font-medium text-white">Who can take part?</label>
                   <div className="flex flex-col gap-2">
                     {[
                       { label: 'Women only', value: 'YES' },
@@ -729,14 +728,14 @@ const CreateRecruitmentModal = ({
                     ].map((item) => (
                       <label
                         key={item.value}
-                        className="flex cursor-pointer items-center gap-2 text-sm text-gray-600"
+                        className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
                       >
                         <input
                           type="radio"
                           name="womensOnly"
                           checked={form.womensOnly === item.value}
                           onChange={() => handleChange('womensOnly', item.value)}
-                          className="border-gray-300"
+                          className="border-white/40 accent-[#0B544E]"
                         />
                         {item.label}
                       </label>
@@ -747,79 +746,69 @@ const CreateRecruitmentModal = ({
             </div>
 
             <div className="space-y-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-800">Location & Timing</h3>
+              <h3 className="text-lg font-semibold text-white">Location & Timing</h3>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Venue Name</label>
+                  <label className="text-base font-medium text-white">Venue Name</label>
                   <input
                     value={form.venueName}
                     onChange={(e) => handleChange('venueName', e.target.value)}
-                    className="form-field"
+                    className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
                     placeholder="Venue name"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Postcode</label>
+                  <label className="text-base font-medium text-white">Postcode</label>
                   <input
                     value={form.postcode}
                     onChange={(e) => handleChange('postcode', e.target.value)}
-                    className="form-field"
+                    className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
                     placeholder="Postcode"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">e.g. London</label>
+                  <label className="text-base font-medium text-white">e.g. London</label>
                   <input
                     value={form.townCity}
                     onChange={(e) => handleChange('townCity', e.target.value)}
-                    className="form-field"
+                    className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
                     placeholder="e.g london"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Google Maps Link</label>
+                  <label className="text-base font-medium text-white">Google Maps Link</label>
                   <input
                     value={form.googleMapLink}
                     onChange={(e) => handleChange('googleMapLink', e.target.value)}
-                    className="form-field"
+                    className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
                     placeholder="Paste Google Maps link"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Session Day <span className="text-red-500">*</span></label>
+                  <label className="text-base font-medium text-white">Session Day <span className="text-red-300">*</span></label>
                   <input
                     value={form.sessonDay}
                     onChange={(e) => { handleChange('sessonDay', e.target.value); setErrors(prev => ({ ...prev, sessonDay: false })); }}
-                    className={`form-field ${errors.sessonDay ? 'border-red-500' : ''}`}
+                    className={`w-full rounded-lg border bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 ${errors.sessonDay ? 'border-red-400' : 'border-transparent'}`}
                     placeholder="e.g Tuesday"
                   />
                 </div>
-                {/* <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Session Date</label>
-                  <input
-                    type="date"
-                    value={form.dateDay}
-                    min={todayStr}
-                    onChange={(e) => handleChange('dateDay', e.target.value)}
-                    className="form-field"
-                  />
-                </div> */}
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">Start Time <span className="text-red-500">*</span></label>
+                  <label className="text-base font-medium text-white">Start Time <span className="text-red-300">*</span></label>
                   <input
                     type="time"
                     value={form.timeFrom}
                     onChange={(e) => { handleChange('timeFrom', e.target.value); setErrors(prev => ({ ...prev, timeFrom: false })); }}
-                    className={`form-field ${errors.timeFrom ? 'border-red-500' : ''}`}
+                    className={`w-full rounded-lg border bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none ${errors.timeFrom ? 'border-red-400' : 'border-transparent'}`}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-base font-medium text-gray-700">End Time <span className="text-red-500">*</span></label>
+                  <label className="text-base font-medium text-white">End Time <span className="text-red-300">*</span></label>
                   <input
                     type="time"
                     value={form.timeTo}
                     onChange={(e) => { handleChange('timeTo', e.target.value); setErrors(prev => ({ ...prev, timeTo: false })); }}
-                    className={`form-field ${errors.timeTo ? 'border-red-500' : ''}`}
+                    className={`w-full rounded-lg border bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none ${errors.timeTo ? 'border-red-400' : 'border-transparent'}`}
                   />
                 </div>
               </div>
@@ -828,10 +817,10 @@ const CreateRecruitmentModal = ({
             {/* Choose CTA */}
             <div className="space-y-4 rounded-lg">
               <div className="space-y-1">
-                <label className="block text-base font-semibold text-gray-700">
+                <label className="block text-base font-semibold text-white">
                   Choose the main action for this listing
                 </label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-white/80">
                   Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
                 </p>
               </div>
@@ -856,17 +845,17 @@ const CreateRecruitmentModal = ({
                       onClick={() => handleChange('responseMethods', [option.value])}
                       className={`w-full text-left p-4 rounded-xl border transition-all ${
                         selected
-                          ? 'border-[#0F766E] bg-loginInput text-gray-900 shadow-sm'
-                          : 'border-[#DCE7E6] bg-transparent text-gray-700 hover:border-[#0F766E]/40'
+                          ? 'border-white bg-[#F5F1EB] text-[#0B544E] shadow-sm'
+                          : 'border-white/30 bg-transparent text-white hover:border-white/60'
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-400">
-                          {selected && <div className="h-2 w-2 rounded-full bg-[#0F766E]" />}
+                        <div className={`mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${selected ? 'border-[#0B544E]' : 'border-white/60'}`}>
+                          {selected && <div className="h-2 w-2 rounded-full bg-[#0B544E]" />}
                         </div>
                         <div>
-                          <p className="font-semibold text-base text-gray-900">{option.label}</p>
-                          <p className="mt-1 text-sm text-gray-500 leading-normal">{option.desc}</p>
+                          <p className={`font-semibold text-base ${selected ? 'text-[#0B544E]' : 'text-white'}`}>{option.label}</p>
+                          <p className={`mt-1 text-sm leading-normal ${selected ? 'text-[#0B544E]/70' : 'text-white/70'}`}>{option.desc}</p>
                         </div>
                       </div>
                     </button>
@@ -877,12 +866,12 @@ const CreateRecruitmentModal = ({
           </form>
         </div>
 
-        <div className="sticky bottom-0 z-10 flex gap-4 border-t border-[#E3EBEA] form-shell p-4 px-5 sm:px-6">
+        <div className="sticky bottom-0 z-10 flex gap-4 border-t border-white/15 bg-[#0F766E] p-4 px-5 sm:px-6">
           <button
             type="submit"
             form="add-listing-form"
             disabled={createLoading}
-            className="bg-btn-primary rounded-md px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#0d635d]"
+            className="rounded-md bg-[#F5F1EB] px-6 py-2.5 text-sm font-semibold text-[#0B544E] hover:bg-white disabled:opacity-60"
           >
             {createLoading ? 'Submitting...' : 'Submit For Approval'}
           </button>
