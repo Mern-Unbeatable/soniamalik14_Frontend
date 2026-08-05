@@ -551,7 +551,7 @@ const CreateRecruitmentModal = ({
       <div className="flex h-full w-full flex-col overflow-hidden bg-[#0F766E] sm:mx-4 sm:max-h-[95vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#0A4A45] sm:shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
           <h2 className="text-2xl font-semibold text-white">
-            {mode === 'edit' ? 'Edit Listing' : 'Add Listing'}
+            {mode === 'edit' ? 'Edit Listing' : 'Add Session'}
           </h2>
           <button
             onClick={onClose}
