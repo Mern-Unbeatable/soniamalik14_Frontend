@@ -6,17 +6,52 @@ import { useService } from '../../../../../context/ServiceContext';
 import { fetchSportsCategories } from '../../../../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../../../../features/sportsCategories/sportsCategoriesSlice';
 
-const providerTypeOptions = [
-  'Nutrition',
-  'Physiotherapy & injury recovery',
-  'Sports massage',
-  'Strength & conditioning',
-  'Mental wellbeing',
-  '1:1 coaching',
-  'Other'
+const SESSION_TYPE_OPTIONS = ['In clinic', 'Online', 'At venue'];
+const SESSION_FREQUENCY_OPTIONS = ['Weekly', 'Fortnightly', 'Monthly', 'One-off', 'Other'];
+const SUITABLE_FOR_OPTIONS = [
+  'New to sport',
+  'Some experience',
+  'Experienced players',
+  'Competitive players',
+  'All levels welcome',
+];
+const DAY_OPTIONS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const RESPONSE_ACTION_OPTIONS = [
+  { value: 'REGISTER', label: 'Register', desc: 'People can sign up to attend this session.' },
+  { value: 'REGISTER_INTEREST', label: 'Register Interest', desc: 'Confirm demand before people attend.' },
 ];
 
-const sessionTypeOptions = ['In clinic', 'Online', 'At venue'];
+const fieldClass =
+  'w-full rounded-md border border-gray-200 bg-[#F8F9F9] px-3 py-2.5 text-sm text-[#1A1D1F] outline-none placeholder:text-gray-400 focus:ring-1 focus:ring-[#147B6B]';
+const labelClass = 'mb-1.5 block text-sm font-medium text-[#1A1D1F]';
+
+const FormSection = ({ title, children }) => (
+  <section className="rounded-lg border border-[#CDE1DF] bg-white p-4 shadow-sm">
+    {title ? <h3 className="mb-4 text-base font-bold text-[#14322F]">{title}</h3> : null}
+    {children}
+  </section>
+);
+
+const getOrgFromUser = (user = {}) => ({
+  organizationName:
+    user?.organizationName ||
+    user?.organisationName ||
+    user?.providerBusinessName ||
+    user?.businessName ||
+    user?.providerName ||
+    user?.name ||
+    '',
+  contactName:
+    user?.contactName ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+    user?.name ||
+    '',
+  role: user?.role || user?.providerRole || user?.jobTitle || '',
+  logo: user?.logo || user?.avatar || user?.profileImage || user?.image || null,
+});
+
+// Legacy service-provider categories (not used on Add Session layout)
+// const providerTypeOptions = [ ... ];
 
 const sportOptions = [
   'Football',
@@ -77,8 +112,8 @@ const toArray = (value) => {
 
 const getInitialSessionTypes = (initialData) => {
   const parsed = toArray(initialData?.sessionTypes).map(mapSessionTypeToUi);
-  const filtered = parsed.filter((item) => sessionTypeOptions.includes(item));
-  return filtered.length > 0 ? filtered : ['In clinic'];
+  const filtered = parsed.filter((item) => SESSION_TYPE_OPTIONS.includes(item));
+  return filtered[0] || '';
 };
 
 const getInitialSports = (initialData) => {
@@ -132,74 +167,60 @@ const appendArrayValues = (formData, key, values = []) => {
   });
 };
 
-const buildInitialState = (initialData) => ({
-  ...getInitialSports(initialData),
-  providerBusinessName: initialData?.providerName || '',
-  contactName: initialData?.contactName || initialData?.providerName || '',
-  logo: initialData?.logo || initialData?.image || null,
-  clinicName: initialData?.clinicName || '',
-  address1: initialData?.addressLine1 || initialData?.fullAddress || '',
-  townCity: initialData?.city || '',
-  postcode: initialData?.postcode || '',
-  providerTypes: initialData?.providerType
-    ? [initialData.providerType]
-    : initialData?.category
-      ? [initialData.category]
-      : [],
-  listingHeadline: initialData?.listingHeadline || initialData?.title || '',
-  about: initialData?.aboutService || initialData?.description || '',
-  sessionTypes: getInitialSessionTypes(initialData),
-  registration: initialData?.professionalRegistration || '',
-  insuranceInPlace: initialData?.insuranceInPlace === false ? 'No' : 'Yes',
-  responseMethods: initialData?.participantResponseType === 'ALLOW_REGISTER_INTEREST'
-    ? ['Allow users to register interest']
-    : ['Add booking link'],
-  bookingLink: initialData?.bookingLink || '',
-  price: initialData?.price ?? '',
-  duration: initialData?.duration ?? '',
-  availableDays: initialData?.availableDays || '',
-  timeSlots: initialData?.timeSlots || '',
-  category: initialData?.category || '',
-  womensOnly: initialData?.womensOnly ?? initialData?.womenOnly ?? true,
-});
+const buildInitialState = (initialData, user) => {
+  const org = getOrgFromUser(user);
+  const sports = getInitialSports(initialData);
+  const responseType =
+    initialData?.responseType ||
+    (initialData?.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'REGISTER_INTEREST' : 'REGISTER');
 
-const fieldClass =
+  return {
+    ...sports,
+    organizationName: initialData?.organizationName || org.organizationName,
+    providerBusinessName: initialData?.providerName || org.organizationName,
+    contactName: initialData?.contactName || org.contactName,
+    role: initialData?.role || org.role,
+    logo: initialData?.logo || initialData?.image || org.logo,
+    clinicName: initialData?.clinicName || '',
+    address1: initialData?.addressLine1 || initialData?.fullAddress || '',
+    townCity: initialData?.city || '',
+    postcode: initialData?.postcode || '',
+    googleMapLink: initialData?.googleMapLink || '',
+    listingHeadline: initialData?.listingHeadline || initialData?.title || '',
+    about: initialData?.aboutService || initialData?.description || '',
+    sessionType: getInitialSessionTypes(initialData),
+    sessionTypes: getInitialSessionTypes(initialData) ? [getInitialSessionTypes(initialData)] : [],
+    suitableFor: toArray(initialData?.suitableFor),
+    sessionDay: initialData?.sessonDay || '',
+    startTime: '',
+    endTime: '',
+    sessionFrequency: initialData?.sessionFrequency || '',
+    costMode: initialData?.costMemebershipDetail === 'Free' ? 'free' : initialData?.costMemebershipDetail === 'Contact provider' ? 'contact' : 'details',
+    costMembershipDetail: initialData?.costMemebershipDetail || '',
+    responseType,
+    responseMethods:
+      responseType === 'REGISTER_INTEREST'
+        ? ['Allow users to register interest']
+        : ['Add booking link'],
+    registration: initialData?.professionalRegistration || '',
+    insuranceInPlace: initialData?.insuranceInPlace === false ? 'No' : 'Yes',
+    bookingLink: initialData?.bookingLink || '',
+    womensOnly: initialData?.womensOnly ?? initialData?.womenOnly ?? true,
+    providerTypes: [],
+    price: initialData?.price ?? '',
+    duration: initialData?.duration ?? '',
+    availableDays: initialData?.availableDays || '',
+    timeSlots: initialData?.timeSlots || '',
+    category: initialData?.category || '',
+  };
+};
+
+const fieldClassLegacy =
   'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500';
-const labelClass = 'text-base font-medium text-white';
+const labelClassLegacy = 'text-base font-medium text-white';
 
-const PillButton = ({ active, onClick, children }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={`rounded-sm px-4 py-2 text-sm font-medium transition-colors ${
-      active
-        ? 'bg-white text-[#0B544E]'
-        : 'bg-white/20 text-white hover:bg-white/30'
-    }`}
-  >
-    {children}
-  </button>
-);
-
-const CheckboxPill = ({ active, onClick, children }) => (
-  <label
-    className={`flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
-      active
-        ? 'bg-btn-primary border-btn-primary text-white'
-        : 'border-transparent bg-[#B5D5D2] text-[#06322E]'
-    } border`}
-  >
-    {/* Input checkbox with custom accent color */}
-    <input
-      type="checkbox"
-      checked={active}
-      onChange={onClick}
-      className="h-4 w-4 cursor-pointer rounded accent-[#06322E]"
-    />
-
-    {children}
-  </label>
-);
+// const PillButton = ...
+// const CheckboxPill = ...
 const CreateServiceModal = ({
   isOpen,
   onClose,
@@ -229,7 +250,7 @@ const CreateServiceModal = ({
     return [...filtered, 'Other'];
   }, [sportsCategories]);
 
-  const [formData, setFormData] = useState(() => buildInitialState(initialData));
+  const [formData, setFormData] = useState(() => buildInitialState(initialData, user));
   const [previewImage, setPreviewImage] = useState(
     typeof (initialData?.logo || initialData?.image) === 'string'
       ? initialData?.logo || initialData?.image
@@ -240,7 +261,7 @@ const CreateServiceModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      const nextFormData = buildInitialState(initialData);
+      const nextFormData = buildInitialState(initialData, user);
       const nextPreviewImage =
         typeof (initialData?.logo || initialData?.image) === 'string'
           ? initialData?.logo || initialData?.image
@@ -251,7 +272,17 @@ const CreateServiceModal = ({
         setPreviewImage(nextPreviewImage);
       });
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, user]);
+
+  const toggleSuitableFor = (option) => {
+    setFormData((prev) => {
+      const list = Array.isArray(prev.suitableFor) ? prev.suitableFor : [];
+      return {
+        ...prev,
+        suitableFor: list.includes(option) ? list.filter((x) => x !== option) : [...list, option],
+      };
+    });
+  };
 
   const updateField = (field, value) => {
     if (field === 'logo') {
@@ -288,13 +319,17 @@ const CreateServiceModal = ({
       return;
     }
 
-    const serviceTitle = String(formData.listingHeadline || '').trim();
+    const serviceTitle = String(
+      formData.listingHeadline ||
+        formData.organizationName ||
+        [formData.sports?.[0], formData.clinicName].filter(Boolean).join(' — ') ||
+        ''
+    ).trim();
     const serviceDescription = String(formData.about || '').trim();
-    const providerName = String(formData.providerBusinessName || '').trim();
+    const providerName = String(formData.organizationName || formData.providerBusinessName || '').trim();
     const contactName = String(formData.contactName || '').trim();
     const providerType = formData.providerTypes?.[0] || '';
     const sportsList = buildSportsList(formData.sports, formData.otherSport);
-    const mapLink = String(initialData?.googleMapLink || '').trim();
     const providerPhone =
       user?.phone || user?.phoneNumber || user?.mobile || user?.contactNumber || user?.providerPhone || '';
     const providerEmail = user?.email || user?.providerEmail || '';
@@ -328,18 +363,44 @@ const CreateServiceModal = ({
     payload.append('city', String(formData.townCity || '').trim());
     payload.append('postcode', String(formData.postcode || '').trim());
     payload.append('fullAddress', fullAddress);
-    appendIfPresent(payload, 'googleMapLink', mapLink);
+    appendIfPresent(payload, 'googleMapLink', String(formData.googleMapLink || initialData?.googleMapLink || '').trim());
+    appendArrayValues(payload, 'suitableFor', formData.suitableFor || []);
+    const responseType =
+      formData.responseType ||
+      (formData.responseMethods?.includes('Allow users to register interest')
+        ? 'REGISTER_INTEREST'
+        : 'REGISTER');
+    payload.append('responseType', responseType);
+    payload.append('organizationName', String(formData.organizationName || formData.providerBusinessName || '').trim());
+    payload.append('role', String(formData.role || '').trim());
+    appendIfPresent(payload, 'sessonDay', formData.sessionDay);
+    appendIfPresent(payload, 'sessionFrequency', formData.sessionFrequency);
+    if (formData.startTime && formData.endTime) {
+      appendIfPresent(payload, 'timeSlote', `${formData.startTime} - ${formData.endTime}`);
+    }
+    if (formData.costMode === 'free') {
+      appendIfPresent(payload, 'costMemebershipDetail', 'Free');
+    } else if (formData.costMode === 'contact') {
+      appendIfPresent(payload, 'costMemebershipDetail', 'Contact provider for cost or membership details');
+    } else {
+      appendIfPresent(payload, 'costMemebershipDetail', formData.costMembershipDetail);
+    }
+    payload.append(
+      'whoCanTakePart',
+      formData.womensOnly ? 'women only' : 'Mixed, women welcome'
+    );
+    payload.append('visibility', 'public');
     payload.append('location', String(formData.townCity || '').trim());
     appendArrayValues(
       payload,
       'sessionTypes',
-      (formData.sessionTypes || []).map((item) => normalizeSessionType(item))
+      formData.sessionType ? [normalizeSessionType(formData.sessionType)] : (formData.sessionTypes || []).map((item) => normalizeSessionType(item))
     );
     appendArrayValues(payload, 'sports', sportsList);
     payload.append('whoServiceFor', sportsList.join(', '));
     payload.append(
       'isOnline',
-      String((formData.sessionTypes || []).some((item) => String(item).toLowerCase() === 'online video'))
+      String(String(formData.sessionType || formData.sessionTypes?.[0] || '').toLowerCase() === 'online')
     );
     payload.append('registration', String(formData.registration || '').trim());
     payload.append('professionalRegistration', String(formData.registration || '').trim());
@@ -359,50 +420,15 @@ const CreateServiceModal = ({
       payload.append('logo', formData.logo);
     }
 
-    // Debug: Log FormData entries to console
-    try {
-      const payloadDebug = {};
-      const payloadFieldsList = [];
-      for (const [key, value] of payload.entries()) {
-        if (value instanceof File) {
-          if (payloadDebug[key] !== undefined) {
-            payloadDebug[key] = Array.isArray(payloadDebug[key])
-              ? [...payloadDebug[key], `[File: ${value.name}]`]
-              : [payloadDebug[key], `[File: ${value.name}]`];
-          } else {
-            payloadDebug[key] = `[File: ${value.name}]`;
-          }
-        } else {
-          if (payloadDebug[key] !== undefined) {
-            payloadDebug[key] = Array.isArray(payloadDebug[key])
-              ? [...payloadDebug[key], value]
-              : [payloadDebug[key], value];
-          } else {
-            payloadDebug[key] = value;
-          }
-        }
-        payloadFieldsList.push(key);
-      }
-      console.log('--- [CreateServiceModal] SUBMITTING PAYLOAD ---');
-      console.log('Payload data object:', payloadDebug);
-      console.log('Payload fields list:', payloadFieldsList);
-      console.log('Total fields:', payloadFieldsList.length);
-    } catch (e) {
-      console.error('[CreateServiceModal] Error logging payload:', e);
-    }
+    // Debug payload logging (disabled)
+    // try { ... console.log ... } catch (e) { ... }
 
     let result;
     if (mode === 'edit' && initialData?.id) {
-      console.log('[CreateServiceModal] Calling updateService API with id:', initialData.id);
       result = await updateService(initialData.id, payload);
     } else {
-      console.log('[CreateServiceModal] Calling createService API...');
       result = await createService(payload);
     }
-    
-    console.log('--- [CreateServiceModal] BACKEND RESPONSE RECEIVED ---');
-    console.log('Response result:', result);
-    console.log('----------------------------------------------------');
 
     if (result?.success) {
       onSuccess?.(result?.service || result, mode);
@@ -413,290 +439,166 @@ const CreateServiceModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0F766E] sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm">
-      <div className="flex h-full w-full flex-col overflow-hidden bg-[#0F766E] sm:mx-4 sm:max-h-[95vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#0A4A45] sm:shadow-2xl">
-        {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
-          <h2 className="text-2xl font-semibold text-white">
-            {mode === 'edit' ? 'Edit Service' : 'Add Service'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="rounded-full bg-white/20 p-1 text-white transition-colors hover:bg-white/30"
-            aria-label="Close"
-          >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-[#F3F6F6] shadow-xl">
+        <div className="flex items-center justify-between border-b border-gray-200 bg-white px-5 py-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-[#14322F]">
+              {mode === 'edit' ? 'Edit Session' : 'Add Session'}
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Share a session with the community. Need a one-off event instead? Add an event from your dashboard.
+            </p>
+          </div>
+          <button onClick={onClose} className="rounded-full bg-gray-100 p-1 text-gray-600 hover:bg-gray-200" aria-label="Close">
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        <form
-          id="service-form"
-          onSubmit={handleSubmit}
-          className="flex-1 space-y-6 overflow-y-auto bg-[#0F766E] p-4 sm:p-5 md:p-6"
-        >
-          {/* Section 1: Service Provider Form */}
-          <div className="space-y-4">
-            <p className="text-sm text-white/80">
-              Join our community of professional support services aimed at empowering women in
-              sport and fitness.
-            </p>
-
+        <form id="service-form" onSubmit={handleSubmit} className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
+          <FormSection title="Organisation Details">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1">
-                <label className={labelClass}>Provider / Business Name</label>
-                <input
-                  value={formData.providerBusinessName}
-                  onChange={(e) => updateField('providerBusinessName', e.target.value)}
-                  className={fieldClass}
-                  placeholder="e.g. Richmond Women's Physios"
-                />
+              <div>
+                <label className={labelClass}>Organisation / Club Name</label>
+                <input className={fieldClass} value={formData.organizationName} onChange={(e) => updateField('organizationName', e.target.value)} />
               </div>
-              <div className="space-y-1">
-                <label className={labelClass}>Contact Name</label>
-                <input
-                  value={formData.contactName}
-                  onChange={(e) => updateField('contactName', e.target.value)}
-                  className={fieldClass}
-                  placeholder="Enter name"
-                />
+              <div>
+                <label className={labelClass}>Contact Person Name</label>
+                <input className={fieldClass} value={formData.contactName} onChange={(e) => updateField('contactName', e.target.value)} />
               </div>
             </div>
-
-            <div className="space-y-1">
-              <label className={labelClass}>Logo</label>
-              <label className="relative block h-48 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-white/30 bg-transparent p-6 text-center hover:bg-white/10">
-                {previewImage ? (
-                  <>
-                    <img
-                      src={previewImage}
-                      alt="Uploaded preview"
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/30" />
-                    <div className="relative z-10 flex h-full items-center justify-center">
-                      <span className="rounded-md bg-[#F5F1EB] px-4 py-2 text-base font-medium text-[#0B544E]">
-                        Click to change image
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mx-auto mb-2 h-8 w-8 text-white/80" />
-                    <p className="text-lg font-medium text-white">Upload Image</p>
-                    <p className="mt-1 text-sm text-white/70">JPEG or PNG accepted. Max 10MB</p>
-                  </>
-                )}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/jpg,image/png"
-                  onChange={(e) => updateField('logo', e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-              </label>
+            <div className="mt-4">
+              <label className={labelClass}>Your Role</label>
+              <input className={fieldClass} value={formData.role} onChange={(e) => updateField('role', e.target.value)} />
             </div>
-          </div>
+          </FormSection>
 
-          {/* Section 2: Location */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Location Details</h3>
+          <FormSection title="Sport & Session Information">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1">
-                <label className={labelClass}>Clinic / venue name</label>
-                <input
-                  className={fieldClass}
-                  placeholder="e.g. The Wellness Centre"
-                  value={formData.clinicName}
-                  onChange={(e) => updateField('clinicName', e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className={labelClass}>Address Line </label>
-                <input
-                  className={fieldClass}
-                  placeholder="e.g. 123 High Street"
-                  value={formData.address1}
-                  onChange={(e) => updateField('address1', e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className={labelClass}>Town/City</label>
-                <input
-                  className={fieldClass}
-                  placeholder="e.g. Richmond"
-                  value={formData.townCity}
-                  onChange={(e) => updateField('townCity', e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className={labelClass}>Postcode</label>
-                <input
-                  className={fieldClass}
-                  placeholder="e.g. TW9 1AB"
-                  value={formData.postcode}
-                  onChange={(e) => updateField('postcode', e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Service type */}
-          <div className="space-y-2">
-            <label className={`block ${labelClass} font-semibold`}>Service type</label>
-            <select
-              value={formData.providerTypes?.[0] || ''}
-              onChange={(e) => updateField('providerTypes', [e.target.value])}
-              className={fieldClass}
-            >
-              <option value="">Select service type</option>
-              {providerTypeOptions.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Section: Participation */}
-          <div className="space-y-2">
-            <label className={`block ${labelClass} font-semibold`}>Participation</label>
-            <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.womensOnly === true}
-                  onChange={() => updateField('womensOnly', true)}
-                  className="h-[15px] w-[15px] cursor-pointer rounded-sm border-white/40 accent-[#0B544E]"
-                />
-                <span className="text-base text-white/90">Women-only</span>
-              </label>
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.womensOnly === false}
-                  onChange={() => updateField('womensOnly', false)}
-                  className="h-[15px] w-[15px] cursor-pointer rounded-sm border-white/40 accent-[#0B544E]"
-                />
-                <span className="text-base text-white/90">Mixed, women welcome</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Section 4: About your service */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">About your service</h3>
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className={labelClass}>Listing Headline</label>
-                <input
-                  className={fieldClass}
-                  placeholder="e.g. The Wellness Centre"
-                  value={formData.listingHeadline}
-                  onChange={(e) => updateField('listingHeadline', e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className={labelClass}>About your service</label>
-                <textarea
-                  className={`${fieldClass} h-28 resize-none`}
-                  placeholder="Provide a short description of the service, including what clients can expect."
-                  value={formData.about}
-                  onChange={(e) => updateField('about', e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className={labelClass}>Delivery type</label>
-              <div className="flex flex-wrap gap-2">
-                {sessionTypeOptions.map((opt) => (
-                  <PillButton
-                    key={opt}
-                    active={formData.sessionTypes.includes(opt)}
-                    onClick={() => toggleMulti('sessionTypes', opt)}
-                  >
-                    {opt}
-                  </PillButton>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="space-y-1">
-                <label className={labelClass}>Sports supported</label>
-                <p className="text-sm text-white/80">
-                  Optional - leave blank if your service is not sport-specific.
-                </p>
-              </div>
-              <select
-                value={formData.sports?.[0] || ''}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  updateField('sports', val ? [val] : []);
-                }}
-                className={fieldClass}
-              >
-                <option value="">Select sport</option>
-                {sportOptions.map((sport) => (
-                  <option key={sport} value={sport}>
-                    {sport}
-                  </option>
-                ))}
-              </select>
-              {formData.sports.includes('Other') && (
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Please specify"
-                    value={formData.otherSport}
-                    onChange={(e) => updateField('otherSport', e.target.value)}
-                    className={fieldClass}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Section 5: Credentials */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Professional Credentials</h3>
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className={labelClass}>
-                  Professional registration / qualifications.
-                </label>
-                <input
-                  className={fieldClass}
-                  placeholder="e.g. HCPC Registered, CSP Member"
-                  value={formData.registration}
-                  onChange={(e) => updateField('registration', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className={labelClass}>Insurance in place?</label>
-                <div className="flex gap-2">
-                  {['Yes', 'No'].map((v) => (
-                    <PillButton
-                      key={v}
-                      active={formData.insuranceInPlace === v}
-                      onClick={() => updateField('insuranceInPlace', v)}
-                    >
-                      {v}
-                    </PillButton>
+              <div>
+                <label className={labelClass}>Sport or activity *</label>
+                <select className={fieldClass} value={formData.sports?.[0] || ''} onChange={(e) => updateField('sports', e.target.value ? [e.target.value] : [])}>
+                  <option value="">Select sport</option>
+                  {dynamicSports.map((sport) => (
+                    <option key={sport} value={sport}>{sport}</option>
                   ))}
-                </div>
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Session type *</label>
+                <select
+                  className={fieldClass}
+                  value={formData.sessionType}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setFormData((prev) => ({ ...prev, sessionType: v, sessionTypes: v ? [v] : [] }));
+                  }}
+                >
+                  <option value="">Select session type</option>
+                  {SESSION_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          </div>
+            <div className="mt-4 space-y-2">
+              <label className={labelClass}>Suitable for</label>
+              {SUITABLE_FOR_OPTIONS.map((option) => (
+                <label key={option} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={(formData.suitableFor || []).includes(option)} onChange={() => toggleSuitableFor(option)} />
+                  {option}
+                </label>
+              ))}
+            </div>
+            <div className="mt-4 space-y-2">
+              <label className={labelClass}>Who can take part?</label>
+              <label className="flex items-center gap-2 text-sm"><input type="radio" name="sessionWho" checked={formData.womensOnly === true} onChange={() => updateField('womensOnly', true)} />Women only</label>
+              <label className="flex items-center gap-2 text-sm"><input type="radio" name="sessionWho" checked={formData.womensOnly === false} onChange={() => updateField('womensOnly', false)} />Mixed, women welcome</label>
+            </div>
+          </FormSection>
+
+          <FormSection title="Session Description">
+            <textarea className={`${fieldClass} min-h-28 resize-none`} value={formData.about} onChange={(e) => updateField('about', e.target.value)} placeholder="Tell people what to expect" />
+          </FormSection>
+
+          <FormSection title="Location & Timing">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div><label className={labelClass}>Venue Name *</label><input className={fieldClass} value={formData.clinicName} onChange={(e) => updateField('clinicName', e.target.value)} /></div>
+              <div><label className={labelClass}>Postcode *</label><input className={fieldClass} value={formData.postcode} onChange={(e) => updateField('postcode', e.target.value)} /></div>
+              <div><label className={labelClass}>Google Maps Link</label><input className={fieldClass} value={formData.googleMapLink} onChange={(e) => updateField('googleMapLink', e.target.value)} /></div>
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div>
+                <label className={labelClass}>Session day *</label>
+                <select className={fieldClass} value={formData.sessionDay} onChange={(e) => updateField('sessionDay', e.target.value)}>
+                  <option value="">Select day</option>
+                  {DAY_OPTIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div><label className={labelClass}>Start time *</label><input type="time" className={fieldClass} value={formData.startTime} onChange={(e) => updateField('startTime', e.target.value)} /></div>
+              <div><label className={labelClass}>End time *</label><input type="time" className={fieldClass} value={formData.endTime} onChange={(e) => updateField('endTime', e.target.value)} /></div>
+            </div>
+            <div className="mt-4">
+              <label className={labelClass}>How often does it run? *</label>
+              <select className={fieldClass} value={formData.sessionFrequency} onChange={(e) => updateField('sessionFrequency', e.target.value)}>
+                <option value="">Select frequency</option>
+                {SESSION_FREQUENCY_OPTIONS.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div><label className={labelClass}>Town/City</label><input className={fieldClass} value={formData.townCity} onChange={(e) => updateField('townCity', e.target.value)} /></div>
+              <div><label className={labelClass}>Address line</label><input className={fieldClass} value={formData.address1} onChange={(e) => updateField('address1', e.target.value)} /></div>
+            </div>
+          </FormSection>
+
+          <FormSection title="Cost or Membership Details *">
+            <div className="mb-3 flex flex-wrap gap-2">
+              {['details', 'free', 'contact'].map((modeKey) => (
+                <button key={modeKey} type="button" onClick={() => updateField('costMode', modeKey)} className={`rounded-md px-3 py-1.5 text-sm ${formData.costMode === modeKey ? 'bg-[#0F766E] text-white' : 'bg-gray-200'}`}>
+                  {modeKey === 'details' ? 'Enter details' : modeKey === 'free' ? 'Free' : 'Contact provider'}
+                </button>
+              ))}
+            </div>
+            {formData.costMode === 'details' && (
+              <textarea className={`${fieldClass} min-h-24 resize-none`} value={formData.costMembershipDetail} onChange={(e) => updateField('costMembershipDetail', e.target.value)} />
+            )}
+          </FormSection>
+
+          <FormSection>
+            <p className="mb-3 text-base font-bold text-[#14322F]">Choose the main action for this listing</p>
+            {RESPONSE_ACTION_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    responseType: option.value,
+                    responseMethods: option.value === 'REGISTER_INTEREST' ? ['Allow users to register interest'] : ['Add booking link'],
+                  }))
+                }
+                className={`mb-2 w-full rounded-xl border p-4 text-left ${formData.responseType === option.value ? 'border-[#147B6B] bg-[#E7F1F1]' : 'border-gray-200 bg-white'}`}
+              >
+                <p className="font-semibold">{option.label}</p>
+                <p className="text-sm text-gray-600">{option.desc}</p>
+              </button>
+            ))}
+          </FormSection>
+
+          <FormSection>
+            <label className={labelClass}>Image Upload</label>
+            <label className="relative block h-44 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-[#F8F9F9]">
+              {previewImage ? <img src={previewImage} alt="Session" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center text-gray-500"><Upload className="mb-2 h-7 w-7" /><span className="text-sm">Click to upload an image</span></div>}
+              <input type="file" accept="image/jpeg,image/jpg,image/png" className="hidden" onChange={(e) => updateField('logo', e.target.files?.[0] || null)} />
+            </label>
+          </FormSection>
+
+          {/* Legacy: professional credentials UI (not in client session mock) */}
+          {/* <FormSection title="Professional Credentials">...</FormSection> */}
         </form>
 
-        {/* Sticky Footer */}
-        <div className="sticky bottom-0 z-20 flex items-center gap-3 border-t border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
-          <button
-            type="submit"
-            form="service-form"
-            disabled={isBusy}
-            className="rounded-md bg-[#F5F1EB] px-6 py-2.5 text-sm font-semibold text-[#0B544E] hover:bg-white disabled:opacity-60"
-          >
+        <div className="border-t border-gray-200 bg-white px-5 py-4">
+          <button type="submit" form="service-form" disabled={isBusy} className="w-full rounded-lg bg-[#0F766E] py-3 text-sm font-semibold text-white hover:bg-[#0d655d] disabled:opacity-60">
             {isBusy ? 'Submitting...' : 'Submit for approval'}
           </button>
         </div>

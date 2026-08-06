@@ -4,7 +4,6 @@ import {
     Award,
     CalendarDays,
     Users,
-    User,
     Code,
     AlertCircle,
     Eye,
@@ -16,6 +15,12 @@ import {
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import {
+    DUMMY_IMAGE_PATH,
+    handleImageLoadError,
+    pickImageSource,
+    resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
 
 const normalizeStatus = (service) => {
     if (service?.bannedAt || service?.bannedReason) return 'Banned';
@@ -104,8 +109,14 @@ const SportProviderListingDetails = () => {
             coach: service?.contactName || service?.provider?.name || service?.providerName || 'N/A',
             status: normalizeStatus(service),
             engagement: null,
-            coverImage: service?.logo || service?.image || '',
-            avatar: service?.provider?.avatar || '',
+            coverImage: resolveImageUrl(
+                pickImageSource(service?.coverImage, service?.image, service?.logo),
+                DUMMY_IMAGE_PATH
+            ),
+            avatar: resolveImageUrl(
+                pickImageSource(service?.provider?.avatar),
+                DUMMY_IMAGE_PATH
+            ),
             about: service?.aboutService || service?.description || 'No description available.',
             sport: sports.length > 0 ? sports.join(', ') : 'Not specified',
             sessionType:
@@ -169,9 +180,10 @@ const SportProviderListingDetails = () => {
                 <div className="relative">
                     {/* Cover Image */}
                     <img
-                        src={data.coverImage || 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1200&q=80'}
-                        alt="Team Cover"
+                        src={data.coverImage}
+                        alt={data.listing}
                         className="w-full h-72 md:h-96 object-cover rounded-2xl shadow-sm"
+                        onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
                     />
 
                     <button
@@ -185,17 +197,12 @@ const SportProviderListingDetails = () => {
 
                     {/* Profile Picture overlapping */}
                     <div className="absolute -bottom-10 left-8">
-                        {data.avatar ? (
-                            <img
-                                src={data.avatar}
-                                alt="Coach"
-                                className="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover bg-white"
-                            />
-                        ) : (
-                            <div className="flex w-24 h-24 items-center justify-center rounded-full border-4 border-white bg-gray-200 shadow-md">
-                                <User className="w-10 h-10 text-gray-500" />
-                            </div>
-                        )}
+                        <img
+                            src={data.avatar}
+                            alt="Coach"
+                            className="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover bg-white"
+                            onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
+                        />
                     </div>
                 </div>
 
@@ -336,7 +343,7 @@ const SportProviderListingDetails = () => {
                             {/* Dummy Map Image */}
                             <div className="mt-6">
                                 <img
-                                    src="https://i.ibb.co.com/3mNs5TCZ/1579279c93526af38385f21a2041e29aeb2f2ae5.png"
+                                    src={DUMMY_IMAGE_PATH}
                                     alt="Venue Map"
                                     className="w-full h-60 object-cover rounded-lg border border-gray-200"
                                 />

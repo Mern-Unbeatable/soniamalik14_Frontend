@@ -1,13 +1,17 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { DUMMY_IMAGE_PATH, handleImageLoadError } from '../../../../../../utils/resolveImageUrl';
 
 const EventHeroSection = ({ image, onBack }) => {
+  const heroSrc = image || DUMMY_IMAGE_PATH;
+
   return (
     <div className="relative overflow-hidden rounded-xl shadow-sm">
       <img
-        src={image || 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1600&q=80'}
+        src={heroSrc}
         alt="Event Banner"
         className="h-64 w-full object-cover md:h-96 lg:h-100 xl:h-140 2xl:h-186"
+        onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
       />
       <button
         onClick={onBack}

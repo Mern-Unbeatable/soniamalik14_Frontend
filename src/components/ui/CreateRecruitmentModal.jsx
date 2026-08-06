@@ -340,6 +340,22 @@ const CreateRecruitmentModal = ({
     return form.logo;
   }, [form.logo]);
 
+  useEffect(() => {
+    return () => {
+      if (logoPreviewUrl && logoPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(logoPreviewUrl);
+      }
+    };
+  }, [logoPreviewUrl]);
+
+  const handleLogoFile = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setForm((s) => ({ ...s, logo: file }));
+    }
+    event.target.value = '';
+  };
+
   if (!isOpen) return null;
 
   const handleChange = (k, v) => setForm((s) => ({ ...s, [k]: v }));
@@ -614,24 +630,32 @@ const CreateRecruitmentModal = ({
 
               <div className="relative flex h-60 flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-white/30 bg-transparent">
                 {logoPreviewUrl ? (
-                  <div className="relative h-full w-full">
+                  <>
                     <img
                       src={logoPreviewUrl}
                       alt="Organisation"
-                      className="h-full w-full object-cover"
+                      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
                     />
-                    <div className="absolute bottom-3 left-3 rounded bg-black/50 px-2 py-1 text-xs text-white">
-                      From your account
+                    <div className="pointer-events-none absolute bottom-3 left-3 rounded bg-black/50 px-2 py-1 text-xs text-white">
+                      {form.logo instanceof File ? 'New upload — click to change' : 'From your account — click to change'}
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <div className="flex flex-col items-center text-center px-4">
+                  <div className="pointer-events-none flex flex-col items-center px-4 text-center">
                     <Upload className="mb-2 h-8 w-8 text-white/70" />
                     <span className="text-sm text-white/70">
                       No organisation image on your account yet.
                     </span>
+                    <span className="mt-1 text-xs text-white/60">Click to upload</span>
                   </div>
                 )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png"
+                  aria-label="Upload organisation logo"
+                  className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                  onChange={handleLogoFile}
+                />
               </div>
             </div>
             <div className="space-y-4 rounded-lg">

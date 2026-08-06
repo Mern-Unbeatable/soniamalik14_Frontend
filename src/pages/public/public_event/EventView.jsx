@@ -148,6 +148,50 @@ const getDateRangeParams = (dateFilters = []) => {
   return params;
 };
 
+const hasActiveSidebarFilters = (filters, selectedSports, selectedEventTypes) =>
+  Boolean(
+    String(filters?.city || '').trim() ||
+      (Array.isArray(filters?.date) && filters.date.length > 0) ||
+      selectedSports.length > 0 ||
+      selectedEventTypes.length > 0
+  );
+
+const buildEventsListParams = ({
+  filters,
+  page,
+  perPage,
+  needsClientPagination,
+  selectedSports,
+  selectedEventTypes,
+}) => {
+  const params = {
+    page: needsClientPagination ? 1 : page,
+    limit: needsClientPagination ? 100 : perPage,
+    sort: '-createdAt',
+  };
+
+  if (!hasActiveSidebarFilters(filters, selectedSports, selectedEventTypes)) {
+    return params;
+  }
+
+  params.view = 'live';
+  Object.assign(params, getDateRangeParams(filters.date));
+
+  if (filters.city?.trim()) {
+    params.city = filters.city.trim();
+  }
+
+  if (selectedEventTypes.length === 1) {
+    params.eventType = selectedEventTypes[0];
+  }
+
+  if (selectedSports.length === 1) {
+    params.sportType = toApiSportType(selectedSports[0]);
+  }
+
+  return params;
+};
+
 const EventView = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -161,6 +205,13 @@ const EventView = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [filters, setFilters] = useState({
+    city: '',
+    distance: '',
+    eventTypes: [],
+    date: [],
+    sport: [],
+  });
+  const [mobileFilters, setMobileFilters] = useState({
     city: '',
     distance: '',
     eventTypes: [],
@@ -182,72 +233,66 @@ const EventView = () => {
   const needsClientPagination = selectedSports.length > 1 || selectedEventTypes.length > 1;
   const pageKey = needsClientPagination ? 0 : page;
 
-  const fetchFilteredEvents = useCallback(async (signal) => {
-    const params = {
-      view: 'live',
-      page: needsClientPagination ? 1 : page,
-      limit: needsClientPagination ? 100 : perPage,
-      sort: '-createdAt',
-      ...getDateRangeParams(filters.date),
-    };
+  const fetchFilteredEvents = useCallback(
+    async (signal) => {
+      const params = buildEventsListParams({
+        filters,
+        page,
+        perPage,
+        needsClientPagination,
+        selectedSports,
+        selectedEventTypes,
+      });
 
-    if (filters.city?.trim()) {
-      params.city = filters.city.trim();
-    }
+      setLoading(true);
+      setError('');
 
-    if (selectedEventTypes.length === 1) {
-      params.eventType = selectedEventTypes[0];
-    }
-
-    if (selectedSports.length === 1) {
-      params.sportType = toApiSportType(selectedSports[0]);
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await GET(
-        ENDPOINT.EVENTS.LIST,
-        params,
-        signal,
-        { skipAuth: true, withCredentials: false }
-      );
-
-      const payload = response?.data?.data || response?.data || {};
-      const fetchedEvents = normalizeEventsList(payload?.events || payload);
-      const meta = payload?.meta || response?.data?.meta || {};
-
-      let filteredEvents = fetchedEvents.filter((event) => isPublicEventStatus(event?.status));
-
-      if (selectedSports.length > 1) {
-        filteredEvents = filteredEvents.filter((event) =>
-          selectedSports.some((sport) => matchesSportFilter(event?.sportType, sport))
+      try {
+        const response = await GET(
+          ENDPOINT.EVENTS.LIST,
+          params,
+          signal,
+          { skipAuth: true, withCredentials: false }
         );
-      }
 
-      if (selectedEventTypes.length > 1) {
-        filteredEvents = filteredEvents.filter((event) =>
-          selectedEventTypes.some((eventType) => matchesEventTypeFilter(event?.eventType, eventType))
-        );
-      }
+        const payload = response?.data?.data || response?.data || {};
+        const fetchedEvents = normalizeEventsList(payload?.events || payload);
+        const meta = payload?.meta || response?.data?.meta || {};
 
-      setEvents(filteredEvents);
+        let filteredEvents = fetchedEvents.filter((event) => isPublicEventStatus(event?.status));
 
-      if (needsClientPagination) {
-        setTotalPages(Math.max(1, Math.ceil(filteredEvents.length / perPage)));
-      } else {
-        setTotalPages(Number(meta?.totalPages) > 0 ? Number(meta.totalPages) : 1);
+        if (selectedSports.length > 1) {
+          filteredEvents = filteredEvents.filter((event) =>
+            selectedSports.some((sport) => matchesSportFilter(event?.sportType, sport))
+          );
+        }
+
+        if (selectedEventTypes.length > 1) {
+          filteredEvents = filteredEvents.filter((event) =>
+            selectedEventTypes.some((eventType) =>
+              matchesEventTypeFilter(event?.eventType, eventType)
+            )
+          );
+        }
+
+        setEvents(filteredEvents);
+
+        if (needsClientPagination) {
+          setTotalPages(Math.max(1, Math.ceil(filteredEvents.length / perPage)));
+        } else {
+          setTotalPages(Number(meta?.totalPages) > 0 ? Number(meta.totalPages) : 1);
+        }
+      } catch (fetchError) {
+        if (fetchError?.name === 'CanceledError' || fetchError?.code === 'ERR_CANCELED') return;
+        setError(fetchError?.response?.data?.message || 'Failed to load events');
+        setEvents([]);
+        setTotalPages(1);
+      } finally {
+        setLoading(false);
       }
-    } catch (fetchError) {
-      if (fetchError?.name === 'CanceledError' || fetchError?.code === 'ERR_CANCELED') return;
-      setError(fetchError?.response?.data?.message || 'Failed to load events');
-      setEvents([]);
-      setTotalPages(1);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters.city, filters.date, eventTypeFilterKey, sportFilterKey, needsClientPagination, pageKey]);
+    },
+    [filters, eventTypeFilterKey, sportFilterKey, needsClientPagination, pageKey, page, perPage]
+  );
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -257,6 +302,7 @@ const EventView = () => {
 
   useEffect(() => {
     if (showFilters) {
+      setMobileFilters(filters);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -264,7 +310,7 @@ const EventView = () => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [showFilters]);
+  }, [showFilters, filters]);
 
   const mappedEvents = useMemo(
     () =>
@@ -286,9 +332,24 @@ const EventView = () => {
     if (!needsClientPagination) return mappedEvents;
     const start = (page - 1) * perPage;
     return mappedEvents.slice(start, start + perPage);
-  }, [needsClientPagination, mappedEvents, page]);
+  }, [needsClientPagination, mappedEvents, page, perPage]);
 
-  const total = totalPages;
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const handleApplyMobileFilters = () => {
+    setFilters(mobileFilters);
+    setPage(1);
+    setShowFilters(false);
+  };
+
+  const handleSidebarFilterChange = (nextFilters) => {
+    setFilters(nextFilters);
+    setPage(1);
+  };
 
   const handleViewDetails = (event) => {
     if (!event?.id) return;
@@ -311,46 +372,31 @@ const EventView = () => {
   return (
     <div className="bg-[#F8FAFC] py-6 lg:py-10">
       <Container>
-        {/* Custom Header Section */}
-        <div className="mb-6 flex flex-col items-start justify-between gap-4 lg:mb-8 lg:flex-row lg:items-center">
-          {/* Header Section */}
-          <div className="">
-            <PageHeader
-              title="Events"
-              description={'Explore women-focused events and workshops near you. '}
-            />
-          </div>
-
-          <div className="flex w-full items-center justify-end gap-2 lg:w-auto">
-            {/* Mobile Filter Button */}
-            <button
-              onClick={() => setShowFilters(true)}
-              className="flex w-full items-center justify-between rounded-lg border border-[#B9DAD7] bg-white px-5 py-4 text-left lg:hidden"
-            >
-              <span className="text-base font-semibold leading-none text-gray-900">Filters</span>
-              <Filter className="h-6 w-6 shrink-0 text-gray-900" strokeWidth={2.2} />
-            </button>
-          </div>
+        <div className="mb-6 lg:mb-8">
+          <PageHeader
+            title="Events"
+            description={'Explore women-focused events and workshops near you. '}
+          />
         </div>
 
-        {/* Mobile Filter Side-Drawer */}
+     
         {showFilters && (
           <div
             className="fixed inset-0 z-100 flex justify-end lg:hidden"
-            onWheel={(e) => e.stopPropagation()} // Stop scroll leakage
+            onWheel={(e) => e.stopPropagation()} 
           >
-            {/* Overlay Backdrop */}
+
             <div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setShowFilters(false)}
             />
 
-            {/* Drawer Content */}
+          
             <div
               className="relative flex h-full w-[85%] max-w-sm flex-col bg-white shadow-xl"
-              onClick={(e) => e.stopPropagation()} // Stop click through to backdrop
+              onClick={(e) => e.stopPropagation()} 
             >
-              {/* Drawer Header */}
+              
               <div className="flex shrink-0 items-center justify-between border-b border-gray-200 p-4">
                 <h4 className="text-lg font-bold text-gray-900">Filters</h4>
                 <button
@@ -367,10 +413,9 @@ const EventView = () => {
                   {' '}
                   {/* Extra padding bottom for the fixed button gap */}
                   <EventFilters
-                    filters={filters}
-                    onChange={(f) => {
-                      setFilters(f);
-                      setPage(1);
+                    filters={mobileFilters}
+                    onChange={(nextFilters) => {
+                      setMobileFilters(nextFilters);
                     }}
                   />
                 </div>
@@ -379,7 +424,8 @@ const EventView = () => {
               {/* Fixed Bottom Action Button */}
               <div className="absolute right-0 bottom-0 left-0 shrink-0 border-t border-gray-200 bg-white p-4">
                 <button
-                  onClick={() => setShowFilters(false)}
+                  type="button"
+                  onClick={handleApplyMobileFilters}
                   className="w-full rounded-xl bg-[#5EA39E] py-3.5 font-bold text-white shadow-lg transition-transform active:scale-95"
                 >
                   Show Results
@@ -389,18 +435,19 @@ const EventView = () => {
           </div>
         )}
 
-        {/* Content Grid */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-4">
-          {/* Desktop Sidebar */}
-          <aside className="hidden lg:col-span-1 lg:block">
-            <div className="sticky top-22">
-              <EventFilters
-                filters={filters}
-                onChange={(f) => {
-                  setFilters(f);
-                  setPage(1);
-                }}
-              />
+          <aside className="lg:col-span-1">
+            <button
+              type="button"
+              onClick={() => setShowFilters(true)}
+              className="mb-4 flex w-full items-center justify-between rounded-lg border border-[#B9DAD7] bg-white px-5 py-4 text-left lg:hidden"
+            >
+              <span className="text-base font-semibold leading-none text-gray-900">Filters</span>
+              <Filter className="h-6 w-6 shrink-0 text-gray-900" strokeWidth={2.2} />
+            </button>
+
+            <div className="sticky top-22 hidden lg:block">
+              <EventFilters filters={filters} onChange={handleSidebarFilterChange} />
             </div>
           </aside>
 
@@ -431,9 +478,9 @@ const EventView = () => {
               <div className="mt-10 rounded-md border border-dashed border-gray-200 bg-white p-6 text-center text-gray-600">
                 No events match your filters yet — try widening your search or exploring all events.
               </div>
-            ) : !loading && !error ? (
+            ) : !loading && !error && totalPages > 1 ? (
               <div className="mt-10 flex justify-center">
-                <Pagination page={page} total={total} onChange={(p) => setPage(p)} />
+                <Pagination page={page} total={totalPages} onChange={(p) => setPage(p)} />
               </div>
             ) : null}
           </div>

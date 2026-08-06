@@ -10,6 +10,11 @@ import EventBannedAlert from './components/singleEvent/EventBannedAlert';
 import EventOverviewSection from './components/singleEvent/EventOverviewSection';
 import EventInteractionSection from './components/singleEvent/EventInteractionSection';
 import EventVenueCard from './components/singleEvent/EventVenueCard';
+import {
+    DUMMY_IMAGE_PATH,
+    pickImageSource,
+    resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
 
 const formatReadableText = (value) => {
   if (!value) return 'N/A';
@@ -172,6 +177,26 @@ const EventSingleDetails = () => {
       : 'N/A';
   const ageGroupValue = eventData?.minAge ? `${eventData.minAge}+ Years` : 'N/A';
   const mapEmbedUrl = useMemo(() => buildMapEmbedUrl(eventData), [eventData]);
+  const coverImage = useMemo(
+    () =>
+      resolveImageUrl(
+        pickImageSource(eventData?.coverImage, eventData?.image),
+        DUMMY_IMAGE_PATH
+      ),
+    [eventData]
+  );
+  const organizerAvatar = useMemo(
+    () =>
+      resolveImageUrl(
+        pickImageSource(
+          eventData?.organizer?.avatar,
+          eventData?.organizerAvatar,
+          eventData?.organizer?.image
+        ),
+        DUMMY_IMAGE_PATH
+      ),
+    [eventData]
+  );
 
   if (isLoading || !hasLoaded) {
     return <EventLoadingState />;
@@ -194,7 +219,7 @@ const EventSingleDetails = () => {
      
 
       <div className="space-y-6 p-4 md:p-8">
-        <EventHeroSection image={eventData.image} onBack={() => navigate(-1)} />
+        <EventHeroSection image={coverImage} onBack={() => navigate(-1)} />
 
         {isBanned && <EventBannedAlert reason={eventData.bannedReason || eventData.rejectionReason} />}
 
@@ -233,6 +258,7 @@ const EventSingleDetails = () => {
               organizerPhone={eventData.organizerPhone}
               organizerEmail={eventData.organizerEmail}
               organizerName={eventData.organizerName || eventData?.organizer?.name}
+              organizerAvatar={organizerAvatar}
             />
           </div>
         </div>

@@ -12,6 +12,12 @@ import {
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import {
+    DUMMY_IMAGE_PATH,
+    handleImageLoadError,
+    pickImageSource,
+    resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
 
 const normalizeStatus = (service) => {
     if (service?.bannedAt || service?.bannedReason) return 'Banned';
@@ -86,7 +92,10 @@ const ServiceProviderListingDetails = () => {
             coach: service?.contactName || service?.provider?.name || service?.providerName || 'N/A',
             status: normalizeStatus(service),
             engagement: null,
-            avatar: service?.provider?.avatar || service?.logo || '',
+            avatar: resolveImageUrl(
+                pickImageSource(service?.provider?.avatar, service?.logo, service?.image),
+                DUMMY_IMAGE_PATH
+            ),
             about: service?.aboutService || service?.description || 'No service details available.',
             clinicName: service?.clinicName || 'N/A',
             addressLine1: service?.addressLine1 || 'N/A',
@@ -153,9 +162,10 @@ const ServiceProviderListingDetails = () => {
                     {/* Avatar */}
                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#1a1a1a] shrink-0 flex items-center justify-center shadow-sm overflow-hidden">
                         <img
-                            src={data.avatar || 'https://ui-avatars.com/api/?name=W+S&background=1a1a1a&color=b4855d&font-size=0.4'}
-                            alt="Logo"
+                            src={data.avatar}
+                            alt={data.listing}
                             className="w-full h-full object-cover"
+                            onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
                         />
                     </div>
 

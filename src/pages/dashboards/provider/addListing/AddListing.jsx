@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Edit3, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Pagination from '../../../../components/ui/Pagination';
 import DeleteConfirmationModal from '../../../../components/ui/DeleteConfirmationModal';
-import CreateServiceModal from './components/CreateServiceModal';
+import CreateRecruitmentModal from '../../../../components/ui/CreateRecruitmentModal';
 import { fetchProviderListings, deleteProviderListing } from '../../../../features/providerListing/providerListingAPI';
 import { selectProviderListings } from '../../../../features/providerListing/providerListingSlice';
 
@@ -188,7 +188,7 @@ const AddListing = () => {
         )}
       </div>
 
-      <CreateServiceModal
+      <CreateRecruitmentModal
         key={`${modalMode}-${editingService?.id || 'new'}-${isModalOpen ? 'open' : 'closed'}`}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

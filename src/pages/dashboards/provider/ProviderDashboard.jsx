@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Plus, Users, X } from 'lucide-react';
 import EventModal from '../../../components/ui/EventModal';
-import CreateServiceModal from './addListing/components/CreateServiceModal';
+import CreateRecruitmentModal from '../../../components/ui/CreateRecruitmentModal';
 import axiosInstance from '../../../services/axiosInstance';
 import { GET } from '../../../services/httpMethods';
 import { ENDPOINT } from '../../../services/httpEndpoint';
@@ -440,7 +440,7 @@ const ProviderDashboard = () => {
         </div>
       </section>
 
-      <CreateServiceModal
+      <CreateRecruitmentModal
         isOpen={serviceModalOpen}
         onClose={() => setServiceModalOpen(false)}
         mode="create"

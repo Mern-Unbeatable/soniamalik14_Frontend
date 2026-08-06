@@ -12,6 +12,87 @@ import {
 import { fetchSportsCategories } from '../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
 
+const SUITABLE_FOR_OPTIONS = [
+  'New to sport',
+  'Some experience',
+  'Experienced players',
+  'Competitive players',
+  'All levels welcome',
+];
+
+const EVENT_TYPE_OPTIONS = [
+  { label: 'Match', value: 'MATCH' },
+  { label: 'Tournament', value: 'TOURNAMENT' },
+  { label: 'Trial', value: 'TRIAL' },
+  { label: 'Training', value: 'TRAINING' },
+  { label: 'Workshop', value: 'WORKSHOP' },
+  { label: 'Seminar', value: 'SEMINAR' },
+  { label: 'Competition', value: 'COMPETITION' },
+  { label: 'Meetup', value: 'MEETUP' },
+];
+
+const DAY_OPTIONS = [
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+];
+
+const RESPONSE_ACTION_OPTIONS = [
+  { value: 'REGISTER', label: 'Register', desc: 'People can sign up to attend this event.' },
+  { value: 'REGISTER_INTEREST', label: 'Register Interest', desc: 'Confirm demand before people attend.' },
+];
+
+const fieldClass =
+  'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40';
+const labelClass = 'mb-1.5 block text-sm font-medium text-white';
+
+const FormSection = ({ title, children }) => (
+  <section className="rounded-lg border border-white/20 bg-[#0f756d] p-4">
+    {title ? <h3 className="mb-4 text-base font-bold text-white">{title}</h3> : null}
+    {children}
+  </section>
+);
+
+const parseListValue = (value) => {
+  if (Array.isArray(value)) return value.map((item) => String(item || '').trim()).filter(Boolean);
+  if (!value) return [];
+  return String(value)
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const getOrganisationDefaultsFromUser = (user = {}) => ({
+  organizationName:
+    user?.organizationName ||
+    user?.organisationName ||
+    user?.providerBusinessName ||
+    user?.businessName ||
+    user?.providerName ||
+    user?.name ||
+    '',
+  contactName:
+    user?.contactName ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+    user?.name ||
+    '',
+  role: user?.role || user?.providerRole || user?.jobTitle || '',
+  logo: user?.logo || user?.avatar || user?.profileImage || user?.image || null,
+});
+
+const mapResponseTypeToMethods = (responseType) =>
+  responseType === 'REGISTER_INTEREST' ? ['Allow users to register interest'] : ['Add booking link'];
+
+const mapMethodsToResponseType = (methods = []) =>
+  methods.includes('Allow users to register interest') ? 'REGISTER_INTEREST' : 'REGISTER';
+
+const formatTimeForApi = (value) => {
+  if (!value) return '';
+  const match = String(value).trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return String(value).trim();
+  const hours = Number(match[1]);
+  const hour12 = hours % 12 || 12;
+  return `${hour12}:${match[2]} ${hours >= 12 ? 'PM' : 'AM'}`;
+};
+
 const toDateInputValue = (value) => {
   if (!value) return '';
   const text = String(value).trim();
@@ -76,19 +157,84 @@ const SPORT_OPTIONS = [
   'Not sport-specific',
 ];
 
-const SUITABLE_FOR_OPTIONS = ['Women', 'College Students', 'Professionals'];
+const buildEmptyEventForm = (authUser) => {
+  const org = getOrganisationDefaultsFromUser(authUser);
+  return {
+    organizationName: org.organizationName,
+    contactName: org.contactName,
+    role: org.role,
+    orgLogo: org.logo,
+    eventTitle: '',
+    sportType: '',
+    suitableFor: [],
+    eventType: 'TRAINING',
+    description: '',
+    startDate: '',
+    endDate: '',
+    startTime: '',
+    endTime: '',
+    sessionDay: '',
+    venueName: '',
+    city: '',
+    postcode: '',
+    fullAddress: '',
+    googleMapLinks: '',
+    minAge: '18',
+    maxParticipant: '20',
+    skillLevel: 'All levels welcome',
+    costType: 'Free',
+    price: '',
+    responseType: 'REGISTER',
+    responseMethods: mapResponseTypeToMethods('REGISTER'),
+    organizerName: org.contactName,
+    organizerPhone: authUser?.phone || authUser?.phoneNumber || '',
+    organizerEmail: authUser?.email || '',
+    image: null,
+    womensOnly: true,
+  };
+};
 
-const getSuitableForValue = (value) => {
-  if (Array.isArray(value)) {
-    return value.map((item) => String(item || '').trim()).filter(Boolean);
-  }
-  if (typeof value === 'string') {
-    return value
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
-  return [];
+const mapEventToForm = (initialData, authUser) => {
+  const org = getOrganisationDefaultsFromUser(authUser);
+  const responseType =
+    initialData?.responseType ||
+    (initialData?.responseMethods?.includes('Allow users to register interest')
+      ? 'REGISTER_INTEREST'
+      : 'REGISTER');
+
+  return {
+    organizationName: initialData?.organizationName || initialData?.organizerName || org.organizationName,
+    contactName: initialData?.contactName || initialData?.organizerName || org.contactName,
+    role: initialData?.role || org.role,
+    orgLogo: initialData?.orgLogo || initialData?.logo || org.logo,
+    eventTitle: initialData.title || '',
+    sportType: initialData.sportType || '',
+    suitableFor: parseListValue(initialData.suitableFor),
+    eventType: initialData.eventType || initialData.type || 'TRAINING',
+    description: initialData.description || '',
+    startDate: toDateInputValue(initialData.startDate || initialData.date),
+    endDate: toDateInputValue(initialData.endDate),
+    startTime: toTimeInputValue(initialData.startTime),
+    endTime: toTimeInputValue(initialData.endTime),
+    sessionDay: initialData?.sessionDay || initialData?.sessonDay || '',
+    venueName: initialData.venueName || '',
+    city: initialData.city || '',
+    postcode: initialData.postCode || initialData.postcode || '',
+    fullAddress: initialData.fullAddress || initialData.location || '',
+    googleMapLinks: initialData.googleMapLink || initialData.googleMapLinks || '',
+    minAge: initialData.minAge || '18',
+    maxParticipant: initialData.maxParticipants || initialData.maxParticipant || '20',
+    skillLevel: initialData.skillLevel || 'All levels welcome',
+    costType: String(initialData.costType || 'Free').toLowerCase() === 'paid' ? 'Paid' : 'Free',
+    price: initialData.registrationFee || initialData.price || '',
+    responseType,
+    responseMethods: mapResponseTypeToMethods(responseType),
+    organizerName: initialData.organizerName || org.contactName,
+    organizerPhone: initialData.organizerPhone || authUser?.phone || authUser?.phoneNumber || '',
+    organizerEmail: initialData.organizerEmail || authUser?.email || '',
+    image: initialData.image || null,
+    womensOnly: initialData?.womensOnly ?? initialData?.womenOnly ?? true,
+  };
 };
 
 const EventModal = ({
@@ -118,92 +264,14 @@ const EventModal = ({
   const authUser = useSelector(selectAuthUser);
   const createOrganizerLoading = useSelector(selectCreateOrganizerEventLoading);
   const updateOrganizerLoading = useSelector(selectUpdateOrganizerEventLoading);
-  const [formData, setFormData] = useState({
-    eventTitle: '',
-    sportType: '',
-    suitableFor: [],
-    eventType: 'TRAINING',
-    description: '',
-    startDate: '',
-    endDate: '',
-    startTime: '',
-    endTime: '',
-    venueName: '',
-    city: '',
-    fullAddress: '',
-    googleMapLinks: '',
-    minAge: '18',
-    maxParticipant: '20',
-    skillLevel: 'New To Sport',
-    costType: 'Free',
-    price: '',
-    responseMethods: ['Add booking link'],
-    organizerName: '',
-    organizerPhone: '',
-    organizerEmail: '',
-    image: null,
-  });
+  const [formData, setFormData] = useState(() => buildEmptyEventForm(authUser));
 
-  // Update form data when initialData changes (for edit mode)
   useEffect(() => {
+    if (!isOpen) return;
     if (initialData && mode === 'edit') {
-      setFormData({
-        eventTitle: initialData.title || '',
-        sportType: initialData.sportType || '',
-        suitableFor: getSuitableForValue(initialData.suitableFor),
-        eventType: initialData.eventType || initialData.type || 'TRAINING',
-        description: initialData.description || '',
-        startDate: toDateInputValue(initialData.startDate || initialData.date),
-        endDate: toDateInputValue(initialData.endDate),
-        startTime: toTimeInputValue(initialData.startTime),
-        endTime: toTimeInputValue(initialData.endTime),
-        venueName: initialData.venueName || '',
-        city: initialData.city || '',
-        fullAddress: initialData.fullAddress || initialData.location || '',
-        googleMapLinks: initialData.googleMapLink || initialData.googleMapLinks || '',
-        minAge: initialData.minAge || '18',
-        maxParticipant: initialData.maxParticipants || initialData.maxParticipant || '20',
-        skillLevel: initialData.skillLevel || 'New To Sport',
-        costType: String(initialData.costType || 'Free').toLowerCase() === 'paid' ? 'Paid' : 'Free',
-        price: initialData.registrationFee || initialData.price || '',
-        responseMethods: Array.isArray(initialData.responseMethods)
-          ? initialData.responseMethods
-          : ['Add booking link'],
-        organizerName: initialData.organizerName || authUser?.name || '',
-        organizerPhone:
-          initialData.organizerPhone || authUser?.phone || authUser?.phoneNumber || '',
-        organizerEmail: initialData.organizerEmail || authUser?.email || '',
-        image: initialData.image || null,
-        womensOnly: initialData?.womensOnly ?? initialData?.womenOnly ?? true,
-      });
+      setFormData(mapEventToForm(initialData, authUser));
     } else if (mode === 'create') {
-      // Reset form for create mode
-      setFormData({
-        eventTitle: '',
-        sportType: '',
-        suitableFor: [],
-        eventType: 'TRAINING',
-        description: '',
-        startDate: '',
-        endDate: '',
-        startTime: '',
-        endTime: '',
-        venueName: '',
-        city: '',
-        fullAddress: '',
-        googleMapLinks: '',
-        minAge: '18',
-        maxParticipant: '20',
-        skillLevel: 'New To Sport',
-        costType: 'Free',
-        price: '',
-        responseMethods: ['Add booking link'],
-        organizerName: authUser?.name || '',
-        organizerPhone: authUser?.phone || authUser?.phoneNumber || '',
-        organizerEmail: authUser?.email || '',
-        image: null,
-        womensOnly: true,
-      });
+      setFormData(buildEmptyEventForm(authUser));
     }
   }, [initialData, mode, isOpen, authUser]);
 
@@ -215,22 +283,18 @@ const EventModal = ({
     return URL.createObjectURL(formData.image);
   }, [formData.image]);
 
+  const orgLogoPreview = useMemo(() => {
+    if (!formData.orgLogo) return '';
+    if (typeof formData.orgLogo === 'string') return formData.orgLogo;
+    return URL.createObjectURL(formData.orgLogo);
+  }, [formData.orgLogo]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  const toggleResponseMethod = (method) => {
-    setFormData((prev) => {
-      const hasMethod = prev.responseMethods.includes(method);
-      return {
-        ...prev,
-        responseMethods: hasMethod
-          ? prev.responseMethods.filter((item) => item !== method)
-          : [...prev.responseMethods, method],
-      };
-    });
-  };
+  // const toggleResponseMethod = (method) => { ... };
 
   const toggleSuitableFor = (option) => {
     setFormData((prev) => {
@@ -249,8 +313,27 @@ const EventModal = ({
       if (imagePreview && imagePreview.startsWith('blob:')) {
         URL.revokeObjectURL(imagePreview);
       }
+      if (orgLogoPreview && orgLogoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(orgLogoPreview);
+      }
     };
-  }, [imagePreview]);
+  }, [imagePreview, orgLogoPreview]);
+
+  const handleOrgLogoFile = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleChange('orgLogo', file);
+    }
+    event.target.value = '';
+  };
+
+  const handleEventImageFile = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleChange('image', file);
+    }
+    event.target.value = '';
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -268,9 +351,10 @@ const EventModal = ({
       'endTime',
       'venueName',
       'city',
+      'postcode',
       'fullAddress',
-      'googleMapLinks',
-      'skillLevel',
+      // 'googleMapLinks',
+      // 'skillLevel',
       'costType',
     ];
 
@@ -319,12 +403,20 @@ const EventModal = ({
     payload.append('description', formData.description);
     payload.append('startDate', formData.startDate);
     payload.append('endDate', formData.endDate);
-    payload.append('startTime', formData.startTime);
-    payload.append('endTime', formData.endTime);
+    payload.append('startTime', formatTimeForApi(formData.startTime) || formData.startTime);
+    payload.append('endTime', formatTimeForApi(formData.endTime) || formData.endTime);
     payload.append('venueName', formData.venueName);
     payload.append('city', formData.city);
+    payload.append('postCode', formData.postcode || '');
     payload.append('fullAddress', formData.fullAddress);
     payload.append('googleMapLink', formData.googleMapLinks);
+    payload.append('organizationName', formData.organizationName || formData.organizerName || '');
+    payload.append('contactName', formData.contactName || formData.organizerName || '');
+    payload.append('role', formData.role || '');
+    payload.append(
+      'whoCanTakePart',
+      formData.womensOnly ? 'women only' : 'Mixed, women welcome'
+    );
     payload.append('minAge', formData.minAge || '18');
     payload.append('maxParticipants', formData.maxParticipant || '20');
     payload.append('skillLevel', normalizeSkillLevel(formData.skillLevel));
@@ -333,10 +425,12 @@ const EventModal = ({
       'registrationFee',
       formData.costType === 'Paid' ? String(formData.price || '').trim() : '0'
     );
-    const finalMethods = [...(formData.responseMethods || [])];
-    if (!finalMethods.includes('Allow users to ask a question')) {
-      finalMethods.push('Allow users to ask a question');
-    }
+    const responseType = formData.responseType || mapMethodsToResponseType(formData.responseMethods);
+    payload.append('responseType', responseType);
+    const finalMethods = [...mapResponseTypeToMethods(responseType)];
+    // if (!finalMethods.includes('Allow users to ask a question')) {
+    //   finalMethods.push('Allow users to ask a question');
+    // }
     finalMethods.forEach((method) => {
       if (String(method || '').trim()) {
         payload.append('responseMethods', String(method).trim());
@@ -357,11 +451,16 @@ const EventModal = ({
     payload.append('organizerPhone', organizerPhone);
     payload.append('organizerEmail', organizerEmail);
     payload.append('womensOnly', String(formData.womensOnly === true));
-    payload.append('womenOnly', String(formData.womensOnly === true));
 
-    // Add image if present
-    if (formData.image instanceof File) {
-      payload.append('image', formData.image);
+    // API multer accepts a single file field: `image` (not `logo`)
+    const eventImageFile =
+      formData.image instanceof File
+        ? formData.image
+        : formData.orgLogo instanceof File
+          ? formData.orgLogo
+          : null;
+    if (eventImageFile) {
+      payload.append('image', eventImageFile);
     }
 
     // Call create or update based on mode
@@ -400,24 +499,25 @@ const EventModal = ({
 
   if (!isOpen) return null;
 
-  const fieldClass =
-    'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500';
-  const labelClass = 'mb-1 block text-base font-medium text-white';
-  const errorClass = 'mt-1 text-sm text-red-300';
+  const errorClass = 'mt-1 text-sm text-red-200';
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-[#0F766E] sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex h-full w-full flex-col overflow-hidden bg-[#0F766E] sm:max-h-[88vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#0A4A45] sm:shadow-2xl">
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
-          <h2 className="text-2xl font-semibold text-white">
-            {mode === 'edit' ? 'Edit Event' : 'Add Event '}
-          </h2>
+      <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#0a5a54] bg-[#0f756d] shadow-xl">
+        <div className="flex items-center justify-between border-b border-white/15 px-5 py-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-white">
+              {mode === 'edit' ? 'Edit Event' : 'Add Event'}
+            </h2>
+            <p className="mt-1 text-sm text-white/85">
+              Share an event with the community. Need a recurring session instead? Add a session from your dashboard.
+            </p>
+          </div>
           <button
             onClick={onClose}
             className="rounded-full bg-white/20 p-1 text-white transition-colors hover:bg-white/30"
@@ -427,432 +527,283 @@ const EventModal = ({
           </button>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto bg-[#0F766E] p-4 sm:p-5 md:p-6">
-          <form id="event-form" onSubmit={handleSubmit} className="space-y-6">
-            {/* Event Title & Sport Type */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Event Title</label>
-                <input
-                  type="text"
-                  placeholder="enter event title"
-                  value={formData.eventTitle}
-                  onChange={(e) => handleChange('eventTitle', e.target.value)}
-                  className={fieldClass}
-                />
-                {errors.eventTitle && <p className={errorClass}>{errors.eventTitle}</p>}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+          <form id="event-form" onSubmit={handleSubmit} className="space-y-4">
+            <FormSection title="Organisation Details">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className={labelClass}>Organisation / Club Name</label>
+                    <input className={fieldClass} value={formData.organizationName} onChange={(e) => handleChange('organizationName', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Contact Person Name</label>
+                    <input className={fieldClass} value={formData.contactName} onChange={(e) => handleChange('contactName', e.target.value)} />
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Your Role</label>
+                  <input className={fieldClass} value={formData.role} onChange={(e) => handleChange('role', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>Organisation Image / Logo</label>
+                  <div className="relative h-40 overflow-hidden rounded-lg border-2 border-dashed border-white/35 bg-white/10">
+                    {orgLogoPreview ? (
+                      <>
+                        <img
+                          src={orgLogoPreview}
+                          alt="Organisation"
+                          className="pointer-events-none h-full w-full object-cover"
+                        />
+                        <div className="pointer-events-none absolute bottom-2 left-2 rounded bg-black/50 px-2 py-1 text-xs text-white">
+                          Click to change
+                        </div>
+                      </>
+                    ) : (
+                      <div className="pointer-events-none flex h-full flex-col items-center justify-center px-4 text-center text-sm text-white/80">
+                        <Upload className="mb-2 h-7 w-7 text-white/70" />
+                        <span>No organisation image on your account yet.</span>
+                        <span className="mt-1 text-xs text-white/60">Click to upload</span>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png"
+                      aria-label="Upload organisation logo"
+                      className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                      onChange={handleOrgLogoFile}
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className={labelClass}>Sport</label>
-                <select
-                  value={formData.sportType}
-                  onChange={(e) => handleChange('sportType', e.target.value)}
-                  className={fieldClass}
-                >
-                  <option value="">Select sport</option>
-                  {sportsCategories && sportsCategories.length > 0
-                    ? sportsCategories.map((sport) => (
-                        <option key={sport.id || sport.name} value={sport.name}>
-                          {sport.name}
-                        </option>
-                      ))
-                    : SPORT_OPTIONS.map((sport) => (
-                        <option key={sport} value={sport}>
-                          {sport}
+            </FormSection>
+
+            <FormSection title="Sport & Event Information">
+              <div className="space-y-4">
+                <div>
+                  <label className={labelClass}>Event title *</label>
+                  <input
+                    value={formData.eventTitle}
+                    onChange={(e) => handleChange('eventTitle', e.target.value)}
+                    className={fieldClass}
+                    placeholder="Enter event title"
+                  />
+                  {errors.eventTitle && <p className={errorClass}>{errors.eventTitle}</p>}
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className={labelClass}>Sport or activity *</label>
+                    <select
+                      value={formData.sportType}
+                      onChange={(e) => handleChange('sportType', e.target.value)}
+                      className={fieldClass}
+                    >
+                      <option value="">Select sport</option>
+                      {(sportsCategories?.length ? sportsCategories : SPORT_OPTIONS.map((name) => ({ name }))).map(
+                        (sport) => (
+                          <option key={sport.id || sport.name} value={sport.name}>
+                            {sport.name}
+                          </option>
+                        )
+                      )}
+                    </select>
+                    {errors.sportType && <p className={errorClass}>{errors.sportType}</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Event type *</label>
+                    <select
+                      value={formData.eventType}
+                      onChange={(e) => handleChange('eventType', e.target.value)}
+                      className={fieldClass}
+                    >
+                      {EVENT_TYPE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
                         </option>
                       ))}
-                </select>
-                {errors.sportType && <p className={errorClass}>{errors.sportType}</p>}
-              </div>
-            </div>
-
-            {/* Event Type */}
-            <div>
-              <label className={labelClass}>Event Type</label>
-              <select
-                value={formData.eventType}
-                onChange={(e) => handleChange('eventType', e.target.value)}
-                className={fieldClass}
-              >
-                <option value="MATCH">Match</option>
-                <option value="TOURNAMENT">Tournament</option>
-                <option value="TRIAL">Trial</option>
-                <option value="TRAINING">Training</option>
-                <option value="WORKSHOP">Workshop</option>
-                <option value="SEMINAR">Seminar</option>
-                <option value="COMPETITION">Competition</option>
-                <option value="MEETUP">Meetup</option>
-              </select>
-              {errors.eventType && <p className={errorClass}>{errors.eventType}</p>}
-            </div>
-
-            {/* Event Description */}
-            <div>
-              <label className={labelClass}>Event Description</label>
-              <textarea
-                placeholder="Tell people what to expect, who it’s for and what to bring"
-                value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
-                rows={4}
-                className={`${fieldClass} min-h-24 resize-none`}
-              />
-              {errors.description && <p className={errorClass}>{errors.description}</p>}
-            </div>
-
-            {/* Start Date & End Date */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Start Date</label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={formData.startDate}
-                    min={todayStr}
-                    onChange={(e) => handleChange('startDate', e.target.value)}
-                    className={fieldClass}
-                  />
-                  {errors.startDate && <p className={errorClass}>{errors.startDate}</p>}
+                    </select>
+                    {errors.eventType && <p className={errorClass}>{errors.eventType}</p>}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <label className={labelClass}>End Date</label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={formData.endDate}
-                    min={formData.startDate || todayStr}
-                    onChange={(e) => handleChange('endDate', e.target.value)}
-                    className={fieldClass}
-                  />
-                  {errors.endDate && <p className={errorClass}>{errors.endDate}</p>}
-                </div>
-              </div>
-            </div>
-
-            {/* Start Time & End Time */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Start Time</label>
-                <div className="relative">
-                  <input
-                    type="time"
-                    value={formData.startTime}
-                    onChange={(e) => handleChange('startTime', e.target.value)}
-                    className={fieldClass}
-                  />
-                  {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>End Time</label>
-                <div className="relative">
-                  <input
-                    type="time"
-                    value={formData.endTime}
-                    onChange={(e) => handleChange('endTime', e.target.value)}
-                    className={fieldClass}
-                  />
-                  {errors.endTime && <p className={errorClass}>{errors.endTime}</p>}
-                </div>
-              </div>
-            </div>
-
-            {/* Venue Name & City */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Venue Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Clapham Leisure Centre"
-                  value={formData.venueName}
-                  onChange={(e) => handleChange('venueName', e.target.value)}
-                  className={fieldClass}
-                />
-                {errors.venueName && <p className={errorClass}>{errors.venueName}</p>}
-              </div>
-              <div>
-                <label className={labelClass}>City</label>
-                <input
-                  type="text"
-                  placeholder="City"
-                  value={formData.city}
-                  onChange={(e) => handleChange('city', e.target.value)}
-                  className={fieldClass}
-                />
-                {errors.city && <p className={errorClass}>{errors.city}</p>}
-              </div>
-            </div>
-
-            {/* Venue Address */}
-            <div>
-              <label className={labelClass}>Venue Address</label>
-              <input
-                type="text"
-                placeholder="Enter full venue address"
-                value={formData.fullAddress}
-                onChange={(e) => handleChange('fullAddress', e.target.value)}
-                className={fieldClass}
-              />
-              {errors.fullAddress && <p className={errorClass}>{errors.fullAddress}</p>}
-            </div>
-
-            {/* Google Maps Link */}
-            <div>
-              <label className={labelClass}>Google Maps Link</label>
-              <input
-                type="text"
-                placeholder="Paste Google Maps link"
-                value={formData.googleMapLinks}
-                onChange={(e) => handleChange('googleMapLinks', e.target.value)}
-                className={fieldClass}
-              />
-              {errors.googleMapLinks && <p className={errorClass}>{errors.googleMapLinks}</p>}
-            </div>
-
-            {/* Who it's suitable for */}
-            <div className="space-y-2">
-              <label className="text-base font-medium text-white">
-                Suitable for (more than one can be selected)
-              </label>
-              <div className="flex flex-col gap-2">
-                {SUITABLE_FOR_OPTIONS.map((option) => {
-                  const isChecked =
-                    Array.isArray(formData.suitableFor) && formData.suitableFor.includes(option);
-                  return (
-                    <label
-                      key={option}
-                      className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
-                    >
+                <div className="space-y-2">
+                  <label className={labelClass}>Suitable for</label>
+                  {SUITABLE_FOR_OPTIONS.map((option) => (
+                    <label key={option} className="flex cursor-pointer items-center gap-2.5 text-sm text-white/90">
                       <input
                         type="checkbox"
-                        checked={isChecked}
+                        checked={formData.suitableFor.includes(option)}
                         onChange={() => toggleSuitableFor(option)}
-                        className="cursor-pointer rounded border-white/40 accent-[#0B544E]"
+                        className="accent-[#0f756d]"
                       />
                       {option}
                     </label>
-                  );
-                })}
-              </div>
-              {errors.suitableFor && <p className={errorClass}>{errors.suitableFor}</p>}
-            </div>
-
-            {/* Who can take part? */}
-            <div>
-              <label className="mb-2 block text-base font-medium text-white">Who can take part?</label>
-              <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:gap-4">
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.womensOnly === true}
-                    onChange={() => handleChange('womensOnly', true)}
-                    className="h-[15px] w-[15px] cursor-pointer rounded-sm border-white/40 accent-[#0B544E]"
-                  />
-                  <span className="text-base text-white/90">Women only</span>
-                </label>
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.womensOnly === false}
-                    onChange={() => handleChange('womensOnly', false)}
-                    className="h-[15px] w-[15px] cursor-pointer rounded-sm border-white/40 accent-[#0B544E]"
-                  />
-                  <span className="text-base text-white/90">Mixed, women welcome</span>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-base font-medium text-white">Who is this for?</label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'New To Sport',
-                  'All levels welcome',
-                  'Experienced players',
-                  'Coaches',
-                  'Referees',
-                ].map((level) => (
-                  <button
-                    key={level}
-                    type="button"
-                    onClick={() => handleChange('skillLevel', level)}
-                    className={`rounded-sm px-4 py-2 text-base font-medium transition-colors ${
-                      formData.skillLevel === level
-                        ? 'bg-white text-[#0B544E]'
-                        : 'bg-white/20 text-white hover:bg-white/30'
-                    }`}
-                  >
-                    {level}
-                  </button>
-                ))}
-              </div>
-              {errors.skillLevel && <p className={errorClass}>{errors.skillLevel}</p>}
-            </div>
-
-            {/* Cost and Price */}
-            <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[auto_1fr]">
-              <div>
-                <label className="mb-2 block text-base font-medium text-white">Pricing</label>
-                <div className="flex gap-2">
-                  {['Free', 'Paid'].map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => handleChange('costType', type)}
-                      className={`rounded-sm px-5 py-2 text-base font-medium transition-colors ${
-                        formData.costType === type
-                          ? 'bg-white text-[#0B544E]'
-                          : 'bg-white/20 text-white hover:bg-white/30'
-                      }`}
-                    >
-                      {type}
-                    </button>
                   ))}
+                  {errors.suitableFor && <p className={errorClass}>{errors.suitableFor}</p>}
+                </div>
+                <div className="space-y-2">
+                  <label className={labelClass}>Who can take part?</label>
+                  <label className="flex items-center gap-2 text-sm text-white/90">
+                    <input type="radio" name="eventWho" checked={formData.womensOnly === true} onChange={() => handleChange('womensOnly', true)} />
+                    Women only
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-white/90">
+                    <input type="radio" name="eventWho" checked={formData.womensOnly === false} onChange={() => handleChange('womensOnly', false)} />
+                    Mixed, women welcome
+                  </label>
                 </div>
               </div>
-              <div>
-                <label className="mb-2 block text-base font-medium text-white">Price</label>
-                <input
-                  type="text"
-                  placeholder="e.g. £8 per session"
-                  value={formData.price}
-                  onChange={(e) => handleChange('price', e.target.value)}
-                  disabled={formData.costType !== 'Paid'}
-                  className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-70`}
-                />
-                {errors.price && <p className={errorClass}>{errors.price}</p>}
-              </div>
-            </div>
+            </FormSection>
 
-            {/* Response methods */}
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="block text-base font-semibold text-white">
-                  Choose the main action for this listing
-                </label>
-                <p className="text-sm text-white/80">
-                  Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
-                </p>
+            <FormSection title="Event Description">
+              <textarea
+                placeholder="Tell people what to expect, who it is for and what to bring"
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                rows={5}
+                className={`${fieldClass} min-h-28 resize-none`}
+              />
+              {errors.description && <p className={errorClass}>{errors.description}</p>}
+            </FormSection>
+
+            <FormSection title="Location & Timing">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div>
+                    <label className={labelClass}>Venue Name *</label>
+                    <input className={fieldClass} value={formData.venueName} onChange={(e) => handleChange('venueName', e.target.value)} />
+                    {errors.venueName && <p className={errorClass}>{errors.venueName}</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Postcode *</label>
+                    <input className={fieldClass} value={formData.postcode} onChange={(e) => handleChange('postcode', e.target.value)} />
+                    {errors.postcode && <p className={errorClass}>{errors.postcode}</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Google Maps Link</label>
+                    <input className={fieldClass} value={formData.googleMapLinks} onChange={(e) => handleChange('googleMapLinks', e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div>
+                    <label className={labelClass}>Event day</label>
+                    <select className={fieldClass} value={formData.sessionDay} onChange={(e) => handleChange('sessionDay', e.target.value)}>
+                      <option value="">Select day</option>
+                      {DAY_OPTIONS.map((day) => (
+                        <option key={day} value={day}>{day}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Start time *</label>
+                    <input type="time" className={fieldClass} value={formData.startTime} onChange={(e) => handleChange('startTime', e.target.value)} />
+                    {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>End time *</label>
+                    <input type="time" className={fieldClass} value={formData.endTime} onChange={(e) => handleChange('endTime', e.target.value)} />
+                    {errors.endTime && <p className={errorClass}>{errors.endTime}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className={labelClass}>Start date *</label>
+                    <input type="date" min={todayStr} className={fieldClass} value={formData.startDate} onChange={(e) => handleChange('startDate', e.target.value)} />
+                    {errors.startDate && <p className={errorClass}>{errors.startDate}</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>End date *</label>
+                    <input type="date" min={formData.startDate || todayStr} className={fieldClass} value={formData.endDate} onChange={(e) => handleChange('endDate', e.target.value)} />
+                    {errors.endDate && <p className={errorClass}>{errors.endDate}</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>City *</label>
+                    <input className={fieldClass} value={formData.city} onChange={(e) => handleChange('city', e.target.value)} />
+                    {errors.city && <p className={errorClass}>{errors.city}</p>}
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className={labelClass}>Full address *</label>
+                    <input className={fieldClass} value={formData.fullAddress} onChange={(e) => handleChange('fullAddress', e.target.value)} />
+                    {errors.fullAddress && <p className={errorClass}>{errors.fullAddress}</p>}
+                  </div>
+                </div>
               </div>
+            </FormSection>
+
+            {/* Client mock: min age / max participants / skill / inline pricing not shown — payload still supports these if re-enabled */}
+            {/* <FormSection title="Event details">...</FormSection> */}
+
+            <FormSection>
+              <p className="mb-3 text-base font-bold text-white">Choose the main action for this listing</p>
               <div className="space-y-3">
-                {[
-                  {
-                    value: 'Add booking link',
-                    label: 'Register',
-                    desc: 'Choose this if the event or session is confirmed and people can sign up to attend. Note: If payment or final details are required, you should contact the person after they register.',
-                  },
-                  {
-                    value: 'Allow users to register interest',
-                    label: 'Register Interest',
-                    desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend. Note: You should follow up with anyone who registers interest to let them know the next steps.',
-                  },
-                ].map((option) => {
-                  const selected = formData.responseMethods.includes(option.value);
+                {RESPONSE_ACTION_OPTIONS.map((option) => {
+                  const selected = formData.responseType === option.value;
                   return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleChange('responseMethods', [option.value])}
-                      className={`w-full rounded-xl border p-4 text-left transition-all ${
-                        selected
-                          ? 'border-white bg-[#F5F1EB] text-[#0B544E] shadow-sm'
-                          : 'border-white/30 bg-transparent text-white hover:border-white/60'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={`mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-                            selected ? 'border-[#0B544E]' : 'border-white/60'
-                          }`}
-                        >
-                          {selected && <div className="h-2 w-2 rounded-full bg-[#0B544E]" />}
-                        </div>
-                        <div>
-                          <p
-                            className={`text-base font-semibold ${
-                              selected ? 'text-[#0B544E]' : 'text-white'
-                            }`}
-                          >
-                            {option.label}
-                          </p>
-                          <p
-                            className={`mt-1 text-sm leading-normal ${
-                              selected ? 'text-[#0B544E]/70' : 'text-white/70'
-                            }`}
-                          >
-                            {option.desc}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        responseType: option.value,
+                        responseMethods: mapResponseTypeToMethods(option.value),
+                      }))
+                    }
+                    className={`w-full rounded-xl border p-4 text-left ${
+                      selected
+                        ? 'border-white bg-[#F5F1EB] text-[#1A1D1D]'
+                        : 'border-white/30 bg-[#0f756d] text-white'
+                    }`}
+                  >
+                    <p className="font-semibold">{option.label}</p>
+                    <p className={`mt-1 text-sm ${selected ? 'text-gray-600' : 'text-white/75'}`}>{option.desc}</p>
+                  </button>
                   );
                 })}
               </div>
-              {errors.responseMethods && (
-                <p className={errorClass}>{errors.responseMethods}</p>
-              )}
-            </div>
+              {errors.responseMethods && <p className={errorClass}>{errors.responseMethods}</p>}
+            </FormSection>
 
-            {/* Upload Image */}
-            <div>
-              <label className="relative block h-48 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-white/30 bg-transparent p-6 text-center hover:bg-white/10">
+            <FormSection>
+              <label className={labelClass}>Image Upload</label>
+              <div className="relative h-44 overflow-hidden rounded-lg border-2 border-dashed border-white/35 bg-white/10">
                 {imagePreview ? (
                   <>
                     <img
                       src={imagePreview}
-                      alt="Uploaded preview"
-                      className="absolute inset-0 h-full w-full object-cover"
+                      alt="Event"
+                      className="pointer-events-none h-full w-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/30" />
-                    <div className="relative z-10 flex h-full items-center justify-center">
-                      <span className="rounded-md bg-[#F5F1EB] px-4 py-2 text-base font-medium text-[#0B544E]">
-                        Click to change image
-                      </span>
+                    <div className="pointer-events-none absolute bottom-2 left-2 rounded bg-black/50 px-2 py-1 text-xs text-white">
+                      Click to change
                     </div>
                   </>
                 ) : (
-                  <>
-                    <Upload className="mx-auto mb-2 h-8 w-8 text-white/80" />
-                    <p className="text-lg font-medium text-white">Upload Image</p>
-                    <p className="mt-1 text-sm text-white/70">JPEG files accepted. Max 100MB</p>
-                  </>
+                  <div className="pointer-events-none flex h-full flex-col items-center justify-center text-white/80">
+                    <Upload className="mb-2 h-7 w-7" />
+                    <span className="text-sm">Click to upload an image</span>
+                  </div>
                 )}
                 <input
                   type="file"
                   accept="image/jpeg,image/jpg,image/png"
-                  onChange={(e) => handleChange('image', e.target.files?.[0] || null)}
-                  className="hidden"
+                  aria-label="Upload event image"
+                  className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                  onChange={handleEventImageFile}
                 />
-              </label>
-              {errors.image && <p className={`mt-2 ${errorClass}`}>{errors.image}</p>}
-            </div>
+              </div>
+            </FormSection>
           </form>
         </div>
 
-        {/* Sticky Footer */}
-        <div className="sticky bottom-0 z-10 border-t border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-white/40 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/10"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form="event-form"
-              className="rounded-lg bg-[#F5F1EB] px-6 py-2.5 text-sm font-semibold text-[#0B544E] hover:bg-white disabled:opacity-60"
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? 'Submitting...'
-                : mode === 'edit'
-                  ? 'Update Event'
-                  : 'Submit For Approval'}
-            </button>
-          </div>
+        <div className="border-t border-white/15 px-5 py-4">
+          <button
+            type="submit"
+            form="event-form"
+            className="w-full rounded-lg bg-[#F5F1EB] py-3 text-sm font-semibold text-[#0f756d] hover:bg-[#ebe5dc] disabled:opacity-60"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : mode === 'edit' ? 'Update Event' : 'Submit for approval'}
+          </button>
         </div>
       </div>
     </div>
