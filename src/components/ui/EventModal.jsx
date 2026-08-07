@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Upload } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEvent } from '../../context/EventContext';
@@ -11,6 +12,7 @@ import {
 } from '../../features/events/eventsSlice';
 import { fetchSportsCategories } from '../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
+import { GET } from '../../services/httpMethods';
 
 const SUITABLE_FOR_OPTIONS = [
   'New to sport',
@@ -43,13 +45,59 @@ const RESPONSE_ACTION_OPTIONS = [
 const fieldClass =
   'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40';
 const labelClass = 'mb-1.5 block text-sm font-medium text-white';
+const sectionTitleClass = 'text-base font-bold text-white';
+const sectionHintClass = 'mt-1 text-sm text-white/80';
 
-const FormSection = ({ title, children }) => (
+const FormSection = ({ title, hint, children }) => (
   <section className="rounded-lg border border-white/20 bg-[#0f756d] p-4">
-    {title ? <h3 className="mb-4 text-base font-bold text-white">{title}</h3> : null}
+    {title ? (
+      <div className="mb-4">
+        <h3 className={sectionTitleClass}>{title}</h3>
+        {hint ? <p className={sectionHintClass}>{hint}</p> : null}
+      </div>
+    ) : null}
     {children}
   </section>
 );
+
+const isRegisterInterestType = (responseType) =>
+  responseType === 'REGISTER_INTEREST' || responseType === 'INTERESTED';
+
+const toUiResponseType = (responseType) =>
+  isRegisterInterestType(responseType) ? 'REGISTER_INTEREST' : 'REGISTER';
+
+const toApiResponseType = (responseType) =>
+  isRegisterInterestType(responseType) ? 'INTERESTED' : 'REGISTER';
+
+const AUTH_ROLE_LABELS = {
+  coach: 'Coach',
+  provider: 'Service Provider',
+  admin: 'Admin',
+  user: 'Player',
+};
+
+const resolveRoleFromUser = (user = {}) => {
+  const explicit =
+    user?.providerRole ||
+    user?.jobTitle ||
+    user?.yourRole ||
+    user?.listingRole ||
+    '';
+  if (String(explicit || '').trim()) return String(explicit).trim();
+
+  const providerType = Array.isArray(user?.providerType)
+    ? user.providerType[0]
+    : user?.providerType;
+  if (String(providerType || '').trim()) return String(providerType).trim();
+
+  const authRole = String(user?.role || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^role[_\s-]*/, '');
+  if (AUTH_ROLE_LABELS[authRole]) return AUTH_ROLE_LABELS[authRole];
+  if (authRole) return authRole.charAt(0).toUpperCase() + authRole.slice(1);
+  return '';
+};
 
 const parseListValue = (value) => {
   if (Array.isArray(value)) return value.map((item) => String(item || '').trim()).filter(Boolean);
@@ -74,7 +122,7 @@ const getOrganisationDefaultsFromUser = (user = {}) => ({
     [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
     user?.name ||
     '',
-  role: user?.role || user?.providerRole || user?.jobTitle || '',
+  role: resolveRoleFromUser(user),
   logo: user?.logo || user?.avatar || user?.profileImage || user?.image || null,
 });
 
@@ -196,11 +244,12 @@ const buildEmptyEventForm = (authUser) => {
 
 const mapEventToForm = (initialData, authUser) => {
   const org = getOrganisationDefaultsFromUser(authUser);
-  const responseType =
+  const responseType = toUiResponseType(
     initialData?.responseType ||
-    (initialData?.responseMethods?.includes('Allow users to register interest')
-      ? 'REGISTER_INTEREST'
-      : 'REGISTER');
+      (initialData?.responseMethods?.includes('Allow users to register interest')
+        ? 'REGISTER_INTEREST'
+        : 'REGISTER')
+  );
 
   return {
     organizationName: initialData?.organizationName || initialData?.organizerName || org.organizationName,
@@ -244,6 +293,7 @@ const EventModal = ({
   mode = 'create',
   useOrganizerApi = false,
   onSuccess,
+  onSwitchToSession,
 }) => {
   const dispatch = useDispatch();
   const todayStr = useMemo(() => {
@@ -264,15 +314,62 @@ const EventModal = ({
   const authUser = useSelector(selectAuthUser);
   const createOrganizerLoading = useSelector(selectCreateOrganizerEventLoading);
   const updateOrganizerLoading = useSelector(selectUpdateOrganizerEventLoading);
+  const orgLogoInputRef = useRef(null);
+  const eventImageInputRef = useRef(null);
   const [formData, setFormData] = useState(() => buildEmptyEventForm(authUser));
 
   useEffect(() => {
     if (!isOpen) return;
-    if (initialData && mode === 'edit') {
-      setFormData(mapEventToForm(initialData, authUser));
-    } else if (mode === 'create') {
-      setFormData(buildEmptyEventForm(authUser));
-    }
+
+    let cancelled = false;
+
+    const hydrateForm = async () => {
+      let nextForm =
+        initialData && mode === 'edit'
+          ? mapEventToForm(initialData, authUser)
+          : buildEmptyEventForm(authUser);
+
+      if (mode !== 'edit') {
+        try {
+          const response = await GET('/api/users/me/profile');
+          const profile = response?.data?.user || response?.data || response;
+          if (profile && typeof profile === 'object') {
+            nextForm = {
+              ...nextForm,
+              organizationName:
+                nextForm.organizationName ||
+                profile.organizationName ||
+                profile.organisationName ||
+                profile.clubName ||
+                '',
+              contactName:
+                nextForm.contactName ||
+                profile.contactName ||
+                [profile.firstName, profile.lastName].filter(Boolean).join(' ') ||
+                profile.name ||
+                '',
+              role: nextForm.role || resolveRoleFromUser(profile),
+              orgLogo:
+                nextForm.orgLogo ||
+                profile.logo ||
+                profile.avatar ||
+                profile.profileImage ||
+                null,
+            };
+          }
+        } catch {
+          // optional
+        }
+      }
+
+      if (!cancelled) setFormData(nextForm);
+    };
+
+    hydrateForm();
+
+    return () => {
+      cancelled = true;
+    };
   }, [initialData, mode, isOpen, authUser]);
 
   const [errors, setErrors] = useState({});
@@ -425,9 +522,11 @@ const EventModal = ({
       'registrationFee',
       formData.costType === 'Paid' ? String(formData.price || '').trim() : '0'
     );
-    const responseType = formData.responseType || mapMethodsToResponseType(formData.responseMethods);
+    const responseType = toApiResponseType(
+      formData.responseType || mapMethodsToResponseType(formData.responseMethods)
+    );
     payload.append('responseType', responseType);
-    const finalMethods = [...mapResponseTypeToMethods(responseType)];
+    const finalMethods = [...mapResponseTypeToMethods(toUiResponseType(responseType))];
     // if (!finalMethods.includes('Allow users to ask a question')) {
     //   finalMethods.push('Allow users to ask a question');
     // }
@@ -501,26 +600,42 @@ const EventModal = ({
 
   const errorClass = 'mt-1 text-sm text-red-200';
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#0a5a54] bg-[#0f756d] shadow-xl">
-        <div className="flex items-center justify-between border-b border-white/15 px-5 py-4">
-          <div>
+        <div className="flex items-start justify-between border-b border-white/15 px-5 py-4">
+          <div className="pr-4">
             <h2 className="text-2xl font-semibold text-white">
               {mode === 'edit' ? 'Edit Event' : 'Add Event'}
             </h2>
-            <p className="mt-1 text-sm text-white/85">
-              Share an event with the community. Need a recurring session instead? Add a session from your dashboard.
+            <p className="mt-2 text-sm leading-relaxed text-white/85">
+              Use this form for one-off activities, taster sessions or special occasions. For regular or
+              recurring sport sessions, please add a{' '}
+              {typeof onSwitchToSession === 'function' ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onSwitchToSession();
+                  }}
+                  className="font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"
+                >
+                  Session
+                </button>
+              ) : (
+                <span className="font-medium text-[#F5F1EB] underline underline-offset-2">Session</span>
+              )}{' '}
+              instead.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="rounded-full bg-white/20 p-1 text-white transition-colors hover:bg-white/30"
+            className="shrink-0 rounded-full bg-white/20 p-1 text-white transition-colors hover:bg-white/30"
             aria-label="Close"
           >
             <X className="h-6 w-6" />
@@ -529,48 +644,67 @@ const EventModal = ({
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-5">
           <form id="event-form" onSubmit={handleSubmit} className="space-y-4">
-            <FormSection title="Organisation Details">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <label className={labelClass}>Organisation / Club Name</label>
-                    <input className={fieldClass} value={formData.organizationName} onChange={(e) => handleChange('organizationName', e.target.value)} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Contact Person Name</label>
-                    <input className={fieldClass} value={formData.contactName} onChange={(e) => handleChange('contactName', e.target.value)} />
-                  </div>
+            <FormSection
+              title="Organisation Details"
+              hint="These details are pre-populated from your account."
+            >
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className={labelClass}>Organisation / Club Name</label>
+                  <input
+                    className={fieldClass}
+                    value={formData.organizationName}
+                    onChange={(e) => handleChange('organizationName', e.target.value)}
+                    placeholder="Example Netball Club"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Contact Person Name</label>
+                  <input
+                    className={fieldClass}
+                    value={formData.contactName}
+                    onChange={(e) => handleChange('contactName', e.target.value)}
+                    placeholder="Contact name"
+                  />
                 </div>
                 <div>
                   <label className={labelClass}>Your Role</label>
-                  <input className={fieldClass} value={formData.role} onChange={(e) => handleChange('role', e.target.value)} />
+                  <input
+                    className={fieldClass}
+                    value={formData.role}
+                    onChange={(e) => handleChange('role', e.target.value)}
+                    placeholder="Coach"
+                  />
                 </div>
                 <div>
                   <label className={labelClass}>Organisation Image / Logo</label>
-                  <div className="relative h-40 overflow-hidden rounded-lg border-2 border-dashed border-white/35 bg-white/10">
-                    {orgLogoPreview ? (
-                      <>
+                  <div className="mt-1 flex items-center gap-4">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-white/35 bg-white/10">
+                      {orgLogoPreview ? (
                         <img
                           src={orgLogoPreview}
                           alt="Organisation"
-                          className="pointer-events-none h-full w-full object-cover"
+                          className="h-full w-full object-cover"
                         />
-                        <div className="pointer-events-none absolute bottom-2 left-2 rounded bg-black/50 px-2 py-1 text-xs text-white">
-                          Click to change
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-[10px] text-white/60">
+                          Logo
                         </div>
-                      </>
-                    ) : (
-                      <div className="pointer-events-none flex h-full flex-col items-center justify-center px-4 text-center text-sm text-white/80">
-                        <Upload className="mb-2 h-7 w-7 text-white/70" />
-                        <span>No organisation image on your account yet.</span>
-                        <span className="mt-1 text-xs text-white/60">Click to upload</span>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => orgLogoInputRef.current?.click()}
+                      className="text-sm font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"
+                    >
+                      Edit organisation details
+                    </button>
                     <input
+                      ref={orgLogoInputRef}
                       type="file"
                       accept="image/jpeg,image/jpg,image/png"
+                      className="hidden"
                       aria-label="Upload organisation logo"
-                      className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
                       onChange={handleOrgLogoFile}
                     />
                   </div>
@@ -625,44 +759,53 @@ const EventModal = ({
                     {errors.eventType && <p className={errorClass}>{errors.eventType}</p>}
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div>
                   <label className={labelClass}>Suitable for</label>
-                  {SUITABLE_FOR_OPTIONS.map((option) => (
-                    <label key={option} className="flex cursor-pointer items-center gap-2.5 text-sm text-white/90">
-                      <input
-                        type="checkbox"
-                        checked={formData.suitableFor.includes(option)}
-                        onChange={() => toggleSuitableFor(option)}
-                        className="accent-[#0f756d]"
-                      />
-                      {option}
-                    </label>
-                  ))}
+                  <p className="mb-2 text-xs text-white/75">Select all that apply.</p>
+                  <div className="flex flex-wrap gap-x-6 gap-y-2">
+                    {SUITABLE_FOR_OPTIONS.map((option) => (
+                      <label
+                        key={option}
+                        className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={(formData.suitableFor || []).includes(option)}
+                          onChange={() => toggleSuitableFor(option)}
+                          className="accent-[#0f756d]"
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
                   {errors.suitableFor && <p className={errorClass}>{errors.suitableFor}</p>}
                 </div>
-                <div className="space-y-2">
+                <div>
                   <label className={labelClass}>Who can take part?</label>
-                  <label className="flex items-center gap-2 text-sm text-white/90">
-                    <input type="radio" name="eventWho" checked={formData.womensOnly === true} onChange={() => handleChange('womensOnly', true)} />
-                    Women only
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-white/90">
-                    <input type="radio" name="eventWho" checked={formData.womensOnly === false} onChange={() => handleChange('womensOnly', false)} />
-                    Mixed, women welcome
-                  </label>
+                  <div className="mt-2 flex flex-wrap items-center gap-6">
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
+                      <input
+                        type="radio"
+                        name="eventWho"
+                        checked={formData.womensOnly === true}
+                        onChange={() => handleChange('womensOnly', true)}
+                        className="accent-[#0f756d]"
+                      />
+                      Women only
+                    </label>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
+                      <input
+                        type="radio"
+                        name="eventWho"
+                        checked={formData.womensOnly === false}
+                        onChange={() => handleChange('womensOnly', false)}
+                        className="accent-[#0f756d]"
+                      />
+                      Mixed, women welcome
+                    </label>
+                  </div>
                 </div>
               </div>
-            </FormSection>
-
-            <FormSection title="Event Description">
-              <textarea
-                placeholder="Tell people what to expect, who it is for and what to bring"
-                value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
-                rows={5}
-                className={`${fieldClass} min-h-28 resize-none`}
-              />
-              {errors.description && <p className={errorClass}>{errors.description}</p>}
             </FormSection>
 
             <FormSection title="Location & Timing">
@@ -729,6 +872,17 @@ const EventModal = ({
               </div>
             </FormSection>
 
+            <FormSection title="Event Description">
+              <textarea
+                placeholder="Tell people what to expect, who it is for and what to bring"
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                rows={5}
+                className={`${fieldClass} min-h-28 resize-none`}
+              />
+              {errors.description && <p className={errorClass}>{errors.description}</p>}
+            </FormSection>
+
             {/* Client mock: min age / max participants / skill / inline pricing not shown — payload still supports these if re-enabled */}
             {/* <FormSection title="Event details">...</FormSection> */}
 
@@ -765,29 +919,40 @@ const EventModal = ({
 
             <FormSection>
               <label className={labelClass}>Image Upload</label>
-              <div className="relative h-44 overflow-hidden rounded-lg border-2 border-dashed border-white/35 bg-white/10">
+              <p className="mb-2 text-xs text-white/75">Add a photo to help people find your event.</p>
+              <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') eventImageInputRef.current?.click();
+                }}
+                onClick={() => eventImageInputRef.current?.click()}
+                className="relative flex h-44 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-white/35 bg-white/10"
+              >
                 {imagePreview ? (
                   <>
                     <img
                       src={imagePreview}
                       alt="Event"
-                      className="pointer-events-none h-full w-full object-cover"
+                      className="absolute inset-0 h-full w-full object-cover"
                     />
-                    <div className="pointer-events-none absolute bottom-2 left-2 rounded bg-black/50 px-2 py-1 text-xs text-white">
+                    <span className="relative z-10 rounded bg-black/50 px-2 py-1 text-xs text-white">
                       Click to change
-                    </div>
+                    </span>
                   </>
                 ) : (
-                  <div className="pointer-events-none flex h-full flex-col items-center justify-center text-white/80">
-                    <Upload className="mb-2 h-7 w-7" />
-                    <span className="text-sm">Click to upload an image</span>
-                  </div>
+                  <>
+                    <Upload className="mb-2 h-8 w-8 text-white/80" />
+                    <span className="text-sm font-medium text-[#F5F1EB]">Click to upload an image</span>
+                    <span className="mt-1 text-xs text-white/65">JPEG or PNG accepted. Max 10MB</span>
+                  </>
                 )}
                 <input
+                  ref={eventImageInputRef}
                   type="file"
                   accept="image/jpeg,image/jpg,image/png"
                   aria-label="Upload event image"
-                  className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                  className="hidden"
                   onChange={handleEventImageFile}
                 />
               </div>
@@ -806,7 +971,8 @@ const EventModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

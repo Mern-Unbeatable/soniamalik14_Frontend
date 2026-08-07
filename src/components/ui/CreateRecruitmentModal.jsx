@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Upload, X } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -7,6 +8,33 @@ import { selectCreateLoading } from '../../features/service/serviceSlice';
 import { selectAuthUser } from '../../features/auth/authSlice';
 import { fetchSportsCategories } from '../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
+import { GET } from '../../services/httpMethods';
+
+const sessionTypeOptions = ['In clinic', 'Online', 'At venue'];
+
+const SESSION_FREQUENCY_OPTIONS = ['Weekly', 'Fortnightly', 'Monthly', 'One-off', 'Other'];
+
+const DAY_OPTIONS = [
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+];
+
+const fieldClass =
+  'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40';
+const labelClass = 'mb-1.5 block text-sm font-medium text-white';
+const sectionTitleClass = 'text-base font-bold text-white';
+const sectionHintClass = 'mt-1 text-sm text-white/80';
+
+const FormSection = ({ title, hint, children }) => (
+  <section className="rounded-lg border border-white/20 bg-[#0f756d] p-4">
+    {title ? (
+      <div className="mb-4">
+        <h3 className={sectionTitleClass}>{title}</h3>
+        {hint ? <p className={sectionHintClass}>{hint}</p> : null}
+      </div>
+    ) : null}
+    {children}
+  </section>
+);
 
 const sportOptions = [
   'Badminton',
@@ -20,15 +48,6 @@ const sportOptions = [
   'Squash',
   'Tennis',
   'Other',
-];
-
-const sessionTypeOptions = [
-  'Recreational',
-  'Social',
-  'Training',
-  'Coaching',
-  'League',
-  'Competitive',
 ];
 
 const suitabilityOptions = [
@@ -46,6 +65,7 @@ const createInitialForm = () => ({
   about: '',
   logo: null,
   sports: [],
+  sessionType: '',
   sessionTypes: [],
   suitableFor: [],
   womensOnly: '',
@@ -55,6 +75,10 @@ const createInitialForm = () => ({
   townCity: '',
   googleMapLink: '',
   sessonDay: '',
+  sessionFrequency: '',
+  sessionDescription: '',
+  costMembershipDetail: '',
+  listingImage: null,
   dateDay: '',
   timeFrom: '',
   timeTo: '',
@@ -194,27 +218,56 @@ const toTimeRangeInputValue = (value) => {
   return { timeFrom: normalized, timeTo: '' };
 };
 
+const AUTH_ROLE_LABELS = {
+  coach: 'Coach',
+  provider: 'Service Provider',
+  admin: 'Admin',
+  user: 'Player',
+};
+
+const resolveRoleFromUser = (user = {}) => {
+  const explicit =
+    user?.providerRole ||
+    user?.jobTitle ||
+    user?.yourRole ||
+    user?.listingRole ||
+    '';
+  if (String(explicit || '').trim()) return String(explicit).trim();
+
+  const providerType = Array.isArray(user?.providerType)
+    ? user.providerType[0]
+    : user?.providerType;
+  if (String(providerType || '').trim()) return String(providerType).trim();
+
+  const authRole = String(user?.role || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^role[_\s-]*/, '');
+  if (AUTH_ROLE_LABELS[authRole]) return AUTH_ROLE_LABELS[authRole];
+  if (authRole) return authRole.charAt(0).toUpperCase() + authRole.slice(1);
+  return '';
+};
+
 const mapUserToForm = (user) => {
   const organisationName =
     user?.organizationName ||
+    user?.organisationName ||
     user?.clubName ||
     user?.organization ||
+    user?.providerBusinessName ||
     user?.name ||
     '';
   const contactPerson =
-    user?.firstName ||
+    user?.contactName ||
     user?.fullName ||
     user?.displayName ||
     [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+    user?.firstName ||
     user?.name ||
     '';
   const about = user?.bio || user?.aboutOrganization || user?.about || '';
-  const logo = user?.avatar || user?.profileImage || user?.photo || null;
-  const role =
-    user?.providerRole ||
-    user?.jobTitle ||
-    (Array.isArray(user?.providerType) ? user.providerType[0] : user?.providerType) ||
-    '';
+  const logo = user?.logo || user?.avatar || user?.profileImage || user?.photo || null;
+  const role = resolveRoleFromUser(user);
 
   return {
     ...createInitialForm(),
@@ -245,18 +298,23 @@ const mapInitialDataToForm = (initialData) => {
     contactPerson: initialData?.contactName || '',
     role:
       initialData?.role ||
+      resolveRoleFromUser(initialData?.provider || initialData?.user || {}) ||
       (Array.isArray(initialData?.providerType)
         ? initialData.providerType[0]
         : initialData?.providerType) ||
-      initialData?.category ||
       '',
-    about: initialData?.description || initialData?.aboutService || '',
-    logo: initialData?.logo || initialData?.image || null,
+    about: initialData?.aboutOrganization || '',
+    sessionDescription: initialData?.aboutService || initialData?.description || '',
+    logo: initialData?.logo || null,
+    listingImage: initialData?.image || null,
     sports: customSports.length
       ? [...new Set([...knownSports, 'Other'])]
       : [...new Set(knownSports)],
     otherSport: customSports.join(', '),
+    sessionType: toArray(initialData?.sessionType || initialData?.sessionTypes)[0] || '',
     sessionTypes: toArray(initialData?.sessionType || initialData?.sessionTypes),
+    sessionFrequency: initialData?.sessionFrequency || '',
+    costMembershipDetail: initialData?.costMemebershipDetail || '',
     suitableFor: toArray(initialData?.suitableFor),
     womensOnly:
       typeof womenOnlyValue === 'boolean'
@@ -292,20 +350,83 @@ const CreateRecruitmentModal = ({
   onSuccess,
 }) => {
   const dispatch = useDispatch();
-  const todayStr = useMemo(() => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }, []);
   const sportsCategories = useSelector(selectSportsCategories);
+  const user = useSelector(selectAuthUser);
+  const createLoading = useSelector(selectCreateLoading);
+  const orgLogoInputRef = useRef(null);
+  const listingImageInputRef = useRef(null);
+  const [form, setForm] = useState(() => createInitialForm());
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (isOpen) {
       dispatch(fetchSportsCategories());
     }
   }, [dispatch, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+
+    const hydrateForm = async () => {
+      let nextForm;
+      try {
+        nextForm =
+          initialData && mode === 'edit'
+            ? mapInitialDataToForm(initialData)
+            : mapUserToForm(user);
+      } catch (error) {
+        console.error('[CreateRecruitmentModal] Failed to map form', error);
+        nextForm = createInitialForm();
+      }
+
+      if (mode !== 'edit') {
+        try {
+          const response = await GET('/api/users/me/profile');
+          const profile = response?.data?.user || response?.data || response;
+          if (profile && typeof profile === 'object') {
+            nextForm = {
+              ...nextForm,
+              organisationName:
+                nextForm.organisationName ||
+                profile.organizationName ||
+                profile.organisationName ||
+                profile.clubName ||
+                '',
+              contactPerson:
+                nextForm.contactPerson ||
+                profile.contactName ||
+                [profile.firstName, profile.lastName].filter(Boolean).join(' ') ||
+                profile.name ||
+                '',
+              role: nextForm.role || resolveRoleFromUser(profile),
+              about: nextForm.about || profile.bio || profile.aboutOrganization || '',
+              logo:
+                nextForm.logo ||
+                profile.logo ||
+                profile.avatar ||
+                profile.profileImage ||
+                null,
+            };
+          }
+        } catch {
+          // Profile fetch is optional; Redux user data is enough.
+        }
+      }
+
+      if (!cancelled) {
+        setForm(nextForm);
+        setErrors({});
+      }
+    };
+
+    hydrateForm();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, initialData, mode, user]);
 
   const dynamicSports = useMemo(() => {
     if (!sportsCategories || sportsCategories.length === 0) {
@@ -315,24 +436,6 @@ const CreateRecruitmentModal = ({
     const filtered = names.filter(n => n !== 'Other');
     return [...filtered, 'Other'];
   }, [sportsCategories]);
-
-  const user = useSelector(selectAuthUser);
-  const createLoading = useSelector(selectCreateLoading);
-  const [form, setForm] = useState(createInitialForm);
-  const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const nextForm =
-      initialData && mode === 'edit'
-        ? mapInitialDataToForm(initialData)
-        : mapUserToForm(user);
-
-    queueMicrotask(() => {
-      setForm(nextForm);
-      setErrors({});
-    });
-  }, [isOpen, initialData, mode, user]);
 
   const logoPreviewUrl = useMemo(() => {
     if (!form.logo) return '';
@@ -350,13 +453,29 @@ const CreateRecruitmentModal = ({
 
   const handleLogoFile = (event) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setForm((s) => ({ ...s, logo: file }));
-    }
+    if (file) setForm((s) => ({ ...s, logo: file }));
     event.target.value = '';
   };
 
-  if (!isOpen) return null;
+  const listingImagePreview = useMemo(() => {
+    if (!form.listingImage) return '';
+    if (form.listingImage instanceof File) return URL.createObjectURL(form.listingImage);
+    return form.listingImage;
+  }, [form.listingImage]);
+
+  useEffect(() => {
+    return () => {
+      if (listingImagePreview && listingImagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(listingImagePreview);
+      }
+    };
+  }, [listingImagePreview]);
+
+  const handleListingImageFile = (event) => {
+    const file = event.target.files?.[0];
+    if (file) setForm((s) => ({ ...s, listingImage: file }));
+    event.target.value = '';
+  };
 
   const handleChange = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
@@ -380,11 +499,14 @@ const CreateRecruitmentModal = ({
       .filter((sport) => sport !== 'Other')
       .concat(String(form.otherSport || '').trim() ? [String(form.otherSport || '').trim()] : []);
     const normalizedSports = normalizeArray(sportsList);
-    const normalizedSessionTypes = normalizeArray(form.sessionTypes || []);
+    const normalizedSessionTypes = normalizeArray(
+      form.sessionType ? [form.sessionType] : form.sessionTypes || []
+    );
     const normalizedSuitableFor = normalizeArray(form.suitableFor || []);
 
     const serviceTitle = String(form.organisationName || '').trim();
-    const serviceDescription = String(form.about || '').trim();
+    const serviceDescription = String(form.sessionDescription || form.about || '').trim();
+    const orgAbout = String(form.about || '').trim();
     const providerPhone =
       user?.phone ||
       user?.phoneNumber ||
@@ -406,21 +528,35 @@ const CreateRecruitmentModal = ({
 
     const newErrors = {};
     if (!serviceTitle) newErrors.organisationName = true;
-    if (!serviceDescription) newErrors.about = true;
-    if (normalizedSuitableFor.length === 0 && normalizedSports.length === 0) newErrors.suitableFor = true;
+    if (normalizedSports.length === 0) newErrors.sport = true;
+    if (normalizedSessionTypes.length === 0) newErrors.sessionType = true;
+    if (normalizedSuitableFor.length === 0) newErrors.suitableFor = true;
+    if (!form.womensOnly) newErrors.womensOnly = true;
+    if (!String(form.venueName || '').trim()) newErrors.venueName = true;
+    if (!String(form.postcode || '').trim()) newErrors.postcode = true;
     if (!sessionDay) newErrors.sessonDay = true;
     if (!timeFrom) newErrors.timeFrom = true;
     if (!timeTo) newErrors.timeTo = true;
+    if (!String(form.sessionFrequency || '').trim()) newErrors.sessionFrequency = true;
+    if (!String(form.costMembershipDetail || '').trim()) newErrors.costMembershipDetail = true;
+    if (!serviceDescription) newErrors.sessionDescription = true;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       const messages = [];
       if (newErrors.organisationName) messages.push('Organisation name');
-      if (newErrors.about) messages.push('About');
+      if (newErrors.sport) messages.push('Sport or activity');
+      if (newErrors.sessionType) messages.push('Session type');
       if (newErrors.suitableFor) messages.push('Suitable for');
+      if (newErrors.womensOnly) messages.push('Who can take part');
+      if (newErrors.venueName) messages.push('Venue name');
+      if (newErrors.postcode) messages.push('Postcode');
       if (newErrors.sessonDay) messages.push('Session day');
       if (newErrors.timeFrom) messages.push('Start time');
       if (newErrors.timeTo) messages.push('End time');
+      if (newErrors.sessionFrequency) messages.push('Frequency');
+      if (newErrors.costMembershipDetail) messages.push('Cost or membership');
+      if (newErrors.sessionDescription) messages.push('Session description');
       toast.error(`Required: ${messages.join(', ')}`);
       return;
     }
@@ -458,6 +594,9 @@ const CreateRecruitmentModal = ({
         timeFrom,
         timeTo,
         timeSlote: timeSlot,
+        sessionFrequency: String(form.sessionFrequency || '').trim(),
+        costMemebershipDetail: String(form.costMembershipDetail || '').trim(),
+        aboutOrganization: orgAbout,
         bookingLink: String(form.bookingLink || '').trim(),
         responseType: getResponseType(form.responseMethods),
       };
@@ -474,7 +613,10 @@ const CreateRecruitmentModal = ({
         }
       });
 
-      if (form.logo && typeof form.logo !== 'string') {
+      if (
+        (form.logo && typeof form.logo !== 'string') ||
+        form.listingImage instanceof File
+      ) {
         const updateFormData = new FormData();
 
         Object.entries(updatePayload).forEach(([key, value]) => {
@@ -485,7 +627,13 @@ const CreateRecruitmentModal = ({
           appendIfPresent(updateFormData, key, value);
         });
 
-        updateFormData.append('logo', form.logo);
+        const listingFile =
+          form.listingImage instanceof File
+            ? form.listingImage
+            : form.logo instanceof File
+              ? form.logo
+              : null;
+        if (listingFile) updateFormData.append('logo', listingFile);
         logFormDataDebug(
           '[CreateRecruitmentModal] Service update payload (multipart)',
           updateFormData
@@ -533,12 +681,19 @@ const CreateRecruitmentModal = ({
       appendIfPresent(payload, 'startTime', timeFrom);
       appendIfPresent(payload, 'endTime', timeTo);
       appendIfPresent(payload, 'timeSlote', timeSlot);
+      appendIfPresent(payload, 'sessionFrequency', form.sessionFrequency);
+      appendIfPresent(payload, 'costMemebershipDetail', form.costMembershipDetail);
+      appendIfPresent(payload, 'aboutOrganization', orgAbout);
       appendIfPresent(payload, 'bookingLink', form.bookingLink);
       payload.append('responseType', getResponseType(form.responseMethods));
 
-      if (form.logo && typeof form.logo !== 'string') {
-        payload.append('logo', form.logo);
-      }
+      const listingFile =
+        form.listingImage instanceof File
+          ? form.listingImage
+          : form.logo instanceof File
+            ? form.logo
+            : null;
+      if (listingFile) payload.append('logo', listingFile);
 
       logFormDataDebug('[CreateRecruitmentModal] Service payload', payload);
       resultAction = await dispatch(createService(payload));
@@ -562,346 +717,395 @@ const CreateRecruitmentModal = ({
     console.groupEnd();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-[#0F766E] sm:flex sm:items-center sm:justify-center sm:bg-black/55 sm:p-4 sm:backdrop-blur-sm">
-      <div className="flex h-full w-full flex-col overflow-hidden bg-[#0F766E] sm:mx-4 sm:max-h-[95vh] sm:max-w-2xl sm:rounded-2xl sm:border sm:border-[#0A4A45] sm:shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/15 bg-[#0F766E] px-5 py-4 sm:px-6">
-          <h2 className="text-2xl font-semibold text-white">
-            {mode === 'edit' ? 'Edit Listing' : 'Add Session'}
-          </h2>
+  const errorClass = 'mt-1 text-sm text-red-200';
+  const selectedSport = (form.sports || [])[0] || '';
+  const sessionDayValue = DAY_OPTIONS.includes(form.sessonDay)
+    ? form.sessonDay
+    : String(form.sessonDay || '').split(',')[0]?.trim() || form.sessonDay;
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#0a5a54] bg-[#0f756d] shadow-xl">
+        <div className="flex items-start justify-between border-b border-white/15 px-5 py-4">
+          <div className="pr-4">
+            <h2 className="text-2xl font-semibold text-white">
+              {mode === 'edit' ? 'Edit Session' : 'Add Session'}
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-white/85">
+              Use this form for regular or recurring sport sessions and activities. For a one-off activity,
+              taster session or special occasion, please add an{' '}
+              <span className="font-medium text-[#F5F1EB] underline underline-offset-2">Event</span>{' '}
+              instead.
+            </p>
+          </div>
           <button
             onClick={onClose}
-            className="rounded-full bg-white/20 p-1 text-white transition-colors hover:bg-white/30"
+            className="shrink-0 rounded-full bg-white/20 p-1 text-white transition-colors hover:bg-white/30"
             aria-label="Close"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto bg-[#0F766E] p-4 sm:p-5 md:p-6">
-          <form id="add-listing-form" className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-4 rounded-lg ">
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-white">Organisation Details</h3>
-                <p className="text-sm text-white/80">
-                  Prefilled from your account. Update these in your profile if needed.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">
-                    Organisation / Club Name <span className="text-red-300">*</span>
+
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+          <form id="add-listing-form" className="space-y-4" onSubmit={handleSubmit}>
+            <FormSection
+              title="Organisation Details"
+              hint="These details are pre-populated from your account."
+            >
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className={labelClass}>
+                    Organisation / Club Name <span className="text-red-200">*</span>
                   </label>
                   <input
-                    readOnly
+                    className={`${fieldClass} ${errors.organisationName ? 'border-red-400' : ''}`}
                     value={form.organisationName}
-                    className={`w-full cursor-not-allowed rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none ${errors.organisationName ? 'border-red-400' : ''}`}
-                    placeholder="From your account"
+                    onChange={(e) => {
+                      handleChange('organisationName', e.target.value);
+                      setErrors((prev) => ({ ...prev, organisationName: false }));
+                    }}
+                    placeholder="Example Netball Club"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">Contact Person Name</label>
+                <div>
+                  <label className={labelClass}>Contact Person Name</label>
                   <input
-                    readOnly
+                    className={fieldClass}
                     value={form.contactPerson}
-                    className="w-full cursor-not-allowed rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none"
-                    placeholder="From your account"
+                    onChange={(e) => handleChange('contactPerson', e.target.value)}
+                    placeholder="Contact name"
                   />
                 </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-base font-medium text-white">Your Role</label>
-                <input
-                  readOnly
-                  value={form.role}
-                  className="w-full cursor-not-allowed rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none"
-                  placeholder="From your account"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-base font-medium text-white">About your organisation <span className="text-red-300">*</span></label>
-                <textarea
-                  readOnly
-                  value={form.about}
-                  className={`h-24 w-full resize-none cursor-not-allowed rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none ${errors.about ? 'border-red-400' : ''}`}
-                  placeholder="From your account"
-                />
-              </div>
-
-              <div className="relative flex h-60 flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-white/30 bg-transparent">
-                {logoPreviewUrl ? (
-                  <>
-                    <img
-                      src={logoPreviewUrl}
-                      alt="Organisation"
-                      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-                    />
-                    <div className="pointer-events-none absolute bottom-3 left-3 rounded bg-black/50 px-2 py-1 text-xs text-white">
-                      {form.logo instanceof File ? 'New upload — click to change' : 'From your account — click to change'}
+                <div>
+                  <label className={labelClass}>Your Role</label>
+                  <input
+                    className={fieldClass}
+                    value={form.role}
+                    onChange={(e) => handleChange('role', e.target.value)}
+                    placeholder="Coach"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Organisation Image / Logo</label>
+                  <div className="mt-1 flex items-center gap-4">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-white/35 bg-white/10">
+                      {logoPreviewUrl ? (
+                        <img src={logoPreviewUrl} alt="Organisation" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-[10px] text-white/60">Logo</div>
+                      )}
                     </div>
-                  </>
-                ) : (
-                  <div className="pointer-events-none flex flex-col items-center px-4 text-center">
-                    <Upload className="mb-2 h-8 w-8 text-white/70" />
-                    <span className="text-sm text-white/70">
-                      No organisation image on your account yet.
-                    </span>
-                    <span className="mt-1 text-xs text-white/60">Click to upload</span>
+                    <button
+                      type="button"
+                      onClick={() => orgLogoInputRef.current?.click()}
+                      className="text-sm font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"
+                    >
+                      Edit organisation details
+                    </button>
+                    <input
+                      ref={orgLogoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png"
+                      className="hidden"
+                      aria-label="Upload organisation logo"
+                      onChange={handleLogoFile}
+                    />
                   </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/jpg,image/png"
-                  aria-label="Upload organisation logo"
-                  className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                  onChange={handleLogoFile}
-                />
+                </div>
               </div>
-            </div>
-            <div className="space-y-4 rounded-lg">
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-white">Sport & Session Information</h3>
-                <p className="text-sm text-white/80">
-                  Details about your sport sessions or activities
-                </p>
-              </div>
+            </FormSection>
 
-              <div className="space-y-2">
-                <label className="text-base font-medium text-white">Sport</label>
-                <div className="flex flex-wrap gap-2">
-                  {dynamicSports.map((sport) => {
-                    const isChecked = form.sports.includes(sport);
-                    return (
-                      <label
-                        key={sport}
-                        className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-all select-none ${
-                          isChecked
-                            ? 'border-white bg-white text-[#0B544E]'
-                            : 'border-transparent bg-white/20 text-white'
-                        }`}
-                      >
+            <FormSection title="Sport & Session Information">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className={labelClass}>Sport or activity *</label>
+                    <select
+                      className={fieldClass}
+                      value={selectedSport}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        handleChange('sports', v ? [v] : []);
+                        if (v !== 'Other') handleChange('otherSport', '');
+                        setErrors((prev) => ({ ...prev, sport: false }));
+                      }}
+                    >
+                      <option value="">Select sport or activity</option>
+                      {dynamicSports.map((sport) => (
+                        <option key={sport} value={sport}>{sport}</option>
+                      ))}
+                    </select>
+                    {errors.sport && <p className={errorClass}>Please select a sport or activity</p>}
+                    {selectedSport === 'Other' && (
+                      <input
+                        type="text"
+                        placeholder="Please specify"
+                        value={form.otherSport || ''}
+                        onChange={(e) => handleChange('otherSport', e.target.value)}
+                        className={`${fieldClass} mt-2`}
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Session type *</label>
+                    <select
+                      className={fieldClass}
+                      value={form.sessionType}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setForm((s) => ({ ...s, sessionType: v, sessionTypes: v ? [v] : [] }));
+                        setErrors((prev) => ({ ...prev, sessionType: false }));
+                      }}
+                    >
+                      <option value="">Select session type</option>
+                      {sessionTypeOptions.map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                    {errors.sessionType && <p className={errorClass}>Please select a session type</p>}
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Suitable for</label>
+                  <p className="mb-2 text-xs text-white/75">Select all that apply.</p>
+                  <div className="flex flex-wrap gap-x-6 gap-y-2">
+                    {suitabilityOptions.map((opt) => (
+                      <label key={opt} className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
                         <input
                           type="checkbox"
-                          className="h-4 w-4 cursor-pointer rounded accent-[#0B544E]"
-                          checked={isChecked}
-                          onChange={() => toggleArrayField('sports', sport)}
+                          checked={(form.suitableFor || []).includes(opt)}
+                          onChange={() => {
+                            toggleArrayField('suitableFor', opt);
+                            setErrors((prev) => ({ ...prev, suitableFor: false }));
+                          }}
+                          className="accent-[#0f756d]"
                         />
-
-                        {sport}
+                        {opt}
                       </label>
-                    );
-                  })}
-                </div>
-                {form.sports.includes('Other') && (
-                  <div className="mt-3">
-                    <input
-                      type="text"
-                      placeholder="Please specify"
-                      value={form.otherSport || ''}
-                      onChange={(e) => handleChange('otherSport', e.target.value)}
-                      className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
-                    />
+                    ))}
                   </div>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-4 pt-1">
-                <div className="space-y-2">
-                  <label className="text-base font-medium text-white">Session Type</label>
-                  {sessionTypeOptions.map((type) => (
-                    <label
-                      key={type}
-                      className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={form.sessionTypes.includes(type)}
-                        onChange={() => toggleArrayField('sessionTypes', type)}
-                        className="rounded border-white/40 accent-[#0B544E]"
-                      />
-                      {type}
-                    </label>
-                  ))}
+                  {errors.suitableFor && <p className={errorClass}>Select at least one option</p>}
                 </div>
-
-                <div className={`space-y-2 rounded-md border p-2 ${errors.suitableFor ? 'border-red-400' : 'border-transparent'}`}>
-                  <label className="text-base font-medium text-white">
-                    Suitable for (more than one can be selected) <span className="text-red-300">*</span>
-                  </label>
-                  {suitabilityOptions.map((opt) => (
-                    <label
-                      key={opt}
-                      className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={form.suitableFor.includes(opt)}
-                        onChange={() => { toggleArrayField('suitableFor', opt); setErrors(prev => ({ ...prev, suitableFor: false })); }}
-                        className="rounded border-white/40 accent-[#0B544E]"
-                      />
-                      {opt}
-                    </label>
-                  ))}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-base font-medium text-white">Who can take part?</label>
-                  <div className="flex flex-col gap-2">
+                <div>
+                  <label className={labelClass}>Who can take part? *</label>
+                  <div className="flex flex-wrap items-center gap-6">
                     {[
                       { label: 'Women only', value: 'YES' },
                       { label: 'Mixed, women welcome', value: 'NO' },
                     ].map((item) => (
-                      <label
-                        key={item.value}
-                        className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
-                      >
+                      <label key={item.value} className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
                         <input
                           type="radio"
                           name="womensOnly"
                           checked={form.womensOnly === item.value}
-                          onChange={() => handleChange('womensOnly', item.value)}
-                          className="border-white/40 accent-[#0B544E]"
+                          onChange={() => {
+                            handleChange('womensOnly', item.value);
+                            setErrors((prev) => ({ ...prev, womensOnly: false }));
+                          }}
+                          className="accent-[#0f756d]"
                         />
                         {item.label}
                       </label>
                     ))}
                   </div>
+                  {errors.womensOnly && <p className={errorClass}>Please choose an option</p>}
                 </div>
               </div>
-            </div>
+            </FormSection>
 
-            <div className="space-y-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-white">Location & Timing</h3>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">Venue Name</label>
-                  <input
-                    value={form.venueName}
-                    onChange={(e) => handleChange('venueName', e.target.value)}
-                    className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
-                    placeholder="Venue name"
-                  />
+            <FormSection title="Location & Timing">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div>
+                    <label className={labelClass}>Venue Name *</label>
+                    <input
+                      className={fieldClass}
+                      value={form.venueName}
+                      onChange={(e) => {
+                        handleChange('venueName', e.target.value);
+                        setErrors((prev) => ({ ...prev, venueName: false }));
+                      }}
+                      placeholder="Enter venue name"
+                    />
+                    {errors.venueName && <p className={errorClass}>Required</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Postcode *</label>
+                    <input
+                      className={fieldClass}
+                      value={form.postcode}
+                      onChange={(e) => {
+                        handleChange('postcode', e.target.value);
+                        setErrors((prev) => ({ ...prev, postcode: false }));
+                      }}
+                      placeholder="Enter postcode"
+                    />
+                    {errors.postcode && <p className={errorClass}>Required</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Google Maps Link</label>
+                    <input
+                      className={fieldClass}
+                      value={form.googleMapLink}
+                      onChange={(e) => handleChange('googleMapLink', e.target.value)}
+                      placeholder="Paste Google Maps link"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">Postcode</label>
-                  <input
-                    value={form.postcode}
-                    onChange={(e) => handleChange('postcode', e.target.value)}
-                    className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
-                    placeholder="Postcode"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">e.g. London</label>
-                  <input
-                    value={form.townCity}
-                    onChange={(e) => handleChange('townCity', e.target.value)}
-                    className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
-                    placeholder="e.g london"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">Google Maps Link</label>
-                  <input
-                    value={form.googleMapLink}
-                    onChange={(e) => handleChange('googleMapLink', e.target.value)}
-                    className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500"
-                    placeholder="Paste Google Maps link"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">Session Day <span className="text-red-300">*</span></label>
-                  <input
-                    value={form.sessonDay}
-                    onChange={(e) => { handleChange('sessonDay', e.target.value); setErrors(prev => ({ ...prev, sessonDay: false })); }}
-                    className={`w-full rounded-lg border bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 ${errors.sessonDay ? 'border-red-400' : 'border-transparent'}`}
-                    placeholder="e.g Tuesday"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">Start Time <span className="text-red-300">*</span></label>
-                  <input
-                    type="time"
-                    value={form.timeFrom}
-                    onChange={(e) => { handleChange('timeFrom', e.target.value); setErrors(prev => ({ ...prev, timeFrom: false })); }}
-                    className={`w-full rounded-lg border bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none ${errors.timeFrom ? 'border-red-400' : 'border-transparent'}`}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-base font-medium text-white">End Time <span className="text-red-300">*</span></label>
-                  <input
-                    type="time"
-                    value={form.timeTo}
-                    onChange={(e) => { handleChange('timeTo', e.target.value); setErrors(prev => ({ ...prev, timeTo: false })); }}
-                    className={`w-full rounded-lg border bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none ${errors.timeTo ? 'border-red-400' : 'border-transparent'}`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Choose CTA */}
-            <div className="space-y-4 rounded-lg">
-              <div className="space-y-1">
-                <label className="block text-base font-semibold text-white">
-                  Choose the main action for this listing
-                </label>
-                <p className="text-sm text-white/80">
-                  Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
-                </p>
-              </div>
-              <div className="space-y-3">
-                {[
-                  {
-                    value: 'Add booking link',
-                    label: 'Register',
-                    desc: 'Choose this if the event or session is confirmed and people can sign up to attend. Note: If payment or final details are required, you should contact the person after they register.',
-                  },
-                  {
-                    value: 'Allow users to register interest',
-                    label: 'Register Interest',
-                    desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend. Note: You should follow up with anyone who registers interest to let them know the next steps.',
-                  },
-                ].map((option) => {
-                  const selected = form.responseMethods?.includes(option.value);
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleChange('responseMethods', [option.value])}
-                      className={`w-full text-left p-4 rounded-xl border transition-all ${
-                        selected
-                          ? 'border-white bg-[#F5F1EB] text-[#0B544E] shadow-sm'
-                          : 'border-white/30 bg-transparent text-white hover:border-white/60'
-                      }`}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div>
+                    <label className={labelClass}>Session day *</label>
+                    <select
+                      className={fieldClass}
+                      value={sessionDayValue}
+                      onChange={(e) => {
+                        handleChange('sessonDay', e.target.value);
+                        setErrors((prev) => ({ ...prev, sessonDay: false }));
+                      }}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className={`mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${selected ? 'border-[#0B544E]' : 'border-white/60'}`}>
-                          {selected && <div className="h-2 w-2 rounded-full bg-[#0B544E]" />}
-                        </div>
-                        <div>
-                          <p className={`font-semibold text-base ${selected ? 'text-[#0B544E]' : 'text-white'}`}>{option.label}</p>
-                          <p className={`mt-1 text-sm leading-normal ${selected ? 'text-[#0B544E]/70' : 'text-white/70'}`}>{option.desc}</p>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
+                      <option value="">Select day</option>
+                      {DAY_OPTIONS.map((day) => (
+                        <option key={day} value={day}>{day}</option>
+                      ))}
+                    </select>
+                    {errors.sessonDay && <p className={errorClass}>Required</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Start time *</label>
+                    <input
+                      type="time"
+                      className={fieldClass}
+                      value={form.timeFrom}
+                      onChange={(e) => {
+                        handleChange('timeFrom', e.target.value);
+                        setErrors((prev) => ({ ...prev, timeFrom: false }));
+                      }}
+                    />
+                    {errors.timeFrom && <p className={errorClass}>Required</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>End time *</label>
+                    <input
+                      type="time"
+                      className={fieldClass}
+                      value={form.timeTo}
+                      onChange={(e) => {
+                        handleChange('timeTo', e.target.value);
+                        setErrors((prev) => ({ ...prev, timeTo: false }));
+                      }}
+                    />
+                    {errors.timeTo && <p className={errorClass}>Required</p>}
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>How often does it run? *</label>
+                  <select
+                    className={fieldClass}
+                    value={form.sessionFrequency}
+                    onChange={(e) => {
+                      handleChange('sessionFrequency', e.target.value);
+                      setErrors((prev) => ({ ...prev, sessionFrequency: false }));
+                    }}
+                  >
+                    <option value="">Select frequency</option>
+                    {SESSION_FREQUENCY_OPTIONS.map((freq) => (
+                      <option key={freq} value={freq}>{freq}</option>
+                    ))}
+                  </select>
+                  {errors.sessionFrequency && <p className={errorClass}>Required</p>}
+                </div>
               </div>
-            </div>
+            </FormSection>
+
+            <FormSection
+              title="Cost or Membership Details *"
+              hint="Explain any fees, subscriptions, membership options or match arrangements."
+            >
+              <textarea
+                rows={4}
+                className={`${fieldClass} min-h-24 resize-none`}
+                value={form.costMembershipDetail}
+                onChange={(e) => {
+                  handleChange('costMembershipDetail', e.target.value);
+                  setErrors((prev) => ({ ...prev, costMembershipDetail: false }));
+                }}
+                placeholder="For example: £5 pay-as-you-go, annual membership £120, first session free, etc."
+              />
+              {errors.costMembershipDetail && <p className={errorClass}>Required</p>}
+            </FormSection>
+
+            <FormSection title="Session Description *" hint="Tell people more about your session.">
+              <textarea
+                rows={5}
+                className={`${fieldClass} min-h-28 resize-none`}
+                value={form.sessionDescription}
+                onChange={(e) => {
+                  handleChange('sessionDescription', e.target.value);
+                  setErrors((prev) => ({ ...prev, sessionDescription: false }));
+                }}
+                placeholder="Include what to expect, who it's for, what to bring, session structure, coach info, etc."
+              />
+              {errors.sessionDescription && <p className={errorClass}>Required</p>}
+            </FormSection>
+
+            <FormSection>
+              <label className={labelClass}>Image Upload</label>
+              <p className="mb-2 text-xs text-white/75">Add a photo to help people find your session.</p>
+              <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') listingImageInputRef.current?.click();
+                }}
+                onClick={() => listingImageInputRef.current?.click()}
+                className="relative flex h-44 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-white/35 bg-white/10"
+              >
+                {listingImagePreview ? (
+                  <>
+                    <img src={listingImagePreview} alt="Session" className="absolute inset-0 h-full w-full object-cover" />
+                    <span className="relative z-10 rounded bg-black/50 px-2 py-1 text-xs text-white">Click to change</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mb-2 h-8 w-8 text-white/80" />
+                    <span className="text-sm font-medium text-[#F5F1EB]">Click to upload an image</span>
+                    <span className="mt-1 text-xs text-white/65">JPEG or PNG accepted. Max 10MB</span>
+                  </>
+                )}
+                <input
+                  ref={listingImageInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png"
+                  aria-label="Upload session image"
+                  className="hidden"
+                  onChange={handleListingImageFile}
+                />
+              </div>
+            </FormSection>
           </form>
         </div>
 
-        <div className="sticky bottom-0 z-10 flex gap-4 border-t border-white/15 bg-[#0F766E] p-4 px-5 sm:px-6">
+        <div className="border-t border-white/15 px-5 py-4">
           <button
             type="submit"
             form="add-listing-form"
             disabled={createLoading}
-            className="rounded-md bg-[#F5F1EB] px-6 py-2.5 text-sm font-semibold text-[#0B544E] hover:bg-white disabled:opacity-60"
+            className="w-full rounded-lg bg-[#F5F1EB] py-3 text-sm font-semibold text-[#0f756d] hover:bg-[#ebe5dc] disabled:opacity-60"
           >
-            {createLoading ? 'Submitting...' : 'Submit For Approval'}
+            {createLoading ? 'Submitting...' : mode === 'edit' ? 'Update session' : 'Submit for approval'}
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

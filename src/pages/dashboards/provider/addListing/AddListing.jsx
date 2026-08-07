@@ -189,7 +189,7 @@ const AddListing = () => {
       </div>
 
       <CreateRecruitmentModal
-        key={`${modalMode}-${editingService?.id || 'new'}-${isModalOpen ? 'open' : 'closed'}`}
+        key={`${modalMode}-${editingService?.id ?? 'new'}`}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         mode={modalMode}
