@@ -277,7 +277,7 @@ const Events = () => {
             ) : error ? (
               <div className="p-6 text-center text-red-600">Error: {errorMessage}</div>
             ) : (
-              <table className="w-full border-collapse text-left">
+              <table className="w-full min-w-[720px] table-fixed border-collapse text-left">
                 <EventTableHeader />
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {paginatedData.length > 0 ? (
