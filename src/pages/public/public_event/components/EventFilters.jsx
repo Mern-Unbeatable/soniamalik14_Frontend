@@ -79,6 +79,19 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
     update({ date: currentList.includes(value) ? [] : [value] });
   };
 
+  const selectedSport = useMemo(() => {
+    if (Array.isArray(filters.sport) && filters.sport.length > 0) {
+      return filters.sport[0];
+    }
+    if (typeof filters.sport === 'string' && filters.sport) {
+      return filters.sport;
+    }
+    return '';
+  }, [filters.sport]);
+
+  const selectClassName =
+    'w-full bg-[#F8F9F9] border-none rounded-md px-3 py-2 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:ring-[#147B6B] outline-none appearance-none cursor-pointer';
+
   return (
     <div className="w-full">
       {/* City/Area & Distance Filter */}
@@ -103,7 +116,7 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
               <select
                 value={filters.distance || ''}
                 onChange={(e) => update({ distance: e.target.value })}
-                className="w-full bg-[#F8F9F9] border-none rounded-md px-3 py-2 text-base text-gray-700 placeholder-gray-400 focus:ring-1 focus:ring-[#147B6B] outline-none appearance-none cursor-pointer"
+                className={selectClassName}
               >
                 <option value="">Any distance</option>
                 <option value="5">Within 5 miles</option>
@@ -158,19 +171,30 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
 
       {/* Sport */}
       <FilterSection title="Sport">
-        <div className="space-y-3">
-          {dynamicSports.map((s) => (
-            <label key={s} className="flex items-center gap-2.5 cursor-pointer group">
-              <input
-                type="checkbox"
-                // Checking if it's in an array since we converted this from a single string select
-                checked={Array.isArray(filters.sport) ? filters.sport.includes(s) : filters.sport === s}
-                onChange={() => toggleArrayFilter('sport', s)}
-                className="w-[15px] h-[15px] rounded-sm border-gray-400 text-[#147B6B] focus:ring-[#147B6B] cursor-pointer"
-              />
-              <span className="text-[13px] text-[#1A1D1F] leading-none mt-0.5 group-hover:text-[#147B6B] transition-colors">{s}</span>
-            </label>
-          ))}
+        <div>
+          <label className="block text-base text-[#1A1D1F] mb-1.5">Sport or activity</label>
+          <div className="relative">
+            <select
+              value={selectedSport}
+              onChange={(e) => {
+                const value = e.target.value;
+                update({ sport: value ? [value] : [] });
+              }}
+              className={selectClassName}
+            >
+              <option value="">Sports</option>
+              {dynamicSports.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
         </div>
       </FilterSection>
     </div>
