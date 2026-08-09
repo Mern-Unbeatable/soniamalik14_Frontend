@@ -5,6 +5,7 @@ import { Edit3, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Pagination from '../../../../components/ui/Pagination';
 import DeleteConfirmationModal from '../../../../components/ui/DeleteConfirmationModal';
 import CreateRecruitmentModal from '../../../../components/ui/CreateRecruitmentModal';
+import EventModal from '../../../../components/ui/EventModal';
 import { fetchProviderListings, deleteProviderListing } from '../../../../features/providerListing/providerListingAPI';
 import { selectProviderListings } from '../../../../features/providerListing/providerListingSlice';
 
@@ -13,6 +14,7 @@ const AddListing = () => {
   const dispatch = useDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
   const [editingService, setEditingService] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
@@ -195,6 +197,20 @@ const AddListing = () => {
         mode={modalMode}
         initialData={editingService}
         onSuccess={handleModalSuccess}
+        onSwitchToEvent={() => setIsEventModalOpen(true)}
+      />
+
+      <EventModal
+        isOpen={isEventModalOpen}
+        onClose={() => setIsEventModalOpen(false)}
+        mode="create"
+        useOrganizerApi
+        onSuccess={handleModalSuccess}
+        onSwitchToSession={() => {
+          setModalMode('create');
+          setEditingService(null);
+          setIsModalOpen(true);
+        }}
       />
 
       <DeleteConfirmationModal

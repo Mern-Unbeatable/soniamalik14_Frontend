@@ -348,6 +348,7 @@ import {
   X,
 } from 'lucide-react';
 import EventModal from '../../../../components/ui/EventModal';
+import CreateRecruitmentModal from '../../../../components/ui/CreateRecruitmentModal';
 import Pagination from '../../../../components/ui/Pagination';
 import { deleteOrganizerEvent, fetchProviderEvents } from '../../../../features/events/eventsAPI';
 import {
@@ -398,6 +399,7 @@ const ProviderEvent = () => {
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventToDelete, setEventToDelete] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProviderEvents());
@@ -611,6 +613,17 @@ const ProviderEvent = () => {
         onSuccess={() => {
           dispatch(fetchProviderEvents());
         }}
+        onSwitchToSession={() => setIsSessionModalOpen(true)}
+      />
+
+      <CreateRecruitmentModal
+        isOpen={isSessionModalOpen}
+        onClose={() => setIsSessionModalOpen(false)}
+        mode="create"
+        onSuccess={() => {
+          setIsSessionModalOpen(false);
+        }}
+        onSwitchToEvent={() => setIsCreateOpen(true)}
       />
 
       <EventModal

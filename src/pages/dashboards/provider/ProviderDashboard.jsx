@@ -445,6 +445,7 @@ const ProviderDashboard = () => {
         onClose={() => setServiceModalOpen(false)}
         mode="create"
         onSuccess={handleServiceCreated}
+        onSwitchToEvent={() => setEventModalOpen(true)}
       />
 
       <EventModal
@@ -453,6 +454,7 @@ const ProviderDashboard = () => {
         mode="create"
         useOrganizerApi={true}
         onSuccess={handleEventCreated}
+        onSwitchToSession={() => setServiceModalOpen(true)}
       />
 
       <PlayerActivityModal

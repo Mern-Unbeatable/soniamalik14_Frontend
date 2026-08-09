@@ -48,6 +48,7 @@ const CoachIndex = () => {
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
         onSuccess={() => window.location.reload()}
+        onSwitchToEvent={() => setIsEventModalOpen(true)}
       />
       <EventModal
         isOpen={isEventModalOpen}
@@ -55,6 +56,7 @@ const CoachIndex = () => {
         mode="create"
         useOrganizerApi={true}
         onSuccess={() => window.location.reload()}
+        onSwitchToSession={() => setIsPostModalOpen(true)}
       />
     </div>
   );

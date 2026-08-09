@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import RecruitmentCard from './RecruitmentCard';
 import Pagination from '../../../../components/ui/Pagination';
 import CreateRecruitmentModal from '../../../../components/ui/CreateRecruitmentModal';
+import EventModal from '../../../../components/ui/EventModal';
 import { Plus } from 'lucide-react';
 import { fetchProviderServices, deleteService } from '../../../../features/service/serviceApi';
 import {
@@ -18,6 +19,7 @@ const Recruitment = () => {
   const [page, setPage] = useState(1);
   const perPage = 9;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
@@ -109,6 +111,19 @@ const Recruitment = () => {
         initialData={selectedItem}
         mode={selectedItem ? 'edit' : 'create'}
         onSuccess={handleModalSuccess}
+        onSwitchToEvent={() => setIsEventModalOpen(true)}
+      />
+
+      <EventModal
+        isOpen={isEventModalOpen}
+        onClose={() => setIsEventModalOpen(false)}
+        mode="create"
+        useOrganizerApi
+        onSuccess={handleModalSuccess}
+        onSwitchToSession={() => {
+          setSelectedItem(null);
+          setIsModalOpen(true);
+        }}
       />
     </div>
   );

@@ -616,11 +616,11 @@ const EventModal = ({
             <p className="mt-2 text-sm leading-relaxed text-white/85">
               Use this form for one-off activities, taster sessions or special occasions. For regular or
               recurring sport sessions, please add a{' '}
-              {typeof onSwitchToSession === 'function' ? (
+              {mode === 'create' && typeof onSwitchToSession === 'function' ? (
                 <button
                   type="button"
                   onClick={() => {
-                    onClose();
+                    onClose?.();
                     onSwitchToSession();
                   }}
                   className="font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"

@@ -348,6 +348,7 @@ const CreateRecruitmentModal = ({
   initialData = null,
   mode = 'create',
   onSuccess,
+  onSwitchToEvent,
 }) => {
   const dispatch = useDispatch();
   const sportsCategories = useSelector(selectSportsCategories);
@@ -741,7 +742,20 @@ const CreateRecruitmentModal = ({
             <p className="mt-2 text-sm leading-relaxed text-white/85">
               Use this form for regular or recurring sport sessions and activities. For a one-off activity,
               taster session or special occasion, please add an{' '}
-              <span className="font-medium text-[#F5F1EB] underline underline-offset-2">Event</span>{' '}
+              {mode === 'create' && typeof onSwitchToEvent === 'function' ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose?.();
+                    onSwitchToEvent();
+                  }}
+                  className="font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"
+                >
+                  Event
+                </button>
+              ) : (
+                <span className="font-medium text-[#F5F1EB] underline underline-offset-2">Event</span>
+              )}{' '}
               instead.
             </p>
           </div>
