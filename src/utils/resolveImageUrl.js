@@ -1,6 +1,7 @@
 import { ENV } from '../config/env';
 
 export const DUMMY_IMAGE_PATH = '/dummy-image.jpeg';
+export const EVENT_PLACEHOLDER_PATH = '/event-placeholder.png';
 
 export const pickImageSource = (...candidates) => {
     for (const candidate of candidates) {

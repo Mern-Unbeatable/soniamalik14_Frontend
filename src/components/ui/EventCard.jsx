@@ -4,6 +4,12 @@ import Card from './Card';
 import Button from './Button';
 import { MapPin, Calendar, Clock } from 'lucide-react';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import {
+    EVENT_PLACEHOLDER_PATH,
+    handleImageLoadError,
+    pickImageSource,
+    resolveImageUrl,
+} from '../../utils/resolveImageUrl';
 
 const EventCard = ({
     item = {},
@@ -47,11 +53,15 @@ const EventCard = ({
                             })()}
 
                             <div className="h-44 bg-gray-200 rounded-md mb-4 overflow-hidden flex items-center justify-center">
-                                {item.image ? (
-                                    <img src={item.image} alt={item.title} className="w-full h-full object-cover rounded-md" />
-                                ) : (
-                                    <div className="text-[#000000] bg-[#D9D9D9] rounded-md p-4">Image</div>
-                                )}
+                                <img
+                                    src={resolveImageUrl(
+                                        pickImageSource(item.image, item.imageUrl, item.thumbnail),
+                                        EVENT_PLACEHOLDER_PATH
+                                    )}
+                                    alt={item.title || 'Event'}
+                                    className="h-full w-full rounded-md object-cover"
+                                    onError={(e) => handleImageLoadError(e, EVENT_PLACEHOLDER_PATH)}
+                                />
                             </div>
                         </div>
 

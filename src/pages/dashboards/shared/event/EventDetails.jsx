@@ -11,6 +11,12 @@ import {
 import SessionOverview from './components/SessionOverview';
 import VenueInformation from './components/VenueInformation';
 import ContactOrganiser from './components/ContactOrganiser';
+import {
+  EVENT_PLACEHOLDER_PATH,
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
 
 const getMapEmbedUrl = (event) => {
   const directMapLink = String(event?.googleMapLink || '').trim();
@@ -105,6 +111,10 @@ const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
   }
 
   const mapEmbedUrl = getMapEmbedUrl(event);
+  const heroImageSrc = resolveImageUrl(
+    pickImageSource(event.image, event.imageUrl, event.thumbnail),
+    EVENT_PLACEHOLDER_PATH
+  );
 
   return (
     <div className="min-h-screen bg-[#f4f6f8] px-4 pt-5 pb-10 md:px-6 lg:px-10">
@@ -143,9 +153,10 @@ const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
 
         <div className="overflow-hidden rounded-xl">
           <img
-            src={event.image}
-            alt={event.title}
+            src={heroImageSrc}
+            alt={event.title || 'Event'}
             className="h-65 w-full rounded-xl object-cover md:h-96 lg:h-100 xl:h-140 2xl:h-186"
+            onError={(e) => handleImageLoadError(e, EVENT_PLACEHOLDER_PATH)}
           />
         </div>
 
