@@ -868,7 +868,7 @@ const CreateRecruitmentModal = ({
                       />
                     )}
                   </div>
-                  <div>
+                  {/* <div>
                     <label className={labelClass}>Session type *</label>
                     <select
                       className={fieldClass}
@@ -885,7 +885,7 @@ const CreateRecruitmentModal = ({
                       ))}
                     </select>
                     {errors.sessionType && <p className={errorClass}>Please select a session type</p>}
-                  </div>
+                  </div> */}
                 </div>
                 <div>
                   <label className={labelClass}>Suitable for</label>
