@@ -30,6 +30,18 @@ const getMapEmbedUrl = (service) => {
   return `https://www.google.com/maps?q=${encodeURIComponent(locationText)}&z=15&output=embed`;
 };
 
+const buildLocationSearchLabel = ({ town, postcode, location, fullAddress } = {}) => {
+  const fromTownPostcode = [town, postcode].filter(Boolean).join(', ');
+  if (fromTownPostcode) return fromTownPostcode;
+  return [location, fullAddress].filter(Boolean).join(', ');
+};
+
+const buildGoogleMapsSearchUrl = (query) => {
+  const normalized = String(query || '').trim();
+  if (!normalized) return '';
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
+};
+
 const DiscoverDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -133,6 +145,8 @@ const DiscoverDetails = () => {
       suitableFor: formatList(service.suitableFor),
       womensOnly: getWomenOnlyText(service.womenOnly),
       location: service.clinicName || service.location || '',
+      fullAddress: service.fullAddress || '',
+      googleMapLink: service.googleMapLink || service.googleMapLinks || '',
       postcode: service.postcode || '',
       town: service.city || '',
       day: service.sessonDay || formatList(service.availableDays),
@@ -523,14 +537,38 @@ const DiscoverDetails = () => {
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 h-100 flex flex-col">
                 <div className="space-y-3 mb-6 flex-1">
                   <p className="text-base flex items-start gap-2">
-                    <span className="text-[#1A1D1F] shrink-0 font-medium">Venue Name:</span>
+                    <span className="text-[#1A1D1F] shrink-0 font-medium">Town/Area: </span>
                     <span className="text-[#1A1D1F]">{item.location}</span>
                   </p>
 
-                  <div className="flex items-start gap-2 text-base text-[#1A1D1F]">
-                    <MapPin className="w-4 h-4 mt-1 shrink-0 text-[#6B7280]" />
-                    <p>{`${item.town}, ${item.postcode}`}</p>
-                  </div>
+                  {(() => {
+                    const locationLabel = buildLocationSearchLabel(item);
+                    const mapsHref =
+                      String(item.googleMapLink || '').trim() ||
+                      buildGoogleMapsSearchUrl(locationLabel);
+
+                    if (!locationLabel || !mapsHref) {
+                      return (
+                        <div className="flex items-start gap-2 text-base text-[#1A1D1F]">
+                          <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#6B7280]" />
+                          <p>{locationLabel || 'Location not specified'}</p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <a
+                        href={mapsHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-start gap-2 text-base text-[#1A1D1F] transition-colors hover:text-[#0F766E]"
+                        aria-label={`Open ${locationLabel} in Google Maps`}
+                      >
+                        <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#6B7280] group-hover:text-[#0F766E]" />
+                        <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
+                      </a>
+                    );
+                  })()}
 
                   <p className="text-base flex items-start gap-2">
                     <span className="text-[#1A1D1F] shrink-0 font-medium">Day:</span>
