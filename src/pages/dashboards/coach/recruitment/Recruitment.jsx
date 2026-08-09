@@ -63,7 +63,7 @@ const Recruitment = () => {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-[#0B544E] md:text-3xl">
-              Manage your Listings
+              Manage your Sessions 
             </h1>
           </div>
           <div>
@@ -75,7 +75,7 @@ const Recruitment = () => {
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-[#0F766E] px-4 py-3 text-base font-medium whitespace-nowrap text-white transition-colors hover:bg-[#0d655d]"
             >
               <Plus className="h-4 w-4 shrink-0" />
-              Add New Listing
+              Add New Sessions
             </button>
           </div>
         </div>
