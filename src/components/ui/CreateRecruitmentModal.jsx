@@ -530,7 +530,6 @@ const CreateRecruitmentModal = ({
     const newErrors = {};
     if (!serviceTitle) newErrors.organisationName = true;
     if (normalizedSports.length === 0) newErrors.sport = true;
-    if (normalizedSessionTypes.length === 0) newErrors.sessionType = true;
     if (normalizedSuitableFor.length === 0) newErrors.suitableFor = true;
     if (!form.womensOnly) newErrors.womensOnly = true;
     if (!String(form.venueName || '').trim()) newErrors.venueName = true;
@@ -547,7 +546,6 @@ const CreateRecruitmentModal = ({
       const messages = [];
       if (newErrors.organisationName) messages.push('Organisation name');
       if (newErrors.sport) messages.push('Sport or activity');
-      if (newErrors.sessionType) messages.push('Session type');
       if (newErrors.suitableFor) messages.push('Suitable for');
       if (newErrors.womensOnly) messages.push('Who can take part');
       if (newErrors.venueName) messages.push('Venue name');
@@ -868,24 +866,22 @@ const CreateRecruitmentModal = ({
                       />
                     )}
                   </div>
-                  {/* <div>
-                    <label className={labelClass}>Session type *</label>
+                  <div>
+                    {/* <label className={labelClass}>Session type</label>
                     <select
                       className={fieldClass}
                       value={form.sessionType}
                       onChange={(e) => {
                         const v = e.target.value;
                         setForm((s) => ({ ...s, sessionType: v, sessionTypes: v ? [v] : [] }));
-                        setErrors((prev) => ({ ...prev, sessionType: false }));
                       }}
                     >
                       <option value="">Select session type</option>
                       {sessionTypeOptions.map((type) => (
                         <option key={type} value={type}>{type}</option>
                       ))}
-                    </select>
-                    {errors.sessionType && <p className={errorClass}>Please select a session type</p>}
-                  </div> */}
+                    </select> */}
+                  </div>
                 </div>
                 <div>
                   <label className={labelClass}>Suitable for</label>
