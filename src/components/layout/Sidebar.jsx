@@ -130,7 +130,7 @@ const getMenuItems = (role, basePath) => {
     },
     {
       id: 'recruitment',
-      label: 'Manage Sessions',
+      label: 'Sessions',
       icon: <UserPlus className="h-5 w-5" />,
       path: `${basePath}/recruitment`,
     },
