@@ -12,7 +12,7 @@ import { GET } from '../../services/httpMethods';
 
 const sessionTypeOptions = ['In clinic', 'Online', 'At venue'];
 
-const SESSION_FREQUENCY_OPTIONS = ['Weekly', 'Fortnightly', 'Monthly', 'One-off', 'Other'];
+const SESSION_FREQUENCY_OPTIONS = ['Weekly', 'Fortnightly', 'Monthly', 'Other'];
 
 const DAY_OPTIONS = [
   'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
@@ -925,7 +925,7 @@ const CreateRecruitmentModal = ({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
-                    <label className={labelClass}>Venue Name *</label>
+                    <label className={labelClass}>Town/Area *</label>
                     <input
                       className={fieldClass}
                       value={form.venueName}
@@ -962,7 +962,7 @@ const CreateRecruitmentModal = ({
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
-                    <label className={labelClass}>Session day *</label>
+                    <label className={labelClass}> Day *</label>
                     <select
                       className={fieldClass}
                       value={sessionDayValue}
@@ -1027,7 +1027,7 @@ const CreateRecruitmentModal = ({
 
             <FormSection
               title="Cost or Membership Details *"
-              hint="Explain any fees, subscriptions, membership options or match arrangements."
+              hint="Explain any fees, subscriptions, membership options or match costs."
             >
               <textarea
                 rows={4}
@@ -1037,7 +1037,7 @@ const CreateRecruitmentModal = ({
                   handleChange('costMembershipDetail', e.target.value);
                   setErrors((prev) => ({ ...prev, costMembershipDetail: false }));
                 }}
-                placeholder="For example: £5 pay-as-you-go, annual membership £120, first session free, etc."
+                placeholder="For example: £5 pay-as-you-go, £120 annual membership, first session free, or contact the club for details."
               />
               {errors.costMembershipDetail && <p className={errorClass}>Required</p>}
             </FormSection>
@@ -1051,14 +1051,14 @@ const CreateRecruitmentModal = ({
                   handleChange('sessionDescription', e.target.value);
                   setErrors((prev) => ({ ...prev, sessionDescription: false }));
                 }}
-                placeholder="Include what to expect, who it's for, what to bring, session structure, coach info, etc."
+                placeholder="Include what to expect, who it’s for, what to bring and how the session works."
               />
               {errors.sessionDescription && <p className={errorClass}>Required</p>}
             </FormSection>
 
             <FormSection>
-              <label className={labelClass}>Image Upload</label>
-              <p className="mb-2 text-xs text-white/75">Add a photo to help people find your session.</p>
+              <label className={labelClass}>Upload an image for this session (optional)</label>
+              <p className="mb-2 text-sm text-white/80">This image will appear with your session listing. If left blank, a default image will be shown</p>
               <div
                 role="button"
                 tabIndex={0}

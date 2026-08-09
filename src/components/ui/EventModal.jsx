@@ -812,7 +812,7 @@ const EventModal = ({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
-                    <label className={labelClass}>Venue Name *</label>
+                    <label className={labelClass}>Town/Area*</label>
                     <input className={fieldClass} value={formData.venueName} onChange={(e) => handleChange('venueName', e.target.value)} />
                     {errors.venueName && <p className={errorClass}>{errors.venueName}</p>}
                   </div>

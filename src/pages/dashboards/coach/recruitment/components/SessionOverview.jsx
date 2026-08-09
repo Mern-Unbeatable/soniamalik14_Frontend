@@ -46,7 +46,7 @@ const SessionOverview = ({ item, disableActions = false }) => {
                         <Users className="w-5 h-5" />
                     </div>
                     <div>
-                        <p className="text-base text-[#101828] font-medium mb-0.5">Suitable For</p>
+                        <p className="text-base text-[#101828] font-medium mb-0.5">Suitable for</p>
                         <p className="text-base text-[#4A5565]">{Array.isArray(item.suitableFor) ? item.suitableFor.join(', ') : item.suitableFor || 'N/A'}</p>
                     </div>
                 </div>

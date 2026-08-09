@@ -5,6 +5,13 @@ import Button from '../../../../components/ui/Button';
 import { MapPin, Calendar, Clock } from 'lucide-react';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import DeleteConfirmationModal from '../../../../components/ui/DeleteConfirmationModal';
+import {
+    handleImageLoadError,
+    pickImageSource,
+    resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
+
+const RECRUITMENT_PLACEHOLDER = '/recruitment-placeholder.png';
 
 const RecruitmentCard = ({ item = {}, editLink, onEdit, onDelete, className = '' }) => {
 
@@ -41,11 +48,15 @@ const RecruitmentCard = ({ item = {}, editLink, onEdit, onDelete, className = ''
                             )}
 
                             <div className="h-36 bg-gray-200 rounded-md mb-4 overflow-hidden flex items-center justify-center">
-                                {item.image ? (
-                                    <img src={item.image} alt={item.title} className="w-full h-full  rounded-md" />
-                                ) : (
-                                    <div className="text-[#000000] bg-[#D9D9D9] rounded-md p-4">Image</div>
-                                )}
+                                <img
+                                    src={resolveImageUrl(
+                                        pickImageSource(item.image, item.logo),
+                                        RECRUITMENT_PLACEHOLDER
+                                    )}
+                                    alt={item.title || 'Listing'}
+                                    className="h-full w-full rounded-md object-cover"
+                                    onError={(e) => handleImageLoadError(e, RECRUITMENT_PLACEHOLDER)}
+                                />
                             </div>
                         </div>
 

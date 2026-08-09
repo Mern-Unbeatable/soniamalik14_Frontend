@@ -1,24 +1,42 @@
 import React from 'react';
-import { Heart, User } from 'lucide-react';
+import { User } from 'lucide-react';
+import {
+    DUMMY_IMAGE_PATH,
+    handleImageLoadError,
+    pickImageSource,
+    resolveImageUrl,
+} from '../../../../../utils/resolveImageUrl';
 
-const HeroBanner = ({ item }) => {
+const RECRUITMENT_PLACEHOLDER = '/recruitment-placeholder.png';
+
+const HeroBanner = ({ item = {} }) => {
+    const bannerSrc = resolveImageUrl(
+        pickImageSource(item.image, item.logo),
+        RECRUITMENT_PLACEHOLDER
+    );
+    const avatarSource = pickImageSource(item.avatar);
+
     return (
         <div className="relative mb-16">
-            {/* Banner Image */}
-            <div className="w-full h-64 md:h-180 rounded-2xl overflow-hidden shadow-sm">
-                {item.image ? (
-                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                ) : (
-                    <div className="w-full h-full bg-gray-300"></div>
-                )}
+            <div className="h-64 w-full overflow-hidden rounded-2xl shadow-sm md:h-180">
+                <img
+                    src={bannerSrc}
+                    alt={item.title || 'Listing'}
+                    className="h-full w-full object-cover"
+                    onError={(e) => handleImageLoadError(e, RECRUITMENT_PLACEHOLDER)}
+                />
             </div>
 
-            {/* Overlaid Avatar Picture */}
-            <div className="absolute -bottom-10 left-6 md:left-10 w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#F8FAFC] overflow-hidden bg-gray-200 flex items-center justify-center">
-                {item.avatar ? (
-                    <img src={item.avatar} alt={item.coach} className="w-full h-full object-cover" />
+            <div className="absolute -bottom-10 left-6 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 border-[#F8FAFC] bg-gray-200 md:left-10 md:h-24 md:w-24">
+                {avatarSource ? (
+                    <img
+                        src={resolveImageUrl(avatarSource, DUMMY_IMAGE_PATH)}
+                        alt={item.coach || 'Organiser'}
+                        className="h-full w-full object-cover"
+                        onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
+                    />
                 ) : (
-                    <User className="w-10 h-10 text-gray-500" />
+                    <User className="h-10 w-10 text-gray-500" />
                 )}
             </div>
         </div>

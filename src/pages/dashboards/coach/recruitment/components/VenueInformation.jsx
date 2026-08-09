@@ -40,12 +40,12 @@ const VenueInformation = ({ item }) => {
             <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Postcode:</span>
             <span className="text-[#1A1D1F]">{item.postcode || 'N/A'}</span>
           </p>
-          <p className="flex text-base">
+          {/* <p className="flex text-base">
             <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Town/City:</span>
             <span className="text-[#1A1D1F]">{item.town || 'N/A'}</span>
-          </p>
+          </p> */}
           <p className="flex text-base">
-            <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Session Day:</span>
+            <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Day:</span>
             <span className="text-[#1A1D1F]">
               {item.typicalSessionDays || item.matchDays || item.day || 'N/A'}
             </span>
@@ -59,7 +59,7 @@ const VenueInformation = ({ item }) => {
         </div>
 
         {/* Map Placeholder */}
-        <div className="h-36 w-full shrink-0 overflow-hidden rounded-lg bg-gray-200">
+        <div className="h-50 w-full shrink-0 overflow-hidden rounded-lg bg-gray-200">
           {mapEmbedUrl ? (
             <iframe
               src={mapEmbedUrl}

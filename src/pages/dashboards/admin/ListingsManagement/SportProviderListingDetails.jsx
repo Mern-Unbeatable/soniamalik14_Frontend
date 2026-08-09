@@ -275,7 +275,7 @@ const SportProviderListingDetails = () => {
                                 <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                     <div className="p-2 bg-[#E7F1F1] rounded-full text-[#00786F]"><Users className="w-5 h-5" /></div>
                                     <div>
-                                        <p className="text-base font-semibold text-gray-900">Suitable For</p>
+                                        <p className="text-base font-semibold text-gray-900">Suitable for</p>
                                         <p className="text-base text-gray-500">{data.suitableFor}</p>
                                     </div>
                                 </div>

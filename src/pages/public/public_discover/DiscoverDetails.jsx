@@ -433,7 +433,7 @@ const DiscoverDetails = () => {
 
           {/* Session Details Card */}
           <div className="bg-white rounded-lg p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-[#000000] mb-3">Session Details</h2>
+            <h2 className="text-xl font-bold text-[#000000] mb-3">About this session</h2>
             <div className="text-[#272727]  text-base md:max-w-7xl">  
               {item.about}
             </div>
@@ -475,7 +475,7 @@ const DiscoverDetails = () => {
                     <Users className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-base text-[#101828] font-medium mb-0.5">Suitable For</p>
+                    <p className="text-base text-[#101828] font-medium mb-0.5">Suitable for</p>
                     <p className="text-base  text-[#4A5565]">{item.suitableFor}</p>
                   </div>
                 </div>
@@ -529,11 +529,11 @@ const DiscoverDetails = () => {
 
                   <div className="flex items-start gap-2 text-base text-[#1A1D1F]">
                     <MapPin className="w-4 h-4 mt-1 shrink-0 text-[#6B7280]" />
-                    <p>{`${item.location}, ${item.town}, ${item.postcode}`}</p>
+                    <p>{`${item.town}, ${item.postcode}`}</p>
                   </div>
 
                   <p className="text-base flex items-start gap-2">
-                    <span className="text-[#1A1D1F] shrink-0 font-medium">Day of session:</span>
+                    <span className="text-[#1A1D1F] shrink-0 font-medium">Day:</span>
                     <span className="text-[#1A1D1F]">{item.day}</span>
                   </p>
 
