@@ -13,6 +13,41 @@ import { selectSportsCategories } from '../../../features/sportsCategories/sport
 
 const DISCOVER_API = '/api/services/by-role';
 
+const normalizeSportName = (value) => String(value || '').trim().toLowerCase();
+
+const itemMatchesSport = (item, selectedSport) => {
+  if (!selectedSport) return true;
+
+  const target = normalizeSportName(selectedSport);
+  const candidates = [
+    item?.sport,
+    ...(Array.isArray(item?.sports) ? item.sports : []),
+  ]
+    .filter(Boolean)
+    .map(normalizeSportName);
+
+  return candidates.some((sport) => sport === target);
+};
+
+const itemMatchesLocation = (item, locationQuery) => {
+  if (!locationQuery) return true;
+
+  const search = locationQuery.trim().toLowerCase();
+  if (!search) return true;
+
+  const haystack = [
+    item?.location,
+    item?.homeGround,
+    item?.town,
+    item?.postcode,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return haystack.includes(search);
+};
+
 const toDiscoverItem = (service) => {
   const sports = Array.isArray(service?.sports) ? service.sports.filter(Boolean) : [];
   const sessionTypes = Array.isArray(service?.sessionTypes)
@@ -77,8 +112,15 @@ const DiscoverView = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 6;
 
+  const sportOptions = useMemo(() => {
+    return (categories || [])
+      .map((cat) => (typeof cat === 'object' ? cat?.name : cat))
+      .filter(Boolean);
+  }, [categories]);
+
   useEffect(() => {
     setSelectedSport(sportParam);
+    setPage(1);
   }, [sportParam]);
 
   useEffect(() => {
@@ -93,9 +135,9 @@ const DiscoverView = () => {
         setLoading(true);
         setError('');
 
-        const url = location ? '/api/services' : DISCOVER_API;
-        const params = location
-          ? { postcode: location }
+        const url = location.trim() ? '/api/services' : DISCOVER_API;
+        const params = location.trim()
+          ? { postcode: location.trim(), status: 'ACTIVE', providerRole: 'COACH' }
           : { status: 'ACTIVE', providerRole: 'COACH' };
 
         const response = await GET(
@@ -131,40 +173,24 @@ const DiscoverView = () => {
     };
   }, [location]);
 
-  // Filter the data based on selected filters
   const filtered = useMemo(
     () =>
       services.filter((item) => {
-        let match = true;
-
-        if (selectedSport) {
-          match = match && item.sport.toLowerCase() === selectedSport.toLowerCase();
-        }
-
-        if (location) {
-          const search = location.toLowerCase();
-          match =
-            match &&
-            (item.location?.toLowerCase().includes(search) ||
-              item.homeGround?.toLowerCase().includes(search) ||
-              item.town?.toLowerCase().includes(search) ||
-              item.postcode?.toLowerCase().includes(search));
-        }
-
-        if (distance) {
-          match = match && true;
-        }
-
-        return match;
+        const sportOk = itemMatchesSport(item, selectedSport);
+        const locationOk = itemMatchesLocation(item, location);
+        return sportOk && locationOk;
       }),
-    [services, selectedSport, location, distance]
+    [services, selectedSport, location]
   );
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedItems = filtered.slice(startIndex, endIndex);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+  const safePage = Math.min(page, totalPages);
+  const startIndex = (safePage - 1) * itemsPerPage;
+  const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+  useEffect(() => {
+    if (page !== safePage) setPage(safePage);
+  }, [page, safePage]);
 
   return (
     <section className="bg-[#F8FAFC] py-6 lg:py-10">
@@ -205,15 +231,12 @@ const DiscoverView = () => {
                 }}
                 className="w-full cursor-pointer appearance-none rounded-md border-none bg-white px-3 py-3 text-base text-gray-700 shadow-sm outline-none focus:ring-1 focus:ring-teal-500"
               >
-                
-                {categories.map((cat, index) => {
-                  const name = typeof cat === 'object' ? cat?.name : cat;
-                  return (
-                    <option key={cat?.id || index} value={name}>
-                      {name}
-                    </option>
-                  );
-                })}
+                <option value="">All sports</option>
+                {sportOptions.map((name, index) => (
+                  <option key={`${name}-${index}`} value={name}>
+                    {name}
+                  </option>
+                ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-800">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +293,7 @@ const DiscoverView = () => {
             </div>
 
             {totalPages > 1 && (
-              <Pagination page={page} total={totalPages} onChange={(p) => setPage(p)} />
+              <Pagination page={safePage} total={totalPages} onChange={(p) => setPage(p)} />
             )}
           </>
         ) : (

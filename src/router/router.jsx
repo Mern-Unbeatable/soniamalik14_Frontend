@@ -1,4 +1,4 @@
-import { createBrowserRouter, createRoutesFromElements, Route } from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Navigate, Route, useParams } from 'react-router-dom';
 import RootLayout from '../components/layout/RootLayout.jsx';
 
 import HomeView from '../pages/public/public_Home/HomeView';
@@ -91,6 +91,11 @@ import AdminProfile from '../pages/dashboards/admin/profile/AdminProfile.jsx';
 import Notifications from '../pages/dashboards/coach/Notifications/Notifications.jsx';
 import AccountDetails from '../pages/dashboards/user/account/AccountDetails.jsx';
 
+const DiscoverLegacyRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/discover/${id}`} replace />;
+};
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -108,7 +113,8 @@ const router = createBrowserRouter(
         {/* <Route path="find-sport" element={<FindSport />} />
         <Route path="find-sport/:id" element={<FindSportDetails />} /> */}
         <Route path="discover" element={<DiscoverView />} />
-        <Route path="discover/:type/:id" element={<DiscoverDetails />} />
+        <Route path="discover/:type/:id" element={<DiscoverLegacyRedirect />} />
+        <Route path="discover/:id" element={<DiscoverDetails />} />
         <Route path="community" element={<CommunityView />} />
         <Route path="collaborate" element={<CollaborateView />} />
 

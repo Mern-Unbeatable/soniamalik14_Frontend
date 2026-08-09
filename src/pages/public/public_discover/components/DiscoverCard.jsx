@@ -41,7 +41,7 @@ const DiscoverCard = ({ item }) => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
     } else {
-      navigate(`/discover/${item.type}/${item.id}`, { state: { item } });
+      navigate(`/discover/${item.id}`, { state: { item } });
     }
   };
 
@@ -101,7 +101,7 @@ const DiscoverCard = ({ item }) => {
       </div>
 
       <Link
-        to={isAuthenticated ? `/discover/${item.type}/${item.id}` : '#'}
+        to={isAuthenticated ? `/discover/${item.id}` : '#'}
         onClick={handleViewDetails}
       >
         <Button
