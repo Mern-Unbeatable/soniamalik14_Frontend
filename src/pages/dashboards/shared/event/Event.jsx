@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import PageHeader from '../../../../components/ui/PageHeader';
 import EventCard from '../../../../components/ui/EventCard';
@@ -27,6 +27,34 @@ const normalizeEventsList = (value) => {
     return [];
 };
 
+const normalizeEventStatus = (rawStatus) => {
+    const normalized = String(rawStatus || '')
+        .trim()
+        .toUpperCase();
+
+    if (!normalized) return '';
+    if (normalized.includes('PENDING')) return 'Pending';
+    if (normalized.includes('APPROV')) return 'Approved';
+    if (normalized.includes('REJECT')) return 'Rejected';
+    if (normalized.includes('CANCEL')) return 'Cancelled';
+
+    return normalized.charAt(0) + normalized.slice(1).toLowerCase();
+};
+
+const getEventSearchText = (event) =>
+    [
+        event?.title,
+        event?.location,
+        event?.fullAddress,
+        event?.venueName,
+        event?.venue?.name,
+        event?.city,
+        event?.sportType,
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
 const Event = ({
     filterComponent: FilterComponent,
     detailsRoute = '/coach/event',
@@ -38,6 +66,7 @@ const Event = ({
     const organizerLoading = useSelector(selectOrganizerEventsLoading);
     const organizerError = useSelector(selectOrganizerEventsError);
     const [searchParams] = useSearchParams();
+    const location = useLocation();
 
     const events = normalizeEventsList(useOrganizerApi ? organizerEvents : contextEvents);
     const loading = useOrganizerApi ? organizerLoading : contextLoading;
@@ -53,14 +82,25 @@ const Event = ({
         fetchEvents();
     }, [dispatch, fetchEvents, useOrganizerApi]);
 
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(() => {
+        const fromState = location.state?.currentPage;
+        if (Number.isInteger(fromState) && fromState > 0) return fromState;
+        return 1;
+    });
     const [filter, setFilter] = useState(() => {
-        // Check URL params for filter values
+        const fromState = location.state?.filter;
+        if (fromState && typeof fromState === 'object') {
+            return {
+                status: fromState.status || 'All',
+                query: typeof fromState.query === 'string' ? fromState.query : '',
+            };
+        }
+
         const statusParam = searchParams.get('status');
         const queryParam = searchParams.get('query');
         return {
             status: statusParam || 'All',
-            query: queryParam || ''
+            query: queryParam || '',
         };
     });
 
@@ -106,22 +146,35 @@ const Event = ({
         setModalMode('create');
     };
 
-    const applyFilters = (list) => {
+    const handleFilterChange = useCallback((nextFilter) => {
+        setFilter({
+            status: nextFilter?.status || 'All',
+            query: typeof nextFilter?.query === 'string' ? nextFilter.query : '',
+        });
+        setPage(1);
+    }, []);
+
+    const filtered = useMemo(() => {
         const q = (filter.query || '').trim().toLowerCase();
-        return list.filter((ev) => {
-            const matchesStatus = filter.status === 'All' || ev.status === filter.status;
-            const matchesQuery = !q || (ev.title && ev.title.toLowerCase().includes(q)) || (ev.location && ev.location.toLowerCase().includes(q));
+        return events.filter((ev) => {
+            const eventStatus = normalizeEventStatus(ev?.status);
+            const matchesStatus =
+                filter.status === 'All' || eventStatus === filter.status;
+            const matchesQuery = !q || getEventSearchText(ev).includes(q);
             return matchesStatus && matchesQuery;
         });
-    };
+    }, [events, filter]);
 
-    const filtered = applyFilters(events);
     const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
-    const paged = filtered.slice((page - 1) * perPage, page * perPage);
+    const safePage = Math.min(page, totalPages);
+    const paged = useMemo(
+        () => filtered.slice((safePage - 1) * perPage, safePage * perPage),
+        [filtered, safePage, perPage]
+    );
 
     useEffect(() => {
-        setPage(1);
-    }, [filter]);
+        if (page !== safePage) setPage(safePage);
+    }, [page, safePage]);
 
     return (
         <div className="dashboardPy dashboardSpaceY ">
@@ -149,7 +202,7 @@ const Event = ({
             {FilterComponent && (
                 <div>
                     <FilterComponent
-                        onFilter={(f) => setFilter(f)}
+                        onFilter={handleFilterChange}
                         active={filter.status}
                         initialQuery={filter.query}
                     />
@@ -189,10 +242,11 @@ const Event = ({
                                     onDelete={() => handleDelete(e)}
                                     detailsRoute={detailsRoute}
                                     filter={filter}
+                                    currentPage={safePage}
                                 />
                             ))}
                         </div>
-                        <Pagination page={page} total={totalPages} onChange={(p) => setPage(p)} />
+                        <Pagination page={safePage} total={totalPages} onChange={(p) => setPage(p)} />
                     </>
                 )}
             </div>

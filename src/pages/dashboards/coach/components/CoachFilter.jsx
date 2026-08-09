@@ -1,26 +1,25 @@
 ﻿import React, { useState, useEffect } from 'react';
 import Button from '../../../../components/ui/Button';
 
-
 const CoachFilter = ({ onFilter, active = 'All', initialQuery = '' }) => {
     const types = ['All', 'Approved', 'Pending'];
     const [status, setStatus] = useState(active);
     const [query, setQuery] = useState(initialQuery);
 
-    // Sync local status with parent value
     useEffect(() => {
         setStatus(active || 'All');
     }, [active]);
 
-    // Sync local query with parent value
     useEffect(() => {
         setQuery(initialQuery || '');
     }, [initialQuery]);
 
-    useEffect(() => {
-        if (onFilter) onFilter({ status, query });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [status, query]);
+    const publishFilter = (nextStatus, nextQuery) => {
+        onFilter?.({
+            status: nextStatus,
+            query: nextQuery,
+        });
+    };
 
     return (
         <div className="w-full lg:w-1/2 bg-secondary p-4 rounded-xl">
@@ -29,16 +28,23 @@ const CoachFilter = ({ onFilter, active = 'All', initialQuery = '' }) => {
                     <input
                         placeholder="Search By event name"
                         value={query}
-                        onChange={(e) => setQuery(e.target.value)}
+                        onChange={(e) => {
+                            const nextQuery = e.target.value;
+                            setQuery(nextQuery);
+                            publishFilter(status, nextQuery);
+                        }}
                         className="w-full bg-transparent outline-none text-base text-gray-700 placeholder-gray-400"
                     />
                 </div>
 
-                {/* Mobile Dropdown */}
                 <div className="md:hidden">
                     <select
                         value={status}
-                        onChange={(e) => setStatus(e.target.value)}
+                        onChange={(e) => {
+                            const nextStatus = e.target.value;
+                            setStatus(nextStatus);
+                            publishFilter(nextStatus, query);
+                        }}
                         className="w-full bg-white rounded-lg px-4 py-2.5 shadow-sm border border-gray-200 outline-none text-base text-gray-700"
                     >
                         {types.map((t) => (
@@ -49,14 +55,16 @@ const CoachFilter = ({ onFilter, active = 'All', initialQuery = '' }) => {
                     </select>
                 </div>
 
-                {/* Desktop Buttons */}
                 <div className="hidden md:flex gap-2">
                     {types.map((t) => (
                         <Button
                             key={t}
                             variant={t === status ? 'primary' : 'outline'}
                             className={`rounded-lg px-5 py-2 text-base ${t === status ? 'shadow-md' : ''}`}
-                            onClick={() => setStatus(t)}
+                            onClick={() => {
+                                setStatus(t);
+                                publishFilter(t, query);
+                            }}
                         >
                             {t}
                         </Button>
