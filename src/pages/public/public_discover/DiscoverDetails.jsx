@@ -7,6 +7,13 @@ import { GET, POST } from '../../../services/httpMethods';
 import { ENDPOINT } from '../../../services/httpEndpoint';
 import { getUser } from '../../../utils/storage';
 import Swal from 'sweetalert2';
+import {
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../utils/resolveImageUrl';
+
+const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
 
 const formatList = (value) => {
   if (!Array.isArray(value)) return String(value || '').trim();
@@ -151,7 +158,7 @@ const DiscoverDetails = () => {
       town: service.city || '',
       day: service.sessonDay || formatList(service.availableDays),
       time: service.timeSlote || '',
-      image: service.logo || '',
+      image: service.logo || service.image || service.thumbnail || '',
       avatar: service.provider?.avatar || '',
       mapEmbedUrl: getMapEmbedUrl(service),
       about: service.aboutService || service.description || '',
@@ -161,6 +168,15 @@ const DiscoverDetails = () => {
       responseType: service.responseType || (service.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'INTERESTED' : 'REGISTER'),
     };
   }, [service]);
+
+  const heroImageSrc = useMemo(
+    () =>
+      resolveImageUrl(
+        pickImageSource(service?.logo, service?.image, service?.thumbnail, item?.image),
+        DISCOVER_PLACEHOLDER
+      ),
+    [service, item?.image]
+  );
 
   const handleBookPlace = async () => {
     if (!id) return;
@@ -404,11 +420,12 @@ const DiscoverDetails = () => {
           <div className="relative mb-16">
             {/* Banner Image */}
             <div className="w-full h-62.5 md:h-150 rounded-2xl overflow-hidden shadow-sm">
-              {item.image ? (
-                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gray-300"></div>
-              )}
+              <img
+                src={heroImageSrc}
+                alt={item.title || 'Listing'}
+                className="h-full w-full object-cover"
+                onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
+              />
             </div>
 
             {/* Overlaid Back Button */}

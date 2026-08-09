@@ -11,7 +11,7 @@ import {
   resolveImageUrl,
 } from '../../../../utils/resolveImageUrl';
 
-const LISTING_PLACEHOLDER = '/recruitment-placeholder.png';
+const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
 
 const resolveSportLabel = (item = {}) => {
   const fromSport = String(item.sport || '').trim();
@@ -33,7 +33,7 @@ const DiscoverCard = ({ item }) => {
 
   const imageSrc = resolveImageUrl(
     pickImageSource(item.image, item.logo, item.thumbnail),
-    LISTING_PLACEHOLDER
+    DISCOVER_PLACEHOLDER
   );
 
   const handleViewDetails = (e) => {
@@ -61,7 +61,7 @@ const DiscoverCard = ({ item }) => {
             src={imageSrc}
             alt={item.title || 'Listing'}
             className="h-full w-full object-cover"
-            onError={(e) => handleImageLoadError(e, LISTING_PLACEHOLDER)}
+            onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
           />
           {sportLabel ? (
             <span className="absolute bottom-3 left-3 z-10 rounded-full bg-[#E7F1F1] px-3 py-1 text-sm font-semibold text-[#0F766E] shadow-sm">
