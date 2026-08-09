@@ -72,7 +72,7 @@ const Enquiries = () => {
     <div className="dashboardPy dashboardSpaceY bg-[#F4F6F8]">
       <section className="rounded-lg bg-white">
         <div className="px-5 pt-5 pb-4">
-          <h1 className="text-btn-primary text-2xl leading-9 font-semibold">Enquaries</h1>
+          <h1 className="text-btn-primary text-2xl leading-9 font-semibold">Enquiries</h1>
         </div>
 
         {loading && (
