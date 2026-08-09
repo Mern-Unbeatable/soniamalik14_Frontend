@@ -29,6 +29,7 @@ const toDiscoverItem = (service) => {
     titleColor: '#0B544E',
     type: sessionTypes[0] || 'Training',
     sport: sports[0] || 'Others',
+    sports,
     day: service?.sessonDay || availableDays.join(', ') || 'Schedule not specified',
     time: service?.timeSlote || 'Time not specified',
     location: service?.clinicName || service?.location || service?.city || 'Location not specified',
