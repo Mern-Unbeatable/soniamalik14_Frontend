@@ -314,8 +314,7 @@ const RecruitmentDetails = () => {
                         ) : (
                             <>
                                 <p className="text-base text-gray-500 mb-3">
-                                    Share this link with players so they can book their place directly.
-                                </p>
+                                Use this link to share your ESSA Hub listing on your website, social media or messages.                                </p>
                                 <div className="flex items-center gap-3 w-full">
                                     <a
                                         href={item.bookingLink}
