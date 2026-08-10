@@ -821,38 +821,19 @@ const EventModal = ({
                     <input className={fieldClass} value={formData.postcode} onChange={(e) => handleChange('postcode', e.target.value)} />
                     {errors.postcode && <p className={errorClass}>{errors.postcode}</p>}
                   </div>
-                  <div>
+                  {/* <div>
                     <label className={labelClass}>Google Maps Link</label>
                     <input className={fieldClass} value={formData.googleMapLinks} onChange={(e) => handleChange('googleMapLinks', e.target.value)} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div>
-                    <label className={labelClass}>Event day</label>
-                    <select className={fieldClass} value={formData.sessionDay} onChange={(e) => handleChange('sessionDay', e.target.value)}>
-                      <option value="">Select day</option>
-                      {DAY_OPTIONS.map((day) => (
-                        <option key={day} value={day}>{day}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Start time *</label>
-                    <input type="time" className={fieldClass} value={formData.startTime} onChange={(e) => handleChange('startTime', e.target.value)} />
-                    {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
-                  </div>
-                  <div>
-                    <label className={labelClass}>End time *</label>
-                    <input type="time" className={fieldClass} value={formData.endTime} onChange={(e) => handleChange('endTime', e.target.value)} />
-                    {errors.endTime && <p className={errorClass}>{errors.endTime}</p>}
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
+                  </div> */}
+                   <div>
                     <label className={labelClass}>Start date *</label>
                     <input type="date" min={todayStr} className={fieldClass} value={formData.startDate} onChange={(e) => handleChange('startDate', e.target.value)} />
                     {errors.startDate && <p className={errorClass}>{errors.startDate}</p>}
                   </div>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                 
                   <div>
                     <label className={labelClass}>End date *</label>
                     <input type="date" min={formData.startDate || todayStr} className={fieldClass} value={formData.endDate} onChange={(e) => handleChange('endDate', e.target.value)} />
