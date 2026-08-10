@@ -41,6 +41,48 @@ const formatReadableDate = (value) => {
     return parsed.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+const buildGoogleMapsSearchUrl = (query) => {
+    const normalized = String(query || '').trim();
+    if (!normalized || normalized.toLowerCase() === 'not specified') return '';
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
+};
+
+const getMapEmbedUrl = (service) => {
+    const rawLink = String(service?.googleMapLink || service?.googleMapLinks || '').trim();
+    if (rawLink) {
+        try {
+            const url = new URL(rawLink);
+
+            if (url.pathname.includes('/maps/embed')) {
+                return url.toString();
+            }
+
+            const q = url.searchParams.get('q');
+            if (q) {
+                return `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+            }
+
+            return `https://www.google.com/maps?q=${encodeURIComponent(rawLink)}&output=embed`;
+        } catch {
+            return `https://www.google.com/maps?q=${encodeURIComponent(rawLink)}&output=embed`;
+        }
+    }
+
+    const locationQuery = [
+        service?.fullAddress,
+        service?.clinicName,
+        service?.location,
+        service?.city,
+        service?.postcode,
+    ]
+        .map((value) => String(value || '').trim())
+        .filter(Boolean)
+        .join(', ');
+
+    if (!locationQuery) return '';
+    return `https://www.google.com/maps?q=${encodeURIComponent(locationQuery)}&z=15&output=embed`;
+};
+
 const SportProviderListingDetails = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -143,6 +185,11 @@ const SportProviderListingDetails = () => {
                 service?.timeSlote ||
                 (service?.duration ? `${service.duration} mins` : 'Not specified'),
             participantResponseType: service?.participantResponseType || 'ADD_BOOKING_LINK',
+            fullAddress: service?.fullAddress || '',
+            googleMapLink: service?.googleMapLink || service?.googleMapLinks || '',
+            mapEmbedUrl: getMapEmbedUrl(service),
+            postcodeMapsUrl: buildGoogleMapsSearchUrl(service?.postcode),
+            townCityMapsUrl: buildGoogleMapsSearchUrl(service?.city || service?.location),
         };
     }, [service]);
 
@@ -324,14 +371,38 @@ const SportProviderListingDetails = () => {
                         <h2 className="text-xl font-semibold text-gray-900 mb-4">Venue Information</h2>
                         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
                             <div className="grid grid-cols-[100px_1fr] gap-2 text-base">
-                                <span className="text-gray-500">Venue Name:</span>
-                                <span className="text-gray-900 font-medium">{data.venueName}</span>
+                                {/* <span className="text-gray-500">Venue Name:</span>
+                                <span className="text-gray-900 font-medium">{data.venueName}</span> */}
 
                                 <span className="text-gray-500">Postcode:</span>
-                                <span className="text-gray-900 font-medium">{data.postcode}</span>
+                                {data.postcodeMapsUrl ? (
+                                    <a
+                                        href={data.postcodeMapsUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="font-medium text-gray-900 underline-offset-2 hover:text-[#0F766E] hover:underline"
+                                        aria-label={`Open ${data.postcode} in Google Maps`}
+                                    >
+                                        {data.postcode}
+                                    </a>
+                                ) : (
+                                    <span className="font-medium text-gray-900">{data.postcode}</span>
+                                )}
 
                                 <span className="text-gray-500">Town/City:</span>
-                                <span className="text-gray-900 font-medium">{data.townCity}</span>
+                                {data.townCityMapsUrl ? (
+                                    <a
+                                        href={data.townCityMapsUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="font-medium text-gray-900 underline-offset-2 hover:text-[#0F766E] hover:underline"
+                                        aria-label={`Open ${data.townCity} in Google Maps`}
+                                    >
+                                        {data.townCity}
+                                    </a>
+                                ) : (
+                                    <span className="font-medium text-gray-900">{data.townCity}</span>
+                                )}
 
                                 <span className="text-gray-500">Session Day:</span>
                                 <span className="text-gray-900 font-medium">{data.sessionDays}</span>
@@ -340,13 +411,28 @@ const SportProviderListingDetails = () => {
                                 <span className="text-gray-900 font-medium">{data.sessionTime}</span>
                             </div>
 
-                            {/* Dummy Map Image */}
-                            <div className="mt-6">
-                                <img
-                                    src={DUMMY_IMAGE_PATH}
-                                    alt="Venue Map"
-                                    className="w-full h-60 object-cover rounded-lg border border-gray-200"
-                                />
+                            {/* Map Placeholder */}
+                            <div className="mt-6 h-50 w-full shrink-0 overflow-hidden rounded-lg bg-gray-200">
+                                {data.mapEmbedUrl ? (
+                                    <iframe
+                                        src={data.mapEmbedUrl}
+                                        title="Map preview"
+                                        className="h-full w-full border-0"
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                    />
+                                ) : data.googleMapLink &&
+                                  /\.(png|jpe?g|webp|gif)(\?|$)/i.test(String(data.googleMapLink)) ? (
+                                    <img
+                                        src={data.googleMapLink}
+                                        alt="Map View"
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex h-full w-full min-h-[12rem] items-center justify-center text-sm text-gray-400">
+                                        Map View
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
