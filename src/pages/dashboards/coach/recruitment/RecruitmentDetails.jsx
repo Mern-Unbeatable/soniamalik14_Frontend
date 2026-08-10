@@ -306,7 +306,7 @@ const RecruitmentDetails = () => {
                 {/* Booking Link Card */}
                 {item.bookingLink && (
                     <div className="bg-white rounded-lg p-6 mb-8 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#1A1D1F]">share Link</h3>
+                        <h3 className="text-lg font-bold text-[#1A1D1F]">Share Link</h3>
                         {item.status === 'PENDING_APPROVAL' || item.status === 'PENDING' ? (
                             <p className="text-base text-gray-500 font-medium italic mt-1">
                                 You can share after admin approved
