@@ -2,30 +2,31 @@
 import Card from '../../../../components/ui/Card';
 import Button from '../../../../components/ui/Button';
 import { MapPin, Calendar } from 'lucide-react';
-
-const FALLBACK_IMAGE =
-  'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 width%3D%22960%22 height%3D%22640%22 viewBox%3D%220 0 960 640%22%3E%3Crect width%3D%22960%22 height%3D%22640%22 rx%3D%2232%22 fill%3D%22%23EAF2F1%22%2F%3E%3Cpath d%3D%22M320 250h320v170H320z%22 fill%3D%22%23C9DDDA%22%2F%3E%3Cpath d%3D%22M365 385l70-82 55 62 48-52 92 72H365z%22 fill%3D%22%239FC9C5%22%2F%3E%3Ccircle cx%3D%22412%22 cy%3D%22300%22 r%3D%2230%22 fill%3D%22%23B7D6D2%22%2F%3E%3Ctext x%3D%2255%25%22 y%3D%2253%25%22 text-anchor%3D%22middle%22 font-family%3D%22Arial%2C sans-serif%22 font-size%3D%2230%22 fill%3D%22%2353736F%22%3EEvent image unavailable%3C%2Ftext%3E%3C%2Fsvg%3E';
+import {
+  EVENT_PLACEHOLDER_PATH,
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
 
 const EventCard = ({ event, onViewDetails }) => {
+  const coverSrc = resolveImageUrl(
+    pickImageSource(event?.image, event?.imageUrl, event?.thumbnail),
+    EVENT_PLACEHOLDER_PATH
+  );
+
   return (
     <Card className="p-4 h-full flex flex-col justify-between" style={{ borderColor: '#B5D5D2' }}>
       <div>
         <div className="relative">
           <div className="absolute top-3 left-3 bg-secondary text-btn-primary rounded-md px-3 py-1.5 text-base font-semibold">{event.tag}</div>
-          <div className="h-40 sm:h-48 lg:h-64 bg-gray-200 rounded-md mb-4 overflow-hidden flex items-center justify-center">
-            {event.image ? (
-              <img
-                src={event.image}
-                alt={event.title}
-                className="w-full h-full object-cover rounded-md"
-                onError={(eventImage) => {
-                  eventImage.currentTarget.onerror = null;
-                  eventImage.currentTarget.src = FALLBACK_IMAGE;
-                }}
-              />
-            ) : (
-              <div className="text-gray-400">Image</div>
-            )}
+          <div className="h-40 sm:h-48 lg:h-64 bg-gray-200 rounded-md mb-4 overflow-hidden">
+            <img
+              src={coverSrc}
+              alt={event.title || 'Event'}
+              className="w-full h-full object-cover rounded-md"
+              onError={(e) => handleImageLoadError(e, EVENT_PLACEHOLDER_PATH)}
+            />
           </div>
         </div>
 

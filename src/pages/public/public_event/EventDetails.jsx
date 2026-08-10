@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Heart, User } from 'lucide-react';
+import { ArrowLeft, Heart } from 'lucide-react';
 import Container from '../../../components/layout/Container';
 import { useDispatch, useSelector } from 'react-redux';
 import { ENV } from '../../../config/env';
@@ -13,6 +13,13 @@ import { POST } from '../../../services/httpMethods';
 import { ENDPOINT } from '../../../services/httpEndpoint';
 import { toast } from 'react-toastify';
 import LoginRequiredModal from './components/LoginRequiredModal';
+import {
+  DUMMY_IMAGE_PATH,
+  EVENT_PLACEHOLDER_PATH,
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../utils/resolveImageUrl';
 const toTitleCase = (value = '') =>
   String(value)
     .toLowerCase()
@@ -104,12 +111,10 @@ const EventDetails = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     dispatch(fetchOrganizerEventById(id));
-    setAvatarError(false);
   }, [id, dispatch]);
 
   const data = apiItem?.data || apiItem;
@@ -232,6 +237,21 @@ const EventDetails = () => {
     );
   }
 
+  const heroImageSrc = resolveImageUrl(
+    pickImageSource(event.image, data?.image, data?.imageUrl, data?.thumbnail),
+    EVENT_PLACEHOLDER_PATH
+  );
+  const organizerAvatarSrc = resolveImageUrl(
+    pickImageSource(
+      event.organizerAvatar,
+      event.avatar,
+      data?.organizer?.avatar,
+      data?.orgLogo,
+      data?.logo
+    ),
+    DUMMY_IMAGE_PATH
+  );
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-16">
       <Container>
@@ -240,19 +260,12 @@ const EventDetails = () => {
           <div className="relative mb-16">
             {/* Banner Image */}
             <div className="w-full overflow-hidden rounded-2xl shadow-sm md:h-96 lg:h-100 xl:h-140 2xl:h-186">
-              {event.image ? (
-                <img
-                  src={event.image}
-                  alt={event.title}
-                  className="h-full w-full object-cover"
-                  onError={(imageEvent) => {
-                    imageEvent.currentTarget.onerror = null;
-                    imageEvent.currentTarget.src = '/images/detaisPage/detailsBanner.png';
-                  }}
-                />
-              ) : (
-                <div className="h-full w-full bg-gray-300"></div>
-              )}
+              <img
+                src={heroImageSrc}
+                alt={event.title || 'Event'}
+                className="h-full w-full object-cover"
+                onError={(e) => handleImageLoadError(e, EVENT_PLACEHOLDER_PATH)}
+              />
             </div>
 
             {/* Overlaid Back Button */}
@@ -278,17 +291,13 @@ const EventDetails = () => {
             </button>
 
             {/* Overlaid Avatar Picture */}
-            <div className="absolute -bottom-10 left-6 h-20 w-20 overflow-hidden rounded-full border-4 border-[#F8FAFC] bg-gray-200 md:left-10 md:h-24 md:w-24 flex items-center justify-center">
-              {event.organizerAvatar && !avatarError ? (
-                <img
-                  src={event.organizerAvatar}
-                  alt={event.coach}
-                  className="h-full w-full object-cover"
-                  onError={() => setAvatarError(true)}
-                />
-              ) : (
-                <User className="h-12 w-12 text-gray-500" />
-              )}
+            <div className="absolute -bottom-10 left-6 h-20 w-20 overflow-hidden rounded-full border-4 border-[#F8FAFC] bg-white md:left-10 md:h-24 md:w-24">
+              <img
+                src={organizerAvatarSrc}
+                alt={event.coach || 'Organizer'}
+                className="h-full w-full object-cover"
+                onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
+              />
             </div>
           </div>
 
