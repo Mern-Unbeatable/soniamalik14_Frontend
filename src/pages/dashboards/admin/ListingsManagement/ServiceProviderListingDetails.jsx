@@ -13,7 +13,6 @@ import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import {
-    DUMMY_IMAGE_PATH,
     handleImageLoadError,
     pickImageSource,
     resolveImageUrl,
@@ -52,6 +51,14 @@ const resolveResponseType = (service) => {
 
     return 'REGISTER';
 };
+
+const buildGoogleMapsSearchUrl = (query) => {
+    const normalized = String(query || '').trim();
+    if (!normalized || normalized.toLowerCase() === 'n/a') return '';
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
+};
+
+const SERVICE_AVATAR_PLACEHOLDER = '/discover-placeholder.png';
 
 const ServiceProviderListingDetails = () => {
     const navigate = useNavigate();
@@ -123,15 +130,20 @@ const ServiceProviderListingDetails = () => {
                 'N/A',
             status: normalizeStatus(service),
             engagement: null,
-            avatar: resolveImageUrl(
-                pickImageSource(service?.provider?.avatar, service?.logo, service?.image),
-                DUMMY_IMAGE_PATH
-            ),
+            avatar: resolveImageUrl(pickImageSource(service?.provider?.avatar), SERVICE_AVATAR_PLACEHOLDER),
             about: service?.aboutService || service?.description || 'No service details available.',
             clinicName: service?.clinicName || 'N/A',
-            location: service?.location || service?.fullAddress || 'N/A',
-            townCity: service?.city || 'N/A',
+            location:
+                service?.location ||
+                service?.fullAddress ||
+                service?.addressLine1 ||
+                'N/A',
+            townCity: service?.city || service?.clinicName || 'N/A',
             postcode: service?.postcode || 'N/A',
+            addressMapsUrl: buildGoogleMapsSearchUrl(
+                service?.location || service?.fullAddress || service?.addressLine1
+            ),
+            townCityMapsUrl: buildGoogleMapsSearchUrl(service?.city || service?.clinicName),
             primaryProfession:
                 service?.role ||
                 (Array.isArray(service?.providerType) ? service.providerType.join(', ') : service?.providerType) ||
@@ -207,7 +219,7 @@ const ServiceProviderListingDetails = () => {
                             src={data.avatar}
                             alt={data.listing}
                             className="w-full h-full object-cover"
-                            onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
+                            onError={(e) => handleImageLoadError(e, SERVICE_AVATAR_PLACEHOLDER)}
                         />
                     </div>
 
@@ -288,11 +300,35 @@ const ServiceProviderListingDetails = () => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
                             <span className="font-semibold text-gray-900">Address line </span>
-                            <span className="text-gray-700">{data.location}</span>
+                            {data.addressMapsUrl ? (
+                                <a
+                                    href={data.addressMapsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-gray-700 underline-offset-2 hover:text-[#0F766E] hover:underline"
+                                    aria-label={`Open ${data.location} in Google Maps`}
+                                >
+                                    {data.location}
+                                </a>
+                            ) : (
+                                <span className="text-gray-700">{data.location}</span>
+                            )}
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
                             <span className="font-semibold text-gray-900">Town/City:</span>
-                            <span className="text-gray-700">{data.townCity}</span>
+                            {data.townCityMapsUrl ? (
+                                <a
+                                    href={data.townCityMapsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-gray-700 underline-offset-2 hover:text-[#0F766E] hover:underline"
+                                    aria-label={`Open ${data.townCity} in Google Maps`}
+                                >
+                                    {data.townCity}
+                                </a>
+                            ) : (
+                                <span className="text-gray-700">{data.townCity}</span>
+                            )}
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
                             <span className="font-semibold text-gray-900">Postcode:</span>
