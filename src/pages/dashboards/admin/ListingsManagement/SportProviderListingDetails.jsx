@@ -160,6 +160,8 @@ const SportProviderListingDetails = () => {
                 DUMMY_IMAGE_PATH
             ),
             about: service?.aboutService || service?.description || 'No description available.',
+            costMemebershipDetail:
+                service?.costMemebershipDetail || service?.costMembershipDetail || '',
             sport: sports.length > 0 ? sports.join(', ') : 'Not specified',
             sessionType:
                 sessionTypes.length > 0
@@ -289,6 +291,16 @@ const SportProviderListingDetails = () => {
                     <p className="text-base text-[#000000] leading-relaxed mb-4 xl:max-w-6xl">
                         {data.about}
                     </p>
+                    {data.costMemebershipDetail ? (
+                        <>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2 mt-6">
+                                Cost or membership details
+                            </h3>
+                            <p className="text-base text-[#000000] leading-relaxed whitespace-pre-wrap xl:max-w-6xl">
+                                {data.costMemebershipDetail}
+                            </p>
+                        </>
+                    ) : null}
                     {/* <p className="text-base text-[#000000]">Join and improve with confidence.</p> */}
                 </div>
 
