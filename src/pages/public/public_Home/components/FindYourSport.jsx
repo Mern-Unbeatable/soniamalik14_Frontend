@@ -28,7 +28,6 @@ const FindYourSport = ({ section }) => {
         },
     ];
 
-    // Function to handle manual scrolling via arrows on mobile
     const scroll = (direction) => {
         if (scrollRef.current) {
             const scrollAmount = direction === "left" ? -300 : 300;
