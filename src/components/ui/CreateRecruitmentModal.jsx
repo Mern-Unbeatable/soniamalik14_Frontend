@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Upload, X } from 'lucide-react';
@@ -867,7 +867,7 @@ const CreateRecruitmentModal = ({
                     )}
                   </div>
                   <div>
-                    {/* <label className={labelClass}>Session type</label>
+                    <label className={labelClass}>Session type</label>
                     <select
                       className={fieldClass}
                       value={form.sessionType}
@@ -880,7 +880,7 @@ const CreateRecruitmentModal = ({
                       {sessionTypeOptions.map((type) => (
                         <option key={type} value={type}>{type}</option>
                       ))}
-                    </select> */}
+                    </select>
                   </div>
                 </div>
                 <div>
@@ -960,7 +960,7 @@ const CreateRecruitmentModal = ({
                     />
                     {errors.postcode && <p className={errorClass}>Required</p>}
                   </div>
-                  <div>
+                  {/* <div>
                     <label className={labelClass}>Google Maps Link</label>
                     <input
                       className={fieldClass}
@@ -968,7 +968,24 @@ const CreateRecruitmentModal = ({
                       onChange={(e) => handleChange('googleMapLink', e.target.value)}
                       placeholder="Paste Google Maps link"
                     />
-                  </div>
+                  </div> */}
+                  <div>
+                  <label className={labelClass}>How often does it run? *</label>
+                  <select
+                    className={fieldClass}
+                    value={form.sessionFrequency}
+                    onChange={(e) => {
+                      handleChange('sessionFrequency', e.target.value);
+                      setErrors((prev) => ({ ...prev, sessionFrequency: false }));
+                    }}
+                  >
+                    <option value="">Select frequency</option>
+                    {SESSION_FREQUENCY_OPTIONS.map((freq) => (
+                      <option key={freq} value={freq}>{freq}</option>
+                    ))}
+                  </select>
+                  {errors.sessionFrequency && <p className={errorClass}>Required</p>}
+                </div>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
@@ -1015,23 +1032,7 @@ const CreateRecruitmentModal = ({
                     {errors.timeTo && <p className={errorClass}>Required</p>}
                   </div>
                 </div>
-                <div>
-                  <label className={labelClass}>How often does it run? *</label>
-                  <select
-                    className={fieldClass}
-                    value={form.sessionFrequency}
-                    onChange={(e) => {
-                      handleChange('sessionFrequency', e.target.value);
-                      setErrors((prev) => ({ ...prev, sessionFrequency: false }));
-                    }}
-                  >
-                    <option value="">Select frequency</option>
-                    {SESSION_FREQUENCY_OPTIONS.map((freq) => (
-                      <option key={freq} value={freq}>{freq}</option>
-                    ))}
-                  </select>
-                  {errors.sessionFrequency && <p className={errorClass}>Required</p>}
-                </div>
+                
               </div>
             </FormSection>
 
