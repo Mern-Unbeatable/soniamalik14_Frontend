@@ -11,6 +11,13 @@ import {
 import SessionOverview from './components/SessionOverview';
 import VenueInformation from './components/VenueInformation';
 import ContactOrganiser from './components/ContactOrganiser';
+import {
+  DUMMY_IMAGE_PATH,
+  EVENT_PLACEHOLDER_PATH,
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
 
 const getMapEmbedUrl = (event) => {
   const directMapLink = String(event?.googleMapLink || '').trim();
@@ -99,6 +106,14 @@ const ProviderEventDetails = () => {
   }
 
   const mapEmbedUrl = getMapEmbedUrl(event);
+  const heroImageSrc = resolveImageUrl(
+    pickImageSource(event.image, event.imageUrl, event.thumbnail),
+    EVENT_PLACEHOLDER_PATH
+  );
+  const organizerAvatarSrc = resolveImageUrl(
+    pickImageSource(event.organizer?.avatar, event.orgLogo, event.logo),
+    DUMMY_IMAGE_PATH
+  );
 
   return (
     <div className="min-h-screen bg-[#f4f6f8] px-4 pb-10 pt-5 md:px-6 lg:px-10">
@@ -111,7 +126,7 @@ const ProviderEventDetails = () => {
             <ArrowLeft className="h-5 w-5" />
             <span>Back</span>
           </button>
-          {event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING' ? (
+          {/* {event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING' ? (
             <span className="text-sm text-gray-500 font-medium italic">
               You can share your link after admin approved
             </span>
@@ -132,21 +147,24 @@ const ProviderEventDetails = () => {
                 </>
               )}
             </button>
-          )}
+          )} */}
         </div>
 
         <div className=" w-full  rounded-xl ">
-          <img src={event.image} alt={event.title} className="h-65 md:h-96 lg:h-100 xl:h-140 2xl:h-186 w-full object-cover rounded-xl" />
+          <img
+            src={heroImageSrc}
+            alt={event.title || 'Event'}
+            className="h-65 md:h-96 lg:h-100 xl:h-140 2xl:h-186 w-full object-cover rounded-xl"
+            onError={(e) => handleImageLoadError(e, EVENT_PLACEHOLDER_PATH)}
+          />
         </div>
 
         <div className="relative -mt-6 ml-3 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-sm md:-mt-8 md:ml-4 md:h-21 md:w-21">
           <img
-            src={
-              event.organizer?.avatar ||
-              'https://ui-avatars.com/api/?name=Provider&background=0F766E&color=fff'
-            }
+            src={organizerAvatarSrc}
             alt={event.organizer?.name || 'Organizer'}
             className="h-full w-full object-cover"
+            onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
           />
         </div>
 

@@ -127,7 +127,7 @@ const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
             <ArrowLeft className="h-5 w-5" />
             <span>Back</span>
           </button>
-          {event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING' ? (
+          {/* {event?.status === 'PENDING_APPROVAL' || event?.status === 'PENDING' ? (
             <span className="text-sm font-medium text-gray-500 italic">
               You can share your link after admin approved
             </span>
@@ -148,7 +148,7 @@ const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
                 </>
               )}
             </button>
-          )}
+          )} */}
         </div>
 
         <div className="overflow-hidden rounded-xl">

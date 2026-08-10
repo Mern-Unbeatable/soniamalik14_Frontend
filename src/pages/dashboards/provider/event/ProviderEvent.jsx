@@ -356,6 +356,13 @@ import {
   selectProviderEvents,
   selectProviderEventsLoading,
 } from '../../../../features/events/eventsSlice';
+import {
+  DUMMY_IMAGE_PATH,
+  EVENT_PLACEHOLDER_PATH,
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
 
 const formatDateLabel = (value) => {
   if (!value) return 'Date not set';
@@ -559,11 +566,15 @@ const ProviderEvent = () => {
                     </span>
 
                     <div className="mb-4 h-44 overflow-hidden rounded-md bg-gray-200">
-                      {item.image ? (
-                        <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-sm text-gray-500">Image</div>
-                      )}
+                      <img
+                        src={resolveImageUrl(
+                          pickImageSource(item.image, item.imageUrl, item.thumbnail),
+                          EVENT_PLACEHOLDER_PATH
+                        )}
+                        alt={item.title || 'Event'}
+                        className="h-full w-full object-cover"
+                        onError={(e) => handleImageLoadError(e, EVENT_PLACEHOLDER_PATH)}
+                      />
                     </div>
                   </div>
 
