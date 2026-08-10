@@ -315,7 +315,7 @@ const SportProviderListingDetails = () => {
                                     <div className="p-2 bg-[#E7F1F1] rounded-full text-[#00786F]"><CalendarDays className="w-5 h-5" /></div>
                                     <div>
                                         <p className="text-base font-semibold text-gray-900">Session Type</p>
-                                        <p className="text-base text-gray-500">{data.sessionType}</p>
+                                        <p className="text-base text-gray-500">{data.sessionType}</p>   
                                     </div>
                                 </div>
                                 {/* Overview Card 3 */}
@@ -369,7 +369,7 @@ const SportProviderListingDetails = () => {
                     {/* Right Column */}
                     <div>
                         <h2 className="text-xl font-semibold text-gray-900 mb-4">Venue Information</h2>
-                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
+                        <div className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
                             <div className="grid grid-cols-[100px_1fr] gap-2 text-base">
                                 {/* <span className="text-gray-500">Venue Name:</span>
                                 <span className="text-gray-900 font-medium">{data.venueName}</span> */}
@@ -404,10 +404,10 @@ const SportProviderListingDetails = () => {
                                     <span className="font-medium text-gray-900">{data.townCity}</span>
                                 )}
 
-                                <span className="text-gray-500">Session Day:</span>
+                                <span className="text-gray-500">Day:</span>
                                 <span className="text-gray-900 font-medium">{data.sessionDays}</span>
 
-                                <span className="text-gray-500">Session Time:</span>
+                                <span className="text-gray-500">Time:</span>
                                 <span className="text-gray-900 font-medium">{data.sessionTime}</span>
                             </div>
 
