@@ -21,6 +21,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
+const DUMMY_IMAGE = '/dummy-image.png';
+
 /* ─── Registration Confirmation Modal ──────────────────────────────────────── */
 const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, loading }) => {
   if (!isOpen) return null;
@@ -356,12 +358,15 @@ const ServiceDetails = () => {
                 <div className="py-12 text-center text-red-600">{error}</div>
               ) : (
                 <div className="animate-in fade-in duration-300">
-                  {/* Header */}
+               
                   <div className="flex items-center gap-4 mb-8">
                     <img
-                      src={displayData.avatar}
-                      alt={displayData.coach}
-                      onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
+                      src={displayData.avatar || DUMMY_IMAGE}
+                      alt={displayData.coach || 'Service'}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = DUMMY_IMAGE;
+                      }}
                       className="w-[72px] h-[72px] rounded-full object-cover shadow-sm bg-gray-200"
                     />
                     <div>
