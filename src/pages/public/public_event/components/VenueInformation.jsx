@@ -1,8 +1,17 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
 
+const buildGoogleMapsSearchUrl = (query) => {
+  const normalized = String(query || '').trim();
+  if (!normalized) return '';
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
+};
+
 const VenueInformation = ({ event }) => {
   if (!event) return null;
+
+  const locationLabel = String(event.locationFull || '').trim();
+  const mapsHref = buildGoogleMapsSearchUrl(locationLabel);
 
   return (
     <div>
@@ -18,9 +27,21 @@ const VenueInformation = ({ event }) => {
 
           <div className="flex min-w-0 items-start gap-2">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-500" />
-            <span className="text-base leading-tight wrap-break-word text-[#1A1D1F]">
-              {event.locationFull}
-            </span>
+            {mapsHref ? (
+              <a
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-base leading-tight wrap-break-word text-[#1A1D1F] underline-offset-2 transition-colors hover:text-[#0F766E] hover:underline"
+                aria-label={`Open ${locationLabel} in Google Maps`}
+              >
+                {locationLabel}
+              </a>
+            ) : (
+              <span className="text-base leading-tight wrap-break-word text-[#1A1D1F]">
+                {locationLabel || 'Location not specified'}
+              </span>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
