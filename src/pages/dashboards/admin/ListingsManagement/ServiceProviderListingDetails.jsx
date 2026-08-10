@@ -31,6 +31,28 @@ const normalizeStatus = (service) => {
     return 'Pending';
 };
 
+const formatListValue = (value) => {
+    if (Array.isArray(value)) {
+        const normalized = value.map((item) => String(item || '').trim()).filter(Boolean);
+        return normalized.length > 0 ? normalized.join(', ') : 'N/A';
+    }
+    const text = String(value || '').trim();
+    return text || 'N/A';
+};
+
+const resolveResponseType = (service) => {
+    const responseType = String(service?.responseType || '').trim().toUpperCase();
+    if (responseType === 'INTERESTED' || responseType === 'REGISTER_INTEREST') {
+        return 'INTERESTED';
+    }
+    if (responseType === 'REGISTER') return 'REGISTER';
+
+    const participantType = String(service?.participantResponseType || '').trim().toUpperCase();
+    if (participantType === 'ALLOW_REGISTER_INTEREST') return 'INTERESTED';
+
+    return 'REGISTER';
+};
+
 const ServiceProviderListingDetails = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -85,11 +107,20 @@ const ServiceProviderListingDetails = () => {
 
         const sports = Array.isArray(service?.sports) ? service.sports : [];
         const sessionTypes = Array.isArray(service?.sessionTypes) ? service.sessionTypes : [];
+        const suitableFor = Array.isArray(service?.suitableFor) ? service.suitableFor : [];
+        const responseType = resolveResponseType(service);
 
         return {
             id: service?.id,
             listing: service?.listingHeadline || service?.organizationName || service?.providerName || 'Untitled Listing',
             coach: service?.contactName || service?.provider?.name || service?.providerName || 'N/A',
+            providerEmail:
+                service?.providerEmail || service?.provider?.email || 'N/A',
+            providerPhone:
+                service?.providerPhone ||
+                service?.provider?.phone ||
+                service?.provider?.phoneNumber ||
+                'N/A',
             status: normalizeStatus(service),
             engagement: null,
             avatar: resolveImageUrl(
@@ -98,15 +129,26 @@ const ServiceProviderListingDetails = () => {
             ),
             about: service?.aboutService || service?.description || 'No service details available.',
             clinicName: service?.clinicName || 'N/A',
-            addressLine1: service?.addressLine1 || 'N/A',
+            location: service?.location || service?.fullAddress || 'N/A',
             townCity: service?.city || 'N/A',
             postcode: service?.postcode || 'N/A',
             primaryProfession:
                 service?.role ||
                 (Array.isArray(service?.providerType) ? service.providerType.join(', ') : service?.providerType) ||
                 'N/A',
-            sessionTypes: sessionTypes.length > 0 ? sessionTypes.join(', ') : 'N/A',
-            sport: sports.length > 0 ? sports.join(', ') : 'N/A',
+            sessionTypes: formatListValue(sessionTypes),
+            sports: formatListValue(sports),
+            suitableFor: formatListValue(suitableFor),
+            whoCanTakePart: formatListValue(
+                service?.whoCanTakePart ??
+                    (typeof service?.womenOnly === 'boolean'
+                        ? service.womenOnly
+                            ? 'Women only'
+                            : 'Mixed, women welcome'
+                        : '')
+            ),
+            costMemebershipDetail:
+                service?.costMemebershipDetail || service?.costMembershipDetail || 'N/A',
             professionalRegistration: service?.professionalRegistration || 'N/A',
             insuranceInPlace:
                 typeof service?.insuranceInPlace === 'boolean'
@@ -114,7 +156,7 @@ const ServiceProviderListingDetails = () => {
                         ? 'Yes'
                         : 'No'
                     : 'N/A',
-            participantResponseType: service?.participantResponseType || 'ADD_BOOKING_LINK',
+            responseType,
         };
     }, [service]);
 
@@ -158,9 +200,9 @@ const ServiceProviderListingDetails = () => {
                 </button>
 
                 {/* Header Section */}
-                <div className="flex items-start gap-5">
+                <div className="flex items-center gap-5">
                     {/* Avatar */}
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#1a1a1a] shrink-0 flex items-center justify-center shadow-sm overflow-hidden">
+                    <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-[#1a1a1a] shrink-0 flex items-center justify-center shadow-sm overflow-hidden">
                         <img
                             src={data.avatar}
                             alt={data.listing}
@@ -171,8 +213,36 @@ const ServiceProviderListingDetails = () => {
 
                     {/* Title & Stats */}
                     <div className="pt-1">
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1.5">{data.listing}</h1>
-                        <p className="text-base text-gray-600 font-medium mb-3">Coach: <span className="text-gray-900 font-semibold">{data.coach}</span></p>
+                        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1.5">{data.listing}</h1>
+                        <p className="text-base text-gray-600 font-medium mb-1">
+                            Coach: <span className="text-gray-900 font-semibold">{data.coach}</span>
+                        </p>
+                        <p className="text-base text-gray-600 font-medium mb-1">
+                            Provider email:{' '}
+                            {data.providerEmail !== 'N/A' ? (
+                                <a
+                                    href={`mailto:${data.providerEmail}`}
+                                    className="font-semibold text-gray-900 underline-offset-2 hover:text-[#0F766E] hover:underline"
+                                >
+                                    {data.providerEmail}
+                                </a>
+                            ) : (
+                                <span className="text-gray-900 font-semibold">{data.providerEmail}</span>
+                            )}
+                        </p>
+                        <p className="text-base text-gray-600 font-medium mb-3">
+                            Provider phone:{' '}
+                            {data.providerPhone !== 'N/A' ? (
+                                <a
+                                    href={`tel:${String(data.providerPhone).replace(/\s/g, '')}`}
+                                    className="font-semibold text-gray-900 underline-offset-2 hover:text-[#0F766E] hover:underline"
+                                >
+                                    {data.providerPhone}
+                                </a>
+                            ) : (
+                                <span className="text-gray-900 font-semibold">{data.providerPhone}</span>
+                            )}
+                        </p>
 
                         {/* Mini Stats (Only show if engagement data exists) */}
                         {data.engagement && (
@@ -218,7 +288,7 @@ const ServiceProviderListingDetails = () => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
                             <span className="font-semibold text-gray-900">Address line </span>
-                            <span className="text-gray-700">{data.addressLine1}</span>
+                            <span className="text-gray-700">{data.location}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
                             <span className="font-semibold text-gray-900">Town/City:</span>
@@ -237,13 +307,25 @@ const ServiceProviderListingDetails = () => {
                             <span className="text-gray-700">{data.sessionTypes}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Sport:</span>
-                            <span className="text-gray-700">{data.sport}</span>
+                            <span className="font-semibold text-gray-900">Sports:</span>
+                            <span className="text-gray-700">{data.sports}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Professional Registration:</span>
-                            <span className="text-gray-700">{data.professionalRegistration}</span>
+                            <span className="font-semibold text-gray-900">Suitable for:</span>
+                            <span className="text-gray-700">{data.suitableFor}</span>
                         </div>
+                        {/* <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
+                            <span className="font-semibold text-gray-900">Who can take part:</span>
+                            <span className="text-gray-700">{data.whoCanTakePart}</span>
+                        </div> */}
+                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
+                            <span className="font-semibold text-gray-900">Cost / membership:</span>
+                            <span className="text-gray-700 whitespace-pre-line">{data.costMemebershipDetail}</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
+                            {/* <span className="font-semibold text-gray-900">Professional Registration:</span>
+                            <span className="text-gray-700">{data.participantResponseType}</span>   */}
+                                                  </div>
                         <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
                             <span className="font-semibold text-gray-900">Insurance in place:</span>
                             <span className="text-gray-700">{data.insuranceInPlace}</span>
@@ -252,17 +334,17 @@ const ServiceProviderListingDetails = () => {
                 </div>
 
                 {/* Action Buttons */}
-                {/* <div className="flex flex-wrap gap-4">
-                    {data.participantResponseType !== 'ALLOW_REGISTER_INTEREST' ? (
-                        <button className="px-5 py-2.5 bg-btn-primary text-white text-sm md:text-base font-semibold rounded-lg hover:bg-teal-800 transition-colors">
-                            Register
-                        </button>
-                    ) : (
+                <div className="flex flex-wrap gap-4">
+                    {data.responseType === 'INTERESTED' ? (
                         <button className="px-5 py-2.5 bg-btn-primary text-white text-sm md:text-base font-semibold rounded-lg hover:bg-teal-800 transition-colors">
                             Register Interest
                         </button>
+                    ) : (
+                        <button className="px-5 py-2.5 bg-btn-primary text-white text-sm md:text-base font-semibold rounded-lg hover:bg-teal-800 transition-colors">
+                            Register
+                        </button>
                     )}
-                </div> */}
+                </div>
 
                  {/* Contact Organiser */}
                         {/* <div>
