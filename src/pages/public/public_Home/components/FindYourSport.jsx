@@ -50,7 +50,6 @@ const FindYourSport = ({ section }) => {
                 )}
 
                 <div className="relative flex justify-center items-center w-full">
-                    {/* Mobile Navigation Arrows (Visible only on small screens) */}
                     <button
                         onClick={() => scroll("left")}
                         className="sm:hidden absolute left-0 top-[50%] -translate-y-1/2 -translate-x-2 z-10 bg-[#0B544E] text-white p-2 rounded-full shadow-md focus:outline-none"
