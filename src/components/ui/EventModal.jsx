@@ -160,11 +160,27 @@ const toTimeInputValue = (value) => {
   if (!text) return '';
   const hhmm = text.match(/^(\d{2}):(\d{2})/);
   if (hhmm) return `${hhmm[1]}:${hhmm[2]}`;
+  const ampmMatch = text.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (ampmMatch) {
+    let hours = Number(ampmMatch[1]) % 12;
+    if (ampmMatch[3].toUpperCase() === 'PM') hours += 12;
+    return `${String(hours).padStart(2, '0')}:${ampmMatch[2]}`;
+  }
   const parsed = new Date(`1970-01-01T${text}`);
   if (Number.isNaN(parsed.getTime())) return '';
   const hours = String(parsed.getHours()).padStart(2, '0');
   const minutes = String(parsed.getMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
+};
+
+const timesFromTimeSlote = (timeSlote) => {
+  const text = String(timeSlote || '').trim();
+  if (!text) return { startTime: '', endTime: '' };
+  const parts = text.split(/\s*-\s*/);
+  return {
+    startTime: toTimeInputValue(parts[0]),
+    endTime: toTimeInputValue(parts[1]),
+  };
 };
 
 const normalizeCostType = (value) => {
@@ -250,6 +266,7 @@ const mapEventToForm = (initialData, authUser) => {
         ? 'REGISTER_INTEREST'
         : 'REGISTER')
   );
+  const slotTimes = timesFromTimeSlote(initialData?.timeSlote || initialData?.timeSlots);
 
   return {
     organizationName: initialData?.organizationName || initialData?.organizerName || org.organizationName,
@@ -263,8 +280,8 @@ const mapEventToForm = (initialData, authUser) => {
     description: initialData.description || '',
     startDate: toDateInputValue(initialData.startDate || initialData.date),
     endDate: toDateInputValue(initialData.endDate),
-    startTime: toTimeInputValue(initialData.startTime),
-    endTime: toTimeInputValue(initialData.endTime),
+    startTime: toTimeInputValue(initialData.startTime) || slotTimes.startTime,
+    endTime: toTimeInputValue(initialData.endTime) || slotTimes.endTime,
     sessionDay: initialData?.sessionDay || initialData?.sessonDay || '',
     venueName: initialData.venueName || '',
     city: initialData.city || '',
@@ -832,13 +849,34 @@ const EventModal = ({
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                 
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
                     <label className={labelClass}>End date *</label>
                     <input type="date" min={formData.startDate || todayStr} className={fieldClass} value={formData.endDate} onChange={(e) => handleChange('endDate', e.target.value)} />
                     {errors.endDate && <p className={errorClass}>{errors.endDate}</p>}
                   </div>
+                  <div>
+                    <label className={labelClass}>Start time *</label>
+                    <input
+                      type="time"
+                      className={fieldClass}
+                      value={formData.startTime}
+                      onChange={(e) => handleChange('startTime', e.target.value)}
+                    />
+                    {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
+                  </div>
+                  <div>
+                    <label className={labelClass}>End time *</label>
+                    <input
+                      type="time"
+                      className={fieldClass}
+                      value={formData.endTime}
+                      onChange={(e) => handleChange('endTime', e.target.value)}
+                    />
+                    {errors.endTime && <p className={errorClass}>{errors.endTime}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className={labelClass}>City *</label>
                     <input className={fieldClass} value={formData.city} onChange={(e) => handleChange('city', e.target.value)} />
