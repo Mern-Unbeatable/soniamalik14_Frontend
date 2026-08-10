@@ -1,6 +1,8 @@
 import React from 'react';
 
 const SessionDetailsCard = ({ item }) => {
+    const costDetail = String(item?.costMemebershipDetail || '').trim();
+
     return (
         <div className="bg-white rounded-lg p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
             <h2 className="text-xl font-bold text-[#000000] mb-3">About this session</h2>
@@ -8,9 +10,16 @@ const SessionDetailsCard = ({ item }) => {
                 {item.about || item.description}
             </div>
 
-            {/* <div className='text-base mt-4'>
-                <p>No trials. No pressure.</p>
-            </div> */}
+            {costDetail ? (
+                <>
+                    <h2 className="text-xl font-bold text-[#000000] mb-3 mt-8">
+                        Cost or membership details
+                    </h2>
+                    <div className="text-[#272727] text-base md:max-w-7xl whitespace-pre-wrap">
+                        {costDetail}
+                    </div>
+                </>
+            ) : null}
         </div>
     );
 };

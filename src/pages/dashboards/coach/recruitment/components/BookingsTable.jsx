@@ -16,7 +16,7 @@ export default function BookingsTable({ data }) {
     >
       {/* Title */}
       <div className="pt-6 px-6 pb-4">
-        <h2 className="m-0 text-2xl font-semibold text-gray-900">Bookings</h2>
+        <h2 className="m-0 text-2xl font-semibold text-gray-900">Registered </h2>
       </div>
 
       {/* Table for desktop, hidden on mobile */}

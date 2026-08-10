@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import ApplicantModal from './ApplicantModal';
 
+const formatDateOnly = (value) => {
+  if (!value) return '';
+  const text = String(value).trim();
+  const isoPrefix = text.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (isoPrefix) return isoPrefix[1];
+  const parsed = new Date(text);
+  if (Number.isNaN(parsed.getTime())) return text;
+  return parsed.toISOString().slice(0, 10);
+};
+
 const EnquiriesTable = ({ data, serviceId }) => {
   const safeData = Array.isArray(data) ? data : [];
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,9 +37,9 @@ const EnquiriesTable = ({ data, serviceId }) => {
               <th className="border-t border-b border-gray-200 px-6 py-3 text-left text-base font-medium text-gray-500">
                 Player Name
               </th>
-              <th className="border-t border-b border-gray-200 px-6 py-3 text-left text-base font-medium text-gray-500">
+              {/* <th className="border-t border-b border-gray-200 px-6 py-3 text-left text-base font-medium text-gray-500">
                 Phone Number
-              </th>
+              </th> */}
               <th className="border-t border-b border-gray-200 px-6 py-3 text-left text-base font-medium text-gray-500">
                 Email
               </th>
@@ -51,14 +61,14 @@ const EnquiriesTable = ({ data, serviceId }) => {
                   <td className="px-6 py-5 text-base font-medium whitespace-nowrap text-gray-900">
                     {e.name}
                   </td>
-                  <td className="px-6 py-5 text-base whitespace-nowrap text-gray-700">{e.phone}</td>
+                  {/* <td className="px-6 py-5 text-base whitespace-nowrap text-gray-700">{e.phone}</td> */}
                   <td className="max-w-37.5 px-6 py-5 text-base wrap-break-word text-gray-700">
                     {e.email}
                   </td>
                   <td className="max-w-62.5 px-6 py-5 text-base leading-relaxed text-gray-500">
                     {e.msg}
                   </td>
-                  <td className="px-6 py-5 text-base whitespace-nowrap text-gray-700">{e.date}</td>
+                  <td className="px-6 py-5 text-base whitespace-nowrap text-gray-700">{formatDateOnly(e.date)}</td>
                   <td className="px-6 py-5 text-base text-gray-700 flex justify-center">
                     <button
                       className="flex items-center justify-center rounded-full p-2 transition-colors hover:bg-gray-100"
@@ -97,7 +107,7 @@ const EnquiriesTable = ({ data, serviceId }) => {
                 <span className="font-medium">Message:</span> {e.msg}
               </div>
               <div className="mb-2 text-base text-gray-700">
-                <span className="font-medium">Date:</span> {e.date}
+                <span className="font-medium">Date:</span> {formatDateOnly(e.date)}
               </div>
               <div className="flex justify-end">
                 <button

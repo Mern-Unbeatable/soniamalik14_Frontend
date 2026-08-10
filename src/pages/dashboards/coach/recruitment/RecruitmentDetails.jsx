@@ -51,6 +51,7 @@ const mapServiceToDetailsItem = (service) => ({
     suitableFor: toArray(service?.suitableFor),
     venueName: service?.clinicName || 'N/A',
     location: service?.location || service?.fullAddress || 'N/A',
+    fullAddress: service?.fullAddress || '',
     googleMapLink: service?.googleMapLink || '',
     postcode: service?.postcode || 'N/A',
     town: service?.city || 'N/A',
@@ -59,6 +60,7 @@ const mapServiceToDetailsItem = (service) => ({
     sessionTime: service?.timeSlote || 'N/A',
     time: service?.timeSlote || 'N/A',
     bookingLink: service?.bookingLink || '',
+    costMemebershipDetail: service?.costMemebershipDetail || '',
     status: service?.status || '',
     responseType: service?.responseType || (service?.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'INTERESTED' : 'REGISTER'),
 });

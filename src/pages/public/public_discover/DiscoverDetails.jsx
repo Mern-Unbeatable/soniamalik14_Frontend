@@ -162,6 +162,7 @@ const DiscoverDetails = () => {
       avatar: service.provider?.avatar || '',
       mapEmbedUrl: getMapEmbedUrl(service),
       about: service.aboutService || service.description || '',
+      costMemebershipDetail: service.costMemebershipDetail || '',
       bookingLink: service.bookingLink || '',
       providerId: service.providerId || service.provider?.id || '',
       participantResponseType: service.participantResponseType || 'ADD_BOOKING_LINK',
@@ -468,6 +469,17 @@ const DiscoverDetails = () => {
             <div className="text-[#272727]  text-base md:max-w-7xl">  
               {item.about}
             </div>
+
+            {item.costMemebershipDetail ? (
+              <>
+                <h2 className="text-xl font-bold text-[#000000] mb-3 mt-8">
+                  Cost or membership details
+                </h2>
+                <div className="text-[#272727] text-base md:max-w-7xl whitespace-pre-wrap">
+                  {item.costMemebershipDetail}
+                </div>
+              </>
+            ) : null}
           </div>
 
           {/* 3-Column Grid for Information */}

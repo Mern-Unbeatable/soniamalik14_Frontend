@@ -1,25 +1,21 @@
 import React from 'react';
 
 const getMapEmbedUrl = (item) => {
-  const rawLink = String(item?.googleMapLink || '').trim();
-  if (!rawLink) return '';
+  const townPostcode = [item?.town, item?.postcode]
+    .map((part) => String(part || '').trim())
+    .filter((part) => part && part !== 'N/A')
+    .join(', ');
 
-  try {
-    const url = new URL(rawLink);
+  const locationText =
+    String(item?.fullAddress || '').trim() ||
+    townPostcode ||
+    String(item?.venueName || '').trim() ||
+    String(item?.location || '').trim() ||
+    String(item?.town || '').trim() ||
+    '';
 
-    if (url.pathname.includes('/maps/embed')) {
-      return url.toString();
-    }
-
-    const q = url.searchParams.get('q');
-    if (q) {
-      return `https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
-    }
-
-    return `https://www.google.com/maps?q=${encodeURIComponent(rawLink)}&output=embed`;
-  } catch {
-    return `https://www.google.com/maps?q=${encodeURIComponent(rawLink)}&output=embed`;
-  }
+  if (!locationText || locationText === 'N/A') return '';
+  return `https://www.google.com/maps?q=${encodeURIComponent(locationText)}&z=15&output=embed`;
 };
 
 const VenueInformation = ({ item }) => {
@@ -58,21 +54,19 @@ const VenueInformation = ({ item }) => {
           </p>
         </div>
 
-        {/* Map Placeholder */}
-        <div className="h-50 w-full shrink-0 overflow-hidden rounded-lg bg-gray-200">
+        {/* Map */}
+        <div className="h-50 w-full shrink-0 overflow-hidden rounded-lg">
           {mapEmbedUrl ? (
             <iframe
               src={mapEmbedUrl}
-              title="Map preview"
-              className="h-full w-full border-0"
+              title="Map View"
+              className="h-full w-full border-0 rounded-lg"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
-          ) : item.mapImage ? (
-            <img src={item.mapImage} alt="Map View" className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
-              Map View
+              Map unavailable
             </div>
           )}
         </div>
