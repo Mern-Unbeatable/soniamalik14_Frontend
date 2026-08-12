@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Medal, Calendar, Users } from 'lucide-react';
+import { Medal, Calendar, Users, CircleDollarSign } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { POST } from '../../../../services/httpMethods';
 import { getUser } from '../../../../utils/storage';
+
+const hasText = (value) => String(value || '').trim().length > 0;
 
 const SessionOverview = ({ event }) => {
   const authUser = useSelector((state) => state.auth?.user);
@@ -45,6 +47,13 @@ const SessionOverview = ({ event }) => {
   });
 
   if (!event) return null;
+
+  const isInterestAction =
+    event.responseType === 'INTERESTED' ||
+    event.responseType === 'REGISTER_INTEREST' ||
+    (Array.isArray(event.responseMethods) &&
+      event.responseMethods.includes('Allow users to register interest') &&
+      !event.responseMethods.includes('Add booking link'));
 
   const handleRegisterInterest = () => {
     if (!isActionAllowed || interestStatus === 'success') return;
@@ -151,75 +160,85 @@ const SessionOverview = ({ event }) => {
 
   return (
     <div>
-      <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Session Overview</h3>
+      {(hasText(event.sport) ||
+        hasText(event.type) ||
+        hasText(event.suitableFor) ||
+        hasText(event.womensOnly) ||
+        hasText(event.cost)) && (
+        <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Event Overview</h3>
+      )}
       <div className="mb-6 space-y-3">
-        {/* Info Row: Sport */}
-        <div className="flex items-center gap-4 rounded-lg border border-gray-100 bg-white p-3.5 shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
-            <Medal className="h-5 w-5" />
+        {hasText(event.sport) ? (
+          <div className="flex items-center gap-4 rounded-lg border border-gray-100 bg-white p-3.5 shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
+              <Medal className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="mb-0.5 text-base font-medium text-[#101828]">Sport</p>
+              <p className="text-base text-[#4A5565]">{event.sport}</p>
+            </div>
           </div>
-          <div>
-            <p className="mb-0.5 text-base font-medium text-[#101828]">Sport</p>
-            <p className="text-base text-[#4A5565]">{event.sport}</p>
-          </div>
-        </div>
+        ) : null}
 
-        {/* Info Row: Event Type */}
-        <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
-            <Calendar className="h-5 w-5" />
+        {hasText(event.type) ? (
+          <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
+              <Calendar className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="mb-0.5 text-base font-medium text-[#101828]">Event Type</p>
+              <p className="text-base text-[#4A5565]">{event.type}</p>
+            </div>
           </div>
-          <div>
-            <p className="mb-0.5 text-base font-medium text-[#101828]">Event Type</p>
-            <p className="text-base text-[#4A5565]">{event.type}</p>
-          </div>
-        </div>
+        ) : null}
 
-        {/* Info Row: Suitable For */}
-        <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
-            <Users className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="mb-0.5 text-base font-medium text-[#101828]">Suitable For</p>
-            <p className="text-base text-[#4A5565]">{event.suitableFor}</p>
-          </div>
-        </div>
-
-        {/* Info Row: Participation */}
-        <div className="flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
-          <div className="flex items-center gap-4">
+        {hasText(event.suitableFor) ? (
+          <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <p className="mb-0.5 text-base font-medium text-[#101828]">Participation</p>
-              <p className="text-base text-[#4A5565]">{event.womensOnly}</p>
+              <p className="mb-0.5 text-base font-medium text-[#101828]">Suitable for</p>
+              <p className="text-base text-[#4A5565]">{event.suitableFor}</p>
             </div>
           </div>
-          {event.womensOnly === 'Women-only' && (
-            <p className="text-[12px] text-gray-500 italic mt-1 pl-14 leading-normal">
-              Women-only refers to participants. Coaches, organisers, officials or venue staff may be male unless stated otherwise.
-            </p>
-          )}
-        </div>
+        ) : null}
+
+        {hasText(event.womensOnly) ? (
+          <div className="flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
+                <Users className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="mb-0.5 text-base font-medium text-[#101828]">Participation</p>
+                <p className="text-base text-[#4A5565]">{event.womensOnly}</p>
+              </div>
+            </div>
+            {event.womensOnly === 'Women-only' && (
+              <p className="mt-1 pl-14 text-[12px] italic leading-normal text-gray-500">
+                Women-only refers to participants. Coaches, organisers, officials or venue staff may be male unless stated otherwise.
+              </p>
+            )}
+          </div>
+        ) : null}
+
+        {hasText(event.cost) ? (
+          <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
+              <CircleDollarSign className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="mb-0.5 text-base font-medium text-[#101828]">Cost</p>
+              <p className="text-base text-[#4A5565]">{event.cost}</p>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {/* Action Buttons */}
       <div className="hidden flex-wrap gap-3 md:flex">
-        {(!Array.isArray(event.responseMethods) || event.responseMethods.length === 0 || event.responseMethods.includes('Add booking link')) ? (
-          <button
-            className={`rounded-lg bg-[#0F766E] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D655D] ${bookingStatus === 'success' || !isActionAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
-            onClick={handleBookPlace}
-            disabled={!isActionAllowed || bookingStatus === 'loading' || bookingStatus === 'success'}
-          >
-            {bookingStatus === 'loading'
-              ? 'Registering...'
-              : bookingStatus === 'success'
-                ? 'Registered'
-                : 'Register'}
-          </button>
-        ) : (
+        {isInterestAction ? (
           <button
             className={`rounded-lg bg-[#0F766E] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D655D] ${interestStatus === 'success' || !isActionAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
             onClick={handleRegisterInterest}
@@ -232,6 +251,18 @@ const SessionOverview = ({ event }) => {
               : interestStatus === 'success'
                 ? 'Registered'
                 : 'Register Interest'}
+          </button>
+        ) : (
+          <button
+            className={`rounded-lg bg-[#0F766E] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D655D] ${bookingStatus === 'success' || !isActionAllowed ? 'cursor-not-allowed opacity-60' : ''}`}
+            onClick={handleBookPlace}
+            disabled={!isActionAllowed || bookingStatus === 'loading' || bookingStatus === 'success'}
+          >
+            {bookingStatus === 'loading'
+              ? 'Registering...'
+              : bookingStatus === 'success'
+                ? 'Registered'
+                : 'Register'}
           </button>
         )}
       </div>
@@ -311,6 +342,11 @@ const SessionOverview = ({ event }) => {
                   <p>
                     <span className="font-medium text-[#1A1D1F]">Time:</span> {event.time || 'Not set'}
                   </p>
+                  {hasText(event.cost) ? (
+                    <p>
+                      <span className="font-medium text-[#1A1D1F]">Cost:</span> {event.cost}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </div>

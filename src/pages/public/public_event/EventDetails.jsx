@@ -29,6 +29,17 @@ const toTitleCase = (value = '') =>
     .join(' ');
 
 const getWomenOnlyValue = (item) => {
+  const fromWhoCanTakePart = String(item?.whoCanTakePart || '').trim().toLowerCase();
+  if (fromWhoCanTakePart.includes('women only') || fromWhoCanTakePart === 'women-only') {
+    return 'Women-only';
+  }
+  if (
+    fromWhoCanTakePart.includes('mixed') ||
+    fromWhoCanTakePart.includes('women welcome')
+  ) {
+    return 'Mixed, women welcome';
+  }
+
   const val = item?.womensOnly ?? item?.womenOnly;
   if (typeof val === 'boolean') {
     return val ? 'Women-only' : 'Mixed, women welcome';
@@ -41,26 +52,43 @@ const getWomenOnlyValue = (item) => {
     return 'Mixed, women welcome';
   }
 
-  const description = String(item?.description || '').toLowerCase();
-  const suitableFor = Array.isArray(item?.suitableFor)
-    ? item.suitableFor.map((entry) => String(entry).toLowerCase())
-    : [];
+  return '';
+};
 
-  const womenKeywords = ['women', 'woman', 'womens', 'women only', 'female', 'girls'];
-  const isWomenOnly =
-    womenKeywords.some((keyword) => description.includes(keyword)) ||
-    suitableFor.some((entry) => womenKeywords.some((keyword) => entry.includes(keyword)));
+const formatEventCost = (item) => {
+  const costType = String(item?.costType || '').trim().toLowerCase();
+  const fee = String(item?.registrationFee || item?.price || '').trim();
 
-  return isWomenOnly ? 'Women-only' : 'Mixed, women welcome';
+  if (costType === 'free') return 'Free';
+  if (costType === 'paid') return fee || '';
+  if (fee && fee !== '0') return fee;
+  return '';
 };
 
 const getMapEmbedUrl = (item) => {
   if (!item) return '';
 
-  const candidate = item.fullAddress || item.venueName || item.city || item.googleMapLink || '';
+  const candidate =
+    item.fullAddress ||
+    [item.venueName, item.addressLine1, item.city, item.postCode || item.postcode]
+      .filter(Boolean)
+      .join(', ') ||
+    item.googleMapLink ||
+    '';
   if (!candidate) return '';
 
   return `https://www.google.com/maps?q=${encodeURIComponent(candidate)}&z=16&output=embed`;
+};
+
+const formatEventDate = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString(undefined, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 };
 
 const normalizeMediaUrl = (value) => {
@@ -186,10 +214,19 @@ const EventDetails = () => {
             ? data.suitableFor.join(', ')
             : '',
         womensOnly: getWomenOnlyValue(data),
+        cost: formatEventCost(data),
+        costType: data.costType || '',
+        registrationFee: data.registrationFee || data.price || '',
         location: data.venueName || '',
         locationFull: data.fullAddress || '',
-        postcode: data.postcode || '',
+        postcode: data.postCode || data.postcode || '',
         town: data.city || '',
+        addressLine1: data.addressLine1 || '',
+        googleMapLink: data.googleMapLink || data.googleMapLinks || '',
+        startDate: formatEventDate(data.startDate),
+        endDate: formatEventDate(data.endDate),
+        startTime: data.startTime || '',
+        endTime: data.endTime || '',
         day: data.startDate
           ? new Date(data.startDate).toLocaleDateString(undefined, { weekday: 'long' })
           : '',
@@ -204,6 +241,7 @@ const EventDetails = () => {
         mapEmbedUrl: getMapEmbedUrl(data),
         about: data.description || data.about || '',
         responseMethods: data.responseMethods || [],
+        responseType: data.responseType || '',
       }
     : null;
 
