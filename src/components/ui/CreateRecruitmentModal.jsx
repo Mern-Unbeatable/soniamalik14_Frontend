@@ -969,6 +969,22 @@ const CreateRecruitmentModal = ({
               </div>
             </FormSection>
 
+
+
+            <FormSection title="Session Description *" hint="Tell people more about your session.">
+              <textarea
+                rows={5}
+                className={`${fieldClass} min-h-28 resize-none`}
+                value={form.sessionDescription}
+                onChange={(e) => {
+                  handleChange('sessionDescription', e.target.value);
+                  setErrors((prev) => ({ ...prev, sessionDescription: false }));
+                }}
+                placeholder="Include what to expect, who it’s for, what to bring and how the session works."
+              />
+              {errors.sessionDescription && <p className={errorClass}>Required</p>}
+            </FormSection>
+
             <FormSection title="Location & Timing">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -1101,19 +1117,7 @@ const CreateRecruitmentModal = ({
               {errors.costMembershipDetail && <p className={errorClass}>Required</p>}
             </FormSection>
 
-            <FormSection title="Session Description *" hint="Tell people more about your session.">
-              <textarea
-                rows={5}
-                className={`${fieldClass} min-h-28 resize-none`}
-                value={form.sessionDescription}
-                onChange={(e) => {
-                  handleChange('sessionDescription', e.target.value);
-                  setErrors((prev) => ({ ...prev, sessionDescription: false }));
-                }}
-                placeholder="Include what to expect, who it’s for, what to bring and how the session works."
-              />
-              {errors.sessionDescription && <p className={errorClass}>Required</p>}
-            </FormSection>
+     
 
             <FormSection>
               <label className={labelClass}>Upload an image for this session (optional)</label>
