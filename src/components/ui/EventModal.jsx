@@ -14,20 +14,22 @@ import { fetchSportsCategories } from '../../features/sportsCategories/sportsCat
 import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
 import { GET } from '../../services/httpMethods';
 
+const ALL_LEVELS_WELCOME = 'All levels welcome';
+
 const SUITABLE_FOR_OPTIONS = [
   'New to sport',
   'Some experience',
   'Experienced players',
   'Competitive players',
-  'All levels welcome',
+  ALL_LEVELS_WELCOME,
 ];
 
 const EVENT_TYPE_OPTIONS = [
-  { label: 'Match', value: 'MATCH' },
   { label: 'Tournament', value: 'TOURNAMENT' },
+  { label: 'Workshop', value: 'WORKSHOP' },
+  { label: 'Match', value: 'MATCH' },
   { label: 'Trial', value: 'TRIAL' },
   { label: 'Training', value: 'TRAINING' },
-  { label: 'Workshop', value: 'WORKSHOP' },
   { label: 'Seminar', value: 'SEMINAR' },
   { label: 'Competition', value: 'COMPETITION' },
   { label: 'Meetup', value: 'MEETUP' },
@@ -239,13 +241,13 @@ const buildEmptyEventForm = (authUser) => {
     endTime: '',
     sessionDay: '',
     venueName: '',
+    addressLine1: '',
     city: '',
     postcode: '',
-    fullAddress: '',
     googleMapLinks: '',
     minAge: '18',
     maxParticipant: '20',
-    skillLevel: 'All levels welcome',
+    skillLevel: ALL_LEVELS_WELCOME,
     costType: 'Free',
     price: '',
     responseType: 'REGISTER',
@@ -284,13 +286,13 @@ const mapEventToForm = (initialData, authUser) => {
     endTime: toTimeInputValue(initialData.endTime) || slotTimes.endTime,
     sessionDay: initialData?.sessionDay || initialData?.sessonDay || '',
     venueName: initialData.venueName || '',
-    city: initialData.city || '',
+    addressLine1: initialData.addressLine1 || '',
+    city: initialData.city || initialData.townCity || '',
     postcode: initialData.postCode || initialData.postcode || '',
-    fullAddress: initialData.fullAddress || initialData.location || '',
     googleMapLinks: initialData.googleMapLink || initialData.googleMapLinks || '',
     minAge: initialData.minAge || '18',
     maxParticipant: initialData.maxParticipants || initialData.maxParticipant || '20',
-    skillLevel: initialData.skillLevel || 'All levels welcome',
+    skillLevel: initialData.skillLevel || ALL_LEVELS_WELCOME,
     costType: String(initialData.costType || 'Free').toLowerCase() === 'paid' ? 'Paid' : 'Free',
     price: initialData.registrationFee || initialData.price || '',
     responseType,
@@ -413,11 +415,20 @@ const EventModal = ({
   const toggleSuitableFor = (option) => {
     setFormData((prev) => {
       const current = Array.isArray(prev.suitableFor) ? prev.suitableFor : [];
-      const hasOption = current.includes(option);
-      const next = hasOption
-        ? current.filter((item) => item !== option)
-        : [...current, option];
-      return { ...prev, suitableFor: next };
+      const exists = current.includes(option);
+
+      if (option === ALL_LEVELS_WELCOME) {
+        return { ...prev, suitableFor: exists ? [] : [ALL_LEVELS_WELCOME] };
+      }
+
+      if (exists) {
+        return { ...prev, suitableFor: current.filter((item) => item !== option) };
+      }
+
+      return {
+        ...prev,
+        suitableFor: [...current.filter((item) => item !== ALL_LEVELS_WELCOME), option],
+      };
     });
     setErrors((prev) => ({ ...prev, suitableFor: undefined }));
   };
@@ -463,10 +474,8 @@ const EventModal = ({
       'endDate',
       'startTime',
       'endTime',
-      'venueName',
       'city',
       'postcode',
-      'fullAddress',
       // 'googleMapLinks',
       // 'skillLevel',
       'costType',
@@ -520,9 +529,18 @@ const EventModal = ({
     payload.append('startTime', formatTimeForApi(formData.startTime) || formData.startTime);
     payload.append('endTime', formatTimeForApi(formData.endTime) || formData.endTime);
     payload.append('venueName', formData.venueName);
+    if (String(formData.addressLine1 || '').trim()) {
+      payload.append('addressLine1', formData.addressLine1);
+    }
     payload.append('city', formData.city);
     payload.append('postCode', formData.postcode || '');
-    payload.append('fullAddress', formData.fullAddress);
+    const fullAddress = [formData.venueName, formData.addressLine1, formData.city, formData.postcode]
+      .map((item) => String(item || '').trim())
+      .filter(Boolean)
+      .join(', ');
+    if (fullAddress) {
+      payload.append('fullAddress', fullAddress);
+    }
     payload.append('googleMapLink', formData.googleMapLinks);
     payload.append('organizationName', formData.organizationName || formData.organizerName || '');
     payload.append('contactName', formData.contactName || formData.organizerName || '');
@@ -780,20 +798,29 @@ const EventModal = ({
                   <label className={labelClass}>Suitable for</label>
                   <p className="mb-2 text-xs text-white/75">Select all that apply.</p>
                   <div className="flex flex-wrap gap-x-6 gap-y-2">
-                    {SUITABLE_FOR_OPTIONS.map((option) => (
-                      <label
-                        key={option}
-                        className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={(formData.suitableFor || []).includes(option)}
-                          onChange={() => toggleSuitableFor(option)}
-                          className="accent-[#0f756d]"
-                        />
-                        {option}
-                      </label>
-                    ))}
+                    {SUITABLE_FOR_OPTIONS.map((option) => {
+                      const allLevelsSelected = (formData.suitableFor || []).includes(
+                        ALL_LEVELS_WELCOME
+                      );
+                      const isDisabled = allLevelsSelected && option !== ALL_LEVELS_WELCOME;
+                      return (
+                        <label
+                          key={option}
+                          className={`flex items-center gap-2 text-sm text-white/90 ${
+                            isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={(formData.suitableFor || []).includes(option)}
+                            disabled={isDisabled}
+                            onChange={() => toggleSuitableFor(option)}
+                            className="accent-[#0f756d]"
+                          />
+                          {option}
+                        </label>
+                      );
+                    })}
                   </div>
                   {errors.suitableFor && <p className={errorClass}>{errors.suitableFor}</p>}
                 </div>
@@ -825,34 +852,83 @@ const EventModal = ({
               </div>
             </FormSection>
 
+
+            <FormSection title="Event Description">
+              <textarea
+                placeholder="Tell people what to expect, who it is for and what to bring"
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                rows={5}
+                className={`${fieldClass} min-h-28 resize-none`}
+              />
+              {errors.description && <p className={errorClass}>{errors.description}</p>}
+            </FormSection>
+
             <FormSection title="Location & Timing">
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
-                    <label className={labelClass}>Town/Area*</label>
-                    <input className={fieldClass} value={formData.venueName} onChange={(e) => handleChange('venueName', e.target.value)} />
-                    {errors.venueName && <p className={errorClass}>{errors.venueName}</p>}
+                    <label className={labelClass}>Venue name</label>
+                    <input
+                      className={fieldClass}
+                      value={formData.venueName}
+                      onChange={(e) => handleChange('venueName', e.target.value)}
+                      placeholder="Enter venue name"
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Address line 1</label>
+                    <input
+                      className={fieldClass}
+                      value={formData.addressLine1}
+                      onChange={(e) => handleChange('addressLine1', e.target.value)}
+                      placeholder="Enter address"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className={labelClass}>Town/Area *</label>
+                    <input
+                      className={fieldClass}
+                      value={formData.city}
+                      onChange={(e) => handleChange('city', e.target.value)}
+                      placeholder="Enter town or area"
+                    />
+                    {errors.city && <p className={errorClass}>{errors.city}</p>}
                   </div>
                   <div>
                     <label className={labelClass}>Postcode *</label>
-                    <input className={fieldClass} value={formData.postcode} onChange={(e) => handleChange('postcode', e.target.value)} />
+                    <input
+                      className={fieldClass}
+                      value={formData.postcode}
+                      onChange={(e) => handleChange('postcode', e.target.value)}
+                      placeholder="Enter postcode"
+                    />
                     {errors.postcode && <p className={errorClass}>{errors.postcode}</p>}
                   </div>
-                  {/* <div>
-                    <label className={labelClass}>Google Maps Link</label>
-                    <input className={fieldClass} value={formData.googleMapLinks} onChange={(e) => handleChange('googleMapLinks', e.target.value)} />
-                  </div> */}
-                   <div>
-                    <label className={labelClass}>Start date *</label>
-                    <input type="date" min={todayStr} className={fieldClass} value={formData.startDate} onChange={(e) => handleChange('startDate', e.target.value)} />
-                    {errors.startDate && <p className={errorClass}>{errors.startDate}</p>}
-                  </div>
                 </div>
-                
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
+                    <label className={labelClass}>Start date *</label>
+                    <input
+                      type="date"
+                      min={todayStr}
+                      className={fieldClass}
+                      value={formData.startDate}
+                      onChange={(e) => handleChange('startDate', e.target.value)}
+                    />
+                    {errors.startDate && <p className={errorClass}>{errors.startDate}</p>}
+                  </div>
+                  <div>
                     <label className={labelClass}>End date *</label>
-                    <input type="date" min={formData.startDate || todayStr} className={fieldClass} value={formData.endDate} onChange={(e) => handleChange('endDate', e.target.value)} />
+                    <input
+                      type="date"
+                      min={formData.startDate || todayStr}
+                      className={fieldClass}
+                      value={formData.endDate}
+                      onChange={(e) => handleChange('endDate', e.target.value)}
+                    />
                     {errors.endDate && <p className={errorClass}>{errors.endDate}</p>}
                   </div>
                   <div>
@@ -865,6 +941,8 @@ const EventModal = ({
                     />
                     {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
                   </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
                     <label className={labelClass}>End time *</label>
                     <input
@@ -876,31 +954,10 @@ const EventModal = ({
                     {errors.endTime && <p className={errorClass}>{errors.endTime}</p>}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <label className={labelClass}>City *</label>
-                    <input className={fieldClass} value={formData.city} onChange={(e) => handleChange('city', e.target.value)} />
-                    {errors.city && <p className={errorClass}>{errors.city}</p>}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className={labelClass}>Full address *</label>
-                    <input className={fieldClass} value={formData.fullAddress} onChange={(e) => handleChange('fullAddress', e.target.value)} />
-                    {errors.fullAddress && <p className={errorClass}>{errors.fullAddress}</p>}
-                  </div>
-                </div>
               </div>
             </FormSection>
 
-            <FormSection title="Event Description">
-              <textarea
-                placeholder="Tell people what to expect, who it is for and what to bring"
-                value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
-                rows={5}
-                className={`${fieldClass} min-h-28 resize-none`}
-              />
-              {errors.description && <p className={errorClass}>{errors.description}</p>}
-            </FormSection>
+ 
 
             {/* Client mock: min age / max participants / skill / inline pricing not shown — payload still supports these if re-enabled */}
             {/* <FormSection title="Event details">...</FormSection> */}
