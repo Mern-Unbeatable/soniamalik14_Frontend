@@ -10,7 +10,7 @@ import { fetchSportsCategories } from '../../features/sportsCategories/sportsCat
 import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
 import { GET } from '../../services/httpMethods';
 
-const sessionTypeOptions = ['In clinic', 'Online', 'At venue'];
+const sessionTypeOptions = ['Training', 'Coaching', 'Social Play','Other'];
 
 const SESSION_FREQUENCY_OPTIONS = ['Weekly', 'Fortnightly', 'Monthly', 'Other'];
 
@@ -50,12 +50,14 @@ const sportOptions = [
   'Other',
 ];
 
+const ALL_LEVELS_WELCOME = 'All levels welcome';
+
 const suitabilityOptions = [
   'New to sport',
   'Some experience',
   'Experienced players',
   'Competitive players',
-  'All levels welcome',
+  ALL_LEVELS_WELCOME,
 ];
 
 const createInitialForm = () => ({
@@ -71,6 +73,7 @@ const createInitialForm = () => ({
   womensOnly: '',
   otherSport: '',
   venueName: '',
+  addressLine1: '',
   postcode: '',
   townCity: '',
   googleMapLink: '',
@@ -323,8 +326,9 @@ const mapInitialDataToForm = (initialData) => {
           : 'NO'
         : String(womenOnlyValue || '').toUpperCase(),
     venueName: initialData?.clinicName || '',
+    addressLine1: initialData?.addressLine1 || '',
     postcode: initialData?.postcode || '',
-    townCity: initialData?.city || '',
+    townCity: initialData?.city || initialData?.townCity || '',
     googleMapLink: initialData?.googleMapLink || initialData?.googleMapLinks || '',
     sessonDay:
       initialData?.sessonDay ||
@@ -493,6 +497,26 @@ const CreateRecruitmentModal = ({
     });
   };
 
+  const toggleSuitableFor = (value) => {
+    setForm((s) => {
+      const arr = s.suitableFor || [];
+      const exists = arr.includes(value);
+
+      if (value === ALL_LEVELS_WELCOME) {
+        return { ...s, suitableFor: exists ? [] : [ALL_LEVELS_WELCOME] };
+      }
+
+      if (exists) {
+        return { ...s, suitableFor: arr.filter((a) => a !== value) };
+      }
+
+      return {
+        ...s,
+        suitableFor: [...arr.filter((a) => a !== ALL_LEVELS_WELCOME), value],
+      };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -522,7 +546,7 @@ const CreateRecruitmentModal = ({
     const timeFrom = String(form.timeFrom || '').trim();
     const timeTo = String(form.timeTo || '').trim();
     const timeSlot = timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '';
-    const fullAddress = [form.venueName, form.townCity, form.postcode]
+    const fullAddress = [form.venueName, form.addressLine1, form.townCity, form.postcode]
       .map((item) => String(item || '').trim())
       .filter(Boolean)
       .join(', ');
@@ -532,7 +556,7 @@ const CreateRecruitmentModal = ({
     if (normalizedSports.length === 0) newErrors.sport = true;
     if (normalizedSuitableFor.length === 0) newErrors.suitableFor = true;
     if (!form.womensOnly) newErrors.womensOnly = true;
-    if (!String(form.venueName || '').trim()) newErrors.venueName = true;
+    if (!String(form.townCity || '').trim()) newErrors.townCity = true;
     if (!String(form.postcode || '').trim()) newErrors.postcode = true;
     if (!sessionDay) newErrors.sessonDay = true;
     if (!timeFrom) newErrors.timeFrom = true;
@@ -548,12 +572,12 @@ const CreateRecruitmentModal = ({
       if (newErrors.sport) messages.push('Sport or activity');
       if (newErrors.suitableFor) messages.push('Suitable for');
       if (newErrors.womensOnly) messages.push('Who can take part');
-      if (newErrors.venueName) messages.push('Venue name');
+      if (newErrors.townCity) messages.push('Town/Area');
       if (newErrors.postcode) messages.push('Postcode');
-      if (newErrors.sessonDay) messages.push('Session day');
+      if (newErrors.sessonDay) messages.push('Day');
       if (newErrors.timeFrom) messages.push('Start time');
       if (newErrors.timeTo) messages.push('End time');
-      if (newErrors.sessionFrequency) messages.push('Frequency');
+      if (newErrors.sessionFrequency) messages.push('How often does it run');
       if (newErrors.costMembershipDetail) messages.push('Cost or membership');
       if (newErrors.sessionDescription) messages.push('Session description');
       toast.error(`Required: ${messages.join(', ')}`);
@@ -578,6 +602,7 @@ const CreateRecruitmentModal = ({
         providerPhone,
         providerEmail,
         clinicName: String(form.venueName || '').trim(),
+        addressLine1: String(form.addressLine1 || '').trim(),
         city: String(form.townCity || '').trim(),
         postcode: String(form.postcode || '').trim(),
         fullAddress,
@@ -592,6 +617,8 @@ const CreateRecruitmentModal = ({
         date: dateValue,
         timeFrom,
         timeTo,
+        startTime: timeFrom,
+        endTime: timeTo,
         timeSlote: timeSlot,
         sessionFrequency: String(form.sessionFrequency || '').trim(),
         costMemebershipDetail: String(form.costMembershipDetail || '').trim(),
@@ -662,6 +689,7 @@ const CreateRecruitmentModal = ({
       appendIfPresent(payload, 'providerPhone', providerPhone);
       appendIfPresent(payload, 'providerEmail', providerEmail);
       appendIfPresent(payload, 'clinicName', form.venueName);
+      appendIfPresent(payload, 'addressLine1', form.addressLine1);
       appendIfPresent(payload, 'city', form.townCity);
       appendIfPresent(payload, 'postcode', form.postcode);
       appendIfPresent(payload, 'fullAddress', fullAddress);
@@ -887,20 +915,30 @@ const CreateRecruitmentModal = ({
                   <label className={labelClass}>Suitable for</label>
                   <p className="mb-2 text-xs text-white/75">Select all that apply.</p>
                   <div className="flex flex-wrap gap-x-6 gap-y-2">
-                    {suitabilityOptions.map((opt) => (
-                      <label key={opt} className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
-                        <input
-                          type="checkbox"
-                          checked={(form.suitableFor || []).includes(opt)}
-                          onChange={() => {
-                            toggleArrayField('suitableFor', opt);
-                            setErrors((prev) => ({ ...prev, suitableFor: false }));
-                          }}
-                          className="accent-[#0f756d]"
-                        />
-                        {opt}
-                      </label>
-                    ))}
+                    {suitabilityOptions.map((opt) => {
+                      const allLevelsSelected = (form.suitableFor || []).includes(ALL_LEVELS_WELCOME);
+                      const isDisabled = allLevelsSelected && opt !== ALL_LEVELS_WELCOME;
+                      return (
+                        <label
+                          key={opt}
+                          className={`flex items-center gap-2 text-sm text-white/90 ${
+                            isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={(form.suitableFor || []).includes(opt)}
+                            disabled={isDisabled}
+                            onChange={() => {
+                              toggleSuitableFor(opt);
+                              setErrors((prev) => ({ ...prev, suitableFor: false }));
+                            }}
+                            className="accent-[#0f756d]"
+                          />
+                          {opt}
+                        </label>
+                      );
+                    })}
                   </div>
                   {errors.suitableFor && <p className={errorClass}>Select at least one option</p>}
                 </div>
@@ -933,19 +971,39 @@ const CreateRecruitmentModal = ({
 
             <FormSection title="Location & Timing">
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className={labelClass}>Venue name</label>
+                    <input
+                      className={fieldClass}
+                      value={form.venueName}
+                      onChange={(e) => handleChange('venueName', e.target.value)}
+                      placeholder="Enter venue name"
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Address line 1</label>
+                    <input
+                      className={fieldClass}
+                      value={form.addressLine1}
+                      onChange={(e) => handleChange('addressLine1', e.target.value)}
+                      placeholder="Enter address"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className={labelClass}>Town/Area *</label>
                     <input
                       className={fieldClass}
-                      value={form.venueName}
+                      value={form.townCity}
                       onChange={(e) => {
-                        handleChange('venueName', e.target.value);
-                        setErrors((prev) => ({ ...prev, venueName: false }));
+                        handleChange('townCity', e.target.value);
+                        setErrors((prev) => ({ ...prev, townCity: false }));
                       }}
-                      placeholder="Enter venue name"
+                      placeholder="Enter town or area"
                     />
-                    {errors.venueName && <p className={errorClass}>Required</p>}
+                    {errors.townCity && <p className={errorClass}>Required</p>}
                   </div>
                   <div>
                     <label className={labelClass}>Postcode *</label>
@@ -960,36 +1018,10 @@ const CreateRecruitmentModal = ({
                     />
                     {errors.postcode && <p className={errorClass}>Required</p>}
                   </div>
-                  {/* <div>
-                    <label className={labelClass}>Google Maps Link</label>
-                    <input
-                      className={fieldClass}
-                      value={form.googleMapLink}
-                      onChange={(e) => handleChange('googleMapLink', e.target.value)}
-                      placeholder="Paste Google Maps link"
-                    />
-                  </div> */}
-                  <div>
-                  <label className={labelClass}>How often does it run? *</label>
-                  <select
-                    className={fieldClass}
-                    value={form.sessionFrequency}
-                    onChange={(e) => {
-                      handleChange('sessionFrequency', e.target.value);
-                      setErrors((prev) => ({ ...prev, sessionFrequency: false }));
-                    }}
-                  >
-                    <option value="">Select frequency</option>
-                    {SESSION_FREQUENCY_OPTIONS.map((freq) => (
-                      <option key={freq} value={freq}>{freq}</option>
-                    ))}
-                  </select>
-                  {errors.sessionFrequency && <p className={errorClass}>Required</p>}
-                </div>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
-                    <label className={labelClass}> Day *</label>
+                    <label className={labelClass}>Day *</label>
                     <select
                       className={fieldClass}
                       value={sessionDayValue}
@@ -1032,7 +1064,23 @@ const CreateRecruitmentModal = ({
                     {errors.timeTo && <p className={errorClass}>Required</p>}
                   </div>
                 </div>
-                
+                <div>
+                  <label className={labelClass}>How often does it run? *</label>
+                  <select
+                    className={fieldClass}
+                    value={form.sessionFrequency}
+                    onChange={(e) => {
+                      handleChange('sessionFrequency', e.target.value);
+                      setErrors((prev) => ({ ...prev, sessionFrequency: false }));
+                    }}
+                  >
+                    <option value="">Select frequency</option>
+                    {SESSION_FREQUENCY_OPTIONS.map((freq) => (
+                      <option key={freq} value={freq}>{freq}</option>
+                    ))}
+                  </select>
+                  {errors.sessionFrequency && <p className={errorClass}>Required</p>}
+                </div>
               </div>
             </FormSection>
 
