@@ -18,6 +18,19 @@ const DAY_OPTIONS = [
   'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
 ];
 
+const RESPONSE_ACTION_OPTIONS = [
+  {
+    value: 'REGISTER',
+    label: 'Register',
+    desc: 'People can sign up to attend this event.',
+  },
+  {
+    value: 'INTERESTED',
+    label: 'Register Interest',
+    desc: 'Confirm demand before people attend.',
+  },
+];
+
 const fieldClass =
   'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40';
 const labelClass = 'mb-1.5 block text-sm font-medium text-white';
@@ -86,6 +99,7 @@ const createInitialForm = () => ({
   timeFrom: '',
   timeTo: '',
   bookingLink: '',
+  responseType: 'REGISTER',
   responseMethods: ['Add booking link'],
 });
 
@@ -145,9 +159,16 @@ const logFormDataDebug = (label, formData) => {
   }
 };
 
-const getResponseType = (methods = []) => {
-  if (methods.includes('Add booking link')) return 'REGISTER';
+const getResponseType = (methods = [], responseType = '') => {
+  if (responseType === 'INTERESTED' || responseType === 'REGISTER_INTEREST') return 'INTERESTED';
+  if (responseType === 'REGISTER') return 'REGISTER';
   if (methods.includes('Allow users to register interest')) return 'INTERESTED';
+  if (methods.includes('Add booking link')) return 'REGISTER';
+  return 'REGISTER';
+};
+
+const resolveResponseType = (value) => {
+  if (value === 'INTERESTED' || value === 'REGISTER_INTEREST') return 'INTERESTED';
   return 'REGISTER';
 };
 
@@ -340,9 +361,11 @@ const mapInitialDataToForm = (initialData) => {
     timeFrom: timeRange.timeFrom,
     timeTo: timeRange.timeTo,
     bookingLink: initialData?.bookingLink || '',
-    responseMethods: initialData?.responseType === 'INTERESTED'
-      ? ['Allow users to register interest']
-      : ['Add booking link'],
+    responseType: resolveResponseType(initialData?.responseType),
+    responseMethods:
+      resolveResponseType(initialData?.responseType) === 'INTERESTED'
+        ? ['Allow users to register interest']
+        : ['Add booking link'],
   };
 };
 
@@ -624,7 +647,7 @@ const CreateRecruitmentModal = ({
         costMemebershipDetail: String(form.costMembershipDetail || '').trim(),
         aboutOrganization: orgAbout,
         bookingLink: String(form.bookingLink || '').trim(),
-        responseType: getResponseType(form.responseMethods),
+        responseType: getResponseType(form.responseMethods, form.responseType),
       };
 
       Object.keys(updatePayload).forEach((key) => {
@@ -712,7 +735,7 @@ const CreateRecruitmentModal = ({
       appendIfPresent(payload, 'costMemebershipDetail', form.costMembershipDetail);
       appendIfPresent(payload, 'aboutOrganization', orgAbout);
       appendIfPresent(payload, 'bookingLink', form.bookingLink);
-      payload.append('responseType', getResponseType(form.responseMethods));
+      payload.append('responseType', getResponseType(form.responseMethods, form.responseType));
 
       const listingFile =
         form.listingImage instanceof File
@@ -1117,7 +1140,52 @@ const CreateRecruitmentModal = ({
               {errors.costMembershipDetail && <p className={errorClass}>Required</p>}
             </FormSection>
 
-     
+            <FormSection>
+              <p className="mb-3 text-base font-bold text-white">
+                Choose the main action for this listing
+              </p>
+              <div className="space-y-2">
+                {RESPONSE_ACTION_OPTIONS.map((option) => {
+                  const isSelected = form.responseType === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        setForm((prev) => ({
+                          ...prev,
+                          responseType: option.value,
+                          responseMethods:
+                            option.value === 'INTERESTED'
+                              ? ['Allow users to register interest']
+                              : ['Add booking link'],
+                        }));
+                      }}
+                      className={`w-full rounded-xl border p-4 text-left transition-colors ${
+                        isSelected
+                          ? 'border-transparent bg-[#F5F1EB]'
+                          : 'border-white/30 bg-transparent hover:border-white/50'
+                      }`}
+                    >
+                      <p
+                        className={`text-sm font-semibold ${
+                          isSelected ? 'text-[#1A1D1D]' : 'text-white'
+                        }`}
+                      >
+                        {option.label}
+                      </p>
+                      <p
+                        className={`mt-0.5 text-sm ${
+                          isSelected ? 'text-[#1A1D1D]/70' : 'text-white/75'
+                        }`}
+                      >
+                        {option.desc}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </FormSection>
 
             <FormSection>
               <label className={labelClass}>Upload an image for this session (optional)</label>
