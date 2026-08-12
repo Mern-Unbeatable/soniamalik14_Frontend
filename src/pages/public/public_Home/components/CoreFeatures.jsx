@@ -233,7 +233,6 @@ export default function CoreFeatures() {
           </p>
         </header>
 
-        {/* Mobile Navigation Arrows (Visible only on small screens) */}
         <button
           onClick={() => scroll('left')}
           className="absolute top-[60%] left-0 z-10 -translate-x-2 -translate-y-1/2 rounded-full bg-[#0B544E] p-2 text-white shadow-md focus:outline-none sm:hidden"
@@ -276,7 +275,6 @@ export default function CoreFeatures() {
           </svg>
         </button>
 
-        {/* Cards Grid / Slider */}
         <div
           ref={scrollRef}
           className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-4 [-ms-overflow-style:'none'] [scrollbar-width:'none'] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden"
