@@ -557,6 +557,9 @@ const EventModal = ({
       'registrationFee',
       formData.costType === 'Paid' ? String(formData.price || '').trim() : '0'
     );
+    if (formData.costType === 'Paid') {
+      payload.append('price', String(formData.price || '').trim());
+    }
     const responseType = toApiResponseType(
       formData.responseType || mapMethodsToResponseType(formData.responseMethods)
     );
@@ -957,9 +960,58 @@ const EventModal = ({
               </div>
             </FormSection>
 
- 
+            <FormSection>
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <label className={labelClass}>Pricing</label>
+                  <div className="flex gap-2">
+                    {['Free', 'Paid'].map((option) => {
+                      const selected = formData.costType === option;
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              costType: option,
+                              price: option === 'Free' ? '' : prev.price,
+                            }));
+                            setErrors((prev) => ({
+                              ...prev,
+                              costType: undefined,
+                              price: option === 'Free' ? undefined : prev.price,
+                            }));
+                          }}
+                          className={`rounded-md px-5 py-2.5 text-sm font-semibold transition-colors ${
+                            selected
+                              ? 'bg-[#F5F1EB] text-[#1A1D1D]'
+                              : 'border border-white/30 bg-transparent text-white hover:border-white/50'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.costType && <p className={errorClass}>{errors.costType}</p>}
+                </div>
+                {formData.costType === 'Paid' ? (
+                  <div className="min-w-[220px] flex-1 max-w-sm">
+                    <label className={labelClass}>Price</label>
+                    <input
+                      className={fieldClass}
+                      value={formData.price}
+                      onChange={(e) => handleChange('price', e.target.value)}
+                      placeholder="e.g. £8 per session"
+                    />
+                    {errors.price && <p className={errorClass}>{errors.price}</p>}
+                  </div>
+                ) : null}
+              </div>
+            </FormSection>
 
-            {/* Client mock: min age / max participants / skill / inline pricing not shown — payload still supports these if re-enabled */}
+            {/* Client mock: min age / max participants / skill not shown — payload still supports these if re-enabled */}
             {/* <FormSection title="Event details">...</FormSection> */}
 
             <FormSection>
