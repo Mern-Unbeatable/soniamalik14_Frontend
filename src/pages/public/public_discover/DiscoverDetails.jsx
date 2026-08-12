@@ -562,7 +562,7 @@ const DiscoverDetails = () => {
 
             {/* Column 2: Venue Information */}
             <div>
-              <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Venue Information</h3>
+              <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Location & Timing</h3>
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 h-100 flex flex-col">
                 <div className="space-y-3 mb-6 flex-1">
                   <p className="text-base flex items-start gap-2">
