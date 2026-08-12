@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Medal, Calendar, Users, MapPin } from 'lucide-react';
+import { ArrowLeft, Heart, Medal, Calendar, Users, MapPin, CircleDollarSign } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import Container from '../../../components/layout/Container';
 import { GET, POST } from '../../../services/httpMethods';
@@ -20,6 +20,8 @@ const formatList = (value) => {
   return value.filter(Boolean).join(', ');
 };
 
+const hasText = (value) => String(value || '').trim().length > 0;
+
 const getWomenOnlyText = (value) => {
   if (typeof value === 'boolean') return value ? 'Women-only' : 'Mixed, women welcome';
   const str = String(value || '').trim().toLowerCase();
@@ -31,7 +33,12 @@ const getWomenOnlyText = (value) => {
 
 const getMapEmbedUrl = (service) => {
   const locationText =
-    service?.fullAddress || service?.clinicName || service?.location || service?.city || '';
+    service?.fullAddress ||
+    service?.addressLine1 ||
+    service?.clinicName ||
+    service?.location ||
+    service?.city ||
+    '';
 
   if (!locationText) return '';
   return `https://www.google.com/maps?q=${encodeURIComponent(locationText)}&z=15&output=embed`;
@@ -138,6 +145,15 @@ const DiscoverDetails = () => {
   const item = useMemo(() => {
     if (!service) return null;
 
+    const hasWomenOnly =
+      service.womenOnly !== undefined &&
+      service.womenOnly !== null &&
+      String(service.womenOnly).trim() !== '';
+
+    const timeFrom = String(service.timeFrom || service.startTime || '').trim();
+    const timeTo = String(service.timeTo || service.endTime || '').trim();
+    const timeRange = timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : timeFrom || timeTo;
+
     return {
       id: service.id,
       title:
@@ -150,14 +166,17 @@ const DiscoverDetails = () => {
       type: formatList(service.sessionTypes),
       sport: formatList(service.sports),
       suitableFor: formatList(service.suitableFor),
-      womensOnly: getWomenOnlyText(service.womenOnly),
-      location: service.clinicName || service.location || '',
+      womensOnly: hasWomenOnly ? getWomenOnlyText(service.womenOnly) : '',
+      venueName: service.clinicName || '',
+      addressLine1: service.addressLine1 || '',
+      location: service.city || service.townCity || service.location || '',
       fullAddress: service.fullAddress || '',
       googleMapLink: service.googleMapLink || service.googleMapLinks || '',
       postcode: service.postcode || '',
-      town: service.city || '',
+      town: service.city || service.townCity || '',
       day: service.sessonDay || formatList(service.availableDays),
-      time: service.timeSlote || '',
+      time: service.timeSlote || timeRange || '',
+      sessionFrequency: service.sessionFrequency || '',
       image: service.logo || service.image || service.thumbnail || '',
       avatar: service.provider?.avatar || '',
       mapEmbedUrl: getMapEmbedUrl(service),
@@ -444,102 +463,121 @@ const DiscoverDetails = () => {
             </button> */}
 
             {/* Overlaid Avatar Picture */}
-            <div className="absolute -bottom-10 left-6 md:left-10 w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#F8FAFC] overflow-hidden bg-gray-200">
-              {item.avatar ? (
-                <img src={item.avatar} alt={item.coach} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gray-300"></div>
-              )}
-            </div>
+            {item.avatar ? (
+              <div className="absolute -bottom-10 left-6 md:left-10 w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#F8FAFC] overflow-hidden bg-gray-200">
+                <img src={item.avatar} alt={item.coach || item.title} className="w-full h-full object-cover" />
+              </div>
+            ) : null}
           </div>
 
           {/* Title & Coach Info */}
-          <div className="px-2 md:px-4 mb-8">
-            <h1 className="text-2xl md:text-[32px] font-bold text-[#0B544E] leading-tight">
-              {item.title}
-            </h1>
-            <p className="text-[#33383F] mt-2 text-base">
-              Coach: <span className="font-bold">{item.coach || item.headCoach}</span>
-            </p>
+          <div className={`px-2 md:px-4 mb-8 ${item.avatar ? '' : 'mt-4'}`}>
+            {hasText(item.title) ? (
+              <h1 className="text-2xl md:text-[32px] font-bold text-[#0B544E] leading-tight">
+                {item.title}
+              </h1>
+            ) : null}
+            {hasText(item.coach || item.headCoach) ? (
+              <p className="text-[#33383F] mt-2 text-base">
+                Coach: <span className="font-bold">{item.coach || item.headCoach}</span>
+              </p>
+            ) : null}
           </div>
 
           {/* Session Details Card */}
-          <div className="bg-white rounded-lg p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold text-[#000000] mb-3">About this session</h2>
-            <div className="text-[#272727]  text-base md:max-w-7xl">  
-              {item.about}
+          {hasText(item.about) ? (
+            <div className="bg-white rounded-lg p-6 md:p-8 mb-8 shadow-sm border border-gray-100">
+              <h2 className="text-xl font-bold text-[#000000] mb-3">About this session</h2>
+              <div className="text-[#272727] text-base md:max-w-7xl whitespace-pre-wrap">
+                {item.about}
+              </div>
             </div>
-
-            {item.costMemebershipDetail ? (
-              <>
-                <h2 className="text-xl font-bold text-[#000000] mb-3 mt-8">
-                  Cost or membership details
-                </h2>
-                <div className="text-[#272727] text-base md:max-w-7xl whitespace-pre-wrap">
-                  {item.costMemebershipDetail}
-                </div>
-              </>
-            ) : null}
-          </div>
+          ) : null}
 
           {/* 3-Column Grid for Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             
             {/* Column 1: Session Overview */}
             <div>
-              <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Session Overview</h3>
+              {(hasText(item.sport) ||
+                hasText(item.type) ||
+                hasText(item.suitableFor) ||
+                hasText(item.womensOnly) ||
+                hasText(item.costMemebershipDetail)) && (
+                <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Session Overview</h3>
+              )}
               <div className="space-y-3 mb-6">
                 
-                {/* Info Row: Sport */}
-                <div className="flex items-center gap-4 bg-white p-3.5 rounded-lg border border-gray-100 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
-                    <Medal className="w-5 h-5" />
+                {hasText(item.sport) ? (
+                  <div className="flex items-center gap-4 bg-white p-3.5 rounded-lg border border-gray-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
+                      <Medal className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-base text-[#101828] font-medium mb-0.5">Sport</p>
+                      <p className="text-base text-[#4A5565]">{item.sport}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-base text-[#101828] font-medium mb-0.5">Sport</p>
-                    <p className="text-base  text-[#4A5565]">{item.sport}</p>
-                  </div>
-                </div>
+                ) : null}
 
-                {/* Info Row: Session Type */}
-                <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
-                    <Calendar className="w-5 h-5" />
+                {hasText(item.type) ? (
+                  <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
+                      <Calendar className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-base text-[#101828] font-medium mb-0.5">Session Type</p>
+                      <p className="text-base text-[#4A5565]">{item.type}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-base text-[#101828] font-medium mb-0.5">Session Type</p>
-                    <p className="text-base  text-[#4A5565]">{item.type}</p>
-                  </div>
-                </div>
+                ) : null}
 
-                {/* Info Row: Suitable For */}
-                <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-base text-[#101828] font-medium mb-0.5">Suitable for</p>
-                    <p className="text-base  text-[#4A5565]">{item.suitableFor}</p>
-                  </div>
-                </div>
-
-                {/* Info Row: Participation */}
-                <div className="flex flex-col gap-2 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
-                  <div className="flex items-center gap-4">
+                {hasText(item.suitableFor) ? (
+                  <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
                     <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
                       <Users className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-base text-[#101828] font-medium mb-0.5">Participation</p>
-                      <p className="text-base  text-[#4A5565]">{item.womensOnly}</p>
+                      <p className="text-base text-[#101828] font-medium mb-0.5">Suitable for</p>
+                      <p className="text-base text-[#4A5565]">{item.suitableFor}</p>
                     </div>
                   </div>
-                  {item.womensOnly === 'Women-only' && (
-                    <p className="text-[12px] text-gray-500 italic mt-1 pl-14 leading-normal">
-                      Women-only refers to participants. Coaches, organisers, officials or venue staff may be male unless stated otherwise.
-                    </p>
-                  )}
-                </div>
+                ) : null}
+
+                {hasText(item.womensOnly) ? (
+                  <div className="flex flex-col gap-2 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-base text-[#101828] font-medium mb-0.5">Participation</p>
+                        <p className="text-base text-[#4A5565]">{item.womensOnly}</p>
+                      </div>
+                    </div>
+                    {item.womensOnly === 'Women-only' && (
+                      <p className="text-[12px] text-gray-500 italic mt-1 pl-14 leading-normal">
+                        Women-only refers to participants. Coaches, organisers, officials or venue staff may be male unless stated otherwise.
+                      </p>
+                    )}
+                  </div>
+                ) : null}
+
+                {hasText(item.costMemebershipDetail) ? (
+                  <div className="flex items-start gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
+                      <CircleDollarSign className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-base text-[#101828] font-medium mb-0.5">
+                        Cost or membership details
+                      </p>
+                      <p className="text-base text-[#4A5565] whitespace-pre-wrap">
+                        {item.costMemebershipDetail}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
 
               </div>
               
@@ -562,13 +600,55 @@ const DiscoverDetails = () => {
 
             {/* Column 2: Venue Information */}
             <div>
-              <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Location & Timing</h3>
+              {(hasText(item.venueName) ||
+                hasText(item.addressLine1) ||
+                hasText(item.town || item.location) ||
+                hasText(item.postcode) ||
+                hasText(item.day) ||
+                hasText(item.time) ||
+                hasText(item.sessionFrequency) ||
+                hasText(item.mapEmbedUrl) ||
+                hasText(buildLocationSearchLabel(item))) && (
+                <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Location & Timing</h3>
+              )}
+              {(hasText(item.venueName) ||
+                hasText(item.addressLine1) ||
+                hasText(item.town || item.location) ||
+                hasText(item.postcode) ||
+                hasText(item.day) ||
+                hasText(item.time) ||
+                hasText(item.sessionFrequency) ||
+                hasText(item.mapEmbedUrl) ||
+                hasText(buildLocationSearchLabel(item))) && (
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 h-100 flex flex-col">
                 <div className="space-y-3 mb-6 flex-1">
-                  <p className="text-base flex items-start gap-2">
-                    <span className="text-[#1A1D1F] shrink-0 font-medium">Town/Area: </span>
-                    <span className="text-[#1A1D1F]">{item.location}</span>
-                  </p>
+                  {hasText(item.venueName) ? (
+                    <p className="text-base flex items-start gap-2">
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">Venue name: </span>
+                      <span className="text-[#1A1D1F]">{item.venueName}</span>
+                    </p>
+                  ) : null}
+
+                  {hasText(item.addressLine1) ? (
+                    <p className="text-base flex items-start gap-2">
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">Address: </span>
+                      <span className="text-[#1A1D1F]">{item.addressLine1}</span>
+                    </p>
+                  ) : null}
+
+                  {hasText(item.town || item.location) ? (
+                    <p className="text-base flex items-start gap-2">
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">Town/Area: </span>
+                      <span className="text-[#1A1D1F]">{item.town || item.location}</span>
+                    </p>
+                  ) : null}
+
+                  {hasText(item.postcode) ? (
+                    <p className="text-base flex items-start gap-2">
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">Postcode: </span>
+                      <span className="text-[#1A1D1F]">{item.postcode}</span>
+                    </p>
+                  ) : null}
 
                   {(() => {
                     const locationLabel = buildLocationSearchLabel(item);
@@ -576,14 +656,7 @@ const DiscoverDetails = () => {
                       String(item.googleMapLink || '').trim() ||
                       buildGoogleMapsSearchUrl(locationLabel);
 
-                    if (!locationLabel || !mapsHref) {
-                      return (
-                        <div className="flex items-start gap-2 text-base text-[#1A1D1F]">
-                          <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#6B7280]" />
-                          <p>{locationLabel || 'Location not specified'}</p>
-                        </div>
-                      );
-                    }
+                    if (!locationLabel || !mapsHref) return null;
 
                     return (
                       <a
@@ -599,20 +672,31 @@ const DiscoverDetails = () => {
                     );
                   })()}
 
-                  <p className="text-base flex items-start gap-2">
-                    <span className="text-[#1A1D1F] shrink-0 font-medium">Day:</span>
-                    <span className="text-[#1A1D1F]">{item.day}</span>
-                  </p>
+                  {hasText(item.day) ? (
+                    <p className="text-base flex items-start gap-2">
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">Day:</span>
+                      <span className="text-[#1A1D1F]">{item.day}</span>
+                    </p>
+                  ) : null}
 
-                  <p className="text-base flex items-start gap-2">
-                    <span className="text-[#1A1D1F] shrink-0 font-medium">Session Time:</span>
-                    <span className="text-[#1A1D1F]">{item.time}</span>
-                  </p>
+                  {hasText(item.time) ? (
+                    <p className="text-base flex items-start gap-2">
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">Session Time:</span>
+                      <span className="text-[#1A1D1F]">{item.time}</span>
+                    </p>
+                  ) : null}
+
+                  {hasText(item.sessionFrequency) ? (
+                    <p className="text-base flex items-start gap-2">
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">How often:</span>
+                      <span className="text-[#1A1D1F]">{item.sessionFrequency}</span>
+                    </p>
+                  ) : null}
                 </div>
                 
                 {/* Map */}
-                <div className="w-full h-50  rounded-lg overflow-hidden shrink-0">
-                  {item.mapEmbedUrl ? (
+                {hasText(item.mapEmbedUrl) ? (
+                  <div className="w-full h-50 rounded-lg overflow-hidden shrink-0">
                     <iframe
                       src={item.mapEmbedUrl}
                       title="Map View"
@@ -620,11 +704,10 @@ const DiscoverDetails = () => {
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">Map unavailable</div>
-                  )}
-                </div>
+                  </div>
+                ) : null}
               </div>
+              )}
 
             <div className="mt-5 flex flex-col sm:flex-row gap-3 md:hidden">
               <button
