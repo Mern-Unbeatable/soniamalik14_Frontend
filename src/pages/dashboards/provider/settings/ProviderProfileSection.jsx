@@ -1,9 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiCamera, FiUser } from 'react-icons/fi';
+import { FiCamera } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import Button from '../../../../components/ui/Button';
 import { updateUserProfile } from '../../../../services/authService';
+import {
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
 
+const PROFILE_PLACEHOLDER = '/discover-placeholder.png';
 
 const joiningAsOptions = [
   'Physiotherapy',
@@ -29,12 +35,15 @@ const normalizeProfileFromUser = (user) => ({
   phone: user?.phone || '',
 });
 
+const getUserImage = (user) =>
+  pickImageSource(user?.avatar, user?.image, user?.profileImage, user?.photo) || '';
+
 const ProviderProfileSection = ({ user, fetchMe }) => {
   console.log('ProviderProfileSection user data prop:', user);
   const [profile, setProfile] = useState(() => normalizeProfileFromUser(user));
   console.log('ProviderProfileSection initial profile state:', profile);
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(user?.avatar || user?.image || '');
+  const [imagePreview, setImagePreview] = useState(() => getUserImage(user));
   const [savingProfile, setSavingProfile] = useState(false);
 
   const selectedSports = useMemo(
@@ -57,6 +66,8 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
     [profile.serviceTypes]
   );
 
+  const displayImageSrc = resolveImageUrl(imagePreview, PROFILE_PLACEHOLDER);
+
   const inputClass =
     'form-field text-base rounded-lg';
 
@@ -72,7 +83,7 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
       const url = URL.createObjectURL(file);
       setImagePreview(url);
     } else {
-      setImagePreview(user?.avatar || user?.image || '');
+      setImagePreview(getUserImage(user));
     }
   };
 
@@ -142,7 +153,8 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
 
   useEffect(() => {
     setProfile(normalizeProfileFromUser(user));
-    setImagePreview(user?.avatar || user?.image || '');
+    setImagePreview(getUserImage(user));
+    setImageFile(null);
   }, [user]);
 
   return (
@@ -151,16 +163,13 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
         <div className="space-y-5">
           {/* Profile Image with Camera Overlay */}
           <div className="relative mb-8 h-30 w-30">
-            <div className="h-full w-full overflow-hidden rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
-              {imagePreview ? (
-                <img
-                  src={imagePreview}
-                  alt="Profile"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <FiUser className="w-12 h-12 text-gray-400" />
-              )}
+            <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-gray-100">
+              <img
+                src={displayImageSrc}
+                alt="Profile"
+                className="h-full w-full object-cover"
+                onError={(e) => handleImageLoadError(e, PROFILE_PLACEHOLDER)}
+              />
             </div>
             <label
               htmlFor="imgInput"
