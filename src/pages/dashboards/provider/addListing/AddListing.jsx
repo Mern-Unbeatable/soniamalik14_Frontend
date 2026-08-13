@@ -8,6 +8,13 @@ import CreateRecruitmentModal from '../../../../components/ui/CreateRecruitmentM
 import EventModal from '../../../../components/ui/EventModal';
 import { fetchProviderListings, deleteProviderListing } from '../../../../features/providerListing/providerListingAPI';
 import { selectProviderListings } from '../../../../features/providerListing/providerListingSlice';
+import {
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
+
+const LISTING_PLACEHOLDER = '/discover-placeholder.png';
 
 const AddListing = () => {
   const navigate = useNavigate();
@@ -114,13 +121,15 @@ const AddListing = () => {
                   className="flex h-full min-h-88.75 flex-col rounded-lg border border-[#DDE8E8] bg-[#E7F1F180] p-3 shadow-sm cursor-pointer"
                 >
                   <div className="relative mb-3 h-40 overflow-hidden rounded-md bg-[#D9D9D9] ">
-                    {service.logo || service.image ? (
-                      <img
-                        src={service.logo || service.image}
-                        alt={service.listingHeadline || service.title}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : null}
+                    <img
+                      src={resolveImageUrl(
+                        pickImageSource(service.logo, service.image, service.thumbnail),
+                        LISTING_PLACEHOLDER
+                      )}
+                      alt={service.listingHeadline || service.title || 'Listing'}
+                      className="h-full w-full object-cover"
+                      onError={(e) => handleImageLoadError(e, LISTING_PLACEHOLDER)}
+                    />
                     {(service.category || service.tag) && (
                       <span className="absolute left-2 top-2 rounded-full bg-[#E7F1F1] px-2 py-1 text-xs text-[#0F766E]">
                         {service.category || service.tag}
