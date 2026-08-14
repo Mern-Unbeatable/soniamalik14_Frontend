@@ -1,5 +1,4 @@
 import React from 'react';
-import { MapPin, CalendarDays, Clock } from 'lucide-react';
 
 const hasText = (value) => String(value || '').trim().length > 0;
 
@@ -8,18 +7,6 @@ const buildGoogleMapsSearchUrl = (query) => {
   if (!normalized) return '';
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
 };
-
-const TimingRow = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-3">
-    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF2F1] text-[#147B6B]">
-      <Icon className="h-4 w-4" />
-    </div>
-    <div className="min-w-0">
-      <p className="text-xs font-medium uppercase tracking-wide text-[#6B7280]">{label}</p>
-      <p className="mt-0.5 wrap-break-word text-base text-[#1A1D1F]">{value}</p>
-    </div>
-  </div>
-);
 
 const VenueInformation = ({ event }) => {
   if (!event) return null;
@@ -42,7 +29,9 @@ const VenueInformation = ({ event }) => {
     hasText(event.startDate) ||
     hasText(event.endDate) ||
     hasText(event.startTime) ||
-    hasText(event.endTime);
+    hasText(event.endTime) ||
+    hasText(event.day) ||
+    hasText(event.time);
   const hasMap = hasText(event.mapEmbedUrl);
 
   if (!hasAddress && !hasTiming && !hasMap && !mapsHref) return null;
@@ -57,81 +46,83 @@ const VenueInformation = ({ event }) => {
   return (
     <div>
       <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Location & Timing</h3>
-      <div className="flex h-auto flex-col overflow-hidden rounded-xl border border-gray-100 bg-white p-5 shadow-sm md:h-105">
-        <div className="mb-5 space-y-5 md:flex-1">
-          {hasAddress ? (
-            <div>
-              {addressLines.length > 0 ? (
-                <div className="space-y-1 text-[#1A1D1F]">
-                  {venueName ? (
-                    <p className="wrap-break-word text-lg font-semibold leading-snug">
-                      {venueName}
-                    </p>
-                  ) : null}
-                  {addressLine1 ? (
-                    <p className="wrap-break-word text-base leading-relaxed text-[#374151]">
-                      {addressLine1}
-                    </p>
-                  ) : null}
-                  {town ? (
-                    <p className="wrap-break-word text-base leading-relaxed text-[#374151]">
-                      {town}
-                    </p>
-                  ) : null}
-                  {postcode ? (
-                    <p className="wrap-break-word text-base font-medium leading-relaxed tracking-wide text-[#1A1D1F]">
-                      {postcode}
-                    </p>
-                  ) : null}
-                </div>
-              ) : (
-                <p className="wrap-break-word text-base leading-relaxed text-[#1A1D1F]">
-                  {event.locationFull}
-                </p>
-              )}
-            </div>
+      <div className="flex h-auto flex-col rounded-lg border border-gray-100 bg-white p-4 shadow-sm md:h-105">
+        <div className="mb-6 flex-1 space-y-3">
+          {hasText(venueName) ? (
+            <p className="wrap-break-word text-base text-[#1A1D1F]">{venueName}</p>
           ) : null}
 
-          {hasTiming ? (
-            <div className="space-y-3 border-t border-gray-100 pt-4">
-              {hasText(event.startDate) ? (
-                <TimingRow icon={CalendarDays} label="Start date" value={event.startDate} />
-              ) : null}
-              {hasText(event.endDate) ? (
-                <TimingRow icon={CalendarDays} label="End date" value={event.endDate} />
-              ) : null}
-              {hasText(event.startTime) ? (
-                <TimingRow icon={Clock} label="Start time" value={event.startTime} />
-              ) : null}
-              {hasText(event.endTime) ? (
-                <TimingRow icon={Clock} label="End time" value={event.endTime} />
-              ) : null}
-            </div>
+          {hasText(addressLine1) ? (
+            <p className="wrap-break-word text-base text-[#1A1D1F]">{addressLine1}</p>
           ) : null}
 
-          {mapsHref ? (
+          {hasText(town) ? (
+            <p className="wrap-break-word text-base text-[#1A1D1F]">{town}</p>
+          ) : null}
+
+          {hasText(postcode) ? (
+            <p className="wrap-break-word text-base text-[#1A1D1F]">{postcode}</p>
+          ) : null}
+
+          {!addressLines.length && hasText(event.locationFull) ? (
+            <p className="wrap-break-word text-base text-[#1A1D1F]">{event.locationFull}</p>
+          ) : null}
+
+          {mapsHref && locationLabel ? (
             <a
               href={mapsHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#EAF2F1] px-3.5 py-2.5 text-sm font-medium text-[#0F766E] transition-colors hover:bg-[#D8EBE8]"
-              aria-label={`Open ${locationLabel || 'location'} in Google Maps`}
+              className="group flex items-start gap-2 text-base text-[#1A1D1F] transition-colors hover:text-[#0F766E]"
+              aria-label={`Open ${locationLabel} in Google Maps`}
             >
-              <MapPin className="h-4 w-4 shrink-0" />
-              Open in Maps
+              <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
             </a>
+          ) : null}
+
+          {hasText(event.startDate) ? (
+            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
+              <span className="shrink-0 font-medium">📅</span>
+              <span className="wrap-break-word">{event.startDate}</span>
+            </p>
+          ) : hasText(event.day) ? (
+            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
+              <span className="shrink-0 font-medium">📅</span>
+              <span className="wrap-break-word">{event.day}</span>
+            </p>
+          ) : null}
+
+          {hasText(event.endDate) ? (
+            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
+              <span className="shrink-0 font-medium">📅</span>
+              <span className="wrap-break-word">{event.endDate}</span>
+            </p>
+          ) : null}
+
+          {hasText(event.startTime) || hasText(event.endTime) ? (
+            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
+              <span className="shrink-0 font-medium">🕒</span>
+              <span className="wrap-break-word">
+                {[event.startTime, event.endTime].filter(Boolean).join(' - ') || event.time}
+              </span>
+            </p>
+          ) : hasText(event.time) ? (
+            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
+              <span className="shrink-0 font-medium">🕒</span>
+              <span className="wrap-break-word">{event.time}</span>
+            </p>
           ) : null}
         </div>
 
         {hasMap ? (
-          <div className="relative h-44 min-h-44 w-full shrink-0 overflow-hidden rounded-xl bg-gray-100 sm:h-50">
+          <div className="h-50 w-full shrink-0 overflow-hidden rounded-lg">
             <iframe
               src={event.mapEmbedUrl}
               title="Event location map"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
-              className="absolute inset-0 block h-full w-full max-w-full border-0"
+              className="h-full w-full border-0"
             />
           </div>
         ) : null}
