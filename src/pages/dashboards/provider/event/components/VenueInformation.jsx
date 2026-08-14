@@ -17,7 +17,7 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
 
   return (
     <section>
-      <h3 className="mb-3 text-[20px] font-semibold leading-8 text-black">Venue Information</h3>
+      <h3 className="mb-3 text-[20px] font-semibold leading-8 text-black">Location & Timing.</h3>
       <div className="rounded-xl bg-white p-4 shadow-sm">
         <p className="text-base font-medium text-[#101828]">
           Venue Name : <span className="text-base">{event.venueName || event.venue?.name || 'N/A'} </span>{' '}

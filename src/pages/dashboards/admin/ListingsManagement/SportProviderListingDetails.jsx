@@ -380,7 +380,7 @@ const SportProviderListingDetails = () => {
 
                     {/* Right Column */}
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Venue Information</h2>
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Location & Timing.</h2>
                         <div className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
                             <div className="grid grid-cols-[100px_1fr] gap-2 text-base">
                                 {/* <span className="text-gray-500">Venue Name:</span>

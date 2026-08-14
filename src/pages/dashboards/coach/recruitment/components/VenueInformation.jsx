@@ -23,7 +23,7 @@ const VenueInformation = ({ item }) => {
 
   return (
     <div>
-      <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Venue Information</h3>
+      <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Location & Timing.</h3>
       <div className="flex h-auto flex-col rounded-lg border border-gray-100 bg-white p-4 shadow-sm md:h-100">
         <div className="mb-6 flex-1 space-y-3">
           <p className="flex text-base">

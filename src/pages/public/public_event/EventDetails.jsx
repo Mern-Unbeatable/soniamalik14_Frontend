@@ -362,7 +362,7 @@ const EventDetails = () => {
             {/* Column 1: Session Overview */}
             <SessionOverview event={event} />
 
-            {/* Column 2: Venue Information */}
+            {/* Column 2: Location & Timing. */}
             <VenueInformation event={event} />
 
             {/* Column 3: Contact Organiser */}

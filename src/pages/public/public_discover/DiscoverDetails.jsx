@@ -598,7 +598,7 @@ const DiscoverDetails = () => {
               </div>
             </div>
 
-            {/* Column 2: Venue Information */}
+            {/* Column 2: Location & Timing. */}
             <div>
               {(hasText(item.venueName) ||
                 hasText(item.addressLine1) ||
@@ -624,28 +624,28 @@ const DiscoverDetails = () => {
                 <div className="space-y-3 mb-6 flex-1">
                   {hasText(item.venueName) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">Venue name: </span>
+                      {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Venue name: </span> */}
                       <span className="text-[#1A1D1F]">{item.venueName}</span>
                     </p>
                   ) : null}
 
                   {hasText(item.addressLine1) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">Address: </span>
+                      {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Address: </span> */}
                       <span className="text-[#1A1D1F]">{item.addressLine1}</span>
                     </p>
                   ) : null}
 
                   {hasText(item.town || item.location) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">Town/Area: </span>
+                      {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Town/Area: </span> */}
                       <span className="text-[#1A1D1F]">{item.town || item.location}</span>
                     </p>
                   ) : null}
 
                   {hasText(item.postcode) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">Postcode: </span>
+                      {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Postcode: </span> */}
                       <span className="text-[#1A1D1F]">{item.postcode}</span>
                     </p>
                   ) : null}
@@ -666,7 +666,7 @@ const DiscoverDetails = () => {
                         className="group flex items-start gap-2 text-base text-[#1A1D1F] transition-colors hover:text-[#0F766E]"
                         aria-label={`Open ${locationLabel} in Google Maps`}
                       >
-                        <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#6B7280] group-hover:text-[#0F766E]" />
+                        {/* <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#6B7280] group-hover:text-[#0F766E]" /> */}
                         <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
                       </a>
                     );
@@ -674,21 +674,21 @@ const DiscoverDetails = () => {
 
                   {hasText(item.day) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">Day:</span>
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">📅</span>
                       <span className="text-[#1A1D1F]">{item.day}</span>
                     </p>
                   ) : null}
 
                   {hasText(item.time) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">Session Time:</span>
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">🕒</span>
                       <span className="text-[#1A1D1F]">{item.time}</span>
                     </p>
                   ) : null}
 
                   {hasText(item.sessionFrequency) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">How often:</span>
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">🔄</span>
                       <span className="text-[#1A1D1F]">{item.sessionFrequency}</span>
                     </p>
                   ) : null}

@@ -14,6 +14,7 @@ import {
   FileCheck,
   ShieldCheck,
   Hospital,
+  CircleDollarSign,
   X,
   User,
   Mail,
@@ -326,6 +327,7 @@ const ServiceDetails = () => {
     professionalRegistration: item?.professionalRegistration || item?.registration,
     insurance:
       item?.insuranceInPlace === true ? 'Yes' : item?.insuranceInPlace === false ? 'No' : item?.insurance,
+    cost: item?.costMemebershipDetail || '',
     participantResponseType: item?.participantResponseType || 'ADD_BOOKING_LINK',
   };
 
@@ -412,6 +414,9 @@ const ServiceDetails = () => {
                           <OverviewRow icon={BriefcaseMedical} label="Service type" value={displayData.profession} />
                           <OverviewRow icon={Target} label="Delivery type" value={displayData.sessionType} />
                           <OverviewRow icon={Medal} label="Sports supported" value={displayData.sport} />
+                          {displayData.cost ? (
+                            <OverviewRow icon={CircleDollarSign} label="Cost" value={displayData.cost} />
+                          ) : null}
                         </div>
                       </div>
                     </div>

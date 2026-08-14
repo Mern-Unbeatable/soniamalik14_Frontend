@@ -40,8 +40,18 @@ const DAY_OPTIONS = [
 ];
 
 const RESPONSE_ACTION_OPTIONS = [
-  { value: 'REGISTER', label: 'Register', desc: 'People can sign up to attend this event.' },
-  { value: 'REGISTER_INTEREST', label: 'Register Interest', desc: 'Confirm demand before people attend.' },
+  {
+    value: 'REGISTER',
+    label: 'Register',
+    desc: 'Choose this if the session is confirmed and people can sign up to attend.',
+    note: 'If payment or final details are required, you should contact the person after they register.',
+  },
+  {
+    value: 'REGISTER_INTEREST',
+    label: 'Register Interest',
+    desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend.',
+    note: 'You should follow up with anyone who registers interest to let them know the next steps.',
+  },
 ];
 
 const fieldClass =
@@ -1015,30 +1025,42 @@ const EventModal = ({
             {/* <FormSection title="Event details">...</FormSection> */}
 
             <FormSection>
-              <p className="mb-3 text-base font-bold text-white">Choose the main action for this listing</p>
+              <p className="mb-1 text-base font-bold text-white">
+                Choose the main action for this listing
+              </p>
+              <p className="mb-3 text-sm text-white/80">
+                Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
+              </p>
               <div className="space-y-3">
                 {RESPONSE_ACTION_OPTIONS.map((option) => {
                   const selected = formData.responseType === option.value;
                   return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        responseType: option.value,
-                        responseMethods: mapResponseTypeToMethods(option.value),
-                      }))
-                    }
-                    className={`w-full rounded-xl border p-4 text-left ${
-                      selected
-                        ? 'border-white bg-[#F5F1EB] text-[#1A1D1D]'
-                        : 'border-white/30 bg-[#0f756d] text-white'
-                    }`}
-                  >
-                    <p className="font-semibold">{option.label}</p>
-                    <p className={`mt-1 text-sm ${selected ? 'text-gray-600' : 'text-white/75'}`}>{option.desc}</p>
-                  </button>
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          responseType: option.value,
+                          responseMethods: mapResponseTypeToMethods(option.value),
+                        }))
+                      }
+                      className={`w-full rounded-xl border p-4 text-left ${
+                        selected
+                          ? 'border-white bg-[#F5F1EB] text-[#1A1D1D]'
+                          : 'border-white/30 bg-[#0f756d] text-white'
+                      }`}
+                    >
+                      <p className="font-semibold">{option.label}</p>
+                      <p className={`mt-1 text-sm ${selected ? 'text-gray-600' : 'text-white/75'}`}>
+                        {option.desc}
+                      </p>
+                      {option.note ? (
+                        <p className={`mt-2 text-xs leading-relaxed ${selected ? 'text-gray-500' : 'text-white/65'}`}>
+                          Note: {option.note}
+                        </p>
+                      ) : null}
+                    </button>
                   );
                 })}
               </div>

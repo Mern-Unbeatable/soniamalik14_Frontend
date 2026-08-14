@@ -12,6 +12,18 @@ import { GET } from '../../services/httpMethods';
 
 const sessionTypeOptions = ['Training', 'Coaching', 'Social Play','Other'];
 
+const DELIVERY_TYPE_OPTIONS = ['In clinic', 'Online', 'At venue'];
+
+const PROVIDER_SERVICE_TYPE_OPTIONS = [
+  'Physiotherapy',
+  'Nutrition',
+  'Personal Training',
+  'Sports Massage',
+  'Mental Health & Wellbeing',
+  'Coaching',
+  'Other',
+];
+
 const SESSION_FREQUENCY_OPTIONS = ['Weekly', 'Fortnightly', 'Monthly', 'Other'];
 
 const DAY_OPTIONS = [
@@ -22,12 +34,29 @@ const RESPONSE_ACTION_OPTIONS = [
   {
     value: 'REGISTER',
     label: 'Register',
-    desc: 'People can sign up to attend this event.',
+    desc: 'Choose this if the session is confirmed and people can sign up to attend.',
+    note: 'If payment or final details are required, you should contact the person after they register.',
   },
   {
     value: 'INTERESTED',
     label: 'Register Interest',
-    desc: 'Confirm demand before people attend.',
+    desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend.',
+    note: 'You should follow up with anyone who registers interest to let them know the next steps.',
+  },
+];
+
+const PROVIDER_RESPONSE_ACTION_OPTIONS = [
+  {
+    value: 'REGISTER',
+    label: 'Register',
+    desc: 'Choose this if the service is confirmed and people can sign up to attend.',
+    note: 'If payment or final details are required, you should contact the person after they register.',
+  },
+  {
+    value: 'INTERESTED',
+    label: 'Register Interest',
+    desc: 'Choose this if you want to confirm places first, check demand, or contact people before they attend.',
+    note: 'You should follow up with anyone who registers interest to let them know the next steps.',
   },
 ];
 
@@ -95,6 +124,9 @@ const createInitialForm = () => ({
   sessionDescription: '',
   costMembershipDetail: '',
   listingImage: null,
+  listingHeadline: '',
+  professionalRegistration: '',
+  insuranceInPlace: 'Yes',
   dateDay: '',
   timeFrom: '',
   timeTo: '',
@@ -361,12 +393,27 @@ const mapInitialDataToForm = (initialData) => {
     timeFrom: timeRange.timeFrom,
     timeTo: timeRange.timeTo,
     bookingLink: initialData?.bookingLink || '',
+    listingHeadline: initialData?.listingHeadline || initialData?.title || '',
+    professionalRegistration:
+      initialData?.professionalRegistration || initialData?.registration || '',
+    insuranceInPlace:
+      initialData?.insuranceInPlace === false || initialData?.insuranceInPlace === 'No'
+        ? 'No'
+        : 'Yes',
     responseType: resolveResponseType(initialData?.responseType),
     responseMethods:
       resolveResponseType(initialData?.responseType) === 'INTERESTED'
         ? ['Allow users to register interest']
         : ['Add booking link'],
   };
+};
+
+const isProviderUser = (user) => {
+  const role = String(user?.role || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^role[_\s-]*/, '');
+  return role === 'provider' || role.includes('provider');
 };
 
 const CreateRecruitmentModal = ({
@@ -385,6 +432,7 @@ const CreateRecruitmentModal = ({
   const listingImageInputRef = useRef(null);
   const [form, setForm] = useState(() => createInitialForm());
   const [errors, setErrors] = useState({});
+  const isProvider = isProviderUser(user);
 
   useEffect(() => {
     if (isOpen) {
@@ -552,7 +600,9 @@ const CreateRecruitmentModal = ({
     );
     const normalizedSuitableFor = normalizeArray(form.suitableFor || []);
 
-    const serviceTitle = String(form.organisationName || '').trim();
+    const serviceTitle = isProvider
+      ? String(form.listingHeadline || form.organisationName || '').trim()
+      : String(form.organisationName || '').trim();
     const serviceDescription = String(form.sessionDescription || form.about || '').trim();
     const orgAbout = String(form.about || '').trim();
     const providerPhone =
@@ -566,45 +616,71 @@ const CreateRecruitmentModal = ({
     const sessionDay = String(form.sessonDay || '').trim();
     const normalizedAvailableDays = normalizeArray(toArray(form.sessonDay));
     const dateValue = String(form.dateDay || '').trim();
-    const timeFrom = String(form.timeFrom || '').trim();
-    const timeTo = String(form.timeTo || '').trim();
+    let timeFrom = String(form.timeFrom || '').trim();
+    let timeTo = String(form.timeTo || '').trim();
+    // Provider form has no time fields, but API requires startTime/endTime.
+    if (isProvider) {
+      if (!timeFrom) timeFrom = '09:00';
+      if (!timeTo) timeTo = '17:00';
+    }
     const timeSlot = timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '';
     const fullAddress = [form.venueName, form.addressLine1, form.townCity, form.postcode]
       .map((item) => String(item || '').trim())
       .filter(Boolean)
       .join(', ');
+    const providerServiceType = String(form.role || '').trim();
 
     const newErrors = {};
-    if (!serviceTitle) newErrors.organisationName = true;
-    if (normalizedSports.length === 0) newErrors.sport = true;
-    if (normalizedSessionTypes.length === 0) newErrors.sessionType = true;
-    if (normalizedSuitableFor.length === 0) newErrors.suitableFor = true;
-    if (!form.womensOnly) newErrors.womensOnly = true;
-    if (!String(form.townCity || '').trim()) newErrors.townCity = true;
-    if (!String(form.postcode || '').trim()) newErrors.postcode = true;
-    if (!sessionDay) newErrors.sessonDay = true;
-    if (!timeFrom) newErrors.timeFrom = true;
-    if (!timeTo) newErrors.timeTo = true;
-    if (!String(form.sessionFrequency || '').trim()) newErrors.sessionFrequency = true;
-    if (!String(form.costMembershipDetail || '').trim()) newErrors.costMembershipDetail = true;
-    if (!serviceDescription) newErrors.sessionDescription = true;
+    if (isProvider) {
+      if (!String(form.organisationName || '').trim()) newErrors.organisationName = true;
+      if (!String(form.contactPerson || '').trim()) newErrors.contactPerson = true;
+      if (!String(form.townCity || '').trim()) newErrors.townCity = true;
+      if (!String(form.postcode || '').trim()) newErrors.postcode = true;
+      if (!providerServiceType) newErrors.role = true;
+      if (!String(form.listingHeadline || '').trim()) newErrors.listingHeadline = true;
+      if (!serviceDescription) newErrors.sessionDescription = true;
+      if (normalizedSessionTypes.length === 0) newErrors.sessionType = true;
+    } else {
+      if (!serviceTitle) newErrors.organisationName = true;
+      if (normalizedSports.length === 0) newErrors.sport = true;
+      if (normalizedSessionTypes.length === 0) newErrors.sessionType = true;
+      if (normalizedSuitableFor.length === 0) newErrors.suitableFor = true;
+      if (!form.womensOnly) newErrors.womensOnly = true;
+      if (!String(form.townCity || '').trim()) newErrors.townCity = true;
+      if (!String(form.postcode || '').trim()) newErrors.postcode = true;
+      if (!sessionDay) newErrors.sessonDay = true;
+      if (!timeFrom) newErrors.timeFrom = true;
+      if (!timeTo) newErrors.timeTo = true;
+      if (!String(form.sessionFrequency || '').trim()) newErrors.sessionFrequency = true;
+      if (!String(form.costMembershipDetail || '').trim()) newErrors.costMembershipDetail = true;
+      if (!serviceDescription) newErrors.sessionDescription = true;
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       const messages = [];
-      if (newErrors.organisationName) messages.push('Organisation name');
+      if (newErrors.organisationName) {
+        messages.push(isProvider ? 'Provider / Business Name' : 'Organisation name');
+      }
+      if (newErrors.contactPerson) messages.push('Contact Name');
       if (newErrors.sport) messages.push('Sport or activity');
-      if (newErrors.sessionType) messages.push('Session type');
+      if (newErrors.role) messages.push('Service type');
+      if (newErrors.listingHeadline) messages.push('Listing Headline');
+      if (newErrors.sessionType) {
+        messages.push(isProvider ? 'Delivery type' : 'Session type');
+      }
       if (newErrors.suitableFor) messages.push('Suitable for');
       if (newErrors.womensOnly) messages.push('Who can take part');
-      if (newErrors.townCity) messages.push('Town/Area');
+      if (newErrors.townCity) messages.push(isProvider ? 'Town/City' : 'Town/Area');
       if (newErrors.postcode) messages.push('Postcode');
       if (newErrors.sessonDay) messages.push('Day');
       if (newErrors.timeFrom) messages.push('Start time');
       if (newErrors.timeTo) messages.push('End time');
       if (newErrors.sessionFrequency) messages.push('How often does it run');
       if (newErrors.costMembershipDetail) messages.push('Cost or membership');
-      if (newErrors.sessionDescription) messages.push('Session description');
+      if (newErrors.sessionDescription) {
+        messages.push(isProvider ? 'About your service' : 'Session description');
+      }
       toast.error(`Required: ${messages.join(', ')}`);
       return;
     }
@@ -614,14 +690,16 @@ const CreateRecruitmentModal = ({
 
     if (mode === 'edit' && initialData?.id) {
       const updatePayload = {
-        listingHeadline: serviceTitle,
+        listingHeadline: isProvider
+          ? String(form.listingHeadline || '').trim()
+          : serviceTitle,
         aboutService: serviceDescription,
         serviceType: 'COACHING',
-        providerType: [form.role || ''],
+        providerType: [providerServiceType || form.role || ''],
         sessionTypes: normalizedSessionTypes,
         availableDays: normalizedAvailableDays,
-        organizationName: serviceTitle,
-        role: form.role ,
+        organizationName: String(form.organisationName || '').trim() || serviceTitle,
+        role: form.role,
         description: serviceDescription,
         contactName: form.contactPerson || serviceTitle,
         providerPhone,
@@ -650,6 +728,9 @@ const CreateRecruitmentModal = ({
         aboutOrganization: orgAbout,
         bookingLink: String(form.bookingLink || '').trim(),
         responseType: getResponseType(form.responseMethods, form.responseType),
+        professionalRegistration: String(form.professionalRegistration || '').trim(),
+        insuranceInPlace: form.insuranceInPlace === 'Yes',
+        isOnline: String(form.sessionType || '').toLowerCase() === 'online',
       };
 
       Object.keys(updatePayload).forEach((key) => {
@@ -701,14 +782,21 @@ const CreateRecruitmentModal = ({
     } else {
       const payload = new FormData();
       payload.append('serviceType', 'COACHING');
-      appendIfPresent(payload, 'listingHeadline', serviceTitle);
+      appendIfPresent(
+        payload,
+        'listingHeadline',
+        isProvider ? form.listingHeadline : serviceTitle
+      );
       appendIfPresent(payload, 'aboutService', serviceDescription);
-      appendArrayField(payload, 'providerType', [form.role || '']);
+      appendArrayField(payload, 'providerType', [providerServiceType || form.role || '']);
       appendArrayField(payload, 'sessionTypes', normalizedSessionTypes);
       appendArrayField(payload, 'availableDays', normalizedAvailableDays);
-      payload.append('title', serviceTitle);
+      payload.append('title', isProvider ? form.listingHeadline || serviceTitle : serviceTitle);
       payload.append('description', serviceDescription);
-      payload.append('organizationName', serviceTitle);
+      payload.append(
+        'organizationName',
+        String(form.organisationName || '').trim() || serviceTitle
+      );
       appendIfPresent(payload, 'role', form.role || '');
       appendIfPresent(payload, 'contactName', form.contactPerson || serviceTitle);
       appendIfPresent(payload, 'providerPhone', providerPhone);
@@ -730,13 +818,25 @@ const CreateRecruitmentModal = ({
       appendIfPresent(payload, 'date', dateValue);
       appendIfPresent(payload, 'timeFrom', timeFrom);
       appendIfPresent(payload, 'timeTo', timeTo);
-      appendIfPresent(payload, 'startTime', timeFrom);
-      appendIfPresent(payload, 'endTime', timeTo);
+      if (isProvider) {
+        payload.append('startTime', timeFrom);
+        payload.append('endTime', timeTo);
+      } else {
+        appendIfPresent(payload, 'startTime', timeFrom);
+        appendIfPresent(payload, 'endTime', timeTo);
+      }
       appendIfPresent(payload, 'timeSlote', timeSlot);
       appendIfPresent(payload, 'sessionFrequency', form.sessionFrequency);
       appendIfPresent(payload, 'costMemebershipDetail', form.costMembershipDetail);
       appendIfPresent(payload, 'aboutOrganization', orgAbout);
       appendIfPresent(payload, 'bookingLink', form.bookingLink);
+      appendIfPresent(payload, 'professionalRegistration', form.professionalRegistration);
+      appendIfPresent(payload, 'insuranceInPlace', String(form.insuranceInPlace === 'Yes'));
+      appendIfPresent(
+        payload,
+        'isOnline',
+        String(String(form.sessionType || '').toLowerCase() === 'online')
+      );
       payload.append('responseType', getResponseType(form.responseMethods, form.responseType));
 
       const listingFile =
@@ -788,26 +888,38 @@ const CreateRecruitmentModal = ({
         <div className="flex items-start justify-between border-b border-white/15 px-5 py-4">
           <div className="pr-4">
             <h2 className="text-2xl font-semibold text-white">
-              {mode === 'edit' ? 'Edit Session' : 'Add Session'}
+              {isProvider
+                ? mode === 'edit'
+                  ? 'Edit Service'
+                  : 'Add Service'
+                : mode === 'edit'
+                  ? 'Edit Session'
+                  : 'Add Session'}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-white/85">
-              Use this form for regular or recurring sport sessions and activities. For a one-off activity,
-              taster session or special occasion, please add an{' '}
-              {mode === 'create' && typeof onSwitchToEvent === 'function' ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose?.();
-                    onSwitchToEvent();
-                  }}
-                  className="font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"
-                >
-                  Event
-                </button>
+              {isProvider ? (
+                'Join our community of professional support services aimed at empowering women in sport and fitness.'
               ) : (
-                <span className="font-medium text-[#F5F1EB] underline underline-offset-2">Event</span>
-              )}{' '}
-              instead.
+                <>
+                  Use this form for regular or recurring sport sessions and activities. For a one-off activity,
+                  taster session or special occasion, please add an{' '}
+                  {mode === 'create' && typeof onSwitchToEvent === 'function' ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose?.();
+                        onSwitchToEvent();
+                      }}
+                      className="font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"
+                    >
+                      Event
+                    </button>
+                  ) : (
+                    <span className="font-medium text-[#F5F1EB] underline underline-offset-2">Event</span>
+                  )}{' '}
+                  instead.
+                </>
+              )}
             </p>
           </div>
           <button
@@ -821,6 +933,357 @@ const CreateRecruitmentModal = ({
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-5">
           <form id="add-listing-form" className="space-y-4" onSubmit={handleSubmit}>
+            {isProvider ? (
+              <>
+                <FormSection>
+                  <div className="space-y-4">
+                    <div>
+                      <label className={labelClass}>Provider / Business Name *</label>
+                      <input
+                        className={fieldClass}
+                        value={form.organisationName}
+                        onChange={(e) => {
+                          handleChange('organisationName', e.target.value);
+                          setErrors((prev) => ({ ...prev, organisationName: false }));
+                        }}
+                        placeholder="e.g. Richmond Women's Physios"
+                      />
+                      {errors.organisationName && <p className={errorClass}>Required</p>}
+                    </div>
+                    <div>
+                      <label className={labelClass}>Contact Name *</label>
+                      <input
+                        className={fieldClass}
+                        value={form.contactPerson}
+                        onChange={(e) => {
+                          handleChange('contactPerson', e.target.value);
+                          setErrors((prev) => ({ ...prev, contactPerson: false }));
+                        }}
+                        placeholder="Enter name"
+                      />
+                      {errors.contactPerson && <p className={errorClass}>Required</p>}
+                    </div>
+                    <div>
+                      <label className={labelClass}>Logo</label>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') orgLogoInputRef.current?.click();
+                        }}
+                        onClick={() => orgLogoInputRef.current?.click()}
+                        className="relative flex h-40 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-white/35 bg-white/10"
+                      >
+                        {logoPreviewUrl ? (
+                          <>
+                            <img
+                              src={logoPreviewUrl}
+                              alt="Logo"
+                              className="absolute inset-0 h-full w-full object-cover"
+                            />
+                            <span className="relative z-10 rounded bg-black/50 px-2 py-1 text-xs text-white">
+                              Click to change
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mb-2 h-8 w-8 text-white/80" />
+                            <span className="text-sm font-medium text-[#F5F1EB]">Upload Image</span>
+                            <span className="mt-1 text-xs text-white/65">
+                              JPEG or PNG accepted. Max 10MB
+                            </span>
+                          </>
+                        )}
+                        <input
+                          ref={orgLogoInputRef}
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png"
+                          className="hidden"
+                          aria-label="Upload logo"
+                          onChange={handleLogoFile}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </FormSection>
+
+                <FormSection title="Location Details">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div>
+                        <label className={labelClass}>Clinic / venue name</label>
+                        <input
+                          className={fieldClass}
+                          value={form.venueName}
+                          onChange={(e) => handleChange('venueName', e.target.value)}
+                          placeholder="e.g. The Wellness Centre"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Address Line</label>
+                        <input
+                          className={fieldClass}
+                          value={form.addressLine1}
+                          onChange={(e) => handleChange('addressLine1', e.target.value)}
+                          placeholder="e.g. 123 High Street"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div>
+                        <label className={labelClass}>Town/City *</label>
+                        <input
+                          className={fieldClass}
+                          value={form.townCity}
+                          onChange={(e) => {
+                            handleChange('townCity', e.target.value);
+                            setErrors((prev) => ({ ...prev, townCity: false }));
+                          }}
+                          placeholder="e.g. Richmond"
+                        />
+                        {errors.townCity && <p className={errorClass}>Required</p>}
+                      </div>
+                      <div>
+                        <label className={labelClass}>Postcode *</label>
+                        <input
+                          className={fieldClass}
+                          value={form.postcode}
+                          onChange={(e) => {
+                            handleChange('postcode', e.target.value);
+                            setErrors((prev) => ({ ...prev, postcode: false }));
+                          }}
+                          placeholder="e.g. TW9 1AB"
+                        />
+                        {errors.postcode && <p className={errorClass}>Required</p>}
+                      </div>
+                    </div>
+                  </div>
+                </FormSection>
+
+                <FormSection>
+                  <div className="space-y-4">
+                    <div>
+                      <label className={labelClass}>Service type *</label>
+                      <select
+                        className={fieldClass}
+                        value={form.role}
+                        onChange={(e) => {
+                          handleChange('role', e.target.value);
+                          setErrors((prev) => ({ ...prev, role: false }));
+                        }}
+                      >
+                        <option value="">Select service type</option>
+                        {PROVIDER_SERVICE_TYPE_OPTIONS.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.role && <p className={errorClass}>Required</p>}
+                    </div>
+                    <div>
+                      <label className={labelClass}>Listing Headline *</label>
+                      <input
+                        className={fieldClass}
+                        value={form.listingHeadline}
+                        onChange={(e) => {
+                          handleChange('listingHeadline', e.target.value);
+                          setErrors((prev) => ({ ...prev, listingHeadline: false }));
+                        }}
+                        placeholder="e.g. The Wellness Centre"
+                      />
+                      {errors.listingHeadline && <p className={errorClass}>Required</p>}
+                    </div>
+                    <div>
+                      <label className={labelClass}>About your service *</label>
+                      <textarea
+                        rows={4}
+                        className={`${fieldClass} min-h-28 resize-none`}
+                        value={form.sessionDescription}
+                        onChange={(e) => {
+                          handleChange('sessionDescription', e.target.value);
+                          setErrors((prev) => ({ ...prev, sessionDescription: false }));
+                        }}
+                        placeholder="Provide a short description of the service, including what clients can expect."
+                      />
+                      {errors.sessionDescription && <p className={errorClass}>Required</p>}
+                    </div>
+                    <div>
+                      <label className={labelClass}>Delivery type *</label>
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {DELIVERY_TYPE_OPTIONS.map((option) => {
+                          const selected = form.sessionType === option;
+                          return (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => {
+                                setForm((s) => ({
+                                  ...s,
+                                  sessionType: option,
+                                  sessionTypes: [option],
+                                }));
+                                setErrors((prev) => ({ ...prev, sessionType: false }));
+                              }}
+                              className={`rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
+                                selected
+                                  ? 'bg-[#F5F1EB] text-[#0f756d]'
+                                  : 'border border-white/30 bg-transparent text-white hover:border-white/50'
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {errors.sessionType && <p className={errorClass}>Required</p>}
+                    </div>
+                    <div>
+                      <label className={labelClass}>Sports supported</label>
+                      <p className="mb-2 text-xs text-white/75">
+                        Optional - leave blank if your service is not sport-specific.
+                      </p>
+                      <select
+                        className={fieldClass}
+                        value={selectedSport}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          handleChange('sports', v ? [v] : []);
+                          if (v !== 'Other') handleChange('otherSport', '');
+                        }}
+                      >
+                        <option value="">Select sport</option>
+                        {dynamicSports.map((sport) => (
+                          <option key={sport} value={sport}>
+                            {sport}
+                          </option>
+                        ))}
+                      </select>
+                      {selectedSport === 'Other' && (
+                        <input
+                          type="text"
+                          placeholder="Please specify"
+                          value={form.otherSport || ''}
+                          onChange={(e) => handleChange('otherSport', e.target.value)}
+                          className={`${fieldClass} mt-2`}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </FormSection>
+
+                <FormSection title="Professional Credentials">
+                  <div className="space-y-4">
+                    <div>
+                      <label className={labelClass}>
+                        Professional registration / qualifications
+                      </label>
+                      <input
+                        className={fieldClass}
+                        value={form.professionalRegistration}
+                        onChange={(e) => handleChange('professionalRegistration', e.target.value)}
+                        placeholder="e.g. HCPC Registered, CSP Member"
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Insurance in place?</label>
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {['Yes', 'No'].map((option) => {
+                          const selected = form.insuranceInPlace === option;
+                          return (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => handleChange('insuranceInPlace', option)}
+                              className={`rounded-md px-5 py-2.5 text-sm font-semibold transition-colors ${
+                                selected
+                                  ? 'bg-[#F5F1EB] text-[#0f756d]'
+                                  : 'border border-white/30 bg-transparent text-white hover:border-white/50'
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Website / Booking Link</label>
+                      <input
+                        className={fieldClass}
+                        type="url"
+                        value={form.bookingLink}
+                        onChange={(e) => handleChange('bookingLink', e.target.value)}
+                        placeholder="https://example.com/book-session"
+                      />
+                      <p className="mt-1.5 text-xs text-white/75">
+                        Add a link where people can find out more about your service or make a booking.
+                      </p>
+                    </div>
+                  </div>
+                </FormSection>
+
+                <FormSection>
+                  <p className="mb-1 text-base font-bold text-white">
+                    Choose the main action for this listing
+                  </p>
+                  <p className="mb-3 text-sm text-white/80">
+                    Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
+                  </p>
+                  <div className="space-y-2">
+                    {PROVIDER_RESPONSE_ACTION_OPTIONS.map((option) => {
+                      const isSelected = form.responseType === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setForm((prev) => ({
+                              ...prev,
+                              responseType: option.value,
+                              responseMethods:
+                                option.value === 'INTERESTED'
+                                  ? ['Allow users to register interest']
+                                  : ['Add booking link'],
+                            }));
+                          }}
+                          className={`w-full rounded-xl border p-4 text-left transition-colors ${
+                            isSelected
+                              ? 'border-transparent bg-[#F5F1EB]'
+                              : 'border-white/30 bg-transparent hover:border-white/50'
+                          }`}
+                        >
+                          <p
+                            className={`text-sm font-semibold ${
+                              isSelected ? 'text-[#1A1D1D]' : 'text-white'
+                            }`}
+                          >
+                            {option.label}
+                          </p>
+                          <p
+                            className={`mt-1 text-sm ${
+                              isSelected ? 'text-[#1A1D1D]/70' : 'text-white/75'
+                            }`}
+                          >
+                            {option.desc}
+                          </p>
+                          {option.note ? (
+                            <p
+                              className={`mt-2 text-xs leading-relaxed ${
+                                isSelected ? 'text-[#1A1D1D]/60' : 'text-white/65'
+                              }`}
+                            >
+                              Note: {option.note}
+                            </p>
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </FormSection>
+              </>
+            ) : (
+              <>
             <FormSection
               title="Organisation Details"
               hint="These details are pre-populated from your account."
@@ -1145,8 +1608,11 @@ const CreateRecruitmentModal = ({
             </FormSection>
 
             <FormSection>
-              <p className="mb-3 text-base font-bold text-white">
+              <p className="mb-1 text-base font-bold text-white">
                 Choose the main action for this listing
+              </p>
+              <p className="mb-3 text-sm text-white/80">
+                Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
               </p>
               <div className="space-y-2">
                 {RESPONSE_ACTION_OPTIONS.map((option) => {
@@ -1179,12 +1645,21 @@ const CreateRecruitmentModal = ({
                         {option.label}
                       </p>
                       <p
-                        className={`mt-0.5 text-sm ${
+                        className={`mt-1 text-sm ${
                           isSelected ? 'text-[#1A1D1D]/70' : 'text-white/75'
                         }`}
                       >
                         {option.desc}
                       </p>
+                      {option.note ? (
+                        <p
+                          className={`mt-2 text-xs leading-relaxed ${
+                            isSelected ? 'text-[#1A1D1D]/60' : 'text-white/65'
+                          }`}
+                        >
+                          Note: {option.note}
+                        </p>
+                      ) : null}
                     </button>
                   );
                 })}
@@ -1225,6 +1700,8 @@ const CreateRecruitmentModal = ({
                 />
               </div>
             </FormSection>
+              </>
+            )}
           </form>
         </div>
 
@@ -1235,7 +1712,13 @@ const CreateRecruitmentModal = ({
             disabled={createLoading}
             className="w-full rounded-lg bg-[#F5F1EB] py-3 text-sm font-semibold text-[#0f756d] hover:bg-[#ebe5dc] disabled:opacity-60"
           >
-            {createLoading ? 'Submitting...' : mode === 'edit' ? 'Update session' : 'Submit for approval'}
+            {createLoading
+              ? 'Submitting...'
+              : mode === 'edit'
+                ? isProvider
+                  ? 'Update service'
+                  : 'Update session'
+                : 'Submit for approval'}
           </button>
         </div>
       </div>
