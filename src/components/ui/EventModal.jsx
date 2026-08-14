@@ -1003,7 +1003,7 @@ const EventModal = ({
                       className={fieldClass}
                       value={formData.price}
                       onChange={(e) => handleChange('price', e.target.value)}
-                      placeholder="e.g. £8 per session"
+                      placeholder="e.g. £10 per person"
                     />
                     {errors.price && <p className={errorClass}>{errors.price}</p>}
                   </div>
@@ -1046,8 +1046,8 @@ const EventModal = ({
             </FormSection>
 
             <FormSection>
-              <label className={labelClass}>Image Upload</label>
-              <p className="mb-2 text-xs text-white/75">Add a photo to help people find your event.</p>
+              <label className={labelClass}>Upload an image for this event (optional)</label>
+              <p className="mb-2 text-xs text-white/75">This image will appear with your event listing. If left blank, a default image will be shown.</p>
               <div
                 role="button"
                 tabIndex={0}
