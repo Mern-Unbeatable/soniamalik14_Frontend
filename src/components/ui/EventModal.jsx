@@ -26,13 +26,13 @@ const SUITABLE_FOR_OPTIONS = [
 
 const EVENT_TYPE_OPTIONS = [
   { label: 'Tournament', value: 'TOURNAMENT' },
+  { label: 'Open Day', value: 'OPEN_DAY' },
+  { label: 'Taster Session', value: 'TASTER_SESSION' },
   { label: 'Workshop', value: 'WORKSHOP' },
-  { label: 'Match', value: 'MATCH' },
-  { label: 'Trial', value: 'TRIAL' },
-  { label: 'Training', value: 'TRAINING' },
-  { label: 'Seminar', value: 'SEMINAR' },
-  { label: 'Competition', value: 'COMPETITION' },
-  { label: 'Meetup', value: 'MEETUP' },
+  { label: 'Talk', value: 'TALK' },
+  { label: 'Charity Event', value: 'CHARITY_EVENT' },
+  { label: 'Social Event', value: 'SOCIAL_EVENT' },
+  { label: 'Other', value: 'OTHER' },
 ];
 
 const DAY_OPTIONS = [
@@ -233,7 +233,7 @@ const buildEmptyEventForm = (authUser) => {
     eventTitle: '',
     sportType: '',
     suitableFor: [],
-    eventType: 'TRAINING',
+    eventType: 'TOURNAMENT',
     description: '',
     startDate: '',
     endDate: '',
@@ -278,7 +278,7 @@ const mapEventToForm = (initialData, authUser) => {
     eventTitle: initialData.title || '',
     sportType: initialData.sportType || '',
     suitableFor: parseListValue(initialData.suitableFor),
-    eventType: initialData.eventType || initialData.type || 'TRAINING',
+    eventType: initialData.eventType || initialData.type || 'TOURNAMENT',
     description: initialData.description || '',
     startDate: toDateInputValue(initialData.startDate || initialData.date),
     endDate: toDateInputValue(initialData.endDate),
