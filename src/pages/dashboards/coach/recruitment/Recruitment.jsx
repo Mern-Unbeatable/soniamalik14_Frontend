@@ -63,7 +63,7 @@ const Recruitment = () => {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-[#0B544E] md:text-3xl">
-              Manage your Sessions 
+              Manage your Session
             </h1>
           </div>
           <div>
