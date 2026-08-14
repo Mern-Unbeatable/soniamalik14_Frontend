@@ -75,7 +75,7 @@ const Recruitment = () => {
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-[#0F766E] px-4 py-3 text-base font-medium whitespace-nowrap text-white transition-colors hover:bg-[#0d655d]"
             >
               <Plus className="h-4 w-4 shrink-0" />
-              Add New Sessions
+              Add New Session
             </button>
           </div>
         </div>

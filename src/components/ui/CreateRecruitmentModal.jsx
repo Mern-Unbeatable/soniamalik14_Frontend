@@ -577,6 +577,7 @@ const CreateRecruitmentModal = ({
     const newErrors = {};
     if (!serviceTitle) newErrors.organisationName = true;
     if (normalizedSports.length === 0) newErrors.sport = true;
+    if (normalizedSessionTypes.length === 0) newErrors.sessionType = true;
     if (normalizedSuitableFor.length === 0) newErrors.suitableFor = true;
     if (!form.womensOnly) newErrors.womensOnly = true;
     if (!String(form.townCity || '').trim()) newErrors.townCity = true;
@@ -593,6 +594,7 @@ const CreateRecruitmentModal = ({
       const messages = [];
       if (newErrors.organisationName) messages.push('Organisation name');
       if (newErrors.sport) messages.push('Sport or activity');
+      if (newErrors.sessionType) messages.push('Session type');
       if (newErrors.suitableFor) messages.push('Suitable for');
       if (newErrors.womensOnly) messages.push('Who can take part');
       if (newErrors.townCity) messages.push('Town/Area');
@@ -918,13 +920,14 @@ const CreateRecruitmentModal = ({
                     )}
                   </div>
                   <div>
-                    <label className={labelClass}>Session type</label>
+                    <label className={labelClass}>Session type *</label>
                     <select
                       className={fieldClass}
                       value={form.sessionType}
                       onChange={(e) => {
                         const v = e.target.value;
                         setForm((s) => ({ ...s, sessionType: v, sessionTypes: v ? [v] : [] }));
+                        setErrors((prev) => ({ ...prev, sessionType: false }));
                       }}
                     >
                       <option value="">Select session type</option>
@@ -932,6 +935,7 @@ const CreateRecruitmentModal = ({
                         <option key={type} value={type}>{type}</option>
                       ))}
                     </select>
+                    {errors.sessionType && <p className={errorClass}>Required</p>}
                   </div>
                 </div>
                 <div>
