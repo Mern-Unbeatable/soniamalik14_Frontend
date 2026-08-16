@@ -620,8 +620,8 @@ const DiscoverDetails = () => {
                 hasText(item.sessionFrequency) ||
                 hasText(item.mapEmbedUrl) ||
                 hasText(buildLocationSearchLabel(item))) && (
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 h-100 flex flex-col">
-                <div className="space-y-3 mb-6 flex-1">
+              <div className="flex flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="mb-6 min-h-0 flex-1 space-y-3">
                   {hasText(item.venueName) ? (
                     <p className="text-base flex items-start gap-2">
                       {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Venue name: </span> */}
@@ -696,11 +696,11 @@ const DiscoverDetails = () => {
                 
                 {/* Map */}
                 {hasText(item.mapEmbedUrl) ? (
-                  <div className="w-full h-50 rounded-lg overflow-hidden shrink-0">
+                  <div className="relative h-50 w-full shrink-0 overflow-hidden rounded-lg bg-gray-100">
                     <iframe
                       src={item.mapEmbedUrl}
                       title="Map View"
-                      className="w-full h-full border-0 rounded-lg"
+                      className="absolute inset-0 block h-full w-full border-0"
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
                     />

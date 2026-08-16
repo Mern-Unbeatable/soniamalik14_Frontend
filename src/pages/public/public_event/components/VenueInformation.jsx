@@ -46,8 +46,8 @@ const VenueInformation = ({ event }) => {
   return (
     <div>
       <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Location & Timing</h3>
-      <div className="flex h-auto flex-col rounded-lg border border-gray-100 bg-white p-4 shadow-sm md:h-105">
-        <div className="mb-6 flex-1 space-y-3">
+      <div className="flex h-auto flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="mb-6 min-h-0 flex-1 space-y-3">
           {hasText(venueName) ? (
             <p className="wrap-break-word text-base text-[#1A1D1F]">{venueName}</p>
           ) : null}
@@ -115,14 +115,14 @@ const VenueInformation = ({ event }) => {
         </div>
 
         {hasMap ? (
-          <div className="h-50 w-full shrink-0 overflow-hidden rounded-lg">
+          <div className="relative h-50 w-full shrink-0 overflow-hidden rounded-lg bg-gray-100">
             <iframe
               src={event.mapEmbedUrl}
               title="Event location map"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
-              className="h-full w-full border-0"
+              className="absolute inset-0 block h-full w-full border-0"
             />
           </div>
         ) : null}

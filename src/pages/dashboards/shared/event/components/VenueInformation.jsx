@@ -18,7 +18,7 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
   return (
     <section>
       <h3 className="mb-3 text-[20px] font-semibold leading-8 text-black">Location & Timing.</h3>
-      <div className="rounded-xl bg-white p-4 shadow-sm">
+      <div className="overflow-hidden rounded-xl bg-white p-4 shadow-sm">
         <p className="text-base font-medium text-[#101828]">
           Venue Name : <span className="text-base">{event.venueName || event.venue?.name || 'N/A'} </span>{' '}
         </p>
@@ -43,15 +43,14 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
             {event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : event.time || 'N/A'}
           </p>
         </div>
-        <div className="mt-3 h-55 w-full overflow-hidden rounded-lg bg-[#d9d9d9]">
+        <div className="relative mt-3 h-55 w-full overflow-hidden rounded-lg bg-[#d9d9d9]">
           {mapEmbedUrl ? (
             <iframe
               src={mapEmbedUrl}
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              loading="lazy"
               title="Venue Location"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="absolute inset-0 block h-full w-full border-0"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-gray-500">Map not available</div>
