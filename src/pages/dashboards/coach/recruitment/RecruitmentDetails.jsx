@@ -14,6 +14,12 @@ import BookingsTable from './components/BookingsTable';
 import RegisteredInterestTable from './components/RegisteredInterestTable';
 import EnquiriesTable from './components/EnquiriesTable';
 
+import {
+  formatScheduleDaysLabel,
+  formatScheduleTimeLine,
+  parseSchedulesFromService,
+} from '../../../../utils/sessionSchedules';
+
 const toArray = (value) => {
     if (Array.isArray(value)) return value;
     if (value === undefined || value === null) return [];
@@ -30,7 +36,12 @@ const toArray = (value) => {
     return text.split(',').map((part) => part.trim()).filter(Boolean);
 };
 
-const mapServiceToDetailsItem = (service) => ({
+const mapServiceToDetailsItem = (service) => {
+    const schedules = parseSchedulesFromService(service || {});
+    const scheduleDays = formatScheduleDaysLabel(schedules);
+    const scheduleTimes = formatScheduleTimeLine(schedules);
+
+    return {
     id: service?.id,
     title: service?.listingHeadline || service?.organizationName || service?.providerName || 'Untitled Service',
     coach: service?.provider?.name || service?.contactName || service?.providerName || 'N/A',
@@ -55,15 +66,16 @@ const mapServiceToDetailsItem = (service) => ({
     googleMapLink: service?.googleMapLink || '',
     postcode: service?.postcode || 'N/A',
     town: service?.city || 'N/A',
-    typicalSessionDays: service?.sessonDay || (Array.isArray(service?.availableDays) ? service.availableDays.join(', ') : service?.availableDays) || 'N/A',
-    day: service?.sessonDay || 'N/A',
-    sessionTime: service?.timeSlote || 'N/A',
-    time: service?.timeSlote || 'N/A',
+    typicalSessionDays: scheduleDays || service?.sessonDay || (Array.isArray(service?.availableDays) ? service.availableDays.join(', ') : service?.availableDays) || 'N/A',
+    day: scheduleDays || service?.sessonDay || 'N/A',
+    sessionTime: scheduleTimes || service?.timeSlote || 'N/A',
+    time: scheduleTimes || service?.timeSlote || 'N/A',
     bookingLink: service?.bookingLink || '',
     costMemebershipDetail: service?.costMemebershipDetail || '',
     status: service?.status || '',
     responseType: service?.responseType || (service?.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'INTERESTED' : 'REGISTER'),
-});
+};
+};
 
 const extractArray = (payload) => {
     if (!payload) return [];

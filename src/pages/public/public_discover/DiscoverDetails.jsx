@@ -12,6 +12,11 @@ import {
   pickImageSource,
   resolveImageUrl,
 } from '../../../utils/resolveImageUrl';
+import {
+  formatScheduleDaysLabel,
+  formatScheduleTimeLine,
+  parseSchedulesFromService,
+} from '../../../utils/sessionSchedules';
 
 const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
 
@@ -153,6 +158,9 @@ const DiscoverDetails = () => {
     const timeFrom = String(service.timeFrom || service.startTime || '').trim();
     const timeTo = String(service.timeTo || service.endTime || '').trim();
     const timeRange = timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : timeFrom || timeTo;
+    const schedules = parseSchedulesFromService(service);
+    const scheduleDays = formatScheduleDaysLabel(schedules);
+    const scheduleTimes = formatScheduleTimeLine(schedules);
 
     return {
       id: service.id,
@@ -174,8 +182,8 @@ const DiscoverDetails = () => {
       googleMapLink: service.googleMapLink || service.googleMapLinks || '',
       postcode: service.postcode || '',
       town: service.city || service.townCity || '',
-      day: service.sessonDay || formatList(service.availableDays),
-      time: service.timeSlote || timeRange || '',
+      day: scheduleDays || service.sessonDay || formatList(service.availableDays),
+      time: scheduleTimes || service.timeSlote || timeRange || '',
       sessionFrequency: service.sessionFrequency || '',
       image: service.logo || service.image || service.thumbnail || '',
       avatar: service.provider?.avatar || '',
@@ -674,7 +682,7 @@ const DiscoverDetails = () => {
 
                   {hasText(item.day) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">📅</span>
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">🗓️</span>
                       <span className="text-[#1A1D1F]">{item.day}</span>
                     </p>
                   ) : null}

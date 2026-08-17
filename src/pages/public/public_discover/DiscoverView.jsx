@@ -10,6 +10,11 @@ import { GET } from '../../../services/httpMethods';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner';
 import { fetchSportsCategories } from '../../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../../features/sportsCategories/sportsCategoriesSlice';
+import {
+  formatScheduleDaysLabel,
+  formatScheduleTimeLine,
+  parseSchedulesFromService,
+} from '../../../utils/sessionSchedules';
 
 const DISCOVER_API = '/api/services/by-role';
 
@@ -57,6 +62,9 @@ const toDiscoverItem = (service) => {
   const availableDays = Array.isArray(service?.availableDays)
     ? service.availableDays.filter(Boolean)
     : [];
+  const schedules = parseSchedulesFromService(service || {});
+  const scheduleDays = formatScheduleDaysLabel(schedules);
+  const scheduleTimes = formatScheduleTimeLine(schedules);
 
   return {
     id: service?.id,
@@ -65,8 +73,8 @@ const toDiscoverItem = (service) => {
     type: sessionTypes[0] || 'Training',
     sport: sports[0] || 'Others',
     sports,
-    day: service?.sessonDay || availableDays.join(', ') || 'Schedule not specified',
-    time: service?.timeSlote || 'Time not specified',
+    day: scheduleDays || service?.sessonDay || availableDays.join(', ') || 'Schedule not specified',
+    time: scheduleTimes || service?.timeSlote || 'Time not specified',
     location: service?.clinicName || service?.location || service?.city || 'Location not specified',
     summary: 'Login to see contact details & ability requirements',
     image: service?.logo || service?.provider?.avatar || '',

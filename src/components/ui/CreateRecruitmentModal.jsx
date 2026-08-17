@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { createService, updateService } from '../../features/service/serviceApi';
 import { selectCreateLoading } from '../../features/service/serviceSlice';
@@ -9,6 +9,12 @@ import { selectAuthUser } from '../../features/auth/authSlice';
 import { fetchSportsCategories } from '../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
 import { GET } from '../../services/httpMethods';
+import {
+  buildSchedulePayload,
+  createEmptySchedule,
+  isEndAfterStart,
+  parseSchedulesFromService,
+} from '../../utils/sessionSchedules';
 
 const sessionTypeOptions = ['Training', 'Coaching', 'Social Play','Other'];
 
@@ -121,6 +127,7 @@ const createInitialForm = () => ({
   googleMapLink: '',
   sessonDay: '',
   sessionFrequency: '',
+  sessionSchedules: [createEmptySchedule()],
   sessionDescription: '',
   costMembershipDetail: '',
   listingImage: null,
@@ -345,7 +352,8 @@ const mapInitialDataToForm = (initialData) => {
   );
   const customSports = mergedSports.filter((sport) => !sportOptions.includes(sport));
   const womenOnlyValue = initialData?.womenOnly;
-  const timeRange = toTimeRangeInputValue(initialData?.timeSlote || initialData?.timeSlots);
+  const schedules = parseSchedulesFromService(initialData);
+  const firstSchedule = schedules[0] || createEmptySchedule();
 
   return {
     ...createInitialForm(),
@@ -370,6 +378,7 @@ const mapInitialDataToForm = (initialData) => {
     sessionType: toArray(initialData?.sessionType || initialData?.sessionTypes)[0] || '',
     sessionTypes: toArray(initialData?.sessionType || initialData?.sessionTypes),
     sessionFrequency: initialData?.sessionFrequency || '',
+    sessionSchedules: schedules.length > 0 ? schedules : [createEmptySchedule()],
     costMembershipDetail: initialData?.costMemebershipDetail || '',
     suitableFor: toArray(initialData?.suitableFor),
     womensOnly:
@@ -383,15 +392,10 @@ const mapInitialDataToForm = (initialData) => {
     postcode: initialData?.postcode || '',
     townCity: initialData?.city || initialData?.townCity || '',
     googleMapLink: initialData?.googleMapLink || initialData?.googleMapLinks || '',
-    sessonDay:
-      initialData?.sessonDay ||
-      (Array.isArray(initialData?.availableDays)
-        ? initialData.availableDays.join(', ')
-        : initialData?.availableDays) ||
-      '',
+    sessonDay: firstSchedule.day || '',
     dateDay: toDateInputValue(initialData?.date || initialData?.dateDay),
-    timeFrom: timeRange.timeFrom,
-    timeTo: timeRange.timeTo,
+    timeFrom: firstSchedule.startTime || '',
+    timeTo: firstSchedule.endTime || '',
     bookingLink: initialData?.bookingLink || '',
     listingHeadline: initialData?.listingHeadline || initialData?.title || '',
     professionalRegistration:
@@ -555,6 +559,44 @@ const CreateRecruitmentModal = ({
 
   const handleChange = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
+  const handleScheduleChange = (scheduleId, field, value) => {
+    setForm((prev) => ({
+      ...prev,
+      sessionSchedules: (prev.sessionSchedules || []).map((row) =>
+        row.id === scheduleId ? { ...row, [field]: value } : row
+      ),
+    }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.sessionSchedules;
+      delete next[`schedule-${scheduleId}-day`];
+      delete next[`schedule-${scheduleId}-startTime`];
+      delete next[`schedule-${scheduleId}-endTime`];
+      delete next[`schedule-${scheduleId}-range`];
+      return next;
+    });
+  };
+
+  const handleAddSchedule = () => {
+    setForm((prev) => ({
+      ...prev,
+      sessionSchedules: [...(prev.sessionSchedules || []), createEmptySchedule()],
+    }));
+  };
+
+  const handleRemoveSchedule = (scheduleId) => {
+    setForm((prev) => {
+      const rows = prev.sessionSchedules || [];
+      if (rows.length <= 1) {
+        return { ...prev, sessionSchedules: [createEmptySchedule()] };
+      }
+      return {
+        ...prev,
+        sessionSchedules: rows.filter((row) => row.id !== scheduleId),
+      };
+    });
+  };
+
   const toggleArrayField = (field, value) => {
     setForm((s) => {
       const arr = s[field] || [];
@@ -613,17 +655,27 @@ const CreateRecruitmentModal = ({
       user?.providerPhone ||
       '';
     const providerEmail = user?.email || user?.providerEmail || '';
-    const sessionDay = String(form.sessonDay || '').trim();
-    const normalizedAvailableDays = normalizeArray(toArray(form.sessonDay));
+    const schedulePayload = isProvider
+      ? {
+          schedules: [],
+          availableDays: [],
+          sessonDay: '',
+          timeFrom: '',
+          timeTo: '',
+          timeSlote: '',
+        }
+      : buildSchedulePayload(form.sessionSchedules || []);
+    const sessionDay = schedulePayload.sessonDay;
+    const normalizedAvailableDays = schedulePayload.availableDays;
     const dateValue = String(form.dateDay || '').trim();
-    let timeFrom = String(form.timeFrom || '').trim();
-    let timeTo = String(form.timeTo || '').trim();
+    let timeFrom = schedulePayload.timeFrom;
+    let timeTo = schedulePayload.timeTo;
     // Provider form has no time fields, but API requires startTime/endTime.
     if (isProvider) {
       if (!timeFrom) timeFrom = '09:00';
       if (!timeTo) timeTo = '17:00';
     }
-    const timeSlot = timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '';
+    const timeSlot = schedulePayload.timeSlote || (timeFrom && timeTo ? `${timeFrom} - ${timeTo}` : '');
     const fullAddress = [form.venueName, form.addressLine1, form.townCity, form.postcode]
       .map((item) => String(item || '').trim())
       .filter(Boolean)
@@ -648,12 +700,33 @@ const CreateRecruitmentModal = ({
       if (!form.womensOnly) newErrors.womensOnly = true;
       if (!String(form.townCity || '').trim()) newErrors.townCity = true;
       if (!String(form.postcode || '').trim()) newErrors.postcode = true;
-      if (!sessionDay) newErrors.sessonDay = true;
-      if (!timeFrom) newErrors.timeFrom = true;
-      if (!timeTo) newErrors.timeTo = true;
       if (!String(form.sessionFrequency || '').trim()) newErrors.sessionFrequency = true;
       if (!String(form.costMembershipDetail || '').trim()) newErrors.costMembershipDetail = true;
       if (!serviceDescription) newErrors.sessionDescription = true;
+
+      const scheduleRows = form.sessionSchedules || [];
+      const filledRows = scheduleRows.filter(
+        (row) =>
+          String(row.day || '').trim() ||
+          String(row.startTime || '').trim() ||
+          String(row.endTime || '').trim()
+      );
+
+      if (filledRows.length === 0) {
+        newErrors.sessionSchedules = true;
+      }
+
+      filledRows.forEach((row) => {
+        const day = String(row.day || '').trim();
+        const start = String(row.startTime || '').trim();
+        const end = String(row.endTime || '').trim();
+        if (!day) newErrors[`schedule-${row.id}-day`] = true;
+        if (!start) newErrors[`schedule-${row.id}-startTime`] = true;
+        if (!end) newErrors[`schedule-${row.id}-endTime`] = true;
+        if (day && start && end && !isEndAfterStart(start, end)) {
+          newErrors[`schedule-${row.id}-range`] = true;
+        }
+      });
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -673,15 +746,19 @@ const CreateRecruitmentModal = ({
       if (newErrors.womensOnly) messages.push('Who can take part');
       if (newErrors.townCity) messages.push(isProvider ? 'Town/City' : 'Town/Area');
       if (newErrors.postcode) messages.push('Postcode');
-      if (newErrors.sessonDay) messages.push('Day');
-      if (newErrors.timeFrom) messages.push('Start time');
-      if (newErrors.timeTo) messages.push('End time');
+      if (newErrors.sessionSchedules) messages.push('Day / time');
+      if (Object.keys(newErrors).some((key) => key.endsWith('-day'))) messages.push('Day');
+      if (Object.keys(newErrors).some((key) => key.endsWith('-startTime'))) messages.push('Start time');
+      if (Object.keys(newErrors).some((key) => key.endsWith('-endTime'))) messages.push('End time');
+      if (Object.keys(newErrors).some((key) => key.endsWith('-range'))) {
+        messages.push('End time must be later than Start time');
+      }
       if (newErrors.sessionFrequency) messages.push('How often does it run');
       if (newErrors.costMembershipDetail) messages.push('Cost or membership');
       if (newErrors.sessionDescription) {
         messages.push(isProvider ? 'About your service' : 'Session description');
       }
-      toast.error(`Required: ${messages.join(', ')}`);
+      toast.error(`Required: ${[...new Set(messages)].join(', ')}`);
       return;
     }
     setErrors({});
@@ -698,6 +775,7 @@ const CreateRecruitmentModal = ({
         providerType: [providerServiceType || form.role || ''],
         sessionTypes: normalizedSessionTypes,
         availableDays: normalizedAvailableDays,
+        sessionSchedules: JSON.stringify(schedulePayload.schedules),
         organizationName: String(form.organisationName || '').trim() || serviceTitle,
         role: form.role,
         description: serviceDescription,
@@ -723,6 +801,7 @@ const CreateRecruitmentModal = ({
         startTime: timeFrom,
         endTime: timeTo,
         timeSlote: timeSlot,
+        timeSlots: JSON.stringify(schedulePayload.schedules),
         sessionFrequency: String(form.sessionFrequency || '').trim(),
         costMemebershipDetail: String(form.costMembershipDetail || '').trim(),
         aboutOrganization: orgAbout,
@@ -791,6 +870,10 @@ const CreateRecruitmentModal = ({
       appendArrayField(payload, 'providerType', [providerServiceType || form.role || '']);
       appendArrayField(payload, 'sessionTypes', normalizedSessionTypes);
       appendArrayField(payload, 'availableDays', normalizedAvailableDays);
+      if (!isProvider && schedulePayload.schedules.length > 0) {
+        appendIfPresent(payload, 'sessionSchedules', JSON.stringify(schedulePayload.schedules));
+        appendIfPresent(payload, 'timeSlots', JSON.stringify(schedulePayload.schedules));
+      }
       payload.append('title', isProvider ? form.listingHeadline || serviceTitle : serviceTitle);
       payload.append('description', serviceDescription);
       payload.append(
@@ -871,9 +954,9 @@ const CreateRecruitmentModal = ({
 
   const errorClass = 'mt-1 text-sm text-red-200';
   const selectedSport = (form.sports || [])[0] || '';
-  const sessionDayValue = DAY_OPTIONS.includes(form.sessonDay)
-    ? form.sessonDay
-    : String(form.sessonDay || '').split(',')[0]?.trim() || form.sessonDay;
+  const sessionSchedules = form.sessionSchedules?.length
+    ? form.sessionSchedules
+    : [createEmptySchedule()];
 
   if (!isOpen) return null;
 
@@ -1525,50 +1608,98 @@ const CreateRecruitmentModal = ({
                     {errors.postcode && <p className={errorClass}>Required</p>}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div>
-                    <label className={labelClass}>Day *</label>
-                    <select
-                      className={fieldClass}
-                      value={sessionDayValue}
-                      onChange={(e) => {
-                        handleChange('sessonDay', e.target.value);
-                        setErrors((prev) => ({ ...prev, sessonDay: false }));
-                      }}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-white">Day & time *</p>
+                    {errors.sessionSchedules ? (
+                      <p className="text-sm text-red-200">Add at least one day and time</p>
+                    ) : null}
+                  </div>
+
+                  {sessionSchedules.map((row, index) => (
+                    <div
+                      key={row.id}
+                      className="rounded-lg border border-white/15 bg-white/5 p-3"
                     >
-                      <option value="">Select day</option>
-                      {DAY_OPTIONS.map((day) => (
-                        <option key={day} value={day}>{day}</option>
-                      ))}
-                    </select>
-                    {errors.sessonDay && <p className={errorClass}>Required</p>}
-                  </div>
-                  <div>
-                    <label className={labelClass}>Start time *</label>
-                    <input
-                      type="time"
-                      className={fieldClass}
-                      value={form.timeFrom}
-                      onChange={(e) => {
-                        handleChange('timeFrom', e.target.value);
-                        setErrors((prev) => ({ ...prev, timeFrom: false }));
-                      }}
-                    />
-                    {errors.timeFrom && <p className={errorClass}>Required</p>}
-                  </div>
-                  <div>
-                    <label className={labelClass}>End time *</label>
-                    <input
-                      type="time"
-                      className={fieldClass}
-                      value={form.timeTo}
-                      onChange={(e) => {
-                        handleChange('timeTo', e.target.value);
-                        setErrors((prev) => ({ ...prev, timeTo: false }));
-                      }}
-                    />
-                    {errors.timeTo && <p className={errorClass}>Required</p>}
-                  </div>
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
+                          {index === 0 ? 'Session time' : `Session time ${index + 1}`}
+                        </p>
+                        {sessionSchedules.length > 1 ? (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSchedule(row.id)}
+                            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-white/90 hover:bg-white/10"
+                            aria-label="Remove day/time"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Remove
+                          </button>
+                        ) : null}
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div>
+                          <label className={labelClass}>Day *</label>
+                          <select
+                            className={fieldClass}
+                            value={row.day}
+                            onChange={(e) => handleScheduleChange(row.id, 'day', e.target.value)}
+                          >
+                            <option value="">Select day</option>
+                            {DAY_OPTIONS.map((day) => (
+                              <option key={day} value={day}>
+                                {day}
+                              </option>
+                            ))}
+                          </select>
+                          {errors[`schedule-${row.id}-day`] ? (
+                            <p className={errorClass}>Required</p>
+                          ) : null}
+                        </div>
+                        <div>
+                          <label className={labelClass}>Start time *</label>
+                          <input
+                            type="time"
+                            className={fieldClass}
+                            value={row.startTime}
+                            onChange={(e) =>
+                              handleScheduleChange(row.id, 'startTime', e.target.value)
+                            }
+                          />
+                          {errors[`schedule-${row.id}-startTime`] ? (
+                            <p className={errorClass}>Required</p>
+                          ) : null}
+                        </div>
+                        <div>
+                          <label className={labelClass}>End time *</label>
+                          <input
+                            type="time"
+                            className={fieldClass}
+                            value={row.endTime}
+                            onChange={(e) =>
+                              handleScheduleChange(row.id, 'endTime', e.target.value)
+                            }
+                          />
+                          {errors[`schedule-${row.id}-endTime`] ? (
+                            <p className={errorClass}>Required</p>
+                          ) : null}
+                          {errors[`schedule-${row.id}-range`] ? (
+                            <p className={errorClass}>End time must be later than Start time</p>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={handleAddSchedule}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-white/40 bg-white/5 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10 sm:w-auto"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add another day/time
+                  </button>
                 </div>
                 <div>
                   <label className={labelClass}>How often does it run? *</label>

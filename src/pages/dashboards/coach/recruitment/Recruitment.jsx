@@ -10,6 +10,11 @@ import {
   selectProviderServices,
   selectProviderServicesLoading,
 } from '../../../../features/service/serviceSlice';
+import {
+  formatScheduleDaysLabel,
+  formatScheduleTimeLine,
+  parseSchedulesFromService,
+} from '../../../../utils/sessionSchedules';
 
 const Recruitment = () => {
   const dispatch = useDispatch();
@@ -28,14 +33,20 @@ const Recruitment = () => {
 
   const items = useMemo(
     () =>
-      (Array.isArray(providerServices) ? providerServices : []).map((service) => ({
-        ...service,
-        image: service.logo || service.image || null,
-        location:
-          service.fullAddress || service.location || service.city || service.addressLine1 || 'N/A',
-        days: service.availableDays || 'N/A',
-        time: service.timeSlots || service.timeSlote || 'N/A',
-      })),
+      (Array.isArray(providerServices) ? providerServices : []).map((service) => {
+        const schedules = parseSchedulesFromService(service);
+        const scheduleDays = formatScheduleDaysLabel(schedules);
+        const scheduleTimes = formatScheduleTimeLine(schedules);
+
+        return {
+          ...service,
+          image: service.logo || service.image || null,
+          location:
+            service.fullAddress || service.location || service.city || service.addressLine1 || 'N/A',
+          days: scheduleDays || service.availableDays || 'N/A',
+          time: scheduleTimes || service.timeSlots || service.timeSlote || 'N/A',
+        };
+      }),
     [providerServices]
   );
 
