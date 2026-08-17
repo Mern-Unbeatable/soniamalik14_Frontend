@@ -20,9 +20,37 @@ import {
   Mail,
   Phone,
   CheckCircle2,
+  ExternalLink,
+  Building2,
+  MapPin,
+  Link2,
 } from 'lucide-react';
+import {
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../utils/resolveImageUrl';
 
-const DUMMY_IMAGE = '/dummy-image.png';
+const DUMMY_IMAGE = '/service-placeholder.png';
+
+const hasValue = (value) => {
+  if (typeof value === 'boolean') return true;
+  return String(value || '').trim().length > 0 && String(value).trim().toLowerCase() !== 'n/a';
+};
+
+const formatListValue = (value) => {
+  if (Array.isArray(value)) {
+    const normalized = value.map((item) => String(item || '').trim()).filter(Boolean);
+    return normalized.length > 0 ? normalized.join(', ') : '';
+  }
+  return String(value || '').trim();
+};
+
+const buildGoogleMapsSearchUrl = (query) => {
+  const normalized = String(query || '').trim();
+  if (!normalized || normalized.toLowerCase() === 'n/a') return '';
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
+};
 
 /* ─── Registration Confirmation Modal ──────────────────────────────────────── */
 const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, loading }) => {
@@ -303,33 +331,102 @@ const ServiceDetails = () => {
     }
   };
 
-  const displayData = {
-    title: item?.listingHeadline || item?.title,
-    coach: item?.contactName || item?.provider?.name || item?.providerName,
-    avatar: item?.logo || item?.image,
-    description: item?.aboutService || item?.description,
-    clinicName: item?.clinicName,
-    addressLine1: item?.addressLine1,
-    townCity: item?.city,
-    postcode: item?.postcode,
-    profession:
-      Array.isArray(item?.providerType) && item.providerType.length > 0
-        ? item.providerType.join(', ')
-        : item?.role || item?.profession || '—',
-    sessionType:
-      Array.isArray(item?.sessionTypes) && item.sessionTypes.length > 0
-        ? item.sessionTypes.join(', ')
-        : item?.sessionType || '—',
-    sport:
-      Array.isArray(item?.sports) && item.sports.length > 0
-        ? item.sports.join(', ')
-        : item?.sport || '—',
-    professionalRegistration: item?.professionalRegistration || item?.registration,
-    insurance:
-      item?.insuranceInPlace === true ? 'Yes' : item?.insuranceInPlace === false ? 'No' : item?.insurance,
-    cost: item?.costMemebershipDetail || '',
-    participantResponseType: item?.participantResponseType || 'ADD_BOOKING_LINK',
-  };
+  const displayData = (() => {
+    if (!item) {
+      return {
+        title: '',
+        coach: '',
+        avatar: '',
+        description: '',
+        clinicName: '',
+        listingHeadline: '',
+        organizationName: '',
+        fullAddress: '',
+        townCity: '',
+        postcode: '',
+        addressMapsUrl: '',
+        townCityMapsUrl: '',
+        postcodeMapsUrl: '',
+        profession: '',
+        sessionType: '',
+        sport: '',
+        suitableFor: '',
+        professionalRegistration: '',
+        bookingLink: '',
+        insurance: '',
+        cost: '',
+      };
+    }
+
+    const fullAddress = String(
+      item.fullAddress || item.addressLine1 || item.location || ''
+    ).trim();
+    const townCity = String(item.city || item.town || '').trim();
+    const postcode = String(item.postcode || '').trim();
+    const listingHeadline = String(item.listingHeadline || '').trim();
+    const organizationName = String(item.organizationName || '').trim();
+    const bookingLink = String(item.bookingLink || '').trim();
+
+    return {
+      title: listingHeadline || organizationName || item.title || '',
+      coach: item.contactName || item.provider?.name || item.providerName || '',
+      avatar: resolveImageUrl(
+        pickImageSource(item.logo, item.image, item.provider?.avatar),
+        DUMMY_IMAGE
+      ),
+      description: item.aboutService || item.description || '',
+      clinicName: String(item.clinicName || '').trim(),
+      listingHeadline,
+      organizationName,
+      fullAddress,
+      townCity,
+      postcode,
+      addressMapsUrl: buildGoogleMapsSearchUrl(fullAddress),
+      townCityMapsUrl: buildGoogleMapsSearchUrl(townCity),
+      postcodeMapsUrl: buildGoogleMapsSearchUrl(postcode),
+      profession: formatListValue(
+        Array.isArray(item.providerType) && item.providerType.length > 0
+          ? item.providerType
+          : item.role || item.profession
+      ),
+      sessionType: formatListValue(
+        Array.isArray(item.sessionTypes) && item.sessionTypes.length > 0
+          ? item.sessionTypes
+          : item.sessionType
+      ),
+      sport: formatListValue(
+        Array.isArray(item.sports) && item.sports.length > 0 ? item.sports : item.sport
+      ),
+      suitableFor: formatListValue(item.suitableFor),
+      professionalRegistration: String(
+        item.professionalRegistration || item.registration || ''
+      ).trim(),
+      bookingLink,
+      insurance:
+        item.insuranceInPlace === true
+          ? 'Yes'
+          : item.insuranceInPlace === false
+            ? 'No'
+            : String(item.insurance || '').trim(),
+      cost: String(item.costMemebershipDetail || item.costMembershipDetail || '').trim(),
+    };
+  })();
+
+  const overviewHasContent =
+    hasValue(displayData.clinicName) ||
+    hasValue(displayData.listingHeadline) ||
+    hasValue(displayData.organizationName) ||
+    hasValue(displayData.fullAddress) ||
+    hasValue(displayData.townCity) ||
+    hasValue(displayData.postcode) ||
+    hasValue(displayData.profession) ||
+    hasValue(displayData.sessionType) ||
+    hasValue(displayData.sport) ||
+    hasValue(displayData.suitableFor) ||
+    hasValue(displayData.professionalRegistration) ||
+    hasValue(displayData.bookingLink) ||
+    hasValue(displayData.insurance) ||
+    hasValue(displayData.cost);
 
   return (
     <>
@@ -365,62 +462,195 @@ const ServiceDetails = () => {
                     <img
                       src={displayData.avatar || DUMMY_IMAGE}
                       alt={displayData.coach || 'Service'}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = DUMMY_IMAGE;
-                      }}
+                      onError={(e) => handleImageLoadError(e, DUMMY_IMAGE)}
                       className="w-[72px] h-[72px] rounded-full object-cover shadow-sm bg-gray-200"
                     />
                     <div>
                       <h1 className="text-[24px] md:text-3xl font-semibold text-[#0B544E] leading-tight">
-                        {displayData.title}
+                        {displayData.title || 'Service'}
                       </h1>
-                      <p className="text-[#4A5565] text-base mt-1">
-                        Coach: <span className="font-semibold text-[#1A1D1F]">{displayData.coach}</span>
-                      </p>
+                      {hasValue(displayData.coach) ? (
+                        <p className="text-[#4A5565] text-base mt-1">
+                          Coach: <span className="font-semibold text-[#1A1D1F]">{displayData.coach}</span>
+                        </p>
+                      ) : null}
                     </div>
                   </div>
 
                   {/* About */}
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-                    <h3 className="font-bold text-[#1A1D1F] text-lg md:text-xl mb-3">About This Service</h3>
-                    <p className="text-[#4A5565] text-[15px] leading-relaxed">{displayData.description}</p>
-                  </div>
+                  {hasValue(displayData.description) ? (
+                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+                      <h3 className="font-bold text-[#1A1D1F] text-lg md:text-xl mb-3">About This Service</h3>
+                      <p className="text-[#4A5565] text-[15px] leading-relaxed">{displayData.description}</p>
+                    </div>
+                  ) : null}
 
                   {/* Service Overview */}
-                  <h3 className="font-bold text-[#1A1D1F] text-xl mb-4">Service Overview</h3>
-                  <div className="mb-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:p-6">
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                      <div className="flex flex-col gap-2.5">
-                        <div className="flex items-start gap-4 rounded-xl bg-[#F8FAFC] p-3.5 border border-[#ECF1F4]">
-                          <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center shrink-0">
-                            <Hospital className="w-5 h-5 text-[#147B6B]" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-base text-[#1A1D1F] font-semibold mb-1">{displayData.clinicName}</p>
-                            <p className="text-base text-[#4A5565]">
-                              {[displayData.addressLine1, displayData.townCity, displayData.postcode]
-                                .filter(Boolean)
-                                .join(', ')}
-                            </p>
-                          </div>
-                        </div>
-                        <OverviewRow icon={FileCheck} label="Professional registration / qualifications." value={displayData.professionalRegistration} />
-                        <OverviewRow icon={ShieldCheck} label="Insurance in place" value={displayData.insurance} />
-                      </div>
+                  {overviewHasContent ? (
+                    <>
+                      <h3 className="mb-4 text-xl font-bold text-[#1A1D1F]">Service Overview</h3>
+                      <div className="mb-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:p-6">
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+                          {hasValue(displayData.clinicName) ? (
+                            <OverviewRow icon={Hospital} label="Clinic Name" value={displayData.clinicName} />
+                          ) : null}
 
-                      <div>
-                        <div className="space-y-3">
-                          <OverviewRow icon={BriefcaseMedical} label="Service type" value={displayData.profession} />
-                          <OverviewRow icon={Target} label="Delivery type" value={displayData.sessionType} />
-                          <OverviewRow icon={Medal} label="Sports supported" value={displayData.sport} />
-                          {displayData.cost ? (
-                            <OverviewRow icon={CircleDollarSign} label="Cost" value={displayData.cost} />
+                          {hasValue(displayData.listingHeadline) ? (
+                            <OverviewRow
+                              icon={Building2}
+                              label="Listing Headline"
+                              value={displayData.listingHeadline}
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.organizationName) ? (
+                            <OverviewRow
+                              icon={Building2}
+                              label="Organization Name"
+                              value={displayData.organizationName}
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.fullAddress) ? (
+                            <OverviewRow
+                              icon={MapPin}
+                              label="Address"
+                              value={
+                                displayData.addressMapsUrl ? (
+                                  <a
+                                    href={displayData.addressMapsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#0F766E] underline-offset-2 hover:underline"
+                                  >
+                                    {displayData.fullAddress}
+                                  </a>
+                                ) : (
+                                  displayData.fullAddress
+                                )
+                              }
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.townCity) ? (
+                            <OverviewRow
+                              icon={MapPin}
+                              label="Town/City"
+                              value={
+                                displayData.townCityMapsUrl ? (
+                                  <a
+                                    href={displayData.townCityMapsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#0F766E] underline-offset-2 hover:underline"
+                                  >
+                                    {displayData.townCity}
+                                  </a>
+                                ) : (
+                                  displayData.townCity
+                                )
+                              }
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.postcode) ? (
+                            <OverviewRow
+                              icon={MapPin}
+                              label="Postcode"
+                              value={
+                                displayData.postcodeMapsUrl ? (
+                                  <a
+                                    href={displayData.postcodeMapsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#0F766E] underline-offset-2 hover:underline"
+                                  >
+                                    {displayData.postcode}
+                                  </a>
+                                ) : (
+                                  displayData.postcode
+                                )
+                              }
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.profession) ? (
+                            <OverviewRow
+                              icon={BriefcaseMedical}
+                              label="Service type"
+                              value={displayData.profession}
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.sessionType) ? (
+                            <OverviewRow
+                              icon={Target}
+                              label="Delivery type"
+                              value={displayData.sessionType}
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.sport) ? (
+                            <OverviewRow
+                              icon={Medal}
+                              label="Sports supported"
+                              value={displayData.sport}
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.suitableFor) ? (
+                            <OverviewRow
+                              icon={Target}
+                              label="Suitable for"
+                              value={displayData.suitableFor}
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.cost) ? (
+                            <OverviewRow
+                              icon={CircleDollarSign}
+                              label="Cost / membership"
+                              value={displayData.cost}
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.professionalRegistration) ? (
+                            <OverviewRow
+                              icon={FileCheck}
+                              label="Professional registration / qualifications."
+                              value={displayData.professionalRegistration}
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.bookingLink) ? (
+                            <OverviewRow
+                              icon={Link2}
+                              label="Booking Link"
+                              value={
+                                <a
+                                  href={displayData.bookingLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-start gap-1.5 break-all text-[#0F766E] underline-offset-2 hover:underline"
+                                >
+                                  <span>{displayData.bookingLink}</span>
+                                  <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                                </a>
+                              }
+                            />
+                          ) : null}
+
+                          {hasValue(displayData.insurance) ? (
+                            <OverviewRow
+                              icon={ShieldCheck}
+                              label="Insurance in place"
+                              value={displayData.insurance}
+                            />
                           ) : null}
                         </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  ) : null}
 
                   {/* CTA Buttons */}
                   <div className="flex flex-wrap gap-3">
@@ -483,13 +713,13 @@ const ServiceDetails = () => {
 const OverviewRow = ({ icon, label, value }) => {
   const IconComponent = icon;
   return (
-    <div className="flex items-start gap-4 rounded-xl bg-[#F8FAFC] p-3.5 border border-[#ECF1F4]">
-      <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center shrink-0">
-        {React.createElement(IconComponent, { className: 'w-5 h-5 text-[#147B6B]' })}
+    <div className="flex h-full items-start gap-4 rounded-xl border border-[#ECF1F4] bg-[#F8FAFC] p-3.5">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EAF2F1]">
+        {React.createElement(IconComponent, { className: 'h-5 w-5 text-[#147B6B]' })}
       </div>
-      <div className="min-w-0">
-        <p className="text-base text-[#1A1D1F] font-semibold mb-0.5">{label}</p>
-        <p className="text-base text-[#4A5565] wrap-break-word">{value}</p>
+      <div className="min-w-0 flex-1">
+        <p className="mb-0.5 text-base font-semibold text-[#1A1D1F]">{label}</p>
+        <div className="wrap-break-word text-base text-[#4A5565]">{value}</div>
       </div>
     </div>
   );

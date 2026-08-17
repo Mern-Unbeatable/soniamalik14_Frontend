@@ -63,7 +63,7 @@ const mapServiceToViewModel = (service) => {
             : 'No'
           : service?.insuranceInPlace || 'N/A',
     },
-    bookingLink: service?.bookingLink || '',
+    shareLink: service?.shareLink || '',
     status: service?.status || '',
     bookings: Array.isArray(service?.bookings) ? service.bookings : [],
     enquiries: Array.isArray(service?.messages) ? service.messages : [],
@@ -93,8 +93,8 @@ const AddListingDetails = () => {
   };
 
   const handleCopy = () => {
-    if (item?.bookingLink) {
-      navigator.clipboard.writeText(item.bookingLink);
+    if (item?.shareLink) {
+      navigator.clipboard.writeText(item.shareLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -253,7 +253,7 @@ const AddListingDetails = () => {
                 </p>
               </div>
 
-              {item?.bookingLink && (
+              {item?.shareLink && (
                 <div className="mt-4 bg-[#FFFFFF] rounded-xl p-5 shadow-sm border border-gray-100">
                   <h3 className="text-lg font-bold text-[#1A1D1F]">Share this listing.</h3>
                   {item?.status === 'PENDING_APPROVAL' || item?.status === 'PENDING' ? (
@@ -267,12 +267,12 @@ const AddListingDetails = () => {
                       </p>
                       <div className="flex items-center gap-3 w-full">
                         <a
-                          href={item.bookingLink}
+                          href={item.shareLink}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex-1 text-[#0F766E] font-medium hover:underline text-sm md:text-base break-all block font-mono bg-gray-50 p-3 rounded-lg border border-gray-200"
                         >
-                          {item.bookingLink}
+                          {item.shareLink}
                         </a>
                         <button
                           type="button"

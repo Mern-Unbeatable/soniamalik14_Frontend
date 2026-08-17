@@ -33,10 +33,39 @@ const normalizeStatus = (service) => {
 const formatListValue = (value) => {
     if (Array.isArray(value)) {
         const normalized = value.map((item) => String(item || '').trim()).filter(Boolean);
-        return normalized.length > 0 ? normalized.join(', ') : 'N/A';
+        return normalized.length > 0 ? normalized.join(', ') : '';
     }
-    const text = String(value || '').trim();
-    return text || 'N/A';
+    return String(value || '').trim();
+};
+
+const hasValue = (value) => {
+    if (typeof value === 'boolean') return true;
+    return String(value || '').trim().length > 0 && String(value).trim().toLowerCase() !== 'n/a';
+};
+
+const DetailRow = ({ label, children }) => (
+    <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
+        <span className="font-semibold text-gray-900">{label}</span>
+        <div className="text-gray-700 min-w-0">{children}</div>
+    </div>
+);
+
+const MapsLink = ({ href, label, children }) => {
+    if (!href) {
+        return <span>{children}</span>;
+    }
+
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-700 underline-offset-2 hover:text-[#0F766E] hover:underline"
+            aria-label={`Open ${label} in Google Maps`}
+        >
+            {children}
+        </a>
+    );
 };
 
 const resolveResponseType = (service) => {
@@ -117,9 +146,29 @@ const ServiceProviderListingDetails = () => {
         const suitableFor = Array.isArray(service?.suitableFor) ? service.suitableFor : [];
         const responseType = resolveResponseType(service);
 
+        const fullAddress = String(
+            service?.fullAddress || service?.location || service?.addressLine1 || ''
+        ).trim();
+        const townCity = String(service?.city || service?.town || '').trim();
+        const postcode = String(service?.postcode || '').trim();
+        const listingHeadline = String(service?.listingHeadline || '').trim();
+        const organizationName = String(service?.organizationName || '').trim();
+        const bookingLink = String(service?.bookingLink || '').trim();
+        const professionalRegistration = String(service?.professionalRegistration || '').trim();
+        const primaryProfession = formatListValue(
+            service?.role ||
+                (Array.isArray(service?.providerType)
+                    ? service.providerType
+                    : service?.providerType)
+        );
+
         return {
             id: service?.id,
-            listing: service?.listingHeadline || service?.organizationName || service?.providerName || 'Untitled Listing',
+            listing:
+                listingHeadline ||
+                organizationName ||
+                service?.providerName ||
+                'Untitled Listing',
             coach: service?.contactName || service?.provider?.name || service?.providerName || 'N/A',
             providerEmail:
                 service?.providerEmail || service?.provider?.email || 'N/A',
@@ -132,22 +181,16 @@ const ServiceProviderListingDetails = () => {
             engagement: null,
             avatar: resolveImageUrl(pickImageSource(service?.provider?.avatar), SERVICE_AVATAR_PLACEHOLDER),
             about: service?.aboutService || service?.description || 'No service details available.',
-            clinicName: service?.clinicName || 'N/A',
-            location:
-                service?.location ||
-                service?.fullAddress ||
-                service?.addressLine1 ||
-                'N/A',
-            townCity: service?.city || service?.clinicName || 'N/A',
-            postcode: service?.postcode || 'N/A',
-            addressMapsUrl: buildGoogleMapsSearchUrl(
-                service?.location || service?.fullAddress || service?.addressLine1
-            ),
-            townCityMapsUrl: buildGoogleMapsSearchUrl(service?.city || service?.clinicName),
-            primaryProfession:
-                service?.role ||
-                (Array.isArray(service?.providerType) ? service.providerType.join(', ') : service?.providerType) ||
-                'N/A',
+            clinicName: String(service?.clinicName || '').trim(),
+            listingHeadline,
+            organizationName,
+            fullAddress,
+            townCity,
+            postcode,
+            addressMapsUrl: buildGoogleMapsSearchUrl(fullAddress),
+            townCityMapsUrl: buildGoogleMapsSearchUrl(townCity),
+            postcodeMapsUrl: buildGoogleMapsSearchUrl(postcode),
+            primaryProfession,
             sessionTypes: formatListValue(sessionTypes),
             sports: formatListValue(sports),
             suitableFor: formatListValue(suitableFor),
@@ -159,15 +202,17 @@ const ServiceProviderListingDetails = () => {
                             : 'Mixed, women welcome'
                         : '')
             ),
-            costMemebershipDetail:
-                service?.costMemebershipDetail || service?.costMembershipDetail || 'N/A',
-            professionalRegistration: service?.professionalRegistration || 'N/A',
+            costMemebershipDetail: String(
+                service?.costMemebershipDetail || service?.costMembershipDetail || ''
+            ).trim(),
+            professionalRegistration,
+            bookingLink,
             insuranceInPlace:
                 typeof service?.insuranceInPlace === 'boolean'
                     ? service.insuranceInPlace
                         ? 'Yes'
                         : 'No'
-                    : 'N/A',
+                    : '',
             responseType,
         };
     }, [service]);
@@ -291,83 +336,105 @@ const ServiceProviderListingDetails = () => {
                 </div>
 
                 {/* Service Details List */}
+                {(hasValue(data.clinicName) ||
+                    hasValue(data.listingHeadline) ||
+                    hasValue(data.organizationName) ||
+                    hasValue(data.fullAddress) ||
+                    hasValue(data.townCity) ||
+                    hasValue(data.postcode) ||
+                    hasValue(data.primaryProfession) ||
+                    hasValue(data.sessionTypes) ||
+                    hasValue(data.sports) ||
+                    hasValue(data.suitableFor) ||
+                    hasValue(data.costMemebershipDetail) ||
+                    hasValue(data.professionalRegistration) ||
+                    hasValue(data.bookingLink) ||
+                    hasValue(data.insuranceInPlace)) && (
                 <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 max-w-2xl">
                     <div className="space-y-4">
-                        {/* Using Grid to ensure perfect alignment and no text breaking below the label */}
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Clinic Name:</span>
-                            <span className="text-gray-700">{data.clinicName}</span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Address line </span>
-                            {data.addressMapsUrl ? (
-                                <a
-                                    href={data.addressMapsUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-700 underline-offset-2 hover:text-[#0F766E] hover:underline"
-                                    aria-label={`Open ${data.location} in Google Maps`}
-                                >
-                                    {data.location}
-                                </a>
-                            ) : (
-                                <span className="text-gray-700">{data.location}</span>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Town/City:</span>
-                            {data.townCityMapsUrl ? (
-                                <a
-                                    href={data.townCityMapsUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-700 underline-offset-2 hover:text-[#0F766E] hover:underline"
-                                    aria-label={`Open ${data.townCity} in Google Maps`}
-                                >
+                        {hasValue(data.clinicName) ? (
+                            <DetailRow label="Clinic Name:">{data.clinicName}</DetailRow>
+                        ) : null}
+
+                        {hasValue(data.listingHeadline) ? (
+                            <DetailRow label="Listing Headline:">{data.listingHeadline}</DetailRow>
+                        ) : null}
+
+                        {hasValue(data.organizationName) ? (
+                            <DetailRow label="Organization Name:">{data.organizationName}</DetailRow>
+                        ) : null}
+
+                        {hasValue(data.fullAddress) ? (
+                            <DetailRow label="Address:">
+                                <MapsLink href={data.addressMapsUrl} label={data.fullAddress}>
+                                    {data.fullAddress}
+                                </MapsLink>
+                            </DetailRow>
+                        ) : null}
+
+                        {hasValue(data.townCity) ? (
+                            <DetailRow label="Town/City:">
+                                <MapsLink href={data.townCityMapsUrl} label={data.townCity}>
                                     {data.townCity}
+                                </MapsLink>
+                            </DetailRow>
+                        ) : null}
+
+                        {hasValue(data.postcode) ? (
+                            <DetailRow label="Postcode:">
+                                <MapsLink href={data.postcodeMapsUrl} label={data.postcode}>
+                                    {data.postcode}
+                                </MapsLink>
+                            </DetailRow>
+                        ) : null}
+
+                        {hasValue(data.primaryProfession) ? (
+                            <DetailRow label="Primary Profession:">{data.primaryProfession}</DetailRow>
+                        ) : null}
+
+                        {hasValue(data.sessionTypes) ? (
+                            <DetailRow label="Session Types:">{data.sessionTypes}</DetailRow>
+                        ) : null}
+
+                        {hasValue(data.sports) ? (
+                            <DetailRow label="Sports:">{data.sports}</DetailRow>
+                        ) : null}
+
+                        {hasValue(data.suitableFor) ? (
+                            <DetailRow label="Suitable for:">{data.suitableFor}</DetailRow>
+                        ) : null}
+
+                        {hasValue(data.costMemebershipDetail) ? (
+                            <DetailRow label="Cost / membership:">
+                                <span className="whitespace-pre-line">{data.costMemebershipDetail}</span>
+                            </DetailRow>
+                        ) : null}
+
+                        {hasValue(data.professionalRegistration) ? (
+                            <DetailRow label="Professional Registration:">
+                                {data.professionalRegistration}
+                            </DetailRow>
+                        ) : null}
+
+                        {hasValue(data.bookingLink) ? (
+                            <DetailRow label="Booking Link:">
+                                <a
+                                    href={data.bookingLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="break-all underline-offset-2 hover:text-[#0F766E] hover:underline"
+                                >
+                                    {data.bookingLink}
                                 </a>
-                            ) : (
-                                <span className="text-gray-700">{data.townCity}</span>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Postcode:</span>
-                            <span className="text-gray-700">{data.postcode}</span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Primary Profession:</span>
-                            <span className="text-gray-700">{data.primaryProfession}</span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Session Types:</span>
-                            <span className="text-gray-700">{data.sessionTypes}</span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Sports:</span>
-                            <span className="text-gray-700">{data.sports}</span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Suitable for:</span>
-                            <span className="text-gray-700">{data.suitableFor}</span>
-                        </div>
-                        {/* <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Who can take part:</span>
-                            <span className="text-gray-700">{data.whoCanTakePart}</span>
-                        </div> */}
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Cost / membership:</span>
-                            <span className="text-gray-700 whitespace-pre-line">{data.costMemebershipDetail}</span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            {/* <span className="font-semibold text-gray-900">Professional Registration:</span>
-                            <span className="text-gray-700">{data.participantResponseType}</span>   */}
-                                                  </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-1 sm:gap-4 text-base">
-                            <span className="font-semibold text-gray-900">Insurance in place:</span>
-                            <span className="text-gray-700">{data.insuranceInPlace}</span>
-                        </div>
+                            </DetailRow>
+                        ) : null}
+
+                        {hasValue(data.insuranceInPlace) ? (
+                            <DetailRow label="Insurance in place:">{data.insuranceInPlace}</DetailRow>
+                        ) : null}
                     </div>
                 </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-4">

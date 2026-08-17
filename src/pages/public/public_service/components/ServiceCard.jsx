@@ -68,6 +68,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../../../../components/ui/Card';
 import { useAuth } from '../../../../context/AuthContext';
+import {
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
+
+const DUMMY_IMAGE = '/service-placeholder.png';
 
 const ServiceCard = ({ item }) => {
   const { isAuthenticated } = useAuth();
@@ -75,6 +82,10 @@ const ServiceCard = ({ item }) => {
   // Safely extract type and sport from the data
   const typeLabel = item.serviceType || item.type || item.service_type || 'Service';
   const sportLabel = item.sport || 'General';
+  const imageSrc = resolveImageUrl(
+    pickImageSource(item.image, item.logo, item.coverImage),
+    DUMMY_IMAGE
+  );
 
   const formatLabel = (v) => {
     if (!v) return '';
@@ -87,18 +98,19 @@ const ServiceCard = ({ item }) => {
         
         {/* Image / Placeholder Area */}
         <div className="relative w-full h-48 bg-[#DADADA] rounded-xl mb-5 overflow-hidden">
-          {item.image ? (
-            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-          ) : null}
+          <img
+            src={imageSrc}
+            alt={item.title || 'Service'}
+            onError={(e) => handleImageLoadError(e, DUMMY_IMAGE)}
+            className="w-full h-full object-cover"
+          />
 
-          {/* Top Left Badge (Type/Physios) */}
           <div className="absolute top-3 left-3">
             <span className="bg-[#EAF2F1] text-[#147B6B] px-3.5 py-1.5 rounded-full text-[12px] font-medium">
               {formatLabel(typeLabel)}
             </span>
           </div>
 
-          {/* Bottom Left Badge (Sport/Football) */}
           <div className="absolute bottom-3 left-3">
             <span className="bg-[#EAF2F1] text-[#147B6B] px-3.5 py-1.5 rounded-full text-[12px] font-medium">
               {formatLabel(sportLabel)}
