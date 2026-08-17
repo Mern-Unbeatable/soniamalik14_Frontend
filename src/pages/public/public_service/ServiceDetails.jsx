@@ -606,13 +606,13 @@ const ServiceDetails = () => {
                             />
                           ) : null}
 
-                          {hasValue(displayData.cost) ? (
+                          {/* {hasValue(displayData.cost) ? (
                             <OverviewRow
                               icon={CircleDollarSign}
-                              label="Cost / membership"
+                              label="Cost / "
                               value={displayData.cost}
                             />
-                          ) : null}
+                          ) : null} */}
 
                           {hasValue(displayData.professionalRegistration) ? (
                             <OverviewRow
@@ -622,7 +622,7 @@ const ServiceDetails = () => {
                             />
                           ) : null}
 
-                          {hasValue(displayData.bookingLink) ? (
+                          {/* {hasValue(displayData.bookingLink) ? (
                             <OverviewRow
                               icon={Link2}
                               label="Booking Link"
@@ -638,7 +638,7 @@ const ServiceDetails = () => {
                                 </a>
                               }
                             />
-                          ) : null}
+                          ) : null} */}
 
                           {hasValue(displayData.insurance) ? (
                             <OverviewRow
