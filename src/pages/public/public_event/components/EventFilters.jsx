@@ -18,14 +18,14 @@ const FilterSection = ({ title, children, icon: Icon }) => (
 );
 
 const EVENT_TYPE_OPTIONS = [
-  { label: 'Match', value: 'MATCH' },
   { label: 'Tournament', value: 'TOURNAMENT' },
-  { label: 'Trial', value: 'TRIAL' },
-  { label: 'Training', value: 'TRAINING' },
+  { label: 'Open Day', value: 'OPEN_DAY' },
+  { label: 'Taster Session', value: 'TASTER_SESSION' },
   { label: 'Workshop', value: 'WORKSHOP' },
-  { label: 'Seminar', value: 'SEMINAR' },
-  { label: 'Competition', value: 'COMPETITION' },
-  { label: 'Meetup', value: 'MEETUP' },
+  { label: 'Talk', value: 'TALK' },
+  { label: 'Charity Event', value: 'CHARITY_EVENT' },
+  { label: 'Social Event', value: 'SOCIAL_EVENT' },
+  { label: 'Other', value: 'OTHER' },
 ];
 
 const SPORT_OPTIONS = [
