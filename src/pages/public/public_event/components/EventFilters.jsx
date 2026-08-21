@@ -6,7 +6,6 @@ import { ListFilter } from 'lucide-react';
 import { fetchSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../../../features/sportsCategories/sportsCategoriesSlice';
 
-// Reusable wrapper for the filter sections
 const FilterSection = ({ title, children, icon: Icon }) => (
   <div className="bg-white border border-[#CDE1DF] rounded-lg p-4 mb-4 shadow-sm">
     <div className="flex items-center justify-between mb-3.5">
@@ -94,7 +93,6 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
 
   return (
     <div className="w-full">
-      {/* City/Area & Distance Filter */}
       <FilterSection title="Filters" icon={ListFilter}>
         <div className="space-y-3">
           <div>
