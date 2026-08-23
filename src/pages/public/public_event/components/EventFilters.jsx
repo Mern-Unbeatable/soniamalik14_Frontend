@@ -97,7 +97,7 @@ const EventFilters = ({ filters = {}, onChange = () => { } }) => {
         <div className="space-y-3">
           <div>
             <label className="block text-base text-[#1A1D1F] mb-1.5">
-              City/Area
+              City/Area 
             </label>
             <input
               value={filters.city || ''}

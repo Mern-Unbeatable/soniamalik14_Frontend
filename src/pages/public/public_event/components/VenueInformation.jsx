@@ -2,6 +2,15 @@ import React from 'react';
 
 const hasText = (value) => String(value || '').trim().length > 0;
 
+const CalendarIcon = () => (
+  <img
+    src="/calendar-icon.webp"
+    alt=""
+    aria-hidden="true"
+    className="mt-0.5 h-4 w-4 shrink-0 object-contain"
+  />
+);
+
 const buildGoogleMapsSearchUrl = (query) => {
   const normalized = String(query || '').trim();
   if (!normalized) return '';
@@ -82,19 +91,19 @@ const VenueInformation = ({ event }) => {
 
           {hasText(event.startDate) ? (
             <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
-              <span className="shrink-0 font-medium">📅</span>
+              <CalendarIcon />
               <span className="wrap-break-word">{event.startDate}</span>
             </p>
           ) : hasText(event.day) ? (
             <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
-              <span className="shrink-0 font-medium">📅</span>
+              <CalendarIcon />
               <span className="wrap-break-word">{event.day}</span>
             </p>
           ) : null}
 
           {hasText(event.endDate) ? (
             <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
-              <span className="shrink-0 font-medium">📅</span>
+              <CalendarIcon />
               <span className="wrap-break-word">{event.endDate}</span>
             </p>
           ) : null}
