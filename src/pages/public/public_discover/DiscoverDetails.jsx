@@ -336,6 +336,15 @@ const DiscoverDetails = () => {
     }
   };
 
+  const CalendarIcon = () => (
+    <img
+      src="/calendar-icon.webp"
+      alt="Calendar Icon"
+      aria-hidden="true"
+      className="mt-0.5 h-4 w-4 shrink-0 object-contain"
+    />
+  );
+
   const handleConfirmInterest = async () => {
     if (!id) return;
     const name = String(interestForm.name || '').trim();
@@ -682,7 +691,8 @@ const DiscoverDetails = () => {
 
                   {hasText(item.day) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">🗓️</span>
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">              <CalendarIcon />
+                      </span>
                       <span className="text-[#1A1D1F]">{item.day}</span>
                     </p>
                   ) : null}

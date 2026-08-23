@@ -161,23 +161,23 @@ const EventDetails = () => {
               <div className="flex flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                 <div className="mb-6 min-h-0 flex-1 space-y-3">
                   <p className="flex text-base">
-                    <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Venue Name:</span>
+                    {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Venue Name:</span> */}
                     <span className="truncate text-[#1A1D1F]">{item.location}</span>
                   </p>
                   <p className="flex text-base">
-                    <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Postcode:</span>
+                    {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Postcode:</span> */}
                     <span className="text-[#1A1D1F]">{item.postcode}</span>
                   </p>
                   <p className="flex text-base">
-                    <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Town/City:</span>
+                    {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Town/City:</span> */}
                     <span className="text-[#1A1D1F]">{item.town}</span>
                   </p>
                   <p className="flex text-base">
-                    <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Day of session:</span>
+                    {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Day of session:</span> */}
                     <span className="text-[#1A1D1F]">{item.day}</span>
                   </p>
                   <p className="flex text-base">
-                    <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Session Time:</span>
+                    {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Session Time:</span> */}
                     <span className="text-[#1A1D1F]">{item.time}</span>
                   </p>
                 </div>

@@ -386,7 +386,7 @@ const SportProviderListingDetails = () => {
                                 {/* <span className="text-gray-500">Venue Name:</span>
                                 <span className="text-gray-900 font-medium">{data.venueName}</span> */}
 
-                                <span className="text-gray-500">Postcode:</span>
+                                {/* <span className="text-gray-500">Postcode:</span> */}
                                 {data.postcodeMapsUrl ? (
                                     <a
                                         href={data.postcodeMapsUrl}
@@ -401,7 +401,7 @@ const SportProviderListingDetails = () => {
                                     <span className="font-medium text-gray-900">{data.postcode}</span>
                                 )}
 
-                                <span className="text-gray-500">Town/City:</span>
+                                {/* <span className="text-gray-500">Town/City:</span> */}
                                 {data.townCityMapsUrl ? (
                                     <a
                                         href={data.townCityMapsUrl}
@@ -416,10 +416,10 @@ const SportProviderListingDetails = () => {
                                     <span className="font-medium text-gray-900">{data.townCity}</span>
                                 )}
 
-                                <span className="text-gray-500">Day:</span>
+                                {/* <span className="text-gray-500">Day:</span> */}
                                 <span className="text-gray-900 font-medium">{data.sessionDays}</span>
 
-                                <span className="text-gray-500">Time:</span>
+                                {/* <span className="text-gray-500">Time:</span> */}
                                 <span className="text-gray-900 font-medium">{data.sessionTime}</span>
                             </div>
 

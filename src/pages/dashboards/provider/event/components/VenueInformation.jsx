@@ -20,7 +20,7 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
       <h3 className="mb-3 text-[20px] font-semibold leading-8 text-black">Location & Timing.</h3>
       <div className="overflow-hidden rounded-xl bg-white p-4 shadow-sm">
         <p className="text-base font-medium text-[#101828]">
-          Venue Name : <span className="text-base">{event.venueName || event.venue?.name || 'N/A'} </span>{' '}
+          <span className="text-base">{event.venueName || event.venue?.name || 'N/A'} </span>{' '}
         </p>
         <p className="mb-2 text-[14px] text-[#4a5565]"></p>
 
@@ -31,7 +31,7 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
 
         <div className="mb-2 mt-4 space-y-2 text-base text-[#101828]">
           <p>
-            <span className="font-medium">Date:</span>{' '}
+            {/* <span className="font-medium">Date:</span>{' '} */}
             {event.startDate
               ? event.endDate && event.startDate !== event.endDate
                 ? `${formatDate(event.startDate)} - ${formatDate(event.endDate)}`
@@ -39,7 +39,7 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
               : 'N/A'}
           </p>
           <p>
-            <span className="font-medium">Session Time:</span>{' '}
+            {/* <span className="font-medium">Session Time:</span>{' '} */}
             {event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : event.time || 'N/A'}
           </p>
         </div>
