@@ -1290,7 +1290,7 @@ const CreateRecruitmentModal = ({
                         })}
                       </div>
                     </div>
-                    <div>
+                    {/* <div>
                       <label className={labelClass}>Website / Booking Link</label>
                       <input
                         className={fieldClass}
@@ -1302,7 +1302,7 @@ const CreateRecruitmentModal = ({
                       <p className="mt-1.5 text-xs text-white/75">
                         Add a link where people can find out more about your service or make a booking.
                       </p>
-                    </div>
+                    </div> */}
                   </div>
                 </FormSection>
 
