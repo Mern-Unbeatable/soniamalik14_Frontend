@@ -184,7 +184,7 @@ const DiscoverDetails = () => {
       town: service.city || service.townCity || '',
       day: scheduleDays || service.sessonDay || formatList(service.availableDays),
       time: scheduleTimes || service.timeSlote || timeRange || '',
-      sessionFrequency: service.sessionFrequency || '',
+      sessionFrequency: service.frequency || service.sessionFrequency || '',
       image: service.logo || service.image || service.thumbnail || '',
       avatar: service.provider?.avatar || '',
       mapEmbedUrl: getMapEmbedUrl(service),

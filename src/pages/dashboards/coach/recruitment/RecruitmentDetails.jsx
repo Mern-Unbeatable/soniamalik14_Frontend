@@ -70,6 +70,7 @@ const mapServiceToDetailsItem = (service) => {
     day: scheduleDays || service?.sessonDay || 'N/A',
     sessionTime: scheduleTimes || service?.timeSlote || 'N/A',
     time: scheduleTimes || service?.timeSlote || 'N/A',
+    frequency: String(service?.frequency || service?.sessionFrequency || '').trim(),
     bookingLink: service?.bookingLink || '',
     costMemebershipDetail: service?.costMemebershipDetail || '',
     status: service?.status || '',

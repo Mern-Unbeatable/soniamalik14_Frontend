@@ -186,6 +186,7 @@ const SportProviderListingDetails = () => {
             sessionTime:
                 service?.timeSlote ||
                 (service?.duration ? `${service.duration} mins` : 'Not specified'),
+            frequency: String(service?.frequency || service?.sessionFrequency || '').trim(),
             participantResponseType: service?.participantResponseType || 'ADD_BOOKING_LINK',
             fullAddress: service?.fullAddress || '',
             googleMapLink: service?.googleMapLink || service?.googleMapLinks || '',
@@ -421,6 +422,10 @@ const SportProviderListingDetails = () => {
 
                                 {/* <span className="text-gray-500">Time:</span> */}
                                 <span className="text-gray-900 font-medium">{data.sessionTime}</span>
+
+                                {data.frequency ? (
+                                    <span className="col-span-2 text-gray-900 font-medium">{data.frequency}</span>
+                                ) : null}
                             </div>
 
                             {/* Map Placeholder */}

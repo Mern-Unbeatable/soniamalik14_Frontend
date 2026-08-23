@@ -42,6 +42,9 @@ const VenueInformation = ({ event, mapEmbedUrl }) => {
             {/* <span className="font-medium">Session Time:</span>{' '} */}
             {event.startTime && event.endTime ? `${event.startTime} - ${event.endTime}` : event.time || 'N/A'}
           </p>
+          {String(event.frequency || event.sessionFrequency || '').trim() ? (
+            <p>{event.frequency || event.sessionFrequency}</p>
+          ) : null}
         </div>
         <div className="relative mt-3 h-55 w-full overflow-hidden rounded-lg bg-[#d9d9d9]">
           {mapEmbedUrl ? (

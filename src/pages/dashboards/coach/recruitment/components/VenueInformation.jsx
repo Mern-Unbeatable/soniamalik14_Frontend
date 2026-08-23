@@ -52,6 +52,13 @@ const VenueInformation = ({ item }) => {
               {item.sessionTime || item.times || item.time || 'N/A'}
             </span>
           </p>
+          {String(item.frequency || item.sessionFrequency || '').trim() ? (
+            <p className="flex text-base">
+              <span className="text-[#1A1D1F]">
+                {item.frequency || item.sessionFrequency}
+              </span>
+            </p>
+          ) : null}
         </div>
 
         {/* Map */}

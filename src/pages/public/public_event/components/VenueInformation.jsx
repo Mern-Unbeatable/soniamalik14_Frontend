@@ -40,7 +40,8 @@ const VenueInformation = ({ event }) => {
     hasText(event.startTime) ||
     hasText(event.endTime) ||
     hasText(event.day) ||
-    hasText(event.time);
+    hasText(event.time) ||
+    hasText(event.frequency);
   const hasMap = hasText(event.mapEmbedUrl);
 
   if (!hasAddress && !hasTiming && !hasMap && !mapsHref) return null;
@@ -119,6 +120,12 @@ const VenueInformation = ({ event }) => {
             <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
               <span className="shrink-0 font-medium">🕒</span>
               <span className="wrap-break-word">{event.time}</span>
+            </p>
+          ) : null}
+
+          {hasText(event.frequency) ? (
+            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
+              <span className="wrap-break-word">{event.frequency}</span>
             </p>
           ) : null}
         </div>

@@ -180,6 +180,11 @@ const EventDetails = () => {
                     {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Session Time:</span> */}
                     <span className="text-[#1A1D1F]">{item.time}</span>
                   </p>
+                  {String(item.frequency || item.sessionFrequency || '').trim() ? (
+                    <p className="flex text-base">
+                      <span className="text-[#1A1D1F]">{item.frequency || item.sessionFrequency}</span>
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="relative h-36 w-full shrink-0 overflow-hidden rounded-lg bg-gray-200">

@@ -377,7 +377,7 @@ const mapInitialDataToForm = (initialData) => {
     otherSport: customSports.join(', '),
     sessionType: toArray(initialData?.sessionType || initialData?.sessionTypes)[0] || '',
     sessionTypes: toArray(initialData?.sessionType || initialData?.sessionTypes),
-    sessionFrequency: initialData?.sessionFrequency || '',
+    sessionFrequency: initialData?.frequency || initialData?.sessionFrequency || '',
     sessionSchedules: schedules.length > 0 ? schedules : [createEmptySchedule()],
     costMembershipDetail: initialData?.costMemebershipDetail || '',
     suitableFor: toArray(initialData?.suitableFor),
@@ -802,7 +802,7 @@ const CreateRecruitmentModal = ({
         endTime: timeTo,
         timeSlote: timeSlot,
         timeSlots: JSON.stringify(schedulePayload.schedules),
-        sessionFrequency: String(form.sessionFrequency || '').trim(),
+        frequency: String(form.sessionFrequency || '').trim(),
         costMemebershipDetail: String(form.costMembershipDetail || '').trim(),
         aboutOrganization: orgAbout,
         bookingLink: String(form.bookingLink || '').trim(),
@@ -909,7 +909,7 @@ const CreateRecruitmentModal = ({
         appendIfPresent(payload, 'endTime', timeTo);
       }
       appendIfPresent(payload, 'timeSlote', timeSlot);
-      appendIfPresent(payload, 'sessionFrequency', form.sessionFrequency);
+      appendIfPresent(payload, 'frequency', form.sessionFrequency);
       appendIfPresent(payload, 'costMemebershipDetail', form.costMembershipDetail);
       appendIfPresent(payload, 'aboutOrganization', orgAbout);
       appendIfPresent(payload, 'bookingLink', form.bookingLink);

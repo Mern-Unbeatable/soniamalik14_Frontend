@@ -234,6 +234,7 @@ const EventDetails = () => {
           data.startTime && data.endTime
             ? `${data.startTime} - ${data.endTime}`
             : data.startTime || '',
+        frequency: data.frequency || data.sessionFrequency || '',
         image: normalizeMediaUrl(data.image),
         organizerAvatar:
           normalizeMediaUrl(data.organizer?.avatar) || null,
