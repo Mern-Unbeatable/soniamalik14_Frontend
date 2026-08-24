@@ -336,14 +336,7 @@ const DiscoverDetails = () => {
     }
   };
 
-  const CalendarIcon = () => (
-    <img
-      src="/calendar-icon.webp"
-      alt="Calendar Icon"
-      aria-hidden="true"
-      className="mt-0.5 h-4 w-4 shrink-0 object-contain"
-    />
-  );
+  const CalendarIcon = () => '📅';
 
   const handleConfirmInterest = async () => {
     if (!id) return;
@@ -638,60 +631,64 @@ const DiscoverDetails = () => {
                 hasText(item.mapEmbedUrl) ||
                 hasText(buildLocationSearchLabel(item))) && (
               <div className="flex flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
-                <div className="mb-6 min-h-0 flex-1 space-y-3">
-                  {hasText(item.venueName) ? (
-                    <p className="text-base flex items-start gap-2">
-                      {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Venue name: </span> */}
-                      <span className="text-[#1A1D1F]">{item.venueName}</span>
-                    </p>
-                  ) : null}
+                <div className="mb-6 min-h-0 flex-1 space-y-4">
+                  {(hasText(item.venueName) ||
+                    hasText(item.addressLine1) ||
+                    hasText(item.town || item.location) ||
+                    hasText(item.postcode) ||
+                    buildLocationSearchLabel(item)) && (
+                    <div className="flex flex-col space-y-0.5">
+                      {hasText(item.venueName) ? (
+                        <p className="text-base text-[#1A1D1F] leading-tight">
+                          {item.venueName}
+                        </p>
+                      ) : null}
 
-                  {hasText(item.addressLine1) ? (
-                    <p className="text-base flex items-start gap-2">
-                      {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Address: </span> */}
-                      <span className="text-[#1A1D1F]">{item.addressLine1}</span>
-                    </p>
-                  ) : null}
+                      {hasText(item.addressLine1) ? (
+                        <p className="text-base text-[#1A1D1F] leading-tight">
+                          {item.addressLine1}
+                        </p>
+                      ) : null}
 
-                  {hasText(item.town || item.location) ? (
-                    <p className="text-base flex items-start gap-2">
-                      {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Town/Area: </span> */}
-                      <span className="text-[#1A1D1F]">{item.town || item.location}</span>
-                    </p>
-                  ) : null}
+                      {hasText(item.town || item.location) ? (
+                        <p className="text-base text-[#1A1D1F] leading-tight">
+                          {item.town || item.location}
+                        </p>
+                      ) : null}
 
-                  {hasText(item.postcode) ? (
-                    <p className="text-base flex items-start gap-2">
-                      {/* <span className="text-[#1A1D1F] shrink-0 font-medium">Postcode: </span> */}
-                      <span className="text-[#1A1D1F]">{item.postcode}</span>
-                    </p>
-                  ) : null}
+                      {hasText(item.postcode) ? (
+                        <p className="text-base text-[#1A1D1F] leading-tight">
+                          {item.postcode}
+                        </p>
+                      ) : null}
 
-                  {(() => {
-                    const locationLabel = buildLocationSearchLabel(item);
-                    const mapsHref =
-                      String(item.googleMapLink || '').trim() ||
-                      buildGoogleMapsSearchUrl(locationLabel);
+                      {(() => {
+                        const locationLabel = buildLocationSearchLabel(item);
+                        const mapsHref =
+                          String(item.googleMapLink || '').trim() ||
+                          buildGoogleMapsSearchUrl(locationLabel);
 
-                    if (!locationLabel || !mapsHref) return null;
+                        if (!locationLabel || !mapsHref) return null;
 
-                    return (
-                      <a
-                        href={mapsHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-start gap-2 text-base text-[#1A1D1F] transition-colors hover:text-[#0F766E]"
-                        aria-label={`Open ${locationLabel} in Google Maps`}
-                      >
-                        {/* <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#6B7280] group-hover:text-[#0F766E]" /> */}
-                        <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
-                      </a>
-                    );
-                  })()}
+                        return (
+                          <a
+                            href={mapsHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group text-base text-[#1A1D1F] leading-tight transition-colors hover:text-[#0F766E]"
+                            aria-label={`Open ${locationLabel} in Google Maps`}
+                          >
+                            <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
+                          </a>
+                        );
+                      })()}
+                    </div>
+                  )}
 
                   {hasText(item.day) ? (
                     <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">              <CalendarIcon />
+                      <span className="text-[#1A1D1F] shrink-0 font-medium">
+                        <CalendarIcon />
                       </span>
                       <span className="text-[#1A1D1F]">{item.day}</span>
                     </p>
