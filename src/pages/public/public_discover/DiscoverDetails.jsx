@@ -632,58 +632,37 @@ const DiscoverDetails = () => {
                 hasText(buildLocationSearchLabel(item))) && (
               <div className="flex flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                 <div className="mb-6 min-h-0 flex-1 space-y-4">
-                  {(hasText(item.venueName) ||
-                    hasText(item.addressLine1) ||
-                    hasText(item.town || item.location) ||
-                    hasText(item.postcode) ||
-                    buildLocationSearchLabel(item)) && (
-                    <div className="flex flex-col space-y-0.5">
-                      {hasText(item.venueName) ? (
-                        <p className="text-base text-[#1A1D1F] leading-tight">
-                          {item.venueName}
-                        </p>
-                      ) : null}
+                  {(() => {
+                    const addressParts = [
+                      item.venueName,
+                      item.addressLine1,
+                      item.town || item.location,
+                      item.postcode,
+                    ]
+                      .map((str) => String(str || '').trim())
+                      .filter(Boolean);
 
-                      {hasText(item.addressLine1) ? (
-                        <p className="text-base text-[#1A1D1F] leading-tight">
-                          {item.addressLine1}
-                        </p>
-                      ) : null}
+                    if (addressParts.length === 0) return null;
 
-                      {hasText(item.town || item.location) ? (
-                        <p className="text-base text-[#1A1D1F] leading-tight">
-                          {item.town || item.location}
-                        </p>
-                      ) : null}
+                    const formattedAddress = addressParts.join(', ');
+                    const mapsHref =
+                      String(item.googleMapLink || '').trim() ||
+                      buildGoogleMapsSearchUrl(formattedAddress);
 
-                      {hasText(item.postcode) ? (
-                        <p className="text-base text-[#1A1D1F] leading-tight">
-                          {item.postcode}
-                        </p>
-                      ) : null}
-
-                      {(() => {
-                        const locationLabel = buildLocationSearchLabel(item);
-                        const mapsHref =
-                          String(item.googleMapLink || '').trim() ||
-                          buildGoogleMapsSearchUrl(locationLabel);
-
-                        if (!locationLabel || !mapsHref) return null;
-
-                        return (
-                          <a
-                            href={mapsHref}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group text-base text-[#1A1D1F] leading-tight transition-colors hover:text-[#0F766E]"
-                            aria-label={`Open ${locationLabel} in Google Maps`}
-                          >
-                            <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
-                          </a>
-                        );
-                      })()}
-                    </div>
-                  )}
+                    return (
+                      <div className="flex flex-col">
+                        <a
+                          href={mapsHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group text-base text-[#1A1D1F] leading-normal transition-colors hover:text-[#0F766E]"
+                          aria-label={`Open ${formattedAddress} in Google Maps`}
+                        >
+                          <span className="underline-offset-2 group-hover:underline">{formattedAddress}</span>
+                        </a>
+                      </div>
+                    );
+                  })()}
 
                   {hasText(item.day) ? (
                     <p className="text-base flex items-start gap-2">

@@ -403,11 +403,15 @@ const ServiceDetails = () => {
       ).trim(),
       bookingLink,
       insurance:
-        item.insuranceInPlace === true
-          ? 'Yes'
-          : item.insuranceInPlace === false
+        item.insuranceInPlace === true ||
+        String(item.insuranceInPlace || '').trim().toLowerCase() === 'yes' ||
+        String(item.insuranceInPlace || '').trim().toLowerCase() === 'true'
+          ? 'Confirmed by provider'
+          : item.insuranceInPlace === false ||
+            String(item.insuranceInPlace || '').trim().toLowerCase() === 'no' ||
+            String(item.insuranceInPlace || '').trim().toLowerCase() === 'false'
             ? 'No'
-            : String(item.insurance || '').trim(),
+            : String(item.insuranceInPlace || item.insurance || '').trim(),
       cost: String(item.costMemebershipDetail || item.costMembershipDetail || '').trim(),
     };
   })();
