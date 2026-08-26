@@ -125,11 +125,8 @@ const RecruitmentDetails = () => {
 
             try {
                 const response = await GET(ENDPOINT.SERVICES.DETAIL(id));
-                console.log('Recruitment Detail RAW Response:', response);
                 const payload = response?.data || response;
-                console.log('Recruitment Detail Payload:', payload);
                 const service = payload?.data?.service || payload?.service || payload?.data || null;
-                console.log('Recruitment Detail Resolved Service:', service);
 
                 if (!active) return;
 
@@ -143,11 +140,8 @@ const RecruitmentDetails = () => {
 
                 try {
                     const bookingsResponse = await GET(ENDPOINT.SERVICES.BOOKINGS(id));
-                    console.log('Recruitment Bookings RAW Response:', bookingsResponse);
                     const bookingsPayload = bookingsResponse?.data || bookingsResponse;
-                    console.log('Recruitment Bookings Payload:', bookingsPayload);
                     const bookings = extractArray(bookingsPayload);
-                    console.log('Recruitment Bookings Resolved Array:', bookings);
 
                     const mappedBookings = (Array.isArray(bookings) ? bookings : []).map((booking, index) => ({
                         id: booking?.id || `${id}-booking-${index}`,
@@ -172,19 +166,15 @@ const RecruitmentDetails = () => {
 
                     if (!active) return;
                     setBookingsData(mappedBookings);
-                } catch (bookingErr) {
-                    console.error('Recruitment Bookings fetch error:', bookingErr);
+                } catch {
                     if (!active) return;
                     setBookingsData([]);
                 }
 
                 try {
                     const interestsResponse = await GET(ENDPOINT.SERVICES.INTERESTS(id));
-                    console.log('Recruitment Interests RAW Response:', interestsResponse);
                     const interestsPayload = interestsResponse?.data || interestsResponse;
-                    console.log('Recruitment Interests Payload:', interestsPayload);
                     const interests = extractArray(interestsPayload);
-                    console.log('Recruitment Interests Resolved Array:', interests);
 
                     const mappedInterests = (Array.isArray(interests) ? interests : []).map((interest, index) => ({
                         id: interest?.id || `${id}-interest-${index}`,
@@ -209,19 +199,15 @@ const RecruitmentDetails = () => {
 
                     if (!active) return;
                     setInterestsData(mappedInterests);
-                } catch (interestErr) {
-                    console.error('Recruitment Interests fetch error:', interestErr);
+                } catch {
                     if (!active) return;
                     setInterestsData([]);
                 }
 
                 try {
                     const messagesResponse = await GET(ENDPOINT.SERVICES.MESSAGES(id));
-                    console.log('Recruitment Enquiries RAW Response:', messagesResponse);
                     const messagesPayload = messagesResponse?.data || messagesResponse;
-                    console.log('Recruitment Enquiries Payload:', messagesPayload);
                     const messages = extractArray(messagesPayload);
-                    console.log('Recruitment Enquiries Resolved Array:', messages);
 
                     const mappedMessages = (Array.isArray(messages) ? messages : []).map((message, index) => ({
                         ...message,
@@ -257,8 +243,7 @@ const RecruitmentDetails = () => {
 
                     if (!active) return;
                     setMessagesData(mappedMessages);
-                } catch (error) {
-                    console.error('Recruitment Enquiries API Error:', error);
+                } catch {
                     if (!active) return;
                     setMessagesData([]);
                 }
@@ -320,22 +305,23 @@ const RecruitmentDetails = () => {
 
                 {/* Booking Link Card */}
                 {item.bookingLink && (
-                    <div className="bg-white rounded-lg p-6 mb-8 shadow-sm border border-gray-100">
+                    <div className="mb-8 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
                         <h3 className="text-lg font-bold text-[#1A1D1F]">Share Link</h3>
                         {item.status === 'PENDING_APPROVAL' || item.status === 'PENDING' ? (
-                            <p className="text-base text-gray-500 font-medium italic mt-1">
+                            <p className="mt-1 text-base font-medium italic text-gray-500">
                                 You can share after admin approved
                             </p>
                         ) : (
                             <>
-                                <p className="text-base text-gray-500 mb-3">
-                                Use this link to share your ESSA Hub listing on your website, social media or messages.                                </p>
-                                <div className="flex items-center gap-3 w-full">
+                                <p className="mb-3 text-base text-gray-500">
+                                    Use this link to share your ESSA Hub listing on your website, social media or messages.
+                                </p>
+                                <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center">
                                     <a
                                         href={item.bookingLink}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex-1 text-[#0F766E] font-medium hover:underline text-sm md:text-base break-all block font-mono bg-gray-50 p-3 rounded-lg border border-gray-200"
+                                        className="block flex-1 break-all rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-sm font-medium text-[#0F766E] hover:underline md:text-base"
                                     >
                                         {item.bookingLink}
                                     </a>
@@ -346,15 +332,15 @@ const RecruitmentDetails = () => {
                                             setCopied(true);
                                             setTimeout(() => setCopied(false), 2000);
                                         }}
-                                        className="inline-flex items-center justify-center gap-2 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-3.5 rounded-lg text-sm font-semibold transition-colors shrink-0 cursor-pointer shadow-sm"
+                                        className="inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#0F766E] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0D655D]"
                                     >
                                         {copied ? (
                                             <>
-                                                <Check className="w-4 h-4" /> Copied!
+                                                <Check className="h-4 w-4" /> Copied!
                                             </>
                                         ) : (
                                             <>
-                                                <Copy className="w-4 h-4" /> Copy Link
+                                                <Copy className="h-4 w-4" /> Copy Link
                                             </>
                                         )}
                                     </button>
@@ -368,7 +354,7 @@ const RecruitmentDetails = () => {
                 <SessionDetailsCard item={item} />
 
                 {/* 3-Column Grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6 lg:gap-8">
+                <div className="grid grid-cols-1 items-stretch gap-6 lg:gap-8 xl:grid-cols-2 2xl:grid-cols-3">
                     <SessionOverview item={item} disableActions />
                     <VenueInformation item={item} />
                     <ContactOrganiser disabled />

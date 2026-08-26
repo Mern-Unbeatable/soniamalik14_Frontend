@@ -1,6 +1,26 @@
 import React from 'react';
 
 const getMapEmbedUrl = (item) => {
+  const googleMapLink = String(item?.googleMapLink || '').trim();
+  if (googleMapLink) {
+    if (googleMapLink.includes('output=embed') || googleMapLink.includes('/maps/embed')) {
+      return googleMapLink;
+    }
+    try {
+      const url = new URL(googleMapLink);
+      if (url.hostname.includes('google') || url.hostname.includes('maps')) {
+        const query = url.searchParams.get('q') || url.searchParams.get('query');
+        if (query) {
+          return `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed`;
+        }
+        url.searchParams.set('output', 'embed');
+        return url.toString();
+      }
+    } catch {
+      // Fall through to address-based embed.
+    }
+  }
+
   const townPostcode = [item?.town, item?.postcode]
     .map((part) => String(part || '').trim())
     .filter((part) => part && part !== 'N/A')
@@ -22,57 +42,39 @@ const VenueInformation = ({ item }) => {
   const mapEmbedUrl = getMapEmbedUrl(item);
 
   return (
-    <div>
+    <div className="flex h-full min-w-0 flex-col">
       <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Location & Timing.</h3>
-      <div className="flex h-auto flex-col rounded-lg border border-gray-100 bg-white p-4 shadow-sm md:h-100">
-        <div className="mb-6 flex-1 space-y-3">
-          <p className="flex text-base">
-            {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Venue Name:</span> */}
-            <span className="text-[#1A1D1F]">
-              {item.venueName || item.trialLocation || item.location || 'N/A'}
-            </span>
+      <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="mb-4 space-y-3">
+          <p className="break-words text-base text-[#1A1D1F]">
+            {item.venueName || item.trialLocation || item.location || 'N/A'}
           </p>
-          <p className="flex text-base">
-            {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Postcode:</span> */}
-            <span className="text-[#1A1D1F]">{item.postcode || 'N/A'}</span>
+          <p className="break-words text-base text-[#1A1D1F]">{item.postcode || 'N/A'}</p>
+          <p className="break-words text-base text-[#1A1D1F]">
+            {item.typicalSessionDays || item.matchDays || item.day || 'N/A'}
           </p>
-          {/* <p className="flex text-base">
-            <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Town/City:</span>
-            <span className="text-[#1A1D1F]">{item.town || 'N/A'}</span>
-          </p> */}
-          <p className="flex text-base">
-            {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Day:</span> */}
-            <span className="text-[#1A1D1F]">
-              {item.typicalSessionDays || item.matchDays || item.day || 'N/A'}
-            </span>
-          </p>
-          <p className="flex text-base">
-            {/* <span className="w-28 shrink-0 font-medium text-[#1A1D1F]">Session Time:</span> */}
-            <span className="text-[#1A1D1F]">
-              {item.sessionTime || item.times || item.time || 'N/A'}
-            </span>
+          <p className="break-words text-base text-[#1A1D1F]">
+            {item.sessionTime || item.times || item.time || 'N/A'}
           </p>
           {String(item.frequency || item.sessionFrequency || '').trim() ? (
-            <p className="flex text-base">
-              <span className="text-[#1A1D1F]">
-                {item.frequency || item.sessionFrequency}
-              </span>
+            <p className="break-words text-base text-[#1A1D1F]">
+              {item.frequency || item.sessionFrequency}
             </p>
           ) : null}
         </div>
 
-        {/* Map */}
-        <div className="h-50 w-full shrink-0 overflow-hidden rounded-lg">
+        <div className="relative mt-auto h-[220px] w-full shrink-0 overflow-hidden rounded-lg bg-gray-100 sm:h-50">
           {mapEmbedUrl ? (
             <iframe
               src={mapEmbedUrl}
               title="Map View"
-              className="h-full w-full border-0 rounded-lg"
+              className="absolute inset-0 block h-full w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+            <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">
               Map unavailable
             </div>
           )}

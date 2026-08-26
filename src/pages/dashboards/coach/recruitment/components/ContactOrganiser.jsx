@@ -8,21 +8,21 @@ const ContactOrganiser = ({ disabled = false }) => {
     };
 
     return (
-        <div>
-            <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Contact Organiser</h3>
-            <div className="bg-[#E7F1F1] p-4 rounded-lg h-auto md:h-100 flex flex-col">
-                <p className="text-base mb-4 text-[#1A1D1F]">Ask the organiser a question</p>
-                <form onSubmit={handleSendMessage} className="flex flex-col flex-1">
+        <div className="flex h-full min-w-0 flex-col">
+            <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Contact Organiser</h3>
+            <div className="flex min-h-[280px] flex-1 flex-col rounded-lg bg-[#E7F1F1] p-4 md:min-h-[320px]">
+                <p className="mb-4 text-base text-[#1A1D1F]">Ask the organiser a question</p>
+                <form onSubmit={handleSendMessage} className="flex flex-1 flex-col">
                     <textarea
                         disabled={disabled}
-                        className="w-full flex-1 bg-[#B5D5D2] rounded-xl p-4 text-base text-[#1A1D1F] placeholder-gray-500/70 border-none focus:ring-1 focus:ring-[#147B6B] disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed resize-none mb-4"
+                        className="mb-4 min-h-[140px] w-full flex-1 resize-none rounded-xl border-none bg-[#B5D5D2] p-4 text-base text-[#1A1D1F] placeholder-gray-500/70 focus:ring-1 focus:ring-[#147B6B] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
                         placeholder="Write your message"
                         required
                     ></textarea>
                     <button
                         type="submit"
                         disabled={disabled}
-                        className="bg-[#0F766E] hover:bg-[#0D655D] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors w-fit"
+                        className="w-fit rounded-lg bg-[#0F766E] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0D655D] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
                     >
                         Send message
                     </button>

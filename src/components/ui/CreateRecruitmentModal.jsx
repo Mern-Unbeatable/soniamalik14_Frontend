@@ -172,32 +172,6 @@ const appendArrayField = (formData, key, values = []) => {
 const normalizeArray = (values = []) =>
   values.map((value) => String(value || '').trim()).filter(Boolean);
 
-const logFormDataDebug = (label, formData) => {
-  try {
-    const payloadDebug = {};
-    const payloadFields = [];
-
-    for (const [key, value] of formData.entries()) {
-      const normalizedValue = value instanceof File ? `[File: ${value.name}]` : value;
-
-      if (payloadDebug[key] !== undefined) {
-        payloadDebug[key] = Array.isArray(payloadDebug[key])
-          ? [...payloadDebug[key], normalizedValue]
-          : [payloadDebug[key], normalizedValue];
-      } else {
-        payloadDebug[key] = normalizedValue;
-      }
-
-      payloadFields.push(key);
-    }
-
-    console.groupCollapsed(label);
-    console.groupEnd();
-  } catch (error) {
-    console.error('[CreateRecruitmentModal] Failed to log FormData payload', error);
-  }
-};
-
 const getResponseType = (methods = [], responseType = '') => {
   if (responseType === 'INTERESTED' || responseType === 'REGISTER_INTEREST') return 'INTERESTED';
   if (responseType === 'REGISTER') return 'REGISTER';
@@ -456,8 +430,7 @@ const CreateRecruitmentModal = ({
           initialData && mode === 'edit'
             ? mapInitialDataToForm(initialData)
             : mapUserToForm(user);
-      } catch (error) {
-        console.error('[CreateRecruitmentModal] Failed to map form', error);
+      } catch {
         nextForm = createInitialForm();
       }
 
@@ -845,15 +818,10 @@ const CreateRecruitmentModal = ({
               ? form.logo
               : null;
         if (listingFile) updateFormData.append('logo', listingFile);
-        logFormDataDebug(
-          '[CreateRecruitmentModal] Service update payload (multipart)',
-          updateFormData
-        );
         resultAction = await dispatch(
           updateService({ id: initialData.id, serviceData: updateFormData })
         );
       } else {
-        console.log('[CreateRecruitmentModal] Service update payload (json):', updatePayload);
         resultAction = await dispatch(
           updateService({ id: initialData.id, serviceData: updatePayload })
         );
@@ -930,7 +898,6 @@ const CreateRecruitmentModal = ({
             : null;
       if (listingFile) payload.append('logo', listingFile);
 
-      logFormDataDebug('[CreateRecruitmentModal] Service payload', payload);
       resultAction = await dispatch(createService(payload));
     }
 
@@ -941,15 +908,7 @@ const CreateRecruitmentModal = ({
     if (isSuccess) {
       onSuccess?.();
       onClose?.();
-      return;
     }
-
-    console.group('[CreateRecruitmentModal] Service submit failed');
-    console.error('mode:', mode);
-    console.error('rejectedPayload:', resultAction?.payload);
-    console.error('error:', resultAction?.error);
-    console.error('meta:', resultAction?.meta);
-    console.groupEnd();
   };
 
   const errorClass = 'mt-1 text-sm text-red-200';
@@ -1290,19 +1249,16 @@ const CreateRecruitmentModal = ({
                         })}
                       </div>
                     </div>
-                    {/* <div>
-                      <label className={labelClass}>Website / Booking Link</label>
+                    <div>
+                      <label className={labelClass}>Website link</label>
                       <input
                         className={fieldClass}
                         type="url"
                         value={form.bookingLink}
                         onChange={(e) => handleChange('bookingLink', e.target.value)}
-                        placeholder="https://example.com/book-session"
+                        placeholder="https://example.com"
                       />
-                      <p className="mt-1.5 text-xs text-white/75">
-                        Add a link where people can find out more about your service or make a booking.
-                      </p>
-                    </div> */}
+                    </div>
                   </div>
                 </FormSection>
 
@@ -1795,6 +1751,17 @@ const CreateRecruitmentModal = ({
                   );
                 })}
               </div>
+            </FormSection>
+
+            <FormSection>
+              <label className={labelClass}>Website link</label>
+              <input
+                className={fieldClass}
+                type="url"
+                value={form.bookingLink}
+                onChange={(e) => handleChange('bookingLink', e.target.value)}
+                placeholder="https://example.com"
+              />
             </FormSection>
 
             <FormSection>
