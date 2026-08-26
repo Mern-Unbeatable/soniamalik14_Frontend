@@ -205,6 +205,15 @@ const ServiceDetails = () => {
     return () => { mounted = false; };
   }, [id]);
 
+  /* ── Visit provider page (open link + track click) ── */
+  const handleVisitProviderPage = () => {
+    const url = String(item?.bookingLink || '').trim();
+    if (!url || !id) return;
+
+    GET(ENDPOINT.SERVICES.DETAIL(id), { trackBookingLink: true }).catch(() => {});
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   /* ── Book Now handler ── */
   const handleBookNowClick = () => {
     if (!isAuthenticated || !user) {
@@ -661,14 +670,13 @@ const ServiceDetails = () => {
                         : 'Register'}
                     </button> */}
                     {hasValue(displayData.bookingLink) ? (
-                      <a
-                        href={displayData.bookingLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={handleVisitProviderPage}
                         className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors inline-flex items-center"
                       >
                         Visit provider page
-                      </a>
+                      </button>
                     ) : null}
                   </div>
                 </div>
