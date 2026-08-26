@@ -12,6 +12,7 @@ import {
   Globe,
   Copy,
   Check,
+  MousePointerClick,
 } from 'lucide-react';
 import TablePagination from '../../../../components/ui/TablePagination';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
@@ -34,6 +35,7 @@ const ServiceOverviewItem = ({ icon, label, value }) => (
 const mapServiceToViewModel = (service) => {
   const sports = Array.isArray(service?.sports) ? service.sports : [];
   const sessionTypes = Array.isArray(service?.sessionTypes) ? service.sessionTypes : [];
+  const analyticsEntry = Array.isArray(service?.analytics) ? service.analytics[0] : null;
 
   return {
     id: service?.id,
@@ -65,6 +67,14 @@ const mapServiceToViewModel = (service) => {
     },
     shareLink: service?.shareLink || '',
     status: service?.status || '',
+    analytics: {
+      bookingLinkClicks:
+        analyticsEntry?.bookingLinkClicks ??
+        service?.bookingLinkClicks ??
+        0,
+      views: analyticsEntry?.views ?? service?.views ?? 0,
+      bookings: analyticsEntry?.bookings ?? 0,
+    },
     bookings: Array.isArray(service?.bookings) ? service.bookings : [],
     enquiries: Array.isArray(service?.messages) ? service.messages : [],
   };
@@ -111,6 +121,12 @@ const AddListingDetails = () => {
         const response = await GET(ENDPOINT.SERVICES.DETAIL(id));
         const payload = response?.data || response;
         const service = payload?.data?.service || payload?.service || payload?.data || null;
+
+        console.group('[AddListingDetails] Backend response');
+        console.log('full response:', response);
+        console.log('response.data:', payload);
+        console.log('service:', service);
+        console.groupEnd();
 
         if (!active) return;
 
@@ -294,6 +310,24 @@ const AddListingDetails = () => {
                   )}
                 </div>
               )}
+
+              <div className="mt-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                <h3 className="text-lg font-bold text-[#1A1D1F]">Website link clicks</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  How many people clicked Visit provider page on your public listing.
+                </p>
+                <div className="mt-4 flex items-center gap-4 rounded-xl border border-[#DEE6E8] bg-[#F3F5F8] p-4">
+                  <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E7F1F1] text-[#0F766E]">
+                    <MousePointerClick className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-[#0F766E]">
+                      {Number(item?.analytics?.bookingLinkClicks ?? 0)}
+                    </p>
+                    <p className="text-sm text-[#374151]">Total clicks</p>
+                  </div>
+                </div>
+              </div>
             </article>
 
             <div>
