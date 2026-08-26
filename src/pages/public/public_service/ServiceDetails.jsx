@@ -20,10 +20,8 @@ import {
   Mail,
   Phone,
   CheckCircle2,
-  ExternalLink,
   Building2,
   MapPin,
-  Link2,
 } from 'lucide-react';
 import {
   handleImageLoadError,
@@ -183,13 +181,20 @@ const ServiceDetails = () => {
       setError(null);
       try {
         const res = await GET(ENDPOINT.SERVICES.DETAIL(id));
-        console.log('ServiceDetails RAW Response:', res);
         let payload = res?.data;
         if (payload && payload.data) payload = payload.data;
         if (payload && payload.service) payload = payload.service;
+
+        console.group('[ServiceDetails] Backend response');
+        console.log('full response:', res);
+        console.log('response.data:', res?.data);
+        console.log('service:', payload);
+        console.log('bookingLink:', payload?.bookingLink);
+        console.log('insuranceInPlace:', payload?.insuranceInPlace);
+        console.groupEnd();
+
         if (mounted) setItem(payload || null);
       } catch (err) {
-        console.error('ServiceDetails fetch error:', err);
         if (mounted) setError(err?.response?.data?.message || err.message || 'Failed to load service');
       } finally {
         if (mounted) setLoading(false);
@@ -199,12 +204,6 @@ const ServiceDetails = () => {
     fetchDetail();
     return () => { mounted = false; };
   }, [id]);
-
-  useEffect(() => {
-    if (item) {
-      console.log('ServiceDetails item state updated:', item);
-    }
-  }, [item]);
 
   /* ── Book Now handler ── */
   const handleBookNowClick = () => {
@@ -423,11 +422,11 @@ const ServiceDetails = () => {
     hasValue(displayData.fullAddress) ||
     hasValue(displayData.townCity) ||
     hasValue(displayData.postcode) ||
-    hasValue(displayData.profession) ||
-    hasValue(displayData.sessionType) ||
-    hasValue(displayData.sport) ||
-    hasValue(displayData.suitableFor) ||
-    hasValue(displayData.professionalRegistration) ||
+    // hasValue(displayData.profession) ||
+    // hasValue(displayData.sessionType) ||
+    // hasValue(displayData.sport) ||
+    // hasValue(displayData.suitableFor) ||
+    // hasValue(displayData.professionalRegistration) ||
     hasValue(displayData.bookingLink) ||
     hasValue(displayData.insurance) ||
     hasValue(displayData.cost);
@@ -578,7 +577,7 @@ const ServiceDetails = () => {
                             />
                           ) : null}
 
-                          {hasValue(displayData.profession) ? (
+                          {/* {hasValue(displayData.profession) ? (
                             <OverviewRow
                               icon={BriefcaseMedical}
                               label="Service type"
@@ -608,7 +607,7 @@ const ServiceDetails = () => {
                               label="Suitable for"
                               value={displayData.suitableFor}
                             />
-                          ) : null}
+                          ) : null} */}
 
                           {/* {hasValue(displayData.cost) ? (
                             <OverviewRow
@@ -618,29 +617,11 @@ const ServiceDetails = () => {
                             />
                           ) : null} */}
 
-                          {hasValue(displayData.professionalRegistration) ? (
+                          {/* {hasValue(displayData.professionalRegistration) ? (
                             <OverviewRow
                               icon={FileCheck}
                               label="Professional registration / qualifications."
                               value={displayData.professionalRegistration}
-                            />
-                          ) : null}
-
-                          {/* {hasValue(displayData.bookingLink) ? (
-                            <OverviewRow
-                              icon={Link2}
-                              label="Booking Link"
-                              value={
-                                <a
-                                  href={displayData.bookingLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-start gap-1.5 break-all text-[#0F766E] underline-offset-2 hover:underline"
-                                >
-                                  <span>{displayData.bookingLink}</span>
-                                  <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                                </a>
-                              }
                             />
                           ) : null} */}
 
@@ -658,7 +639,7 @@ const ServiceDetails = () => {
 
                   {/* CTA Buttons */}
                   <div className="flex flex-wrap gap-3">
-                    <button
+                    {/* <button
                       onClick={() => {
                         const isInterestOnly =
                           item?.responseType === 'INTERESTED' ||
@@ -678,7 +659,17 @@ const ServiceDetails = () => {
                           ? 'Registering…'
                           : 'Register interest'
                         : 'Register'}
-                    </button>
+                    </button> */}
+                    {hasValue(displayData.bookingLink) ? (
+                      <a
+                        href={displayData.bookingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors inline-flex items-center"
+                      >
+                        Visit provider page
+                      </a>
+                    ) : null}
                   </div>
                 </div>
               )}
@@ -687,7 +678,7 @@ const ServiceDetails = () => {
             {/* Contact Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-45 bg-[#E7F1F1] rounded-lg p-4 shadow-sm">
-                <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Contact</h3>
+                <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4"> Contact the provider.</h3>
                 <p className="text-[#1A1D1F] text-base mb-3">Enquire about this service.</p>
                 <form onSubmit={handleSubmit} className="flex flex-col">
                   <textarea

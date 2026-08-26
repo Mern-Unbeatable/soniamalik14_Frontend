@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Medal, Calendar, Users, MapPin, CircleDollarSign } from 'lucide-react';
+import { ArrowLeft, Heart, Medal, Calendar, Users, MapPin, CircleDollarSign, ShieldCheck } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import Container from '../../../components/layout/Container';
 import { GET, POST } from '../../../services/httpMethods';
@@ -122,12 +122,15 @@ const DiscoverDetails = () => {
           { skipAuth: true, withCredentials: false }
         );
 
-        console.log('[DiscoverDetails] backend response:', response);
-        console.log('[DiscoverDetails] response.data:', response?.data);
-
         const payload = response?.data;
         const resolvedService = payload?.data?.service || payload?.service || payload?.data || null;
-        console.log('[DiscoverDetails] resolvedService:', resolvedService);
+
+        console.group('[DiscoverDetails] Backend response');
+        console.log('full response:', response);
+        console.log('response.data:', payload);
+        console.log('service:', resolvedService);
+        console.groupEnd();
+
         setService(resolvedService);
       } catch (fetchError) {
         if (fetchError?.name === 'CanceledError' || fetchError?.name === 'AbortError') return;
@@ -191,6 +194,16 @@ const DiscoverDetails = () => {
       about: service.aboutService || service.description || '',
       costMemebershipDetail: service.costMemebershipDetail || '',
       bookingLink: service.bookingLink || '',
+      insuranceInPlace:
+        service.insuranceInPlace === true ||
+        String(service.insuranceInPlace || '').trim().toLowerCase() === 'yes' ||
+        String(service.insuranceInPlace || '').trim().toLowerCase() === 'true'
+          ? 'Confirmed by provider'
+          : service.insuranceInPlace === false ||
+              String(service.insuranceInPlace || '').trim().toLowerCase() === 'no' ||
+              String(service.insuranceInPlace || '').trim().toLowerCase() === 'false'
+            ? 'No'
+            : '',
       providerId: service.providerId || service.provider?.id || '',
       participantResponseType: service.participantResponseType || 'ADD_BOOKING_LINK',
       responseType: service.responseType || (service.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'INTERESTED' : 'REGISTER'),
@@ -513,7 +526,8 @@ const DiscoverDetails = () => {
                 hasText(item.type) ||
                 hasText(item.suitableFor) ||
                 hasText(item.womensOnly) ||
-                hasText(item.costMemebershipDetail)) && (
+                hasText(item.costMemebershipDetail) ||
+                hasText(item.insuranceInPlace)) && (
                 <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Session Overview</h3>
               )}
               <div className="space-y-3 mb-6">
@@ -589,6 +603,8 @@ const DiscoverDetails = () => {
                   </div>
                 ) : null}
 
+                
+
               </div>
               
               {/* Action Buttons */}
@@ -605,6 +621,16 @@ const DiscoverDetails = () => {
                 >
                   {item.responseType === 'INTERESTED' ? 'Register Interest' : 'Register'}
                 </button>
+                {/* {hasText(item.bookingLink) ? (
+                  <a
+                    href={item.bookingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Visit provider page
+                  </a>
+                ) : null} */}
               </div>
             </div>
 
@@ -716,12 +742,22 @@ const DiscoverDetails = () => {
               >
                 {item.responseType === 'INTERESTED' ? 'Register Interest' : 'Register'}
               </button>
+              {hasText(item.bookingLink) ? (
+                <a
+                  href={item.bookingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
+                >
+                  Visit provider page
+                </a>
+              ) : null}
             </div>
           </div>
 
             {/* Column 3: Contact Organiser */}
             <div>
-              <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Contact Organiser</h3>
+              <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4"> Contact the provider.</h3>
               <div className="bg-[#E7F1F1] p-4 rounded-lg h-100 flex flex-col">
                 <p className="text-base mb-4 text-[#1A1D1F] ">Ask the organiser a question</p>
                 <form onSubmit={handleSendMessage} className="flex flex-col flex-1">
