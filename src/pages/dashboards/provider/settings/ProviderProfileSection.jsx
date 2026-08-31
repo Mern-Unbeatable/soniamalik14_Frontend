@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { FiCamera } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import Button from '../../../../components/ui/Button';
 import { updateUserProfile } from '../../../../services/authService';
+import { hydrateAuth } from '../../../../features/auth/authSlice';
 import {
   handleImageLoadError,
   pickImageSource,
@@ -23,22 +25,31 @@ const joiningAsOptions = [
 
 const resolveUserId = (user) => user?.id || user?._id || user?.userId || null;
 
-const normalizeProfileFromUser = (user) => ({
-  organizationName: user?.organizationName || '',
-  bio: user?.bio || user?.aboutOrganization || '',
-  postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
-  sessionType: user?.sessionType || 'women',
-  sportsOffered: Array.isArray(user?.sportsOffered) ? user?.sportsOffered : [],
-  serviceTypes: Array.isArray(user?.serviceTypes) ? user?.serviceTypes : [],
-  fullName: user?.name || '',
-  email: user?.email || '',
-  phone: user?.phone || '',
+const normalizeProfileFromUser = (user, fallbackProfile = {}) => ({
+  organizationName:
+    user?.organizationName ||
+    user?.organisationName ||
+    user?.clubName ||
+    user?.organization ||
+    user?.providerBusinessName ||
+    user?.businessName ||
+    fallbackProfile?.organizationName ||
+    '',
+  bio: user?.bio || user?.aboutOrganization || fallbackProfile?.bio || '',
+  postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || fallbackProfile?.postcode || '',
+  sessionType: user?.sessionType || fallbackProfile?.sessionType || 'women',
+  sportsOffered: Array.isArray(user?.sportsOffered) && user.sportsOffered.length > 0 ? user.sportsOffered : (fallbackProfile?.sportsOffered || []),
+  serviceTypes: Array.isArray(user?.serviceTypes) && user.serviceTypes.length > 0 ? user.serviceTypes : (fallbackProfile?.serviceTypes || []),
+  fullName: user?.fullName || user?.name || fallbackProfile?.fullName || '',
+  email: user?.email || fallbackProfile?.email || '',
+  phone: user?.phone || fallbackProfile?.phone || '',
 });
 
 const getUserImage = (user) =>
   pickImageSource(user?.avatar, user?.image, user?.profileImage, user?.photo) || '';
 
 const ProviderProfileSection = ({ user, fetchMe }) => {
+  const dispatch = useDispatch();
   console.log('ProviderProfileSection user data prop:', user);
   const [profile, setProfile] = useState(() => normalizeProfileFromUser(user));
   console.log('ProviderProfileSection initial profile state:', profile);
@@ -110,7 +121,12 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
     try {
       const payload = {
         name: profile.fullName,
+        fullName: profile.fullName,
         organizationName: profile.organizationName,
+        organisationName: profile.organizationName,
+        providerBusinessName: profile.organizationName,
+        organization: profile.organizationName,
+        clubName: profile.organizationName,
         bio: profile.bio,
         aboutOrganization: profile.bio,
         postcode: profile.postcode,
@@ -123,6 +139,8 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
         email: profile.email,
         phone: profile.phone,
       };
+
+      console.log('Submitting profile update with payload:', payload);
 
       let result;
       if (imageFile) {
@@ -137,8 +155,16 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
         result = await updateUserProfile(userId, payload);
       }
 
+      console.log('Profile update result:', result);
+
       if (result?.success) {
-        await fetchMe();
+        if (result?.user) {
+          dispatch(hydrateAuth({ user: result.user }));
+          setProfile(normalizeProfileFromUser(result.user));
+        }
+        if (fetchMe) {
+          await fetchMe();
+        }
       }
     } finally {
       setSavingProfile(false);
@@ -152,7 +178,7 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
   }, [imagePreview, imageFile]);
 
   useEffect(() => {
-    setProfile(normalizeProfileFromUser(user));
+    setProfile((prev) => normalizeProfileFromUser(user, prev));
     setImagePreview(getUserImage(user));
     setImageFile(null);
   }, [user]);
