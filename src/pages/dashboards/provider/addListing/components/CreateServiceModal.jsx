@@ -39,7 +39,6 @@ const getOrgFromUser = (user = {}) => ({
     user?.providerBusinessName ||
     user?.businessName ||
     user?.providerName ||
-    user?.name ||
     '',
   contactName:
     user?.contactName ||

@@ -372,7 +372,27 @@ const authSlice = createSlice({
       .addCase(fetchMe.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.user = normalizeUser(action.payload?.user) || state.user;
+        const fetchedUser = normalizeUser(action.payload?.user);
+        if (fetchedUser) {
+          const preservedOrgName =
+            fetchedUser.organizationName ||
+            fetchedUser.organisationName ||
+            fetchedUser.clubName ||
+            fetchedUser.organization ||
+            fetchedUser.providerBusinessName ||
+            fetchedUser.businessName ||
+            state.user?.organizationName ||
+            state.user?.organisationName ||
+            state.user?.providerBusinessName ||
+            '';
+          state.user = {
+            ...state.user,
+            ...fetchedUser,
+            organizationName: preservedOrgName,
+            organisationName: preservedOrgName,
+            providerBusinessName: preservedOrgName,
+          };
+        }
         state.token = action.payload?.token ?? state.token;
         state.isAuthenticated = Boolean(state.user || state.token);
       })

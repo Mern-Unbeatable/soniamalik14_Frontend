@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Upload, X, Plus, Trash2 } from 'lucide-react';
@@ -286,13 +286,14 @@ const resolveRoleFromUser = (user = {}) => {
 };
 
 const mapUserToForm = (user) => {
+  console.log('[CreateRecruitmentModal] Mapping user from Redux auth state:', user);
   const organisationName =
     user?.organizationName ||
     user?.organisationName ||
     user?.clubName ||
     user?.organization ||
     user?.providerBusinessName ||
-    user?.name ||
+    user?.businessName ||
     '';
   const contactPerson =
     user?.contactName ||
@@ -306,7 +307,7 @@ const mapUserToForm = (user) => {
   const logo = user?.logo || user?.avatar || user?.profileImage || user?.photo || null;
   const role = resolveRoleFromUser(user);
 
-  return {
+  const mapped = {
     ...createInitialForm(),
     organisationName,
     contactPerson,
@@ -315,6 +316,8 @@ const mapUserToForm = (user) => {
     logo,
     postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
   };
+  console.log('[CreateRecruitmentModal] Mapped initial form from Redux user:', mapped);
+  return mapped;
 };
 
 const mapInitialDataToForm = (initialData) => {
@@ -437,22 +440,34 @@ const CreateRecruitmentModal = ({
       if (mode !== 'edit') {
         try {
           const response = await GET('/api/users/me/profile');
-          const profile = response?.data?.user || response?.data || response;
+          console.log('[CreateRecruitmentModal] GET /api/users/me/profile raw response:', response);
+          const profile = response?.data?.user || response?.data?.profile || response?.data || response;
+          console.log('[CreateRecruitmentModal] Extracted profile object from backend:', profile);
+
           if (profile && typeof profile === 'object') {
+            const backendOrgName =
+              profile.organizationName ||
+              profile.organisationName ||
+              profile.clubName ||
+              profile.providerBusinessName ||
+              profile.businessName ||
+              '';
+            const backendContactPerson =
+              profile.contactName ||
+              profile.fullName ||
+              profile.displayName ||
+              [profile.firstName, profile.lastName].filter(Boolean).join(' ') ||
+              profile.firstName ||
+              profile.name ||
+              '';
+
+            console.log('[CreateRecruitmentModal] Resolved backend org name:', backendOrgName);
+            console.log('[CreateRecruitmentModal] Resolved backend contact person:', backendContactPerson);
+
             nextForm = {
               ...nextForm,
-              organisationName:
-                nextForm.organisationName ||
-                profile.organizationName ||
-                profile.organisationName ||
-                profile.clubName ||
-                '',
-              contactPerson:
-                nextForm.contactPerson ||
-                profile.contactName ||
-                [profile.firstName, profile.lastName].filter(Boolean).join(' ') ||
-                profile.name ||
-                '',
+              organisationName: nextForm.organisationName || backendOrgName,
+              contactPerson: nextForm.contactPerson || backendContactPerson,
               role: nextForm.role || resolveRoleFromUser(profile),
               about: nextForm.about || profile.bio || profile.aboutOrganization || '',
               logo:
@@ -463,12 +478,13 @@ const CreateRecruitmentModal = ({
                 null,
             };
           }
-        } catch {
-          // Profile fetch is optional; Redux user data is enough.
+        } catch (err) {
+          console.warn('[CreateRecruitmentModal] Failed fetching backend profile:', err);
         }
       }
 
       if (!cancelled) {
+        console.log('[CreateRecruitmentModal] Final hydrated form state set to:', nextForm);
         setForm(nextForm);
         setErrors({});
       }
