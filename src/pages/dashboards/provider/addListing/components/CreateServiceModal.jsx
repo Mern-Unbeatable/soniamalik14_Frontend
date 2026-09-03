@@ -18,7 +18,11 @@ const SUITABLE_FOR_OPTIONS = [
 const DAY_OPTIONS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const RESPONSE_ACTION_OPTIONS = [
   { value: 'REGISTER', label: 'Register', desc: 'People can sign up to attend this session.' },
-  { value: 'REGISTER_INTEREST', label: 'Register Interest', desc: 'Confirm demand before people attend.' },
+  {
+    value: 'REGISTER_INTEREST',
+    label: 'Register Interest',
+    desc: 'Confirm demand before people attend.',
+  },
 ];
 
 const fieldClass =
@@ -64,11 +68,13 @@ const sportOptions = [
   'Golf',
   'Running',
   'All sports',
-  'Other'
+  'Other',
 ];
 
 const normalizeSessionType = (value) => {
-  const val = String(value || '').trim().toLowerCase();
+  const val = String(value || '')
+    .trim()
+    .toLowerCase();
   if (val === 'in clinic') return 'In Clinic';
   if (val === 'online') return 'Online';
   if (val === 'at venue') return 'At Venue';
@@ -76,7 +82,9 @@ const normalizeSessionType = (value) => {
 };
 
 const mapSessionTypeToUi = (value) => {
-  const val = String(value || '').trim().toLowerCase();
+  const val = String(value || '')
+    .trim()
+    .toLowerCase();
   if (val === 'in clinic') return 'In clinic';
   if (val === 'online') return 'Online';
   if (val === 'at venue') return 'At venue';
@@ -144,9 +152,7 @@ const getParticipantResponseType = (methods = []) => {
 
 const buildSportsList = (sports = [], otherSport = '') => {
   const customSport = String(otherSport || '').trim();
-  return sports
-    .filter((sport) => sport !== 'Other')
-    .concat(customSport ? [customSport] : []);
+  return sports.filter((sport) => sport !== 'Other').concat(customSport ? [customSport] : []);
 };
 
 const appendIfPresent = (formData, key, value) => {
@@ -171,7 +177,9 @@ const buildInitialState = (initialData, user) => {
   const sports = getInitialSports(initialData);
   const responseType =
     initialData?.responseType ||
-    (initialData?.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'REGISTER_INTEREST' : 'REGISTER');
+    (initialData?.participantResponseType === 'ALLOW_REGISTER_INTEREST'
+      ? 'REGISTER_INTEREST'
+      : 'REGISTER');
 
   return {
     ...sports,
@@ -194,7 +202,12 @@ const buildInitialState = (initialData, user) => {
     startTime: '',
     endTime: '',
     sessionFrequency: initialData?.sessionFrequency || '',
-    costMode: initialData?.costMemebershipDetail === 'Free' ? 'free' : initialData?.costMemebershipDetail === 'Contact provider' ? 'contact' : 'details',
+    costMode:
+      initialData?.costMemebershipDetail === 'Free'
+        ? 'free'
+        : initialData?.costMemebershipDetail === 'Contact provider'
+          ? 'contact'
+          : 'details',
     costMembershipDetail: initialData?.costMemebershipDetail || '',
     responseType,
     responseMethods:
@@ -244,8 +257,8 @@ const CreateServiceModal = ({
     if (!sportsCategories || sportsCategories.length === 0) {
       return sportOptions;
     }
-    const names = sportsCategories.map(cat => cat.name).filter(Boolean);
-    const filtered = names.filter(n => n !== 'Other');
+    const names = sportsCategories.map((cat) => cat.name).filter(Boolean);
+    const filtered = names.filter((n) => n !== 'Other');
     return [...filtered, 'Other'];
   }, [sportsCategories]);
 
@@ -325,12 +338,19 @@ const CreateServiceModal = ({
         ''
     ).trim();
     const serviceDescription = String(formData.about || '').trim();
-    const providerName = String(formData.organizationName || formData.providerBusinessName || '').trim();
+    const providerName = String(
+      formData.organizationName || formData.providerBusinessName || ''
+    ).trim();
     const contactName = String(formData.contactName || '').trim();
     const providerType = formData.providerTypes?.[0] || '';
     const sportsList = buildSportsList(formData.sports, formData.otherSport);
     const providerPhone =
-      user?.phone || user?.phoneNumber || user?.mobile || user?.contactNumber || user?.providerPhone || '';
+      user?.phone ||
+      user?.phoneNumber ||
+      user?.mobile ||
+      user?.contactNumber ||
+      user?.providerPhone ||
+      '';
     const providerEmail = user?.email || user?.providerEmail || '';
     const fullAddress = [
       formData.clinicName,
@@ -362,7 +382,11 @@ const CreateServiceModal = ({
     payload.append('city', String(formData.townCity || '').trim());
     payload.append('postcode', String(formData.postcode || '').trim());
     payload.append('fullAddress', fullAddress);
-    appendIfPresent(payload, 'googleMapLink', String(formData.googleMapLink || initialData?.googleMapLink || '').trim());
+    appendIfPresent(
+      payload,
+      'googleMapLink',
+      String(formData.googleMapLink || initialData?.googleMapLink || '').trim()
+    );
     appendArrayValues(payload, 'suitableFor', formData.suitableFor || []);
     const responseType =
       formData.responseType ||
@@ -370,7 +394,10 @@ const CreateServiceModal = ({
         ? 'REGISTER_INTEREST'
         : 'REGISTER');
     payload.append('responseType', responseType);
-    payload.append('organizationName', String(formData.organizationName || formData.providerBusinessName || '').trim());
+    payload.append(
+      'organizationName',
+      String(formData.organizationName || formData.providerBusinessName || '').trim()
+    );
     payload.append('role', String(formData.role || '').trim());
     appendIfPresent(payload, 'sessonDay', formData.sessionDay);
     appendIfPresent(payload, 'sessionFrequency', formData.sessionFrequency);
@@ -380,26 +407,27 @@ const CreateServiceModal = ({
     if (formData.costMode === 'free') {
       appendIfPresent(payload, 'costMemebershipDetail', 'Free');
     } else if (formData.costMode === 'contact') {
-      appendIfPresent(payload, 'costMemebershipDetail', 'Contact provider for cost or membership details');
+      appendIfPresent(
+        payload,
+        'costMemebershipDetail',
+        'Contact provider for cost or membership details'
+      );
     } else {
       appendIfPresent(payload, 'costMemebershipDetail', formData.costMembershipDetail);
     }
-    payload.append(
-      'whoCanTakePart',
-      formData.womensOnly ? 'women only' : 'Mixed, women welcome'
-    );
+    payload.append('whoCanTakePart', formData.womensOnly ? 'women only' : 'Mixed, women welcome');
     payload.append('visibility', 'public');
     payload.append('location', String(formData.townCity || '').trim());
     appendArrayValues(
       payload,
       'sessionTypes',
-      formData.sessionType ? [normalizeSessionType(formData.sessionType)] : (formData.sessionTypes || []).map((item) => normalizeSessionType(item))
+      (formData.sessionTypes || []).map((item) => normalizeSessionType(item))
     );
     appendArrayValues(payload, 'sports', sportsList);
     payload.append('whoServiceFor', sportsList.join(', '));
     payload.append(
       'isOnline',
-      String(String(formData.sessionType || formData.sessionTypes?.[0] || '').toLowerCase() === 'online')
+      String((formData.sessionTypes || []).some((t) => String(t).toLowerCase() === 'online'))
     );
     payload.append('registration', String(formData.registration || '').trim());
     payload.append('professionalRegistration', String(formData.registration || '').trim());
@@ -446,29 +474,50 @@ const CreateServiceModal = ({
               {mode === 'edit' ? 'Edit Session' : 'Add Session'}
             </h2>
             <p className="mt-1 text-sm text-gray-600">
-              Share a session with the community. Need a one-off event instead? Add an event from your dashboard.
+              Share a session with the community. Need a one-off event instead? Add an event from
+              your dashboard.
             </p>
           </div>
-          <button onClick={onClose} className="rounded-full bg-gray-100 p-1 text-gray-600 hover:bg-gray-200" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="rounded-full bg-gray-100 p-1 text-gray-600 hover:bg-gray-200"
+            aria-label="Close"
+          >
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        <form id="service-form" onSubmit={handleSubmit} className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
+        <form
+          id="service-form"
+          onSubmit={handleSubmit}
+          className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5"
+        >
           <FormSection title="Organisation Details">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className={labelClass}>Organisation / Club Name</label>
-                <input className={fieldClass} value={formData.organizationName} onChange={(e) => updateField('organizationName', e.target.value)} />
+                <input
+                  className={fieldClass}
+                  value={formData.organizationName}
+                  onChange={(e) => updateField('organizationName', e.target.value)}
+                />
               </div>
               <div>
                 <label className={labelClass}>Contact Person Name</label>
-                <input className={fieldClass} value={formData.contactName} onChange={(e) => updateField('contactName', e.target.value)} />
+                <input
+                  className={fieldClass}
+                  value={formData.contactName}
+                  onChange={(e) => updateField('contactName', e.target.value)}
+                />
               </div>
             </div>
             <div className="mt-4">
               <label className={labelClass}>Your Role</label>
-              <input className={fieldClass} value={formData.role} onChange={(e) => updateField('role', e.target.value)} />
+              <input
+                className={fieldClass}
+                value={formData.role}
+                onChange={(e) => updateField('role', e.target.value)}
+              />
             </div>
           </FormSection>
 
@@ -476,119 +525,223 @@ const CreateServiceModal = ({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className={labelClass}>Sport or activity *</label>
-                <select className={fieldClass} value={formData.sports?.[0] || ''} onChange={(e) => updateField('sports', e.target.value ? [e.target.value] : [])}>
+                <select
+                  className={fieldClass}
+                  value={formData.sports?.[0] || ''}
+                  onChange={(e) => updateField('sports', e.target.value ? [e.target.value] : [])}
+                >
                   <option value="">Select sport</option>
                   {dynamicSports.map((sport) => (
-                    <option key={sport} value={sport}>{sport}</option>
+                    <option key={sport} value={sport}>
+                      {sport}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Session type *</label>
-                <select
-                  className={fieldClass}
-                  value={formData.sessionType}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setFormData((prev) => ({ ...prev, sessionType: v, sessionTypes: v ? [v] : [] }));
-                  }}
-                >
-                  <option value="">Select session type</option>
+                <label className={labelClass}>Delivery type * <span className="font-normal text-gray-400">(select all that apply)</span></label>
+                <div className="mt-1 space-y-1.5">
                   {SESSION_TYPE_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                    <label key={opt} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={(formData.sessionTypes || []).includes(opt)}
+                        onChange={() => toggleMulti('sessionTypes', opt)}
+                        className="accent-[#0F766E]"
+                      />
+                      {opt}
+                    </label>
                   ))}
-                </select>
+                </div>
               </div>
             </div>
             <div className="mt-4 space-y-2">
               <label className={labelClass}>Suitable for</label>
               {SUITABLE_FOR_OPTIONS.map((option) => (
                 <label key={option} className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={(formData.suitableFor || []).includes(option)} onChange={() => toggleSuitableFor(option)} />
+                  <input
+                    type="checkbox"
+                    checked={(formData.suitableFor || []).includes(option)}
+                    onChange={() => toggleSuitableFor(option)}
+                  />
                   {option}
                 </label>
               ))}
             </div>
             <div className="mt-4 space-y-2">
               <label className={labelClass}>Who can take part?</label>
-              <label className="flex items-center gap-2 text-sm"><input type="radio" name="sessionWho" checked={formData.womensOnly === true} onChange={() => updateField('womensOnly', true)} />Women only</label>
-              <label className="flex items-center gap-2 text-sm"><input type="radio" name="sessionWho" checked={formData.womensOnly === false} onChange={() => updateField('womensOnly', false)} />Mixed, women welcome</label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="sessionWho"
+                  checked={formData.womensOnly === true}
+                  onChange={() => updateField('womensOnly', true)}
+                />
+                Women only
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="sessionWho"
+                  checked={formData.womensOnly === false}
+                  onChange={() => updateField('womensOnly', false)}
+                />
+                Mixed, women welcome
+              </label>
             </div>
           </FormSection>
 
           <FormSection title="Session Description">
-            <textarea className={`${fieldClass} min-h-28 resize-none`} value={formData.about} onChange={(e) => updateField('about', e.target.value)} placeholder="Tell people what to expect" />
+            <textarea
+              className={`${fieldClass} min-h-28 resize-none`}
+              value={formData.about}
+              onChange={(e) => updateField('about', e.target.value)}
+              placeholder="Tell people what to expect"
+            />
           </FormSection>
 
           <FormSection title="Location & Timing">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div><label className={labelClass}>Venue Name *</label><input className={fieldClass} value={formData.clinicName} onChange={(e) => updateField('clinicName', e.target.value)} /></div>
-              <div><label className={labelClass}>Postcode *</label><input className={fieldClass} value={formData.postcode} onChange={(e) => updateField('postcode', e.target.value)} /></div>
-              <div><label className={labelClass}>Google Maps Link</label><input className={fieldClass} value={formData.googleMapLink} onChange={(e) => updateField('googleMapLink', e.target.value)} /></div>
+              <div>
+                <label className={labelClass}>Venue Name *</label>
+                <input
+                  className={fieldClass}
+                  value={formData.clinicName}
+                  onChange={(e) => updateField('clinicName', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Postcode *</label>
+                <input
+                  className={fieldClass}
+                  value={formData.postcode}
+                  onChange={(e) => updateField('postcode', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Google Maps Link</label>
+                <input
+                  className={fieldClass}
+                  value={formData.googleMapLink}
+                  onChange={(e) => updateField('googleMapLink', e.target.value)}
+                />
+              </div>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
                 <label className={labelClass}>Session day *</label>
-                <select className={fieldClass} value={formData.sessionDay} onChange={(e) => updateField('sessionDay', e.target.value)}>
+                <select
+                  className={fieldClass}
+                  value={formData.sessionDay}
+                  onChange={(e) => updateField('sessionDay', e.target.value)}
+                >
                   <option value="">Select day</option>
-                  {DAY_OPTIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                  {DAY_OPTIONS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
                 </select>
               </div>
-              <div><label className={labelClass}>Start time *</label><input type="time" className={fieldClass} value={formData.startTime} onChange={(e) => updateField('startTime', e.target.value)} /></div>
-              <div><label className={labelClass}>End time *</label><input type="time" className={fieldClass} value={formData.endTime} onChange={(e) => updateField('endTime', e.target.value)} /></div>
+              <div>
+                <label className={labelClass}>Start time *</label>
+                <input
+                  type="time"
+                  className={fieldClass}
+                  value={formData.startTime}
+                  onChange={(e) => updateField('startTime', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>End time *</label>
+                <input
+                  type="time"
+                  className={fieldClass}
+                  value={formData.endTime}
+                  onChange={(e) => updateField('endTime', e.target.value)}
+                />
+              </div>
             </div>
             <div className="mt-4">
               <label className={labelClass}>How often does it run? *</label>
-              <select className={fieldClass} value={formData.sessionFrequency} onChange={(e) => updateField('sessionFrequency', e.target.value)}>
+              <select
+                className={fieldClass}
+                value={formData.sessionFrequency}
+                onChange={(e) => updateField('sessionFrequency', e.target.value)}
+              >
                 <option value="">Select frequency</option>
-                {SESSION_FREQUENCY_OPTIONS.map((f) => <option key={f} value={f}>{f}</option>)}
+                {SESSION_FREQUENCY_OPTIONS.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div><label className={labelClass}>Town/City</label><input className={fieldClass} value={formData.townCity} onChange={(e) => updateField('townCity', e.target.value)} /></div>
-              <div><label className={labelClass}>Address line</label><input className={fieldClass} value={formData.address1} onChange={(e) => updateField('address1', e.target.value)} /></div>
+              <div>
+                <label className={labelClass}>Town/City</label>
+                <input
+                  className={fieldClass}
+                  value={formData.townCity}
+                  onChange={(e) => updateField('townCity', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Address line</label>
+                <input
+                  className={fieldClass}
+                  value={formData.address1}
+                  onChange={(e) => updateField('address1', e.target.value)}
+                />
+              </div>
             </div>
           </FormSection>
 
           <FormSection title="Cost or Membership Details *">
             <div className="mb-3 flex flex-wrap gap-2">
               {['details', 'free', 'contact'].map((modeKey) => (
-                <button key={modeKey} type="button" onClick={() => updateField('costMode', modeKey)} className={`rounded-md px-3 py-1.5 text-sm ${formData.costMode === modeKey ? 'bg-[#0F766E] text-white' : 'bg-gray-200'}`}>
-                  {modeKey === 'details' ? 'Enter details' : modeKey === 'free' ? 'Free' : 'Contact provider'}
+                <button
+                  key={modeKey}
+                  type="button"
+                  onClick={() => updateField('costMode', modeKey)}
+                  className={`rounded-md px-3 py-1.5 text-sm ${formData.costMode === modeKey ? 'bg-[#0F766E] text-white' : 'bg-gray-200'}`}
+                >
+                  {modeKey === 'details'
+                    ? 'Enter details'
+                    : modeKey === 'free'
+                      ? 'Free'
+                      : 'Contact provider'}
                 </button>
               ))}
             </div>
             {formData.costMode === 'details' && (
-              <textarea className={`${fieldClass} min-h-24 resize-none`} value={formData.costMembershipDetail} onChange={(e) => updateField('costMembershipDetail', e.target.value)} />
+              <textarea
+                className={`${fieldClass} min-h-24 resize-none`}
+                value={formData.costMembershipDetail}
+                onChange={(e) => updateField('costMembershipDetail', e.target.value)}
+              />
             )}
           </FormSection>
 
-          <FormSection>
-            <p className="mb-3 text-base font-bold text-[#14322F]">Choose the main action for this listing</p>
-            {RESPONSE_ACTION_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    responseType: option.value,
-                    responseMethods: option.value === 'REGISTER_INTEREST' ? ['Allow users to register interest'] : ['Add booking link'],
-                  }))
-                }
-                className={`mb-2 w-full rounded-xl border p-4 text-left ${formData.responseType === option.value ? 'border-[#147B6B] bg-[#E7F1F1]' : 'border-gray-200 bg-white'}`}
-              >
-                <p className="font-semibold">{option.label}</p>
-                <p className="text-sm text-gray-600">{option.desc}</p>
-              </button>
-            ))}
-          </FormSection>
+
 
           <FormSection>
             <label className={labelClass}>Image Upload</label>
             <label className="relative block h-44 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-[#F8F9F9]">
-              {previewImage ? <img src={previewImage} alt="Session" className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center text-gray-500"><Upload className="mb-2 h-7 w-7" /><span className="text-sm">Click to upload an image</span></div>}
-              <input type="file" accept="image/jpeg,image/jpg,image/png" className="hidden" onChange={(e) => updateField('logo', e.target.files?.[0] || null)} />
+              {previewImage ? (
+                <img src={previewImage} alt="Session" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center text-gray-500">
+                  <Upload className="mb-2 h-7 w-7" />
+                  <span className="text-sm">Click to upload an image</span>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/jpeg,image/jpg,image/png"
+                className="hidden"
+                onChange={(e) => updateField('logo', e.target.files?.[0] || null)}
+              />
             </label>
           </FormSection>
 
@@ -597,7 +750,12 @@ const CreateServiceModal = ({
         </form>
 
         <div className="border-t border-gray-200 bg-white px-5 py-4">
-          <button type="submit" form="service-form" disabled={isBusy} className="w-full rounded-lg bg-[#0F766E] py-3 text-sm font-semibold text-white hover:bg-[#0d655d] disabled:opacity-60">
+          <button
+            type="submit"
+            form="service-form"
+            disabled={isBusy}
+            className="w-full rounded-lg bg-[#0F766E] py-3 text-sm font-semibold text-white hover:bg-[#0d655d] disabled:opacity-60"
+          >
             {isBusy ? 'Submitting...' : 'Submit for approval'}
           </button>
         </div>

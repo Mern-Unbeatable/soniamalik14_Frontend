@@ -56,7 +56,7 @@ const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, l
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div className="animate-in fade-in zoom-in-95 w-full max-w-md rounded-2xl bg-white shadow-2xl duration-200">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <div>
@@ -66,7 +66,7 @@ const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, l
           <button
             onClick={onClose}
             disabled={loading}
-            className="rounded-full bg-gray-100 p-1.5 text-gray-500 hover:bg-gray-200 transition-colors"
+            className="rounded-full bg-gray-100 p-1.5 text-gray-500 transition-colors hover:bg-gray-200"
           >
             <X className="h-5 w-5" />
           </button>
@@ -78,7 +78,7 @@ const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, l
             The following information will be submitted with your registration request:
           </p>
 
-          <div className="space-y-3 rounded-xl bg-[#F4FAF9] p-4 border border-[#D1EDE9]">
+          <div className="space-y-3 rounded-xl border border-[#D1EDE9] bg-[#F4FAF9] p-4">
             {/* Name */}
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E0F2EE] text-[#147B6B]">
@@ -127,14 +127,14 @@ const BookingConfirmModal = ({ isOpen, onClose, onConfirm, user, serviceTitle, l
           <button
             onClick={onClose}
             disabled={loading}
-            className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-[#1A1D1F] hover:bg-gray-50 transition-colors disabled:opacity-60"
+            className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-[#1A1D1F] transition-colors hover:bg-gray-50 disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#147B6B] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0D655D] transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#147B6B] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0D655D] disabled:opacity-60"
           >
             {loading ? (
               <>
@@ -195,14 +195,17 @@ const ServiceDetails = () => {
 
         if (mounted) setItem(payload || null);
       } catch (err) {
-        if (mounted) setError(err?.response?.data?.message || err.message || 'Failed to load service');
+        if (mounted)
+          setError(err?.response?.data?.message || err.message || 'Failed to load service');
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
     fetchDetail();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [id]);
 
   /* ── Visit provider page (open link + track click) ── */
@@ -245,7 +248,8 @@ const ServiceDetails = () => {
         timerProgressBar: true,
       });
     } catch (intErr) {
-      const errMsg = intErr?.response?.data?.message || 'Failed to register interest. Please try again.';
+      const errMsg =
+        intErr?.response?.data?.message || 'Failed to register interest. Please try again.';
       await Swal.fire({
         icon: 'error',
         title: 'Registration Failed',
@@ -283,7 +287,8 @@ const ServiceDetails = () => {
         timerProgressBar: true,
       });
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || 'Registration failed. Please try again.';
+      const msg =
+        err?.response?.data?.message || err.message || 'Registration failed. Please try again.';
       setShowBookModal(false);
       await Swal.fire({
         icon: 'error',
@@ -366,9 +371,7 @@ const ServiceDetails = () => {
       };
     }
 
-    const fullAddress = String(
-      item.fullAddress || item.addressLine1 || item.location || ''
-    ).trim();
+    const fullAddress = String(item.fullAddress || item.addressLine1 || item.location || '').trim();
     const townCity = String(item.city || item.town || '').trim();
     const postcode = String(item.postcode || '').trim();
     const listingHeadline = String(item.listingHeadline || '').trim();
@@ -412,33 +415,46 @@ const ServiceDetails = () => {
       bookingLink,
       insurance:
         item.insuranceInPlace === true ||
-        String(item.insuranceInPlace || '').trim().toLowerCase() === 'yes' ||
-        String(item.insuranceInPlace || '').trim().toLowerCase() === 'true'
+        String(item.insuranceInPlace || '')
+          .trim()
+          .toLowerCase() === 'yes' ||
+        String(item.insuranceInPlace || '')
+          .trim()
+          .toLowerCase() === 'true'
           ? 'Confirmed by provider'
           : item.insuranceInPlace === false ||
-            String(item.insuranceInPlace || '').trim().toLowerCase() === 'no' ||
-            String(item.insuranceInPlace || '').trim().toLowerCase() === 'false'
+              String(item.insuranceInPlace || '')
+                .trim()
+                .toLowerCase() === 'no' ||
+              String(item.insuranceInPlace || '')
+                .trim()
+                .toLowerCase() === 'false'
             ? 'No'
             : String(item.insuranceInPlace || item.insurance || '').trim(),
       cost: String(item.costMemebershipDetail || item.costMembershipDetail || '').trim(),
     };
   })();
 
+  // Combine venue, address, town/city and postcode into one Location string
+  const combinedLocation = [
+    displayData.clinicName,
+    displayData.fullAddress,
+    displayData.townCity,
+    displayData.postcode,
+  ]
+    .map((s) => String(s || '').trim())
+    .filter(Boolean)
+    .join(', ');
+  const combinedLocationMapsUrl = combinedLocation
+    ? buildGoogleMapsSearchUrl(combinedLocation)
+    : '';
+
   const overviewHasContent =
-    hasValue(displayData.clinicName) ||
-    hasValue(displayData.listingHeadline) ||
-    hasValue(displayData.organizationName) ||
-    hasValue(displayData.fullAddress) ||
-    hasValue(displayData.townCity) ||
-    hasValue(displayData.postcode) ||
-    // hasValue(displayData.profession) ||
-    // hasValue(displayData.sessionType) ||
-    // hasValue(displayData.sport) ||
-    // hasValue(displayData.suitableFor) ||
-    // hasValue(displayData.professionalRegistration) ||
-    hasValue(displayData.bookingLink) ||
-    hasValue(displayData.insurance) ||
-    hasValue(displayData.cost);
+    hasValue(combinedLocation) ||
+    hasValue(displayData.sessionType) ||
+    hasValue(displayData.sport) ||
+    hasValue(displayData.professionalRegistration) ||
+    hasValue(displayData.insurance);
 
   return (
     <>
@@ -452,15 +468,15 @@ const ServiceDetails = () => {
         loading={bookLoading}
       />
 
-      <section className="py-6 lg:py-10 bg-[#F8FAFC]">
+      <section className="bg-[#F8FAFC] py-6 lg:py-10">
         <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-2 text-base font-medium text-[#147B6B] hover:text-[#0D655D] mb-6 transition-colors"
+                className="mb-6 flex items-center gap-2 text-base font-medium text-[#147B6B] transition-colors hover:text-[#0D655D]"
               >
-                <ArrowLeft className="w-4 h-4" /> <span>Back</span>
+                <ArrowLeft className="h-4 w-4" /> <span>Back</span>
               </button>
 
               {loading ? (
@@ -469,21 +485,21 @@ const ServiceDetails = () => {
                 <div className="py-12 text-center text-red-600">{error}</div>
               ) : (
                 <div className="animate-in fade-in duration-300">
-               
-                  <div className="flex items-center gap-4 mb-8">
+                  <div className="mb-8 flex items-center gap-4">
                     <img
                       src={displayData.avatar || DUMMY_IMAGE}
                       alt={displayData.coach || 'Service'}
                       onError={(e) => handleImageLoadError(e, DUMMY_IMAGE)}
-                      className="w-[72px] h-[72px] rounded-full object-cover shadow-sm bg-gray-200"
+                      className="h-[72px] w-[72px] rounded-full bg-gray-200 object-cover shadow-sm"
                     />
                     <div>
-                      <h1 className="text-[24px] md:text-3xl font-semibold text-[#0B544E] leading-tight">
+                      <h1 className="text-[24px] leading-tight font-semibold text-[#0B544E] md:text-3xl">
                         {displayData.title || 'Service'}
                       </h1>
                       {hasValue(displayData.coach) ? (
-                        <p className="text-[#4A5565] text-base mt-1">
-                          Coach: <span className="font-semibold text-[#1A1D1F]">{displayData.coach}</span>
+                        <p className="mt-1 text-base text-[#4A5565]">
+                          Coach:{' '}
+                          <span className="font-semibold text-[#1A1D1F]">{displayData.coach}</span>
                         </p>
                       ) : null}
                     </div>
@@ -491,9 +507,13 @@ const ServiceDetails = () => {
 
                   {/* About */}
                   {hasValue(displayData.description) ? (
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-                      <h3 className="font-bold text-[#1A1D1F] text-lg md:text-xl mb-3">About This Service</h3>
-                      <p className="text-[#4A5565] text-[15px] leading-relaxed">{displayData.description}</p>
+                    <div className="mb-8 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                      <h3 className="mb-3 text-lg font-bold text-[#1A1D1F] md:text-xl">
+                        About This Service
+                      </h3>
+                      <p className="text-[15px] leading-relaxed text-[#4A5565]">
+                        {displayData.description}
+                      </p>
                     </div>
                   ) : null}
 
@@ -503,97 +523,8 @@ const ServiceDetails = () => {
                       <h3 className="mb-4 text-xl font-bold text-[#1A1D1F]">Service Overview</h3>
                       <div className="mb-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:p-6">
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
-                          {hasValue(displayData.clinicName) ? (
-                            <OverviewRow icon={Hospital} label="Clinic Name" value={displayData.clinicName} />
-                          ) : null}
 
-                          {hasValue(displayData.listingHeadline) ? (
-                            <OverviewRow
-                              icon={Building2}
-                              label="Listing Headline"
-                              value={displayData.listingHeadline}
-                            />
-                          ) : null}
-
-                          {hasValue(displayData.organizationName) ? (
-                            <OverviewRow
-                              icon={Building2}
-                              label="Organization Name"
-                              value={displayData.organizationName}
-                            />
-                          ) : null}
-
-                          {hasValue(displayData.fullAddress) ? (
-                            <OverviewRow
-                              icon={MapPin}
-                              label="Address"
-                              value={
-                                displayData.addressMapsUrl ? (
-                                  <a
-                                    href={displayData.addressMapsUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[#0F766E] underline-offset-2 hover:underline"
-                                  >
-                                    {displayData.fullAddress}
-                                  </a>
-                                ) : (
-                                  displayData.fullAddress
-                                )
-                              }
-                            />
-                          ) : null}
-
-                          {hasValue(displayData.townCity) ? (
-                            <OverviewRow
-                              icon={MapPin}
-                              label="Town/City"
-                              value={
-                                displayData.townCityMapsUrl ? (
-                                  <a
-                                    href={displayData.townCityMapsUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[#0F766E] underline-offset-2 hover:underline"
-                                  >
-                                    {displayData.townCity}
-                                  </a>
-                                ) : (
-                                  displayData.townCity
-                                )
-                              }
-                            />
-                          ) : null}
-
-                          {hasValue(displayData.postcode) ? (
-                            <OverviewRow
-                              icon={MapPin}
-                              label="Postcode"
-                              value={
-                                displayData.postcodeMapsUrl ? (
-                                  <a
-                                    href={displayData.postcodeMapsUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[#0F766E] underline-offset-2 hover:underline"
-                                  >
-                                    {displayData.postcode}
-                                  </a>
-                                ) : (
-                                  displayData.postcode
-                                )
-                              }
-                            />
-                          ) : null}
-
-                          {/* {hasValue(displayData.profession) ? (
-                            <OverviewRow
-                              icon={BriefcaseMedical}
-                              label="Service type"
-                              value={displayData.profession}
-                            />
-                          ) : null}
-
+                          {/* Delivery type */}
                           {hasValue(displayData.sessionType) ? (
                             <OverviewRow
                               icon={Target}
@@ -602,6 +533,29 @@ const ServiceDetails = () => {
                             />
                           ) : null}
 
+                          {/* Location — venue, address, town/city and postcode combined */}
+                          {hasValue(combinedLocation) ? (
+                            <OverviewRow
+                              icon={MapPin}
+                              label="Location"
+                              value={
+                                combinedLocationMapsUrl ? (
+                                  <a
+                                    href={combinedLocationMapsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#0F766E] underline-offset-2 hover:underline"
+                                  >
+                                    {combinedLocation}
+                                  </a>
+                                ) : (
+                                  combinedLocation
+                                )
+                              }
+                            />
+                          ) : null}
+
+                          {/* Sports supported (where provided) */}
                           {hasValue(displayData.sport) ? (
                             <OverviewRow
                               icon={Medal}
@@ -610,30 +564,16 @@ const ServiceDetails = () => {
                             />
                           ) : null}
 
-                          {hasValue(displayData.suitableFor) ? (
-                            <OverviewRow
-                              icon={Target}
-                              label="Suitable for"
-                              value={displayData.suitableFor}
-                            />
-                          ) : null} */}
-
-                          {/* {hasValue(displayData.cost) ? (
-                            <OverviewRow
-                              icon={CircleDollarSign}
-                              label="Cost / "
-                              value={displayData.cost}
-                            />
-                          ) : null} */}
-
-                          {/* {hasValue(displayData.professionalRegistration) ? (
+                          {/* Professional registration / qualifications (where provided) */}
+                          {hasValue(displayData.professionalRegistration) ? (
                             <OverviewRow
                               icon={FileCheck}
-                              label="Professional registration / qualifications."
+                              label="Professional registration / qualifications"
                               value={displayData.professionalRegistration}
                             />
-                          ) : null} */}
+                          ) : null}
 
+                          {/* Insurance in place – Confirmed by provider */}
                           {hasValue(displayData.insurance) ? (
                             <OverviewRow
                               icon={ShieldCheck}
@@ -673,7 +613,7 @@ const ServiceDetails = () => {
                       <button
                         type="button"
                         onClick={handleVisitProviderPage}
-                        className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors inline-flex items-center"
+                        className="inline-flex items-center rounded-lg bg-[#147B6B] px-6 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-[#0D655D]"
                       >
                         Visit provider page
                       </button>
@@ -685,20 +625,23 @@ const ServiceDetails = () => {
 
             {/* Contact Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-45 bg-[#E7F1F1] rounded-lg p-4 shadow-sm">
-                <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4"> Contact the provider.</h3>
-                <p className="text-[#1A1D1F] text-base mb-3">Enquire about this service.</p>
+              <div className="sticky top-45 rounded-lg bg-[#E7F1F1] p-4 shadow-sm">
+                <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">
+                  {' '}
+                  Contact the provider.
+                </h3>
+                <p className="mb-3 text-base text-[#1A1D1F]">Enquire about this service.</p>
                 <form onSubmit={handleSubmit} className="flex flex-col">
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Write your message"
-                    className="w-full bg-[#B5D5D2] rounded-xl p-4 text-base text-[#1A1D1F] placeholder-gray-500 border-none focus:ring-1 focus:ring-[#147B6B] resize-none h-32 mb-4"
+                    className="mb-4 h-32 w-full resize-none rounded-xl border-none bg-[#B5D5D2] p-4 text-base text-[#1A1D1F] placeholder-gray-500 focus:ring-1 focus:ring-[#147B6B]"
                   />
                   <button
                     type="submit"
                     disabled={submitLoading}
-                    className="bg-btn-primary text-white px-6 py-2.5 rounded-lg text-[14px] font-medium hover:bg-[#0D655D] transition-colors w-fit disabled:opacity-70"
+                    className="bg-btn-primary w-fit rounded-lg px-6 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-[#0D655D] disabled:opacity-70"
                   >
                     {submitLoading ? 'Sending...' : 'Send enquiry'}
                   </button>
@@ -722,7 +665,7 @@ const OverviewRow = ({ icon, label, value }) => {
       </div>
       <div className="min-w-0 flex-1">
         <p className="mb-0.5 text-base font-semibold text-[#1A1D1F]">{label}</p>
-        <div className="wrap-break-word text-base text-[#4A5565]">{value}</div>
+        <div className="text-base wrap-break-word text-[#4A5565]">{value}</div>
       </div>
     </div>
   );

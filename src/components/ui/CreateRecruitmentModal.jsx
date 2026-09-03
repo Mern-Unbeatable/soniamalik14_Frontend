@@ -627,7 +627,9 @@ const CreateRecruitmentModal = ({
       .concat(String(form.otherSport || '').trim() ? [String(form.otherSport || '').trim()] : []);
     const normalizedSports = normalizeArray(sportsList);
     const normalizedSessionTypes = normalizeArray(
-      form.sessionType ? [form.sessionType] : form.sessionTypes || []
+      (form.sessionTypes && form.sessionTypes.length > 0)
+        ? form.sessionTypes
+        : form.sessionType ? [form.sessionType] : []
     );
     const normalizedSuitableFor = normalizeArray(form.suitableFor || []);
 
@@ -902,7 +904,7 @@ const CreateRecruitmentModal = ({
       appendIfPresent(
         payload,
         'isOnline',
-        String(String(form.sessionType || '').toLowerCase() === 'online')
+        String((form.sessionTypes || []).some((t) => String(t).toLowerCase() === 'online'))
       );
       payload.append('responseType', getResponseType(form.responseMethods, form.responseType));
 
@@ -1167,20 +1169,26 @@ const CreateRecruitmentModal = ({
                       {errors.sessionDescription && <p className={errorClass}>Required</p>}
                     </div>
                     <div>
-                      <label className={labelClass}>Delivery type *</label>
+                      <label className={labelClass}>Delivery type * <span className="font-normal text-white/70">(select all that apply)</span></label>
                       <div className="mt-1 flex flex-wrap gap-2">
                         {DELIVERY_TYPE_OPTIONS.map((option) => {
-                          const selected = form.sessionType === option;
+                          const selected = (form.sessionTypes || []).includes(option);
                           return (
                             <button
                               key={option}
                               type="button"
                               onClick={() => {
-                                setForm((s) => ({
-                                  ...s,
-                                  sessionType: option,
-                                  sessionTypes: [option],
-                                }));
+                                setForm((s) => {
+                                  const current = s.sessionTypes || [];
+                                  const next = current.includes(option)
+                                    ? current.filter((t) => t !== option)
+                                    : [...current, option];
+                                  return {
+                                    ...s,
+                                    sessionTypes: next,
+                                    sessionType: next[0] || '',
+                                  };
+                                });
                                 setErrors((prev) => ({ ...prev, sessionType: false }));
                               }}
                               className={`rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${
@@ -1276,66 +1284,7 @@ const CreateRecruitmentModal = ({
                       />
                     </div>
                   </div>
-                </FormSection>
-
-                <FormSection>
-                  <p className="mb-1 text-base font-bold text-white">
-                    Choose the main action for this listing
-                  </p>
-                  <p className="mb-3 text-sm text-white/80">
-                    Select the button that best matches what you want people to do next. They will still be able to contact you with a question separately.
-                  </p>
-                  <div className="space-y-2">
-                    {PROVIDER_RESPONSE_ACTION_OPTIONS.map((option) => {
-                      const isSelected = form.responseType === option.value;
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => {
-                            setForm((prev) => ({
-                              ...prev,
-                              responseType: option.value,
-                              responseMethods:
-                                option.value === 'INTERESTED'
-                                  ? ['Allow users to register interest']
-                                  : ['Add booking link'],
-                            }));
-                          }}
-                          className={`w-full rounded-xl border p-4 text-left transition-colors ${
-                            isSelected
-                              ? 'border-transparent bg-[#F5F1EB]'
-                              : 'border-white/30 bg-transparent hover:border-white/50'
-                          }`}
-                        >
-                          <p
-                            className={`text-sm font-semibold ${
-                              isSelected ? 'text-[#1A1D1D]' : 'text-white'
-                            }`}
-                          >
-                            {option.label}
-                          </p>
-                          <p
-                            className={`mt-1 text-sm ${
-                              isSelected ? 'text-[#1A1D1D]/70' : 'text-white/75'
-                            }`}
-                          >
-                            {option.desc}
-                          </p>
-                          {option.note ? (
-                            <p
-                              className={`mt-2 text-xs leading-relaxed ${
-                                isSelected ? 'text-[#1A1D1D]/60' : 'text-white/65'
-                              }`}
-                            >
-                              Note: {option.note}
-                            </p>
-                          ) : null}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </FormSection>
+                 </FormSection>
               </>
             ) : (
               <>
