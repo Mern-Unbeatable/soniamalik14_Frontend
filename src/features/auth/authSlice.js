@@ -269,7 +269,6 @@ export const logout = createAsyncThunk(
     } finally {
       clearAuth();
     }
-
     return true;
   }
 );
