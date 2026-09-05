@@ -86,7 +86,7 @@ const Hero = ({ section }) => {
           </h1>
 
           <p className="mx-auto mt-3 max-w-95 text-xl leading-8 text-[#545C60]">
-            {description}
+            A platform built for women in sport - whatever level you're starting at.
           </p>
 
           <div className="mt-6 flex justify-center">
@@ -114,7 +114,7 @@ const Hero = ({ section }) => {
             </HeroTitle>
 
             <p className="herosubtitle max-w-70 text-sm text-white/90 md:max-w-none md:text-lg">
-              {description}
+             A platform built for women in sport - whatever level you're starting at.
             </p>
 
             <div className="flex w-full justify-center sm:pb-30 md:pb-35 lg:pb-40">
