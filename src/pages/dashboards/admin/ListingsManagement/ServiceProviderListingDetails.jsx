@@ -303,8 +303,8 @@ const ServiceProviderListingDetails = () => {
     hasValue(data.bookingLink);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] px-4 py-6 font-sans md:px-8 lg:py-10">
-      <div className="mx-auto max-w-7xl">
+    <div className="min-h-screen bg-[#F8FAFC] px-4 py-6 md:px-8 lg:py-10">
+      <div className="">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
