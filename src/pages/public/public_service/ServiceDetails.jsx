@@ -17,6 +17,8 @@ import {
   CircleDollarSign,
   X,
   User,
+  Users,
+  UserCheck,
   Mail,
   Phone,
   CheckCircle2,
@@ -398,7 +400,7 @@ const ServiceDetails = () => {
       profession: formatListValue(
         Array.isArray(item.providerType) && item.providerType.length > 0
           ? item.providerType
-          : item.role || item.profession
+          : item.role || item.profession || item.category
       ),
       sessionType: formatListValue(
         Array.isArray(item.sessionTypes) && item.sessionTypes.length > 0
@@ -409,6 +411,18 @@ const ServiceDetails = () => {
         Array.isArray(item.sports) && item.sports.length > 0 ? item.sports : item.sport
       ),
       suitableFor: formatListValue(item.suitableFor),
+      whoCanTakePart: formatListValue(
+        item.whoCanTakePart ??
+          (typeof item.womenOnly === 'boolean'
+            ? item.womenOnly
+              ? 'Women only'
+              : 'Mixed, women welcome'
+            : typeof item.womensOnly === 'boolean'
+              ? item.womensOnly
+                ? 'Women only'
+                : 'Mixed, women welcome'
+              : '')
+      ),
       professionalRegistration: String(
         item.professionalRegistration || item.registration || ''
       ).trim(),
@@ -451,8 +465,11 @@ const ServiceDetails = () => {
 
   const overviewHasContent =
     hasValue(combinedLocation) ||
+    hasValue(displayData.profession) ||
     hasValue(displayData.sessionType) ||
     hasValue(displayData.sport) ||
+    hasValue(displayData.whoCanTakePart) ||
+    hasValue(displayData.suitableFor) ||
     hasValue(displayData.professionalRegistration) ||
     hasValue(displayData.insurance);
 
@@ -524,6 +541,15 @@ const ServiceDetails = () => {
                       <div className="mb-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:p-6">
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
 
+                          {/* Service type */}
+                          {hasValue(displayData.profession) ? (
+                            <OverviewRow
+                              icon={BriefcaseMedical}
+                              label="Service type"
+                              value={displayData.profession}
+                            />
+                          ) : null}
+
                           {/* Delivery type */}
                           {hasValue(displayData.sessionType) ? (
                             <OverviewRow
@@ -561,6 +587,24 @@ const ServiceDetails = () => {
                               icon={Medal}
                               label="Sports supported"
                               value={displayData.sport}
+                            />
+                          ) : null}
+
+                          {/* Who can take part? */}
+                          {hasValue(displayData.whoCanTakePart) ? (
+                            <OverviewRow
+                              icon={Users}
+                              label="Who can take part?"
+                              value={displayData.whoCanTakePart}
+                            />
+                          ) : null}
+
+                          {/* Suitable for */}
+                          {hasValue(displayData.suitableFor) ? (
+                            <OverviewRow
+                              icon={UserCheck}
+                              label="Suitable for"
+                              value={displayData.suitableFor}
                             />
                           ) : null}
 
