@@ -1445,7 +1445,7 @@ const CreateRecruitmentModal = ({
                     ].map((item) => (
                       <label key={item.value} className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
                         <input
-                          type="radio"
+                          type="checkbox"
                           name="womensOnly"
                           checked={form.womensOnly === item.value}
                           onChange={() => {

@@ -570,24 +570,28 @@ const CreateServiceModal = ({
             </div>
             <div className="mt-4 space-y-2">
               <label className={labelClass}>Who can take part?</label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="sessionWho"
-                  checked={formData.womensOnly === true}
-                  onChange={() => updateField('womensOnly', true)}
-                />
-                Women only
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="sessionWho"
-                  checked={formData.womensOnly === false}
-                  onChange={() => updateField('womensOnly', false)}
-                />
-                Mixed, women welcome
-              </label>
+              <div className="flex flex-wrap items-center gap-6">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-[#1A1D1F]">
+                  <input
+                    type="checkbox"
+                    name="sessionWho"
+                    checked={formData.womensOnly === true}
+                    onChange={() => updateField('womensOnly', true)}
+                    className="accent-[#0f756d]"
+                  />
+                  Women only
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-[#1A1D1F]">
+                  <input
+                    type="checkbox"
+                    name="sessionWho"
+                    checked={formData.womensOnly === false}
+                    onChange={() => updateField('womensOnly', false)}
+                    className="accent-[#0f756d]"
+                  />
+                  Mixed, women welcome
+                </label>
+              </div>
             </div>
           </FormSection>
 

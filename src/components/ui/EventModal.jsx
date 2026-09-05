@@ -842,7 +842,7 @@ const EventModal = ({
                   <div className="mt-2 flex flex-wrap items-center gap-6">
                     <label className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
                       <input
-                        type="radio"
+                        type="checkbox"
                         name="eventWho"
                         checked={formData.womensOnly === true}
                         onChange={() => handleChange('womensOnly', true)}
@@ -852,7 +852,7 @@ const EventModal = ({
                     </label>
                     <label className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
                       <input
-                        type="radio"
+                        type="checkbox"
                         name="eventWho"
                         checked={formData.womensOnly === false}
                         onChange={() => handleChange('womensOnly', false)}
