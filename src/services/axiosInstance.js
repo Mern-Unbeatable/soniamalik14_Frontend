@@ -1,6 +1,6 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 import { API_CONFIG } from '../config/constants';
-import { getToken } from '../utils/storage';
+import { getToken, removeToken, removeUser } from '../utils/storage';
 
 // Always use direct backend URL (no Vite proxy)
 const baseURL = String(API_CONFIG.BASE_URL || '').replace(/\/+$/, '');
@@ -121,6 +121,18 @@ axiosInstance.interceptors.response.use(
       });
     } catch (e) {
       // noop
+    }
+
+    if (error?.response?.status === 401) {
+      removeToken();
+      removeUser();
+      if (
+        typeof window !== 'undefined' &&
+        !window.location.pathname.startsWith('/signin') &&
+        !window.location.pathname.startsWith('/signup')
+      ) {
+        window.location.href = '/signin';
+      }
     }
 
     // Pass through errors to be handled by callers
