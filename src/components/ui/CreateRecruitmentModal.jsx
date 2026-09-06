@@ -285,26 +285,97 @@ const resolveRoleFromUser = (user = {}) => {
   return '';
 };
 
+const resolveOrgName = (target) => {
+  if (!target || typeof target !== 'object') return '';
+
+  const candidateObjects = [
+    target,
+    target.user,
+    target.profile,
+    target.data?.user,
+    target.data?.profile,
+    target.data,
+  ].filter((obj) => obj && typeof obj === 'object');
+
+  for (const obj of candidateObjects) {
+    const org =
+      obj.organizationName ||
+      obj.organisationName ||
+      obj.clubName ||
+      obj.organization ||
+      obj.providerBusinessName ||
+      obj.businessName ||
+      obj.companyName ||
+      obj.practitionerName ||
+      obj.orgName;
+    if (String(org || '').trim()) {
+      return String(org).trim();
+    }
+  }
+
+  for (const obj of candidateObjects) {
+    const name =
+      obj.fullName ||
+      obj.displayName ||
+      obj.name ||
+      [obj.firstName, obj.lastName].filter(Boolean).join(' ');
+    if (String(name || '').trim()) {
+      return String(name).trim();
+    }
+  }
+
+  return '';
+};
+
+const resolveContactPerson = (target, resolvedOrgName = '') => {
+  if (!target || typeof target !== 'object') return '';
+
+  const candidateObjects = [
+    target,
+    target.user,
+    target.profile,
+    target.data?.user,
+    target.data?.profile,
+    target.data,
+  ].filter((obj) => obj && typeof obj === 'object');
+
+  const normalizedOrgName = String(resolvedOrgName || '').trim().toLowerCase();
+
+  for (const obj of candidateObjects) {
+    const person =
+      obj.contactName ||
+      obj.contactPerson ||
+      obj.fullName ||
+      obj.displayName ||
+      [obj.firstName, obj.lastName].filter(Boolean).join(' ') ||
+      obj.firstName;
+
+    if (String(person || '').trim()) {
+      const candidate = String(person).trim();
+      if (!normalizedOrgName || candidate.toLowerCase() !== normalizedOrgName) {
+        return candidate;
+      }
+    }
+  }
+
+  for (const obj of candidateObjects) {
+    if (obj.name && String(obj.name).trim()) {
+      const candidate = String(obj.name).trim();
+      if (!normalizedOrgName || candidate.toLowerCase() !== normalizedOrgName) {
+        return candidate;
+      }
+    }
+  }
+
+  return '';
+};
+
 const mapUserToForm = (user) => {
-  console.log('[CreateRecruitmentModal] Mapping user from Redux auth state:', user);
-  const organisationName =
-    user?.organizationName ||
-    user?.organisationName ||
-    user?.clubName ||
-    user?.organization ||
-    user?.providerBusinessName ||
-    user?.businessName ||
-    '';
-  const contactPerson =
-    user?.contactName ||
-    user?.fullName ||
-    user?.displayName ||
-    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
-    user?.firstName ||
-    user?.name ||
-    '';
-  const about = user?.bio || user?.aboutOrganization || user?.about || '';
-  const logo = user?.logo || user?.avatar || user?.profileImage || user?.photo || null;
+  console.log('[CreateRecruitmentModal] 🔍 Mapping user from Redux auth state:', user);
+  const organisationName = resolveOrgName(user);
+  const contactPerson = resolveContactPerson(user, organisationName);
+  const about = user?.bio || user?.aboutOrganization || user?.about || user?.profile?.bio || '';
+  const logo = user?.logo || user?.avatar || user?.profileImage || user?.photo || user?.profile?.avatar || null;
   const role = resolveRoleFromUser(user);
 
   const mapped = {
@@ -316,7 +387,12 @@ const mapUserToForm = (user) => {
     logo,
     postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
   };
-  console.log('[CreateRecruitmentModal] Mapped initial form from Redux user:', mapped);
+  console.log('[CreateRecruitmentModal] ✅ Mapped form from Redux user:', {
+    organisationName,
+    contactPerson,
+    role,
+    mapped,
+  });
   return mapped;
 };
 
@@ -440,36 +516,24 @@ const CreateRecruitmentModal = ({
       if (mode !== 'edit') {
         try {
           const response = await GET('/api/users/me/profile');
-          console.log('[CreateRecruitmentModal] GET /api/users/me/profile raw response:', response);
-          const profile = response?.data?.user || response?.data?.profile || response?.data || response;
-          console.log('[CreateRecruitmentModal] Extracted profile object from backend:', profile);
+          console.log('[CreateRecruitmentModal] 🌐 GET /api/users/me/profile raw response:', response);
+          const profile = response?.data?.user || response?.data?.profile || response?.data?.data || response?.data || response;
+          console.log('[CreateRecruitmentModal] 👤 Extracted profile object from backend:', profile);
 
           if (profile && typeof profile === 'object') {
-            const backendOrgName =
-              profile.organizationName ||
-              profile.organisationName ||
-              profile.clubName ||
-              profile.providerBusinessName ||
-              profile.businessName ||
-              '';
-            const backendContactPerson =
-              profile.contactName ||
-              profile.fullName ||
-              profile.displayName ||
-              [profile.firstName, profile.lastName].filter(Boolean).join(' ') ||
-              profile.firstName ||
-              profile.name ||
-              '';
+            const backendOrgName = resolveOrgName(profile);
+            const effectiveOrgName = nextForm.organisationName || backendOrgName;
+            const backendContactPerson = resolveContactPerson(profile, effectiveOrgName);
 
-            console.log('[CreateRecruitmentModal] Resolved backend org name:', backendOrgName);
-            console.log('[CreateRecruitmentModal] Resolved backend contact person:', backendContactPerson);
+            console.log('[CreateRecruitmentModal] 🏢 Resolved backend org name:', backendOrgName);
+            console.log('[CreateRecruitmentModal] 👤 Resolved backend contact person:', backendContactPerson);
 
             nextForm = {
               ...nextForm,
-              organisationName: nextForm.organisationName || backendOrgName,
+              organisationName: effectiveOrgName,
               contactPerson: nextForm.contactPerson || backendContactPerson,
               role: nextForm.role || resolveRoleFromUser(profile),
-              about: nextForm.about || profile.bio || profile.aboutOrganization || '',
+              about: nextForm.about || profile.bio || profile.aboutOrganization || profile.about || '',
               logo:
                 nextForm.logo ||
                 profile.logo ||
@@ -479,12 +543,12 @@ const CreateRecruitmentModal = ({
             };
           }
         } catch (err) {
-          console.warn('[CreateRecruitmentModal] Failed fetching backend profile:', err);
+          console.warn('[CreateRecruitmentModal] ⚠️ Failed fetching backend profile:', err);
         }
       }
 
       if (!cancelled) {
-        console.log('[CreateRecruitmentModal] Final hydrated form state set to:', nextForm);
+        console.log('[CreateRecruitmentModal] 🎯 Final hydrated form state set to:', nextForm);
         setForm(nextForm);
         setErrors({});
       }
@@ -785,6 +849,10 @@ const CreateRecruitmentModal = ({
         womenOnly: form.womensOnly === 'YES',
         sports: normalizedSports,
         whoServiceFor: normalizedSports.join(', '),
+        whoCanTakePart:
+          normalizedSuitableFor.join(', ') ||
+          normalizedSports.join(', ') ||
+          (form.womensOnly === 'NO' ? 'Mixed, women welcome' : 'Women only'),
         sessonDay: sessionDay,
         date: dateValue,
         timeFrom,
@@ -882,7 +950,11 @@ const CreateRecruitmentModal = ({
       appendIfPresent(payload, 'womenOnly', String(form.womensOnly === 'YES'));
       appendArrayField(payload, 'sports', normalizedSports);
       appendIfPresent(payload, 'whoServiceFor', normalizedSports.join(', '));
-      appendIfPresent(payload, 'whoCanTakePart', normalizedSuitableFor.join(', ') || normalizedSports.join(', '));
+      const whoCanTakePartValue =
+        normalizedSuitableFor.join(', ') ||
+        normalizedSports.join(', ') ||
+        (form.womensOnly === 'NO' ? 'Mixed, women welcome' : 'Women only');
+      payload.append('whoCanTakePart', whoCanTakePartValue);
       appendIfPresent(payload, 'sessonDay', sessionDay);
       appendIfPresent(payload, 'date', dateValue);
       appendIfPresent(payload, 'timeFrom', timeFrom);

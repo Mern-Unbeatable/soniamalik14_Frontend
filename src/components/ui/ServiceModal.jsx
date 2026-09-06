@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Upload } from 'lucide-react';
 import Button from './Button';
 import { useService } from '../../context/ServiceContext';
@@ -90,6 +90,7 @@ const ServiceModal = ({ isOpen, onClose, initialData = null, mode = 'create' }) 
         submitData.append('availableDays', formData.availableDays);
         submitData.append('category', formData.category);
         submitData.append('whoServiceFor', formData.whoServiceFor);
+        submitData.append('whoCanTakePart', formData.whoServiceFor || 'Women only');
 
         if (formData.image && typeof formData.image !== 'string') {
             submitData.append('image', formData.image);
