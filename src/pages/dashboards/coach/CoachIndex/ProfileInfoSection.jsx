@@ -33,13 +33,19 @@ const normalizeSessionType = (value) => {
 const formatSessionTypeForApi = (value) => (value === 'mixed' ? 'Mixed' : 'Women Only');
 
 const normalizeProfileFromUser = (user) => ({
-  clubName: user?.organizationName || user?.clubName || user?.organization || user?.name || '',
+  clubName: user?.clubName || user?.organizationName || user?.organization || user?.providerBusinessName || '',
   bio: user?.bio || user?.aboutOrganization || user?.about || '',
   address: user?.address || '',
   postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
   sessionType: normalizeSessionType(user?.sessionType),
   sports: user?.sportsOffered || user?.sports || [],
-  fullName: user?.firstName || user?.fullName || user?.displayName || user?.name || '',
+  fullName:
+    user?.fullName ||
+    user?.contactName ||
+    user?.displayName ||
+    user?.firstName ||
+    (user?.name && user?.name !== user?.clubName && user?.name !== user?.organizationName ? user.name : '') ||
+    '',
   email: user?.email || '',
   phone: user?.phone || user?.phoneNumber || '',
 });
@@ -88,8 +94,15 @@ const ProfileInfoSection = () => {
     }
 
     const payload = {
-      name: profile.clubName,
+      name: profile.fullName || profile.clubName,
+      fullName: profile.fullName,
+      contactName: profile.fullName,
+      firstName: profile.fullName,
+      clubName: profile.clubName,
       organizationName: profile.clubName,
+      organisationName: profile.clubName,
+      providerBusinessName: profile.clubName,
+      organization: profile.clubName,
       bio: profile.bio,
       aboutOrganization: profile.bio,
       address: profile.address,
@@ -99,7 +112,6 @@ const ProfileInfoSection = () => {
       zip: profile.postcode,
       sessionType: formatSessionTypeForApi(profile.sessionType),
       sportsOffered: profile.sports,
-      firstName: profile.fullName,
       email: profile.email,
       phone: profile.phone,
     };
