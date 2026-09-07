@@ -110,6 +110,7 @@ const suitabilityOptions = [
 
 const createInitialForm = () => ({
   organisationName: '',
+  title: '',
   contactPerson: '',
   role: '',
   about: '',
@@ -171,6 +172,27 @@ const appendArrayField = (formData, key, values = []) => {
 
 const normalizeArray = (values = []) =>
   values.map((value) => String(value || '').trim()).filter(Boolean);
+
+const logFormDataPayload = (label, formData) => {
+  try {
+    const payload = {};
+    for (const [key, value] of formData.entries()) {
+      const normalized = value instanceof File ? `[File: ${value.name}]` : value;
+      if (payload[key] !== undefined) {
+        payload[key] = Array.isArray(payload[key])
+          ? [...payload[key], normalized]
+          : [payload[key], normalized];
+      } else {
+        payload[key] = normalized;
+      }
+    }
+    console.group(label);
+    console.log('payload:', payload);
+    console.groupEnd();
+  } catch (error) {
+    console.error(label, 'failed to log FormData', error);
+  }
+};
 
 const getResponseType = (methods = [], responseType = '') => {
   if (responseType === 'INTERESTED' || responseType === 'REGISTER_INTEREST') return 'INTERESTED';
@@ -371,7 +393,7 @@ const resolveContactPerson = (target, resolvedOrgName = '') => {
 };
 
 const mapUserToForm = (user) => {
-  console.log('[CreateRecruitmentModal] 🔍 Mapping user from Redux auth state:', user);
+  console.log('[CreateRecruitmentModal]  Mapping user from Redux auth state:', user);
   const organisationName = resolveOrgName(user);
   const contactPerson = resolveContactPerson(user, organisationName);
   const about = user?.bio || user?.aboutOrganization || user?.about || user?.profile?.bio || '';
@@ -412,6 +434,7 @@ const mapInitialDataToForm = (initialData) => {
     ...createInitialForm(),
     organisationName:
       initialData?.organizationName || initialData?.providerName || initialData?.title || '',
+    title: initialData?.title || initialData?.listingHeadline || '',
     contactPerson: initialData?.contactName || '',
     role:
       initialData?.role ||
@@ -697,9 +720,11 @@ const CreateRecruitmentModal = ({
     );
     const normalizedSuitableFor = normalizeArray(form.suitableFor || []);
 
+    const coachTitle = String(form.title || '').trim();
     const serviceTitle = isProvider
       ? String(form.listingHeadline || form.organisationName || '').trim()
-      : String(form.organisationName || '').trim();
+      : coachTitle;
+    const organisationNameValue = String(form.organisationName || '').trim();
     const serviceDescription = String(form.sessionDescription || form.about || '').trim();
     const orgAbout = String(form.about || '').trim();
     const providerPhone =
@@ -748,7 +773,8 @@ const CreateRecruitmentModal = ({
       if (!serviceDescription) newErrors.sessionDescription = true;
       if (normalizedSessionTypes.length === 0) newErrors.sessionType = true;
     } else {
-      if (!serviceTitle) newErrors.organisationName = true;
+      if (!organisationNameValue) newErrors.organisationName = true;
+      if (!coachTitle) newErrors.title = true;
       if (normalizedSports.length === 0) newErrors.sport = true;
       if (normalizedSessionTypes.length === 0) newErrors.sessionType = true;
       if (normalizedSuitableFor.length === 0) newErrors.suitableFor = true;
@@ -790,6 +816,7 @@ const CreateRecruitmentModal = ({
       if (newErrors.organisationName) {
         messages.push(isProvider ? 'Provider / Business Name' : 'Organisation name');
       }
+      if (newErrors.title) messages.push('Title');
       if (newErrors.contactPerson) messages.push('Contact Name');
       if (newErrors.sport) messages.push('Sport or activity');
       if (newErrors.role) messages.push('Service type');
@@ -825,13 +852,16 @@ const CreateRecruitmentModal = ({
         listingHeadline: isProvider
           ? String(form.listingHeadline || '').trim()
           : serviceTitle,
+        title: isProvider
+          ? String(form.listingHeadline || serviceTitle || '').trim()
+          : serviceTitle,
         aboutService: serviceDescription,
         serviceType: 'COACHING',
         providerType: [providerServiceType || form.role || ''],
         sessionTypes: normalizedSessionTypes,
         availableDays: normalizedAvailableDays,
         sessionSchedules: JSON.stringify(schedulePayload.schedules),
-        organizationName: String(form.organisationName || '').trim() || serviceTitle,
+        organizationName: organisationNameValue || serviceTitle,
         role: form.role,
         description: serviceDescription,
         contactName: form.contactPerson || serviceTitle,
@@ -904,10 +934,14 @@ const CreateRecruitmentModal = ({
               ? form.logo
               : null;
         if (listingFile) updateFormData.append('logo', listingFile);
+        logFormDataPayload('[CreateRecruitmentModal] UPDATE payload (multipart)', updateFormData);
         resultAction = await dispatch(
           updateService({ id: initialData.id, serviceData: updateFormData })
         );
       } else {
+        console.group('[CreateRecruitmentModal] UPDATE payload (json)');
+        console.log('payload:', updatePayload);
+        console.groupEnd();
         resultAction = await dispatch(
           updateService({ id: initialData.id, serviceData: updatePayload })
         );
@@ -932,7 +966,7 @@ const CreateRecruitmentModal = ({
       payload.append('description', serviceDescription);
       payload.append(
         'organizationName',
-        String(form.organisationName || '').trim() || serviceTitle
+        organisationNameValue || serviceTitle
       );
       appendIfPresent(payload, 'role', form.role || '');
       appendIfPresent(payload, 'contactName', form.contactPerson || serviceTitle);
@@ -988,8 +1022,15 @@ const CreateRecruitmentModal = ({
             : null;
       if (listingFile) payload.append('logo', listingFile);
 
+      logFormDataPayload('[CreateRecruitmentModal] CREATE payload', payload);
       resultAction = await dispatch(createService(payload));
     }
+
+    console.group('[CreateRecruitmentModal] submit result');
+    console.log('mode:', mode);
+    console.log('success:', createService.fulfilled.match(resultAction) || updateService.fulfilled.match(resultAction));
+    console.log('response payload:', resultAction?.payload);
+    console.groupEnd();
 
     const isSuccess =
       (mode === 'edit' && updateService.fulfilled.match(resultAction)) ||
@@ -1378,6 +1419,7 @@ const CreateRecruitmentModal = ({
                     }}
                     placeholder="Example Netball Club"
                   />
+                  {errors.organisationName && <p className={errorClass}>Required</p>}
                 </div>
                 <div>
                   <label className={labelClass}>Contact Person Name</label>
@@ -1429,6 +1471,21 @@ const CreateRecruitmentModal = ({
 
             <FormSection title="Sport & Session Information">
               <div className="space-y-4">
+                <div>
+                  <label className={labelClass}>
+                    Title <span className="text-red-200">*</span>
+                  </label>
+                  <input
+                    className={`${fieldClass} ${errors.title ? 'border-red-400' : ''}`}
+                    value={form.title}
+                    onChange={(e) => {
+                      handleChange('title', e.target.value);
+                      setErrors((prev) => ({ ...prev, title: false }));
+                    }}
+                    placeholder="e.g. Youth Netball Session"
+                  />
+                  {errors.title && <p className={errorClass}>Required</p>}
+                </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className={labelClass}>Sport or activity *</label>

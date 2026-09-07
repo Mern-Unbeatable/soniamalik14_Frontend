@@ -43,7 +43,12 @@ const mapServiceToDetailsItem = (service) => {
 
     return {
     id: service?.id,
-    title: service?.listingHeadline || service?.organizationName || service?.providerName || 'Untitled Service',
+    title:
+      service?.title ||
+      service?.listingHeadline ||
+      service?.organizationName ||
+      service?.providerName ||
+      'Untitled Service',
     coach: service?.provider?.name || service?.contactName || service?.providerName || 'N/A',
     headCoach: service?.provider?.name || service?.contactName || service?.providerName || 'N/A',
     avatar: service?.provider?.avatar || null,
@@ -128,6 +133,12 @@ const RecruitmentDetails = () => {
                 const payload = response?.data || response;
                 const service = payload?.data?.service || payload?.service || payload?.data || null;
 
+                console.group('[RecruitmentDetails] backend response');
+                console.log('full response:', response);
+                console.log('response.data:', payload);
+                console.log('service:', service);
+                console.groupEnd();
+
                 if (!active) return;
 
                 if (!service || !service?.id) {
@@ -136,7 +147,11 @@ const RecruitmentDetails = () => {
                     return;
                 }
 
-                setItem(mapServiceToDetailsItem(service));
+                const mappedItem = mapServiceToDetailsItem(service);
+                console.group('[RecruitmentDetails] UI mapped item');
+                console.log('mapped item (what page shows):', mappedItem);
+                console.groupEnd();
+                setItem(mappedItem);
 
                 try {
                     const bookingsResponse = await GET(ENDPOINT.SERVICES.BOOKINGS(id));

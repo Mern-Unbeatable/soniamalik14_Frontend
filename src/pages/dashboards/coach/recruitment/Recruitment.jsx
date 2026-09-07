@@ -40,6 +40,12 @@ const Recruitment = () => {
 
         return {
           ...service,
+          title:
+            service.title ||
+            service.listingHeadline ||
+            service.organizationName ||
+            service.providerName ||
+            'Untitled Service',
           image: service.logo || service.image || null,
           location:
             service.fullAddress || service.location || service.city || service.addressLine1 || 'N/A',
@@ -49,6 +55,13 @@ const Recruitment = () => {
       }),
     [providerServices]
   );
+
+  useEffect(() => {
+    console.group('[Recruitment] list data');
+    console.log('raw providerServices:', providerServices);
+    console.log('mapped items:', items);
+    console.groupEnd();
+  }, [providerServices, items]);
 
   const handleEdit = (it) => {
     setSelectedItem(it);
