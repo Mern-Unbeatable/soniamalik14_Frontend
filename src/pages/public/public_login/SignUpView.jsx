@@ -8,8 +8,8 @@ import { register as registerThunk, ROLES, selectAuthLoading } from '../../../fe
 // Declare components outside to fix "Cannot create components during render" error
 const InputField = ({ label, name, placeholder, type = "text", optional = false, value, onChange }) => (
   <div className="w-full">
-    <label className="block text-[#1A1D1F] text-sm md:text-base font-medium mb-2">
-      {label} {optional && <span className="text-gray-400 font-normal">(optional)</span>}
+    <label className="block text-white text-sm md:text-base font-medium mb-2">
+      {label} {optional && <span className="text-white/60 font-normal">(optional)</span>}
     </label>
     <input
       type={type}
@@ -17,7 +17,7 @@ const InputField = ({ label, name, placeholder, type = "text", optional = false,
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className="form-field text-base rounded-lg py-3"
+      className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-3 text-base text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40"
     />
   </div>
 );
@@ -210,29 +210,29 @@ const RegisterView = () => {
   };
 
   return (
-    <div className="min-h-screen form-shell flex items-center justify-center p-4 sm:p-8">
+    <div className="min-h-screen bg-[#0f756d] flex items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-xl bg-transparent">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-black mb-2">Create Account</h1>
-          <p className="text-[#00796B] text-lg">
+          <h1 className="text-4xl font-bold text-white mb-2">Create Account</h1>
+          <p className="text-white/85 text-lg">
             {role === 'Player' ? 'Join the ESSA community' : role === 'Sport provider' ? 'Join ESSA and start listing your sessions.' : 'Join ESSA and support women in sport, fitness and wellbeing.'}
           </p>
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-500/20 border border-red-300 text-white px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {/* I'm joining as */}
           <div>
-            <label className="block text-[#1A1D1F] font-medium mb-2">I'm joining as</label>
+            <label className="block text-white font-medium mb-2">I'm joining as</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="form-field text-base rounded-lg py-3 appearance-none cursor-pointer font-medium"
+              className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-3 text-base text-[#1A1D1D] outline-none focus:ring-2 focus:ring-white/40 appearance-none cursor-pointer font-medium"
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
             >
               <option value="Player">Player / Participant</option>
@@ -246,7 +246,7 @@ const RegisterView = () => {
             <>
               <div>
                 <InputField label="Display name" name="displayName" placeholder="e.g. SportSeeker" optional value={formData.displayName} onChange={handleChange} />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-white/70 mt-1">
                   This name will be shown if you post in the community. If left blank, your first name will be displayed.
                 </p>
               </div>
@@ -259,14 +259,14 @@ const RegisterView = () => {
               <InputField label="Postcode" name="postcode" placeholder="e.g. SW20" value={formData.postcode} onChange={handleChange} />
 
               <div>
-                <label className="block text-[#1A1D1F] text-sm md:text-base font-medium mb-2">
-                  Age range <span className="text-gray-400 font-normal">(optional)</span>
+                <label className="block text-white text-sm md:text-base font-medium mb-2">
+                  Age range <span className="text-white/60 font-normal">(optional)</span>
                 </label>
                 <select
                   name="ageRange"
                   value={formData.ageRange}
                   onChange={handleChange}
-                  className="form-field text-base rounded-lg py-3 appearance-none cursor-pointer"
+                  className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-3 text-base text-[#1A1D1D] outline-none focus:ring-2 focus:ring-white/40 appearance-none cursor-pointer"
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
                 >
                   <option value="">Select age range</option>
@@ -277,11 +277,11 @@ const RegisterView = () => {
               </div>
 
               <div>
-                <label className="block text-[#1A1D1F] font-medium mb-3">Which sports are you interested in?</label>
+                <label className="block text-white font-medium mb-3">Which sports are you interested in?</label>
                 <div className="flex flex-wrap gap-2">
                   {sportsOptions.map(sport => (
                     <button key={sport} type="button" onClick={() => handleCheckboxChange('interestedSports', sport)}
-                      className={`px-4 py-1.5 rounded-full border text-sm transition-all ${formData.interestedSports.includes(sport) ? 'bg-[#00796B] text-white border-[#00796B]' : 'bg-[#A7C8C7] text-[#1F2B2A] border-[#00796B]/20'}`}>{sport}</button>
+                      className={`px-4 py-1.5 rounded-full border text-sm transition-all ${formData.interestedSports.includes(sport) ? 'bg-[#F5F1EB] text-[#0f756d] border-[#F5F1EB] font-semibold' : 'bg-white/10 text-white border-white/20 hover:border-white/40'}`}>{sport}</button>
                   ))}
                 </div>
               </div>
@@ -293,20 +293,20 @@ const RegisterView = () => {
             <>
               <InputField label="Organisation or coach name" name="orgName" placeholder="e.g. Woking Warriors FC" value={formData.orgName} onChange={handleChange} />
               <div>
-                <label className="block text-[#1A1D1F] font-medium mb-2">About your organisation</label>
-                <textarea name="aboutOrg" placeholder="Tell us briefly about your club, coaching or sports group." className="form-field text-base rounded-lg h-28 resize-none" value={formData.aboutOrg} onChange={handleChange} />
+                <label className="block text-white font-medium mb-2">About your organisation</label>
+                <textarea name="aboutOrg" placeholder="Tell us briefly about your club, coaching or sports group." className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-3 text-base text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40 h-28 resize-none" value={formData.aboutOrg} onChange={handleChange} />
               </div>
               <InputField label="Main location postcode" name="postcode" placeholder="e.g. SW1A 1AA" value={formData.postcode} onChange={handleChange} />
               <div>
-                <label className="block text-[#1A1D1F] font-medium mb-3">Sports offered</label>
+                <label className="block text-white font-medium mb-3">Sports offered</label>
                 <div className="flex flex-wrap gap-2">
                   {sportsOptions.map(sport => (
                     <button key={sport} type="button" onClick={() => handleCheckboxChange('sportsOffered', sport)}
-                      className={`px-4 py-1.5 rounded-full border text-sm ${formData.sportsOffered.includes(sport) ? 'bg-[#00796B] text-white' : 'bg-[#A7C8C7] text-[#1F2B2A]'}`}>{sport}</button>
+                      className={`px-4 py-1.5 rounded-full border text-sm transition-all ${formData.sportsOffered.includes(sport) ? 'bg-[#F5F1EB] text-[#0f756d] border-[#F5F1EB] font-semibold' : 'bg-white/10 text-white border-white/20 hover:border-white/40'}`}>{sport}</button>
                   ))}
                 </div>
               </div>
-              <div className="pt-4"><h3 className="font-bold text-xl text-black">Primary contact details</h3></div>
+              <div className="pt-4"><h3 className="font-bold text-xl text-white">Primary contact details</h3></div>
               <InputField label="Full Name" name="fullName" placeholder="Your full name" value={formData.fullName} onChange={handleChange} />
               <InputField label="Email" name="email" placeholder="Your email address" value={formData.email} onChange={handleChange} />
               <InputField label="Phone Number" name="phoneNumber" placeholder="Best contact number" value={formData.phoneNumber} onChange={handleChange} />
@@ -317,21 +317,21 @@ const RegisterView = () => {
           {role === 'Service Provider' && (
             <>
               <div>
-                <label className="block text-[#1A1D1F] font-medium mb-3">Service Type</label>
+                <label className="block text-white font-medium mb-3">Service Type</label>
                 <div className="flex flex-wrap gap-2">
                   {serviceOptions.map(service => (
                     <button key={service} type="button" onClick={() => handleCheckboxChange('serviceType', service)}
-                      className={`px-4 py-1.5 rounded-full border text-sm ${formData.serviceType.includes(service) ? 'bg-[#00796B] text-white' : 'bg-[#A7C8C7] text-[#1F2B2A]'}`}>{service}</button>
+                      className={`px-4 py-1.5 rounded-full border text-sm transition-all ${formData.serviceType.includes(service) ? 'bg-[#F5F1EB] text-[#0f756d] border-[#F5F1EB] font-semibold' : 'bg-white/10 text-white border-white/20 hover:border-white/40'}`}>{service}</button>
                   ))}
                 </div>
               </div>
               <InputField label="Organisation or practitioner name" name="practitionerName" placeholder="Your business or practice name" value={formData.practitionerName} onChange={handleChange} />
               <div>
-                <label className="block text-[#1A1D1F] font-medium mb-2">About your services</label>
-                <textarea name="aboutService" placeholder="Tell us briefly about the services you offer." className="form-field text-base rounded-lg h-28 resize-none" value={formData.aboutService} onChange={handleChange} />
+                <label className="block text-white font-medium mb-2">About your services</label>
+                <textarea name="aboutService" placeholder="Tell us briefly about the services you offer." className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-3 text-base text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40 h-28 resize-none" value={formData.aboutService} onChange={handleChange} />
               </div>
               <InputField label="Main location postcode" name="postcode" placeholder="e.g. SW1A 1AA" value={formData.postcode} onChange={handleChange} />
-              <div className="pt-4"><h3 className="font-bold text-xl text-black">Primary contact details</h3></div>
+              <div className="pt-4"><h3 className="font-bold text-xl text-white">Primary contact details</h3></div>
               <InputField label="Full Name" name="fullName" placeholder="Your full name" value={formData.fullName} onChange={handleChange} />
               <InputField label="Email" name="email" placeholder="Your email address" value={formData.email} onChange={handleChange} />
               <InputField label="Phone Number" name="phoneNumber" placeholder="Best contact number" value={formData.phoneNumber} onChange={handleChange} />
@@ -341,13 +341,13 @@ const RegisterView = () => {
           {/* Password Section */}
           <div className="relative">
             <InputField label="Password" name="password" placeholder="Minimum 8 characters" type={showPassword ? "text" : "password"} value={formData.password} onChange={handleChange} />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-10.5 text-gray-500">
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-10.5 text-gray-500 hover:text-gray-700">
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
           <div className="relative">
             <InputField label="Confirm Password" name="confirmPassword" placeholder="Re-type your password" type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={handleChange} />
-            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-10.5 text-gray-500">
+            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-10.5 text-gray-500 hover:text-gray-700">
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
@@ -360,9 +360,9 @@ const RegisterView = () => {
                   type="checkbox"
                   checked={confirmSuitableSessions}
                   onChange={(e) => setConfirmSuitableSessions(e.target.checked)}
-                  className="mt-1 h-5 w-5 rounded border-gray-300 text-[#00796B] focus:ring-[#00796B] cursor-pointer"
+                  className="mt-1 h-5 w-5 rounded border-white/30 accent-[#0f756d] cursor-pointer"
                 />
-                <span className="text-sm md:text-base text-gray-700 font-medium">
+                <span className="text-sm md:text-base text-white/90 font-medium">
                   I confirm that any sessions I list on ESSA Hub will be suitable and welcoming for women to attend.
                 </span>
               </label>
@@ -373,20 +373,20 @@ const RegisterView = () => {
                 type="checkbox"
                 checked={agreeToTerms}
                 onChange={(e) => setAgreeToTerms(e.target.checked)}
-                className="mt-1 h-5 w-5 rounded border-gray-300 text-[#00796B] focus:ring-[#00796B] cursor-pointer"
+                className="mt-1 h-5 w-5 rounded border-white/30 accent-[#0f756d] cursor-pointer"
               />
-              <span className="text-sm md:text-base text-gray-700 font-medium">
-                I agree to ESSA Hub's <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-black hover:text-[#00796B]">Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-black hover:text-[#00796B]">Privacy Policy</a>.
+              <span className="text-sm md:text-base text-white/90 font-medium">
+                I agree to ESSA Hub's <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-white hover:text-[#F5F1EB]">Terms & Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-white hover:text-[#F5F1EB]">Privacy Policy</a>.
               </span>
             </label>
           </div>
 
-          <button type="submit" disabled={loading} className="w-full bg-[#00796B] text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="submit" disabled={loading} className="w-full bg-[#F5F1EB] text-[#0f756d] py-4 rounded-xl font-bold text-lg hover:bg-white hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>
 
-          <p className="text-center text-gray-600">
-            Already have an account? <Link to="/signin" className="text-black font-semibold underline">Log in</Link>
+          <p className="text-center text-white/80">
+            Already have an account? <Link to="/signin" className="text-white font-semibold underline hover:text-[#F5F1EB]">Log in</Link>
           </p>
         </form>
       </div>
@@ -394,4 +394,4 @@ const RegisterView = () => {
   );
 };
 
-export default RegisterView;
+export default RegisterView;
