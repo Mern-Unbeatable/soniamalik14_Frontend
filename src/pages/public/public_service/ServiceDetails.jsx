@@ -17,7 +17,6 @@ import {
   CircleDollarSign,
   X,
   User,
-  Users,
   UserCheck,
   Mail,
   Phone,
@@ -50,6 +49,44 @@ const buildGoogleMapsSearchUrl = (query) => {
   const normalized = String(query || '').trim();
   if (!normalized || normalized.toLowerCase() === 'n/a') return '';
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
+};
+
+/** Build one location line without repeating town/postcode already inside fullAddress. */
+const buildCombinedServiceLocation = ({
+  clinicName = '',
+  addressLine1 = '',
+  fullAddress = '',
+  townCity = '',
+  postcode = '',
+} = {}) => {
+  const clinic = String(clinicName || '').trim();
+  const streetInput = String(addressLine1 || '').trim();
+  const town = String(townCity || '').trim();
+  const post = String(postcode || '').trim();
+  let street = streetInput || String(fullAddress || '').trim();
+
+  if (street && !streetInput) {
+    const suffixes = [];
+    if (town && post) suffixes.push(`, ${town}, ${post}`, `, ${post}, ${town}`);
+    if (post) suffixes.push(`, ${post}`);
+    if (town) suffixes.push(`, ${town}`);
+    for (const suffix of suffixes) {
+      if (street.toLowerCase().endsWith(suffix.toLowerCase())) {
+        street = street.slice(0, -suffix.length).trim();
+        break;
+      }
+    }
+  }
+
+  return [clinic, street, town, post].filter(Boolean).join(', ');
+};
+
+const isInsuranceConfirmed = (value) => {
+  if (value === true) return true;
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  return normalized === 'yes' || normalized === 'true' || normalized === 'confirmed by provider';
 };
 
 /* ─── Registration Confirmation Modal ──────────────────────────────────────── */
@@ -356,6 +393,7 @@ const ServiceDetails = () => {
         clinicName: '',
         listingHeadline: '',
         organizationName: '',
+        addressLine1: '',
         fullAddress: '',
         townCity: '',
         postcode: '',
@@ -373,12 +411,14 @@ const ServiceDetails = () => {
       };
     }
 
+    const addressLine1 = String(item.addressLine1 || '').trim();
     const fullAddress = String(item.fullAddress || item.addressLine1 || item.location || '').trim();
     const townCity = String(item.city || item.town || '').trim();
     const postcode = String(item.postcode || '').trim();
     const listingHeadline = String(item.listingHeadline || '').trim();
     const organizationName = String(item.organizationName || '').trim();
     const bookingLink = String(item.bookingLink || '').trim();
+    const insuranceConfirmed = isInsuranceConfirmed(item.insuranceInPlace ?? item.insurance);
 
     return {
       title: listingHeadline || organizationName || item.title || '',
@@ -391,6 +431,7 @@ const ServiceDetails = () => {
       clinicName: String(item.clinicName || '').trim(),
       listingHeadline,
       organizationName,
+      addressLine1,
       fullAddress,
       townCity,
       postcode,
@@ -411,54 +452,24 @@ const ServiceDetails = () => {
         Array.isArray(item.sports) && item.sports.length > 0 ? item.sports : item.sport
       ),
       suitableFor: formatListValue(item.suitableFor),
-      whoCanTakePart: formatListValue(
-        item.whoCanTakePart ??
-          (typeof item.womenOnly === 'boolean'
-            ? item.womenOnly
-              ? 'Women only'
-              : 'Mixed, women welcome'
-            : typeof item.womensOnly === 'boolean'
-              ? item.womensOnly
-                ? 'Women only'
-                : 'Mixed, women welcome'
-              : '')
-      ),
       professionalRegistration: String(
         item.professionalRegistration || item.registration || ''
       ).trim(),
       bookingLink,
-      insurance:
-        item.insuranceInPlace === true ||
-        String(item.insuranceInPlace || '')
-          .trim()
-          .toLowerCase() === 'yes' ||
-        String(item.insuranceInPlace || '')
-          .trim()
-          .toLowerCase() === 'true'
-          ? 'Confirmed by provider'
-          : item.insuranceInPlace === false ||
-              String(item.insuranceInPlace || '')
-                .trim()
-                .toLowerCase() === 'no' ||
-              String(item.insuranceInPlace || '')
-                .trim()
-                .toLowerCase() === 'false'
-            ? 'No'
-            : String(item.insuranceInPlace || item.insurance || '').trim(),
+      // Public listing: only surface insurance when the provider confirmed Yes
+      insurance: insuranceConfirmed ? 'Confirmed by provider' : '',
       cost: String(item.costMemebershipDetail || item.costMembershipDetail || '').trim(),
     };
   })();
 
-  // Combine venue, address, town/city and postcode into one Location string
-  const combinedLocation = [
-    displayData.clinicName,
-    displayData.fullAddress,
-    displayData.townCity,
-    displayData.postcode,
-  ]
-    .map((s) => String(s || '').trim())
-    .filter(Boolean)
-    .join(', ');
+  // Combine venue, address, town/city and postcode into one Location string (no duplicates)
+  const combinedLocation = buildCombinedServiceLocation({
+    clinicName: displayData.clinicName,
+    addressLine1: displayData.addressLine1,
+    fullAddress: displayData.fullAddress,
+    townCity: displayData.townCity,
+    postcode: displayData.postcode,
+  });
   const combinedLocationMapsUrl = combinedLocation
     ? buildGoogleMapsSearchUrl(combinedLocation)
     : '';
@@ -468,7 +479,6 @@ const ServiceDetails = () => {
     hasValue(displayData.profession) ||
     hasValue(displayData.sessionType) ||
     hasValue(displayData.sport) ||
-    hasValue(displayData.whoCanTakePart) ||
     hasValue(displayData.suitableFor) ||
     hasValue(displayData.professionalRegistration) ||
     hasValue(displayData.insurance);
@@ -590,15 +600,6 @@ const ServiceDetails = () => {
                             />
                           ) : null}
 
-                          {/* Who can take part? */}
-                          {hasValue(displayData.whoCanTakePart) ? (
-                            <OverviewRow
-                              icon={Users}
-                              label="Who can take part?"
-                              value={displayData.whoCanTakePart}
-                            />
-                          ) : null}
-
                           {/* Suitable for */}
                           {hasValue(displayData.suitableFor) ? (
                             <OverviewRow
@@ -617,7 +618,7 @@ const ServiceDetails = () => {
                             />
                           ) : null}
 
-                          {/* Insurance in place – Confirmed by provider */}
+                          {/* Insurance in place — public: Yes/confirmed only */}
                           {hasValue(displayData.insurance) ? (
                             <OverviewRow
                               icon={ShieldCheck}

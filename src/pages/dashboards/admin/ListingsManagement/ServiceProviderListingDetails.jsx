@@ -65,6 +65,35 @@ const buildGoogleMapsSearchUrl = (query) => {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
 };
 
+const buildCombinedServiceLocation = ({
+  clinicName = '',
+  addressLine1 = '',
+  fullAddress = '',
+  townCity = '',
+  postcode = '',
+} = {}) => {
+  const clinic = String(clinicName || '').trim();
+  const streetInput = String(addressLine1 || '').trim();
+  const town = String(townCity || '').trim();
+  const post = String(postcode || '').trim();
+  let street = streetInput || String(fullAddress || '').trim();
+
+  if (street && !streetInput) {
+    const suffixes = [];
+    if (town && post) suffixes.push(`, ${town}, ${post}`, `, ${post}, ${town}`);
+    if (post) suffixes.push(`, ${post}`);
+    if (town) suffixes.push(`, ${town}`);
+    for (const suffix of suffixes) {
+      if (street.toLowerCase().endsWith(suffix.toLowerCase())) {
+        street = street.slice(0, -suffix.length).trim();
+        break;
+      }
+    }
+  }
+
+  return [clinic, street, town, post].filter(Boolean).join(', ');
+};
+
 const resolveResponseType = (service) => {
   const responseType = String(service?.responseType || '')
     .trim()
@@ -153,6 +182,7 @@ const ServiceProviderListingDetails = () => {
     const suitableFor = Array.isArray(service?.suitableFor) ? service.suitableFor : [];
     const responseType = resolveResponseType(service);
 
+    const addressLine1 = String(service?.addressLine1 || '').trim();
     const fullAddress = String(
       service?.fullAddress || service?.location || service?.addressLine1 || ''
     ).trim();
@@ -171,9 +201,13 @@ const ServiceProviderListingDetails = () => {
         : service?.role || service?.profession || service?.category
     );
 
-    const combinedLocation = [clinicName, fullAddress, townCity, postcode]
-      .filter(Boolean)
-      .join(', ');
+    const combinedLocation = buildCombinedServiceLocation({
+      clinicName,
+      addressLine1,
+      fullAddress,
+      townCity,
+      postcode,
+    });
 
     return {
       id: service?.id,
