@@ -304,7 +304,11 @@ const mapEventToForm = (initialData, authUser) => {
     maxParticipant: initialData.maxParticipants || initialData.maxParticipant || '20',
     skillLevel: initialData.skillLevel || ALL_LEVELS_WELCOME,
     costType: String(initialData.costType || 'Free').toLowerCase() === 'paid' ? 'Paid' : 'Free',
-    price: initialData.registrationFee || initialData.price || '',
+    price:
+      initialData.costDetails ||
+      initialData.registrationFee ||
+      initialData.price ||
+      '',
     responseType,
     responseMethods: mapResponseTypeToMethods(responseType),
     organizerName: initialData.organizerName || org.contactName,
@@ -563,12 +567,16 @@ const EventModal = ({
     payload.append('maxParticipants', formData.maxParticipant || '20');
     payload.append('skillLevel', normalizeSkillLevel(formData.skillLevel));
     payload.append('costType', normalizeCostType(formData.costType));
+    const priceText = String(formData.price || '').trim();
     payload.append(
       'registrationFee',
-      formData.costType === 'Paid' ? String(formData.price || '').trim() : '0'
+      formData.costType === 'Paid' ? priceText || '0' : '0'
     );
     if (formData.costType === 'Paid') {
-      payload.append('price', String(formData.price || '').trim());
+      payload.append('price', priceText);
+      payload.append('costDetails', priceText);
+    } else {
+      payload.append('costDetails', '');
     }
     const responseType = toApiResponseType(
       formData.responseType || mapMethodsToResponseType(formData.responseMethods)

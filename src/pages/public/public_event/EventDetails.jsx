@@ -57,11 +57,29 @@ const getWomenOnlyValue = (item) => {
 
 const formatEventCost = (item) => {
   const costType = String(item?.costType || '').trim().toLowerCase();
-  const fee = String(item?.registrationFee || item?.price || '').trim();
+  const costDetails = String(item?.costDetails || '').trim();
+  const feeRaw = item?.registrationFee ?? item?.price;
+  const fee = String(feeRaw ?? '').trim();
+  const feeNumber = Number(feeRaw);
 
   if (costType === 'free') return 'Free';
-  if (costType === 'paid') return fee || '';
-  if (fee && fee !== '0') return fee;
+
+  if (costDetails) return costDetails;
+
+  if (costType === 'paid') {
+    if (fee && fee !== '0' && !Number.isNaN(feeNumber) && feeNumber > 0) {
+      return fee.startsWith('£') ? fee : `£${feeNumber % 1 === 0 ? feeNumber.toFixed(0) : feeNumber}`;
+    }
+    if (fee && fee !== '0' && Number.isNaN(feeNumber)) return fee;
+    return 'Paid';
+  }
+
+  if (fee && fee !== '0') {
+    if (!Number.isNaN(feeNumber) && feeNumber > 0) {
+      return fee.startsWith('£') ? fee : `£${feeNumber % 1 === 0 ? feeNumber.toFixed(0) : feeNumber}`;
+    }
+    return fee;
+  }
   return '';
 };
 
@@ -217,12 +235,15 @@ const EventDetails = () => {
         cost: formatEventCost(data),
         costType: data.costType || '',
         registrationFee: data.registrationFee || data.price || '',
+        costDetails: data.costDetails || '',
         location: data.venueName || '',
         locationFull: data.fullAddress || '',
         postcode: data.postCode || data.postcode || '',
         town: data.city || '',
         addressLine1: data.addressLine1 || '',
         googleMapLink: data.googleMapLink || data.googleMapLinks || '',
+        startDateRaw: data.startDate || '',
+        endDateRaw: data.endDate || '',
         startDate: formatEventDate(data.startDate),
         endDate: formatEventDate(data.endDate),
         startTime: data.startTime || '',
@@ -345,14 +366,11 @@ const EventDetails = () => {
             <h1 className="text-2xl leading-tight font-bold text-[#0B544E] md:text-[32px]">
               {event.title}
             </h1>
-            <p className="mt-2 text-base text-[#0C0C0C]">
-              Event Type: <span className="text-[#0C0C0C]">{event.type}</span>
-            </p>
           </div>
 
           {/* Session Details Card */}
           <div className="mb-8 rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
-            <h2 className="mb-3 text-xl font-bold text-[#000000]">Event Type</h2>
+            <h2 className="mb-3 text-xl font-bold text-[#000000]">About this event</h2>
             <div className="text-base leading-relaxed whitespace-pre-wrap text-[#272727] md:max-w-7xl">
               {event.about}
             </div>

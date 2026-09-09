@@ -17,6 +17,13 @@ const buildGoogleMapsSearchUrl = (query) => {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalized)}`;
 };
 
+const toDateKey = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value).trim();
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+};
+
 const VenueInformation = ({ event }) => {
   if (!event) return null;
 
@@ -25,15 +32,24 @@ const VenueInformation = ({ event }) => {
   const town = String(event.town || '').trim();
   const postcode = String(event.postcode || '').trim();
 
-  const addressLines = [venueName, addressLine1, town, postcode].filter(Boolean);
+  const addressParts = [venueName, addressLine1, town, postcode]
+    .map((part) => String(part || '').trim())
+    .filter(Boolean);
+
   const locationLabel =
-    addressLines.join(', ') || String(event.locationFull || '').trim();
+    addressParts.join(', ') || String(event.locationFull || '').trim();
 
   const mapsHref =
     String(event.googleMapLink || '').trim() ||
     buildGoogleMapsSearchUrl(locationLabel);
 
-  const hasAddress = addressLines.length > 0 || hasText(event.locationFull);
+  const startDateKey = toDateKey(event.startDateRaw || event.startDate);
+  const endDateKey = toDateKey(event.endDateRaw || event.endDate);
+  const sameDay =
+    Boolean(startDateKey) && Boolean(endDateKey) && startDateKey === endDateKey;
+  const showEndDate = hasText(event.endDate) && !sameDay;
+
+  const hasAddress = Boolean(locationLabel);
   const hasTiming =
     hasText(event.startDate) ||
     hasText(event.endDate) ||
@@ -58,36 +74,20 @@ const VenueInformation = ({ event }) => {
       <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Location & Timing</h3>
       <div className="flex h-auto flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
         <div className="mb-6 min-h-0 flex-1 space-y-3">
-          {hasText(venueName) ? (
-            <p className="wrap-break-word text-base text-[#1A1D1F]">{venueName}</p>
-          ) : null}
-
-          {hasText(addressLine1) ? (
-            <p className="wrap-break-word text-base text-[#1A1D1F]">{addressLine1}</p>
-          ) : null}
-
-          {hasText(town) ? (
-            <p className="wrap-break-word text-base text-[#1A1D1F]">{town}</p>
-          ) : null}
-
-          {hasText(postcode) ? (
-            <p className="wrap-break-word text-base text-[#1A1D1F]">{postcode}</p>
-          ) : null}
-
-          {!addressLines.length && hasText(event.locationFull) ? (
-            <p className="wrap-break-word text-base text-[#1A1D1F]">{event.locationFull}</p>
-          ) : null}
-
-          {mapsHref && locationLabel ? (
-            <a
-              href={mapsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-start gap-2 text-base text-[#1A1D1F] transition-colors hover:text-[#0F766E]"
-              aria-label={`Open ${locationLabel} in Google Maps`}
-            >
-              <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
-            </a>
+          {locationLabel ? (
+            mapsHref ? (
+              <a
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-2 text-base text-[#1A1D1F] transition-colors hover:text-[#0F766E]"
+                aria-label={`Open ${locationLabel} in Google Maps`}
+              >
+                <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
+              </a>
+            ) : (
+              <p className="wrap-break-word text-base text-[#1A1D1F]">{locationLabel}</p>
+            )
           ) : null}
 
           {hasText(event.startDate) ? (
@@ -102,7 +102,7 @@ const VenueInformation = ({ event }) => {
             </p>
           ) : null}
 
-          {hasText(event.endDate) ? (
+          {showEndDate ? (
             <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
               <CalendarIcon />
               <span className="wrap-break-word">{event.endDate}</span>
