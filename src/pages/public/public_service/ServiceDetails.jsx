@@ -524,9 +524,8 @@ const ServiceDetails = () => {
                         {displayData.title || 'Service'}
                       </h1>
                       {hasValue(displayData.coach) ? (
-                        <p className="mt-1 text-base text-[#4A5565]">
-                          Coach:{' '}
-                          <span className="font-semibold text-[#1A1D1F]">{displayData.coach}</span>
+                        <p className="mt-1 text-base font-semibold text-[#1A1D1F]">
+                          {displayData.coach}
                         </p>
                       ) : null}
                     </div>
