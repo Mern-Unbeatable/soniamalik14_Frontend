@@ -501,8 +501,8 @@ const DiscoverDetails = () => {
               </h1>
             ) : null}
             {hasText(item.coach || item.headCoach) ? (
-              <p className="text-[#33383F] mt-2 text-base">
-                Coach: <span className="font-bold">{item.coach || item.headCoach}</span>
+              <p className="mt-2 text-base font-bold text-[#33383F]">
+                {item.coach || item.headCoach}
               </p>
             ) : null}
           </div>

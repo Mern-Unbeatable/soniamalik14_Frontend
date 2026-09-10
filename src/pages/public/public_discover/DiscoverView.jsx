@@ -75,7 +75,7 @@ const toDiscoverItem = (service) => {
     sports,
     day: scheduleDays || service?.sessonDay || availableDays.join(', ') || 'Schedule not specified',
     time: scheduleTimes || service?.timeSlote || 'Time not specified',
-    location: service?.clinicName || service?.location || service?.city || 'Location not specified',
+    location: service?.city || service?.town || 'Location not specified',
     summary: 'Login to see contact details & ability requirements',
     image: service?.logo || service?.provider?.avatar || '',
     about: service?.description || service?.aboutService || '',

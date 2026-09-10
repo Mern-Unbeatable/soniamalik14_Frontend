@@ -319,8 +319,7 @@ const EventView = () => {
         title: event.title || 'Untitled Event',
         titleColor: '#0B544E',
         date: formatDate(event.startDate || event.date),
-        location:
-          event.fullAddress || event.location || event.city || event.venueName || 'Location not set',
+        location: event.city || event.town || 'Location not set',
         tag: formatEventTypeTag(event.eventType),
         image: normalizeEventImageUrl(event.image),
         sport: event.sportType || '',
