@@ -112,7 +112,6 @@ const DashboardNavbar = ({ onMenuClick }) => {
           )}
           <div className="text-base">
             <div className="font-medium text-gray-900">{user?.name || 'Ismat Nikita'}</div>
-            <div className="text-gray-500">{user?.role || 'Member'}</div>
           </div>
         </div>
       </div>
