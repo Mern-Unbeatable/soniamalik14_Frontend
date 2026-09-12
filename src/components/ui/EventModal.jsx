@@ -542,20 +542,26 @@ const EventModal = ({
     payload.append('endDate', formData.endDate);
     payload.append('startTime', formatTimeForApi(formData.startTime) || formData.startTime);
     payload.append('endTime', formatTimeForApi(formData.endTime) || formData.endTime);
-    payload.append('venueName', formData.venueName);
+    const venueName = String(formData.venueName || '').trim();
+    if (venueName) {
+      payload.append('venueName', venueName);
+    }
     if (String(formData.addressLine1 || '').trim()) {
       payload.append('addressLine1', formData.addressLine1);
     }
     payload.append('city', formData.city);
     payload.append('postCode', formData.postcode || '');
-    const fullAddress = [formData.venueName, formData.addressLine1, formData.city, formData.postcode]
+    const fullAddress = [venueName, formData.addressLine1, formData.city, formData.postcode]
       .map((item) => String(item || '').trim())
       .filter(Boolean)
       .join(', ');
     if (fullAddress) {
       payload.append('fullAddress', fullAddress);
     }
-    payload.append('googleMapLink', formData.googleMapLinks);
+    const googleMapLink = String(formData.googleMapLinks || '').trim();
+    if (googleMapLink) {
+      payload.append('googleMapLink', googleMapLink);
+    }
     payload.append('organizationName', formData.organizationName || formData.organizerName || '');
     payload.append('contactName', formData.contactName || formData.organizerName || '');
     payload.append('role', formData.role || '');
@@ -889,7 +895,7 @@ const EventModal = ({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
-                    <label className={labelClass}>Venue name</label>
+                    <label className={labelClass}>Venue name (optional)</label>
                     <input
                       className={fieldClass}
                       value={formData.venueName}
