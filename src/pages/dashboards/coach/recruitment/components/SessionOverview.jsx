@@ -51,6 +51,25 @@ const SessionOverview = ({ item, disableActions = false }) => {
                     </div>
                 </div>
 
+                {String(item.womensOnly || '').trim() ? (
+                    <div className="flex flex-col gap-2 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">
+                                <Users className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-base text-[#101828] font-medium mb-0.5">Participation</p>
+                                <p className="text-base text-[#4A5565]">{item.womensOnly}</p>
+                            </div>
+                        </div>
+                        {item.womensOnly === 'Women-only' || String(item.womensOnly).toLowerCase() === 'women only' ? (
+                            <p className="mt-1 pl-14 text-[12px] italic leading-normal text-gray-500">
+                                Women-only refers to participants. Coaches, organisers, officials or venue staff may be male unless stated otherwise.
+                            </p>
+                        ) : null}
+                    </div>
+                ) : null}
+
                 {item.bookingLink ? (
                     <div className="flex items-center gap-4 bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm">
                         <div className="w-10 h-10 rounded-full bg-[#EAF2F1] flex items-center justify-center text-[#147B6B]">

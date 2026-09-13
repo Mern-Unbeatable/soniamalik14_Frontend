@@ -259,7 +259,9 @@ const SportProviderListingDetails = () => {
                 {/* Header Info */}
                 <div className="pt-10 px-2">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-4">{data.listing}</h1>
-                    <p className="text-base text-gray-600 font-medium mb-3">Coach: <span className="text-gray-900 text-lg">{data.coach}</span></p>
+                    {data.coach && data.coach !== 'N/A' ? (
+                        <p className="mb-3 text-lg font-semibold text-gray-900">{data.coach}</p>
+                    ) : null}
 
                     {/* Mini Stats (From Image 1) */}
                     {data.engagement && (
@@ -288,7 +290,7 @@ const SportProviderListingDetails = () => {
 
                 {/* Session Details Card */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mx-2">
-                    <h2 className="text-xl font-bold text-gray-900 mb-3">Session Details</h2>
+                    <h2 className="text-xl font-bold text-gray-900 mb-3">About this session</h2>
                     <p className="text-base text-[#000000] leading-relaxed mb-4 xl:max-w-6xl">
                         {data.about}
                     </p>
@@ -339,12 +341,18 @@ const SportProviderListingDetails = () => {
                                         <p className="text-base text-gray-500">{data.suitableFor}</p>
                                     </div>
                                 </div>
-                                {/* Overview Card 4 */}
+                                {/* Overview Card 4 — match public Discover Participation label */}
                                 <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                                     <div className="p-2 bg-[#E7F1F1] rounded-full text-[#00786F]"><Users className="w-5 h-5" /></div>
                                     <div>
-                                        <p className="text-base font-semibold text-gray-900">Women's only</p>
-                                        <p className="text-base text-gray-500">{data.womenOnly}</p>
+                                        <p className="text-base font-semibold text-gray-900">Participation</p>
+                                        <p className="text-base text-gray-500">
+                                            {data.womenOnly === 'Yes'
+                                                ? 'Women-only'
+                                                : data.womenOnly === 'No'
+                                                    ? 'Mixed, women welcome'
+                                                    : data.womenOnly}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -381,51 +389,56 @@ const SportProviderListingDetails = () => {
 
                     {/* Right Column */}
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Location & Timing.</h2>
+                        <h2 className="text-xl font-semibold text-gray-900 mb-4">Location & Timing</h2>
                         <div className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-                            <div className="grid grid-cols-[100px_1fr] gap-2 text-base">
-                                {/* <span className="text-gray-500">Venue Name:</span>
-                                <span className="text-gray-900 font-medium">{data.venueName}</span> */}
+                            {(() => {
+                                const venue =
+                                    data.venueName && data.venueName !== 'Not specified'
+                                        ? data.venueName
+                                        : '';
+                                const town =
+                                    data.townCity && data.townCity !== 'Not specified'
+                                        ? data.townCity
+                                        : '';
+                                const post =
+                                    data.postcode && data.postcode !== 'Not specified'
+                                        ? data.postcode
+                                        : '';
+                                const locationLabel =
+                                    [venue, town, post].filter(Boolean).join(', ') ||
+                                    String(data.fullAddress || '').trim();
+                                const mapsHref =
+                                    String(data.googleMapLink || '').trim() ||
+                                    (locationLabel
+                                        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationLabel)}`
+                                        : '');
 
-                                {/* <span className="text-gray-500">Postcode:</span> */}
-                                {data.postcodeMapsUrl ? (
-                                    <a
-                                        href={data.postcodeMapsUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-medium text-gray-900 underline-offset-2 hover:text-[#0F766E] hover:underline"
-                                        aria-label={`Open ${data.postcode} in Google Maps`}
-                                    >
-                                        {data.postcode}
-                                    </a>
-                                ) : (
-                                    <span className="font-medium text-gray-900">{data.postcode}</span>
-                                )}
+                                return locationLabel ? (
+                                    <div className="text-base">
+                                        {mapsHref ? (
+                                            <a
+                                                href={mapsHref}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="font-medium text-gray-900 underline-offset-2 hover:text-[#0F766E] hover:underline"
+                                            >
+                                                {locationLabel}
+                                            </a>
+                                        ) : (
+                                            <span className="font-medium text-gray-900">{locationLabel}</span>
+                                        )}
+                                    </div>
+                                ) : null;
+                            })()}
 
-                                {/* <span className="text-gray-500">Town/City:</span> */}
-                                {data.townCityMapsUrl ? (
-                                    <a
-                                        href={data.townCityMapsUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-medium text-gray-900 underline-offset-2 hover:text-[#0F766E] hover:underline"
-                                        aria-label={`Open ${data.townCity} in Google Maps`}
-                                    >
-                                        {data.townCity}
-                                    </a>
-                                ) : (
-                                    <span className="font-medium text-gray-900">{data.townCity}</span>
-                                )}
-
-                                {/* <span className="text-gray-500">Day:</span> */}
-                                <span className="text-gray-900 font-medium">{data.sessionDays}</span>
-
-                                {/* <span className="text-gray-500">Time:</span> */}
-                                <span className="text-gray-900 font-medium">{data.sessionTime}</span>
-
-                                {data.frequency ? (
-                                    <span className="col-span-2 text-gray-900 font-medium">{data.frequency}</span>
+                            <div className="space-y-2 text-base text-gray-900">
+                                {data.sessionDays && data.sessionDays !== 'Not specified' ? (
+                                    <p>{data.sessionDays}</p>
                                 ) : null}
+                                {data.sessionTime && data.sessionTime !== 'Not specified' ? (
+                                    <p>{data.sessionTime}</p>
+                                ) : null}
+                                {data.frequency ? <p>{data.frequency}</p> : null}
                             </div>
 
                             {/* Map Placeholder */}

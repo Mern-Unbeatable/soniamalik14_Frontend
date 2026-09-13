@@ -12,6 +12,7 @@ import {
   pickImageSource,
   resolveImageUrl,
 } from '../../../utils/resolveImageUrl';
+import BlankCalendarIcon from '../../../components/ui/BlankCalendarIcon';
 import {
   formatScheduleDaysLabel,
   formatScheduleTimeLine,
@@ -349,7 +350,7 @@ const DiscoverDetails = () => {
     }
   };
 
-  const CalendarIcon = () => '📅';
+  const CalendarIcon = () => <BlankCalendarIcon />;
 
   const handleConfirmInterest = async () => {
     if (!id) return;

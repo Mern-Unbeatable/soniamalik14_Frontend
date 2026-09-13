@@ -66,11 +66,19 @@ const mapServiceToDetailsItem = (service) => {
     skillLevel: service?.role || (Array.isArray(service?.providerType) ? service.providerType.join(', ') : service?.providerType) || 'N/A',
     suitableFor: toArray(service?.suitableFor),
     venueName: service?.clinicName || 'N/A',
+    addressLine1: service?.addressLine1 || '',
     location: service?.location || service?.fullAddress || 'N/A',
     fullAddress: service?.fullAddress || '',
     googleMapLink: service?.googleMapLink || '',
     postcode: service?.postcode || 'N/A',
     town: service?.city || 'N/A',
+    womensOnly:
+      service?.whoCanTakePart ||
+      (typeof service?.womenOnly === 'boolean'
+        ? service.womenOnly
+          ? 'Women-only'
+          : 'Mixed, women welcome'
+        : ''),
     typicalSessionDays: scheduleDays || service?.sessonDay || (Array.isArray(service?.availableDays) ? service.availableDays.join(', ') : service?.availableDays) || 'N/A',
     day: scheduleDays || service?.sessonDay || 'N/A',
     sessionTime: scheduleTimes || service?.timeSlote || 'N/A',

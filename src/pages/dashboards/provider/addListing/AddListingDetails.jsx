@@ -255,8 +255,8 @@ const AddListingDetails = () => {
                   <h1 className="text-3xl leading-tight font-semibold text-subtitle md:text-4xl">
                     {item?.providerName || 'Richmond Wellness'}
                   </h1>
-                  <p className="mt-0.5 text-sm text-[#4B5563]">
-                    Coach: <span className="font-semibold text-[#1D1D1D] text-base">{item?.organizer || 'John Doe'}</span>
+                  <p className="mt-0.5 text-base font-semibold text-[#1D1D1D]">
+                    {item?.organizer || item?.contactName || ''}
                   </p>
                 </div>
               </div>

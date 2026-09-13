@@ -1,15 +1,9 @@
 import React from 'react';
+import BlankCalendarIcon from '../../../../components/ui/BlankCalendarIcon';
 
 const hasText = (value) => String(value || '').trim().length > 0;
 
-const CalendarIcon = () => (
-  <img
-    src="/calendar-icon.webp"
-    alt=""
-    aria-hidden="true"
-    className="mt-0.5 h-4 w-4 shrink-0 object-contain"
-  />
-);
+const CalendarIcon = () => <BlankCalendarIcon />;
 
 const buildGoogleMapsSearchUrl = (query) => {
   const normalized = String(query || '').trim();
