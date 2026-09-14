@@ -85,40 +85,53 @@ const VenueInformation = ({ event }) => {
           ) : null}
 
           {hasText(event.startDate) ? (
-            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
-              <CalendarIcon />
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center leading-none">
+                <CalendarIcon />
+              </span>
               <span className="wrap-break-word">{event.startDate}</span>
             </p>
           ) : hasText(event.day) ? (
-            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
-              <CalendarIcon />
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center leading-none">
+                <CalendarIcon />
+              </span>
               <span className="wrap-break-word">{event.day}</span>
             </p>
           ) : null}
 
           {showEndDate ? (
-            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
-              <CalendarIcon />
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center leading-none">
+                <CalendarIcon />
+              </span>
               <span className="wrap-break-word">{event.endDate}</span>
             </p>
           ) : null}
 
           {hasText(event.startTime) || hasText(event.endTime) ? (
-            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
-              <span className="shrink-0 font-medium">🕒</span>
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                🕒
+              </span>
               <span className="wrap-break-word">
                 {[event.startTime, event.endTime].filter(Boolean).join(' - ') || event.time}
               </span>
             </p>
           ) : hasText(event.time) ? (
-            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
-              <span className="shrink-0 font-medium">🕒</span>
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                🕒
+              </span>
               <span className="wrap-break-word">{event.time}</span>
             </p>
           ) : null}
 
           {hasText(event.frequency) ? (
-            <p className="flex items-start gap-2 text-base text-[#1A1D1F]">
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                🔄
+              </span>
               <span className="wrap-break-word">{event.frequency}</span>
             </p>
           ) : null}

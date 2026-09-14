@@ -1,5 +1,5 @@
 /** Colorful blank calendar — no date number (avoids looking like “the 17th”). */
-const BlankCalendarIcon = ({ className = 'mt-0.5 h-4 w-4 shrink-0' }) => (
+const BlankCalendarIcon = ({ className = 'h-5 w-5 shrink-0' }) => (
   <svg
     viewBox="0 0 24 24"
     className={className}

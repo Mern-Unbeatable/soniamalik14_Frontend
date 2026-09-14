@@ -692,25 +692,29 @@ const DiscoverDetails = () => {
                   })()}
 
                   {hasText(item.day) ? (
-                    <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">
+                    <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+                      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center leading-none">
                         <CalendarIcon />
                       </span>
-                      <span className="text-[#1A1D1F]">{item.day}</span>
+                      <span>{item.day}</span>
                     </p>
                   ) : null}
 
                   {hasText(item.time) ? (
-                    <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">🕒</span>
-                      <span className="text-[#1A1D1F]">{item.time}</span>
+                    <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+                      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                        🕒
+                      </span>
+                      <span>{item.time}</span>
                     </p>
                   ) : null}
 
                   {hasText(item.sessionFrequency) ? (
-                    <p className="text-base flex items-start gap-2">
-                      <span className="text-[#1A1D1F] shrink-0 font-medium">🔄</span>
-                      <span className="text-[#1A1D1F]">{item.sessionFrequency}</span>
+                    <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+                      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                        🔄
+                      </span>
+                      <span>{item.sessionFrequency}</span>
                     </p>
                   ) : null}
                 </div>
