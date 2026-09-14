@@ -176,7 +176,10 @@ const DiscoverDetails = () => {
         service.providerName ||
         service.contactName ||
         '',
-      coach: service.provider?.name || service.contactName || service.providerName || '',
+      coach:
+        service.organizationName ||
+        service.provider?.organizationName ||
+        '',
       type: formatList(service.sessionTypes),
       sport: formatList(service.sports),
       suitableFor: formatList(service.suitableFor),
@@ -192,9 +195,12 @@ const DiscoverDetails = () => {
       time: scheduleTimes || service.timeSlote || timeRange || '',
       sessionFrequency: service.frequency || service.sessionFrequency || '',
       image: service.image || service.logo || '',
-      // Org logo for circle only when a separate listing image exists;
-      // otherwise logo is treated as legacy cover and circle uses placeholder.
-      avatar: service.image ? service.logo || '' : '',
+      // Org logo for circle. When listing cover lives in `image`, use `logo`.
+      // When only legacy `logo` exists (cover), prefer provider avatar so the
+      // circle does not repeat the listing photo.
+      avatar: service.image
+        ? service.logo || service.provider?.avatar || ''
+        : service.provider?.avatar || '',
       mapEmbedUrl: getMapEmbedUrl(service),
       about: service.aboutService || service.description || '',
       costMemebershipDetail: service.costMemebershipDetail || '',
@@ -227,10 +233,14 @@ const DiscoverDetails = () => {
   const avatarImageSrc = useMemo(
     () =>
       resolveImageUrl(
-        pickImageSource(item?.avatar),
+        pickImageSource(
+          item?.avatar,
+          service?.image ? service?.logo : null,
+          service?.provider?.avatar
+        ),
         AVATAR_PLACEHOLDER
       ),
-    [item?.avatar]
+    [item?.avatar, service?.image, service?.logo, service?.provider?.avatar]
   );
 
   const handleBookPlace = async () => {

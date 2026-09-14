@@ -154,6 +154,41 @@ const appendIfPresent = (formData, key, value) => {
   }
 };
 
+/**
+ * Append listing cover + org logo for service create/update.
+ * Production API currently only accepts Multer field `logo` — sending `image`
+ * causes "Unexpected field". Dual fields are used for local API, or when
+ * VITE_SERVICE_DUAL_IMAGE=true (after production backend deploy).
+ *
+ * Always send `logoUrl` (org logo URL) as a text field so the circular logo
+ * can be saved even when the only file field is used for the listing cover.
+ */
+const appendServiceImageFiles = (formData, { listingImage, logo } = {}) => {
+  const listingFile = listingImage instanceof File ? listingImage : null;
+  const logoFile = logo instanceof File ? logo : null;
+  const logoUrl = typeof logo === 'string' && String(logo).trim() ? String(logo).trim() : null;
+  const apiBase = String(import.meta.env.VITE_API_BASE_URL || '');
+  const dualFlag = String(import.meta.env.VITE_SERVICE_DUAL_IMAGE || '').toLowerCase();
+  const useDualUpload =
+    dualFlag === 'true' ||
+    (dualFlag !== 'false' && /localhost|127\.0\.0\.1/.test(apiBase));
+
+  if (logoUrl) {
+    formData.append('logoUrl', logoUrl);
+  }
+
+  if (useDualUpload) {
+    if (listingFile) formData.append('image', listingFile);
+    if (logoFile) formData.append('logo', logoFile);
+    else if (logoUrl) formData.append('logo', logoUrl);
+    return;
+  }
+
+  // Production-safe: single file field named `logo` (prefer listing cover)
+  if (listingFile) formData.append('logo', listingFile);
+  else if (logoFile) formData.append('logo', logoFile);
+};
+
 const appendArrayValues = (formData, key, values = []) => {
   values.forEach((value) => appendIfPresent(formData, key, value));
 };
@@ -899,6 +934,10 @@ const CreateRecruitmentModal = ({
         professionalRegistration: String(form.professionalRegistration || '').trim(),
         insuranceInPlace: form.insuranceInPlace === 'Yes',
         isOnline: String(form.sessionType || '').toLowerCase() === 'online',
+        logoUrl:
+          typeof form.logo === 'string' && String(form.logo).trim()
+            ? String(form.logo).trim()
+            : undefined,
       };
 
       Object.keys(updatePayload).forEach((key) => {
@@ -927,12 +966,10 @@ const CreateRecruitmentModal = ({
           appendIfPresent(updateFormData, key, value);
         });
 
-        if (form.listingImage instanceof File) {
-          updateFormData.append('image', form.listingImage);
-        }
-        if (form.logo instanceof File) {
-          updateFormData.append('logo', form.logo);
-        }
+        appendServiceImageFiles(updateFormData, {
+          listingImage: form.listingImage,
+          logo: form.logo,
+        });
         logFormDataPayload('[CreateRecruitmentModal] UPDATE payload (multipart)', updateFormData);
         resultAction = await dispatch(
           updateService({ id: initialData.id, serviceData: updateFormData })
@@ -1013,12 +1050,10 @@ const CreateRecruitmentModal = ({
       );
       payload.append('responseType', getResponseType(form.responseMethods, form.responseType));
 
-      if (form.listingImage instanceof File) {
-        payload.append('image', form.listingImage);
-      }
-      if (form.logo instanceof File) {
-        payload.append('logo', form.logo);
-      }
+      appendServiceImageFiles(payload, {
+        listingImage: form.listingImage,
+        logo: form.logo,
+      });
 
       logFormDataPayload('[CreateRecruitmentModal] CREATE payload', payload);
       resultAction = await dispatch(createService(payload));
@@ -1480,7 +1515,7 @@ const CreateRecruitmentModal = ({
                       handleChange('title', e.target.value);
                       setErrors((prev) => ({ ...prev, title: false }));
                     }}
-                    placeholder="e.g. Youth Netball Session"
+                    placeholder="e.g. Women's Social Padel."
                   />
                   {errors.title && <p className={errorClass}>Required</p>}
                 </div>
