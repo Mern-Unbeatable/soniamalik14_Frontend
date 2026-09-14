@@ -8,6 +8,7 @@ import { ENDPOINT } from '../../../services/httpEndpoint';
 import { getUser } from '../../../utils/storage';
 import Swal from 'sweetalert2';
 import {
+  DUMMY_IMAGE_PATH,
   handleImageLoadError,
   pickImageSource,
   resolveImageUrl,
@@ -20,6 +21,7 @@ import {
 } from '../../../utils/sessionSchedules';
 
 const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
+const AVATAR_PLACEHOLDER = DUMMY_IMAGE_PATH;
 
 const formatList = (value) => {
   if (!Array.isArray(value)) return String(value || '').trim();
@@ -189,8 +191,10 @@ const DiscoverDetails = () => {
       day: scheduleDays || service.sessonDay || formatList(service.availableDays),
       time: scheduleTimes || service.timeSlote || timeRange || '',
       sessionFrequency: service.frequency || service.sessionFrequency || '',
-      image: service.logo || service.image || service.thumbnail || '',
-      avatar: service.provider?.avatar || '',
+      image: service.image || service.logo || '',
+      // Org logo for circle only when a separate listing image exists;
+      // otherwise logo is treated as legacy cover and circle uses placeholder.
+      avatar: service.image ? service.logo || '' : '',
       mapEmbedUrl: getMapEmbedUrl(service),
       about: service.aboutService || service.description || '',
       costMemebershipDetail: service.costMemebershipDetail || '',
@@ -214,10 +218,19 @@ const DiscoverDetails = () => {
   const heroImageSrc = useMemo(
     () =>
       resolveImageUrl(
-        pickImageSource(service?.logo, service?.image, service?.thumbnail, item?.image),
+        pickImageSource(service?.image, service?.logo, item?.image),
         DISCOVER_PLACEHOLDER
       ),
     [service, item?.image]
+  );
+
+  const avatarImageSrc = useMemo(
+    () =>
+      resolveImageUrl(
+        pickImageSource(item?.avatar),
+        AVATAR_PLACEHOLDER
+      ),
+    [item?.avatar]
   );
 
   const handleBookPlace = async () => {
@@ -486,16 +499,19 @@ const DiscoverDetails = () => {
               <Heart className="w-4 h-4" />
             </button> */}
 
-            {/* Overlaid Avatar Picture */}
-            {item.avatar ? (
-              <div className="absolute -bottom-10 left-6 md:left-10 w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#F8FAFC] overflow-hidden bg-gray-200">
-                <img src={item.avatar} alt={item.coach || item.title} className="w-full h-full object-cover" />
-              </div>
-            ) : null}
+            {/* Overlaid Avatar Picture — org logo, or placeholder circle */}
+            <div className="absolute -bottom-10 left-6 md:left-10 w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#F8FAFC] overflow-hidden bg-gray-200">
+              <img
+                src={avatarImageSrc}
+                alt={item.coach || item.title}
+                className="w-full h-full object-cover"
+                onError={(e) => handleImageLoadError(e, AVATAR_PLACEHOLDER)}
+              />
+            </div>
           </div>
 
           {/* Title & Coach Info */}
-          <div className={`px-2 md:px-4 mb-8 ${item.avatar ? '' : 'mt-4'}`}>
+          <div className="px-2 md:px-4 mb-8">
             {hasText(item.title) ? (
               <h1 className="text-2xl md:text-[32px] font-bold text-[#0B544E] leading-tight">
                 {item.title}

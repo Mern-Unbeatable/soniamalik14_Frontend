@@ -29,7 +29,7 @@ const toServiceCardItem = (service) => {
             'Professional support tailored to your sport and recovery needs.',
         type: providerTypes[0] || sessionTypes[0] || 'Service',
         sport: sports[0] || 'General',
-        image: service?.logo || service?.provider?.avatar || '',
+        image: service?.image || service?.logo || '',
         location: service?.location || service?.city || '',
         postcode: service?.postcode || '',
         isFeatured: !!service?.isFeatured,

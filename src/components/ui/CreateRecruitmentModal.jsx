@@ -445,8 +445,8 @@ const mapInitialDataToForm = (initialData) => {
       '',
     about: initialData?.aboutOrganization || '',
     sessionDescription: initialData?.aboutService || initialData?.description || '',
-    logo: initialData?.logo || null,
-    listingImage: initialData?.image || null,
+    logo: initialData?.image ? initialData?.logo || null : null,
+    listingImage: initialData?.image || initialData?.logo || null,
     sports: customSports.length
       ? [...new Set([...knownSports, 'Other'])]
       : [...new Set(knownSports)],
@@ -927,13 +927,12 @@ const CreateRecruitmentModal = ({
           appendIfPresent(updateFormData, key, value);
         });
 
-        const listingFile =
-          form.listingImage instanceof File
-            ? form.listingImage
-            : form.logo instanceof File
-              ? form.logo
-              : null;
-        if (listingFile) updateFormData.append('logo', listingFile);
+        if (form.listingImage instanceof File) {
+          updateFormData.append('image', form.listingImage);
+        }
+        if (form.logo instanceof File) {
+          updateFormData.append('logo', form.logo);
+        }
         logFormDataPayload('[CreateRecruitmentModal] UPDATE payload (multipart)', updateFormData);
         resultAction = await dispatch(
           updateService({ id: initialData.id, serviceData: updateFormData })
@@ -1014,13 +1013,12 @@ const CreateRecruitmentModal = ({
       );
       payload.append('responseType', getResponseType(form.responseMethods, form.responseType));
 
-      const listingFile =
-        form.listingImage instanceof File
-          ? form.listingImage
-          : form.logo instanceof File
-            ? form.logo
-            : null;
-      if (listingFile) payload.append('logo', listingFile);
+      if (form.listingImage instanceof File) {
+        payload.append('image', form.listingImage);
+      }
+      if (form.logo instanceof File) {
+        payload.append('logo', form.logo);
+      }
 
       logFormDataPayload('[CreateRecruitmentModal] CREATE payload', payload);
       resultAction = await dispatch(createService(payload));

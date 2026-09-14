@@ -32,7 +32,7 @@ const DiscoverCard = ({ item }) => {
   const sportLabel = useMemo(() => resolveSportLabel(item), [item]);
 
   const imageSrc = resolveImageUrl(
-    pickImageSource(item.image, item.logo, item.thumbnail),
+    pickImageSource(item.image),
     DISCOVER_PLACEHOLDER
   );
 

@@ -83,7 +83,7 @@ const ServiceCard = ({ item }) => {
   const typeLabel = item.serviceType || item.type || item.service_type || 'Service';
   const sportLabel = item.sport || 'General';
   const imageSrc = resolveImageUrl(
-    pickImageSource(item.image, item.logo, item.coverImage),
+    pickImageSource(item.image),
     DUMMY_IMAGE
   );
 

@@ -424,7 +424,7 @@ const ServiceDetails = () => {
       title: listingHeadline || organizationName || item.title || '',
       coach: item.contactName || item.provider?.name || item.providerName || '',
       avatar: resolveImageUrl(
-        pickImageSource(item.logo, item.image, item.provider?.avatar),
+        pickImageSource(item.image ? item.logo : null),
         DUMMY_IMAGE
       ),
       description: item.aboutService || item.description || '',
