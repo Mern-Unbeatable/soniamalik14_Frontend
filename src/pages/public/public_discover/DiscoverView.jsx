@@ -77,7 +77,7 @@ const toDiscoverItem = (service) => {
     time: scheduleTimes || service?.timeSlote || 'Time not specified',
     location: service?.city || service?.town || 'Location not specified',
     summary: 'Login to see contact details & ability requirements',
-    image: service?.image || service?.logo || '',
+    image: service?.image || '',
     logo: service?.logo || '',
     about: service?.description || service?.aboutService || '',
     homeGround: service?.clinicName || service?.location || '',
