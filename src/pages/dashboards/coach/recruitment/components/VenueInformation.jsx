@@ -1,4 +1,5 @@
 import React from 'react';
+import BlankCalendarIcon from '../../../../../components/ui/BlankCalendarIcon';
 
 const hasText = (value) => {
   const text = String(value || '').trim();
@@ -46,7 +47,6 @@ const VenueInformation = ({ item }) => {
     .map((part) => String(part || '').trim())
     .filter((part) => part && part.toLowerCase() !== 'n/a');
 
-  // Avoid duplicating town/postcode if fullAddress already includes them
   let locationLabel = addressParts.join(', ');
   if (!locationLabel) {
     locationLabel = String(item?.fullAddress || '').trim();
@@ -56,18 +56,23 @@ const VenueInformation = ({ item }) => {
     String(item?.googleMapLink || '').trim() || buildGoogleMapsSearchUrl(locationLabel);
   const mapEmbedUrl = getMapEmbedUrl(item, locationLabel);
 
+  const dayLabel = item.typicalSessionDays || item.matchDays || item.day;
+  const timeLabel = item.sessionTime || item.times || item.time;
+  const frequencyLabel = item.frequency || item.sessionFrequency;
+
   return (
     <div className="flex h-full min-w-0 flex-col">
       <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Location & Timing</h3>
-      <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
-        <div className="mb-4 space-y-3">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="mb-6 min-h-0 flex-1 space-y-4">
           {hasText(locationLabel) ? (
             mapsHref ? (
               <a
                 href={mapsHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group break-words text-base text-[#1A1D1F] transition-colors hover:text-[#0F766E]"
+                className="group text-base leading-normal text-[#1A1D1F] transition-colors hover:text-[#0F766E]"
+                aria-label={`Open ${locationLabel} in Google Maps`}
               >
                 <span className="underline-offset-2 group-hover:underline">{locationLabel}</span>
               </a>
@@ -76,21 +81,30 @@ const VenueInformation = ({ item }) => {
             )
           ) : null}
 
-          {hasText(item.typicalSessionDays || item.matchDays || item.day) ? (
-            <p className="break-words text-base text-[#1A1D1F]">
-              {item.typicalSessionDays || item.matchDays || item.day}
+          {hasText(dayLabel) ? (
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center leading-none">
+                <BlankCalendarIcon />
+              </span>
+              <span>{dayLabel}</span>
             </p>
           ) : null}
 
-          {hasText(item.sessionTime || item.times || item.time) ? (
-            <p className="break-words text-base text-[#1A1D1F]">
-              {item.sessionTime || item.times || item.time}
+          {hasText(timeLabel) ? (
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                🕒
+              </span>
+              <span>{timeLabel}</span>
             </p>
           ) : null}
 
-          {hasText(item.frequency || item.sessionFrequency) ? (
-            <p className="break-words text-base text-[#1A1D1F]">
-              {item.frequency || item.sessionFrequency}
+          {hasText(frequencyLabel) ? (
+            <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                🔄
+              </span>
+              <span>{frequencyLabel}</span>
             </p>
           ) : null}
         </div>

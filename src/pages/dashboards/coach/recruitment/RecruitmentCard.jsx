@@ -11,7 +11,7 @@ import {
     resolveImageUrl,
 } from '../../../../utils/resolveImageUrl';
 
-const RECRUITMENT_PLACEHOLDER = '/recruitment-placeholder.png';
+const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
 
 const RecruitmentCard = ({ item = {}, editLink, onEdit, onDelete, className = '' }) => {
 
@@ -50,12 +50,12 @@ const RecruitmentCard = ({ item = {}, editLink, onEdit, onDelete, className = ''
                             <div className="h-36 bg-gray-200 rounded-md mb-4 overflow-hidden flex items-center justify-center">
                                 <img
                                     src={resolveImageUrl(
-                                        pickImageSource(item.image, item.logo),
-                                        RECRUITMENT_PLACEHOLDER
+                                        pickImageSource(item.image),
+                                        DISCOVER_PLACEHOLDER
                                     )}
                                     alt={item.title || 'Listing'}
                                     className="h-full w-full rounded-md object-cover"
-                                    onError={(e) => handleImageLoadError(e, RECRUITMENT_PLACEHOLDER)}
+                                    onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
                                 />
                             </div>
                         </div>

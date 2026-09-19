@@ -46,9 +46,15 @@ const Recruitment = () => {
             service.organizationName ||
             service.providerName ||
             'Untitled Service',
-          image: service.logo || service.image || null,
+          image: service.image || '',
+          logo: service.logo || '',
           location:
-            service.fullAddress || service.location || service.city || service.addressLine1 || 'N/A',
+            service.city ||
+            service.town ||
+            service.fullAddress ||
+            service.location ||
+            service.addressLine1 ||
+            'N/A',
           days: scheduleDays || service.availableDays || 'N/A',
           time: scheduleTimes || service.timeSlots || service.timeSlote || 'N/A',
         };

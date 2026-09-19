@@ -49,10 +49,18 @@ const mapServiceToDetailsItem = (service) => {
       service?.organizationName ||
       service?.providerName ||
       'Untitled Service',
-    coach: service?.provider?.name || service?.contactName || service?.providerName || 'N/A',
-    headCoach: service?.provider?.name || service?.contactName || service?.providerName || 'N/A',
-    avatar: service?.provider?.avatar || null,
-    image: service?.logo || service?.image || null,
+    coach:
+      service?.organizationName ||
+      service?.provider?.organizationName ||
+      '',
+    headCoach:
+      service?.organizationName ||
+      service?.provider?.organizationName ||
+      '',
+    avatar: service?.logo || service?.provider?.avatar || '',
+    // Cover = listing image only (match public Discover); never fall back to logo
+    image: service?.image || '',
+    logo: service?.logo || '',
     about: service?.aboutService || service?.description || '',
     description: service?.description || service?.aboutService || '',
     sport: Array.isArray(service?.sports) ? service.sports.join(', ') : service?.sports || 'N/A',

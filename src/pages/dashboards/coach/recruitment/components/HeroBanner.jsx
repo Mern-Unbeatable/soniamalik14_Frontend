@@ -1,5 +1,4 @@
 import React from 'react';
-import { User } from 'lucide-react';
 import {
     DUMMY_IMAGE_PATH,
     handleImageLoadError,
@@ -7,14 +6,17 @@ import {
     resolveImageUrl,
 } from '../../../../../utils/resolveImageUrl';
 
-const RECRUITMENT_PLACEHOLDER = '/recruitment-placeholder.png';
+const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
 
 const HeroBanner = ({ item = {} }) => {
     const bannerSrc = resolveImageUrl(
-        pickImageSource(item.image, item.logo),
-        RECRUITMENT_PLACEHOLDER
+        pickImageSource(item.image),
+        DISCOVER_PLACEHOLDER
     );
-    const avatarSource = pickImageSource(item.avatar);
+    const avatarSrc = resolveImageUrl(
+        pickImageSource(item.avatar, item.logo),
+        DUMMY_IMAGE_PATH
+    );
 
     return (
         <div className="relative mb-16">
@@ -23,21 +25,17 @@ const HeroBanner = ({ item = {} }) => {
                     src={bannerSrc}
                     alt={item.title || 'Listing'}
                     className="h-full w-full object-cover"
-                    onError={(e) => handleImageLoadError(e, RECRUITMENT_PLACEHOLDER)}
+                    onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
                 />
             </div>
 
             <div className="absolute -bottom-10 left-6 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 border-[#F8FAFC] bg-gray-200 md:left-10 md:h-24 md:w-24">
-                {avatarSource ? (
-                    <img
-                        src={resolveImageUrl(avatarSource, DUMMY_IMAGE_PATH)}
-                        alt={item.coach || 'Organiser'}
-                        className="h-full w-full object-cover"
-                        onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
-                    />
-                ) : (
-                    <User className="h-10 w-10 text-gray-500" />
-                )}
+                <img
+                    src={avatarSrc}
+                    alt={item.coach || 'Organisation'}
+                    className="h-full w-full object-cover"
+                    onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
+                />
             </div>
         </div>
     );

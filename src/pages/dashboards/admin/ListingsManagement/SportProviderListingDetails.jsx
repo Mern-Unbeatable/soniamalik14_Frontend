@@ -21,6 +21,14 @@ import {
     pickImageSource,
     resolveImageUrl,
 } from '../../../../utils/resolveImageUrl';
+import BlankCalendarIcon from '../../../../components/ui/BlankCalendarIcon';
+import {
+    formatScheduleDaysLabel,
+    formatScheduleTimeLine,
+    parseSchedulesFromService,
+} from '../../../../utils/sessionSchedules';
+
+const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
 
 const normalizeStatus = (service) => {
     if (service?.bannedAt || service?.bannedReason) return 'Banned';
@@ -139,6 +147,9 @@ const SportProviderListingDetails = () => {
         const sessionTypes = Array.isArray(service?.sessionTypes) ? service.sessionTypes : [];
         const suitableFor = Array.isArray(service?.suitableFor) ? service.suitableFor : [];
         const days = Array.isArray(service?.availableDays) ? service.availableDays : [];
+        const schedules = parseSchedulesFromService(service || {});
+        const scheduleDays = formatScheduleDaysLabel(schedules);
+        const scheduleTimes = formatScheduleTimeLine(schedules);
 
         return {
             id: service?.id,
@@ -148,15 +159,18 @@ const SportProviderListingDetails = () => {
                 service?.providerName ||
                 service?.clinicName ||
                 'Untitled Listing',
-            coach: service?.contactName || service?.provider?.name || service?.providerName || 'N/A',
+            coach:
+                service?.organizationName ||
+                service?.provider?.organizationName ||
+                '',
             status: normalizeStatus(service),
             engagement: null,
             coverImage: resolveImageUrl(
-                pickImageSource(service?.coverImage, service?.image, service?.logo),
-                DUMMY_IMAGE_PATH
+                pickImageSource(service?.image),
+                DISCOVER_PLACEHOLDER
             ),
             avatar: resolveImageUrl(
-                pickImageSource(service?.provider?.avatar),
+                pickImageSource(service?.logo, service?.provider?.avatar),
                 DUMMY_IMAGE_PATH
             ),
             about: service?.aboutService || service?.description || 'No description available.',
@@ -176,16 +190,16 @@ const SportProviderListingDetails = () => {
                         ? "Women's only"
                         : 'All participants',
             womenOnly: typeof service?.womenOnly === 'boolean' ? (service.womenOnly ? 'Yes' : 'No') : 'Not specified',
-            venueName: service?.clinicName || service?.fullAddress || service?.location || 'Not specified',
-            postcode: service?.postcode || 'Not specified',
-            townCity: service?.city || service?.location || 'Not specified',
+            venueName: service?.clinicName || '',
+            addressLine1: service?.addressLine1 || '',
+            postcode: service?.postcode || '',
+            townCity: service?.city || '',
             sessionDays:
+                scheduleDays ||
                 service?.sessonDay ||
                 (days.length > 0 ? days.join(', ') : '') ||
-                (service?.date ? `Date: ${formatReadableDate(service.date)}` : 'Not specified'),
-            sessionTime:
-                service?.timeSlote ||
-                (service?.duration ? `${service.duration} mins` : 'Not specified'),
+                (service?.date ? `Date: ${formatReadableDate(service.date)}` : ''),
+            sessionTime: scheduleTimes || service?.timeSlote || '',
             frequency: String(service?.frequency || service?.sessionFrequency || '').trim(),
             participantResponseType: service?.participantResponseType || 'ADD_BOOKING_LINK',
             fullAddress: service?.fullAddress || '',
@@ -233,7 +247,7 @@ const SportProviderListingDetails = () => {
                         src={data.coverImage}
                         alt={data.listing}
                         className="w-full h-72 md:h-96 object-cover rounded-2xl shadow-sm"
-                        onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
+                        onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
                     />
 
                     <button
@@ -249,7 +263,7 @@ const SportProviderListingDetails = () => {
                     <div className="absolute -bottom-10 left-8">
                         <img
                             src={data.avatar}
-                            alt="Coach"
+                            alt="Organisation"
                             className="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover bg-white"
                             onError={(e) => handleImageLoadError(e, DUMMY_IMAGE_PATH)}
                         />
@@ -259,7 +273,7 @@ const SportProviderListingDetails = () => {
                 {/* Header Info */}
                 <div className="pt-10 px-2">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 md:mb-4">{data.listing}</h1>
-                    {data.coach && data.coach !== 'N/A' ? (
+                    {data.coach ? (
                         <p className="mb-3 text-lg font-semibold text-gray-900">{data.coach}</p>
                     ) : null}
 
@@ -392,20 +406,12 @@ const SportProviderListingDetails = () => {
                         <h2 className="text-xl font-semibold text-gray-900 mb-4">Location & Timing</h2>
                         <div className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
                             {(() => {
-                                const venue =
-                                    data.venueName && data.venueName !== 'Not specified'
-                                        ? data.venueName
-                                        : '';
-                                const town =
-                                    data.townCity && data.townCity !== 'Not specified'
-                                        ? data.townCity
-                                        : '';
-                                const post =
-                                    data.postcode && data.postcode !== 'Not specified'
-                                        ? data.postcode
-                                        : '';
+                                const venue = String(data.venueName || '').trim();
+                                const street = String(data.addressLine1 || '').trim();
+                                const town = String(data.townCity || '').trim();
+                                const post = String(data.postcode || '').trim();
                                 const locationLabel =
-                                    [venue, town, post].filter(Boolean).join(', ') ||
+                                    [venue, street, town, post].filter(Boolean).join(', ') ||
                                     String(data.fullAddress || '').trim();
                                 const mapsHref =
                                     String(data.googleMapLink || '').trim() ||
@@ -431,14 +437,31 @@ const SportProviderListingDetails = () => {
                                 ) : null;
                             })()}
 
-                            <div className="space-y-2 text-base text-gray-900">
-                                {data.sessionDays && data.sessionDays !== 'Not specified' ? (
-                                    <p>{data.sessionDays}</p>
+                            <div className="space-y-4 text-base text-gray-900">
+                                {data.sessionDays ? (
+                                    <p className="flex items-center gap-2">
+                                        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center leading-none">
+                                            <BlankCalendarIcon />
+                                        </span>
+                                        <span>{data.sessionDays}</span>
+                                    </p>
                                 ) : null}
-                                {data.sessionTime && data.sessionTime !== 'Not specified' ? (
-                                    <p>{data.sessionTime}</p>
+                                {data.sessionTime ? (
+                                    <p className="flex items-center gap-2">
+                                        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                                            🕒
+                                        </span>
+                                        <span>{data.sessionTime}</span>
+                                    </p>
                                 ) : null}
-                                {data.frequency ? <p>{data.frequency}</p> : null}
+                                {data.frequency ? (
+                                    <p className="flex items-center gap-2">
+                                        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                                            🔄
+                                        </span>
+                                        <span>{data.frequency}</span>
+                                    </p>
+                                ) : null}
                             </div>
 
                             {/* Map Placeholder */}
