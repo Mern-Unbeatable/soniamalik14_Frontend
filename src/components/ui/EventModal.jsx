@@ -55,20 +55,21 @@ const RESPONSE_ACTION_OPTIONS = [
 ];
 
 const fieldClass =
-  'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40';
+  'box-border w-full min-w-0 max-w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40';
+const dateTimeFieldClass = `${fieldClass} block appearance-none`;
 const labelClass = 'mb-1.5 block text-sm font-medium text-white';
 const sectionTitleClass = 'text-base font-bold text-white';
 const sectionHintClass = 'mt-1 text-sm text-white/80';
 
 const FormSection = ({ title, hint, children }) => (
-  <section className="rounded-lg border border-white/20 bg-[#0f756d] p-4">
+  <section className="min-w-0 overflow-hidden rounded-lg border border-white/20 bg-[#0f756d] p-4">
     {title ? (
       <div className="mb-4">
         <h3 className={sectionTitleClass}>{title}</h3>
         {hint ? <p className={sectionHintClass}>{hint}</p> : null}
       </div>
     ) : null}
-    {children}
+    <div className="min-w-0">{children}</div>
   </section>
 );
 
@@ -935,46 +936,46 @@ const EventModal = ({
                     {errors.postcode && <p className={errorClass}>{errors.postcode}</p>}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div>
+                <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="min-w-0">
                     <label className={labelClass}>Start date *</label>
                     <input
                       type="date"
                       min={todayStr}
-                      className={fieldClass}
+                      className={dateTimeFieldClass}
                       value={formData.startDate}
                       onChange={(e) => handleChange('startDate', e.target.value)}
                     />
                     {errors.startDate && <p className={errorClass}>{errors.startDate}</p>}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <label className={labelClass}>End date *</label>
                     <input
                       type="date"
                       min={formData.startDate || todayStr}
-                      className={fieldClass}
+                      className={dateTimeFieldClass}
                       value={formData.endDate}
                       onChange={(e) => handleChange('endDate', e.target.value)}
                     />
                     {errors.endDate && <p className={errorClass}>{errors.endDate}</p>}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <label className={labelClass}>Start time *</label>
                     <input
                       type="time"
-                      className={fieldClass}
+                      className={dateTimeFieldClass}
                       value={formData.startTime}
                       onChange={(e) => handleChange('startTime', e.target.value)}
                     />
                     {errors.startTime && <p className={errorClass}>{errors.startTime}</p>}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div>
+                <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="min-w-0">
                     <label className={labelClass}>End time *</label>
                     <input
                       type="time"
-                      className={fieldClass}
+                      className={dateTimeFieldClass}
                       value={formData.endTime}
                       onChange={(e) => handleChange('endTime', e.target.value)}
                     />

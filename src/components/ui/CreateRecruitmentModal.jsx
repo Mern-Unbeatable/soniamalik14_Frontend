@@ -67,20 +67,21 @@ const PROVIDER_RESPONSE_ACTION_OPTIONS = [
 ];
 
 const fieldClass =
-  'w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40';
+  'box-border w-full min-w-0 max-w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-sm text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40';
+const dateTimeFieldClass = `${fieldClass} block appearance-none`;
 const labelClass = 'mb-1.5 block text-sm font-medium text-white';
 const sectionTitleClass = 'text-base font-bold text-white';
 const sectionHintClass = 'mt-1 text-sm text-white/80';
 
 const FormSection = ({ title, hint, children }) => (
-  <section className="rounded-lg border border-white/20 bg-[#0f756d] p-4">
+  <section className="min-w-0 overflow-hidden rounded-lg border border-white/20 bg-[#0f756d] p-4">
     {title ? (
       <div className="mb-4">
         <h3 className={sectionTitleClass}>{title}</h3>
         {hint ? <p className={sectionHintClass}>{hint}</p> : null}
       </div>
     ) : null}
-    {children}
+    <div className="min-w-0">{children}</div>
   </section>
 );
 
@@ -1721,8 +1722,8 @@ const CreateRecruitmentModal = ({
                         ) : null}
                       </div>
 
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <div>
+                      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div className="min-w-0">
                           <label className={labelClass}>Day *</label>
                           <select
                             className={fieldClass}
@@ -1740,11 +1741,11 @@ const CreateRecruitmentModal = ({
                             <p className={errorClass}>Required</p>
                           ) : null}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <label className={labelClass}>Start time *</label>
                           <input
                             type="time"
-                            className={fieldClass}
+                            className={dateTimeFieldClass}
                             value={row.startTime}
                             onChange={(e) =>
                               handleScheduleChange(row.id, 'startTime', e.target.value)
@@ -1754,11 +1755,11 @@ const CreateRecruitmentModal = ({
                             <p className={errorClass}>Required</p>
                           ) : null}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <label className={labelClass}>End time *</label>
                           <input
                             type="time"
-                            className={fieldClass}
+                            className={dateTimeFieldClass}
                             value={row.endTime}
                             onChange={(e) =>
                               handleScheduleChange(row.id, 'endTime', e.target.value)
