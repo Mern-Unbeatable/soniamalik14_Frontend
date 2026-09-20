@@ -14,15 +14,44 @@ const toServiceCardItem = (service) => {
     const providerTypes = Array.isArray(service?.providerType)
         ? service.providerType.filter(Boolean)
         : [];
+    const city = String(service?.city || service?.town || '').trim();
+    const organizationName = String(
+        service?.organizationName || service?.provider?.organizationName || ''
+    ).trim();
+
+    const normalizedTypes = sessionTypes.map((t) => String(t || '').trim().toLowerCase());
+    const hasOnline =
+        normalizedTypes.some((t) => t === 'online') ||
+        service?.isOnline === true;
+    const hasInPerson = normalizedTypes.some(
+        (t) =>
+            t === 'in clinic' ||
+            t === 'at venue' ||
+            t.includes('clinic') ||
+            t.includes('venue')
+    );
+
+    let deliveryLocation = '';
+    if (hasOnline && !hasInPerson) {
+        deliveryLocation = 'Online';
+    } else if (hasOnline && hasInPerson) {
+        deliveryLocation = city ? `${city} + Online` : 'Online';
+    } else if (hasInPerson || city) {
+        deliveryLocation = city;
+    } else if (hasOnline) {
+        deliveryLocation = 'Online';
+    }
 
     return {
         id: service?.id,
         title:
             service?.listingHeadline ||
+            organizationName ||
             service?.providerName ||
-            service?.organizationName ||
             'Service Provider',
         titleColor: '#0B544E',
+        organizationName,
+        deliveryLocation,
         description:
             service?.description ||
             service?.aboutService ||
@@ -30,8 +59,9 @@ const toServiceCardItem = (service) => {
         type: providerTypes[0] || sessionTypes[0] || 'Service',
         sport: sports[0] || 'General',
         image: service?.image || service?.logo || '',
-        location: service?.location || service?.city || '',
+        location: city || service?.location || '',
         postcode: service?.postcode || '',
+        sessionTypes,
         isFeatured: !!service?.isFeatured,
     };
 };

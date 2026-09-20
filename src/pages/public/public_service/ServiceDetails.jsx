@@ -422,7 +422,10 @@ const ServiceDetails = () => {
 
     return {
       title: listingHeadline || organizationName || item.title || '',
-      coach: item.contactName || item.provider?.name || item.providerName || '',
+      coach:
+        organizationName ||
+        String(item.provider?.organizationName || '').trim() ||
+        '',
       avatar: resolveImageUrl(
         pickImageSource(item.image ? item.logo : null),
         DUMMY_IMAGE

@@ -19,6 +19,13 @@ import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import ApplicantModal from '../../coach/recruitment/components/ApplicantModal';
+import {
+  handleImageLoadError,
+  pickImageSource,
+  resolveImageUrl,
+} from '../../../../utils/resolveImageUrl';
+
+const SERVICE_PLACEHOLDER = '/service-placeholder.png';
 
 const ServiceOverviewItem = ({ icon, label, value }) => (
   <div className="rounded-xl border border-[#DEE6E8] bg-[#F3F5F8] p-4">
@@ -39,8 +46,21 @@ const mapServiceToViewModel = (service) => {
 
   return {
     id: service?.id,
-    providerName: service?.providerName || service?.provider?.name || 'Provider',
-    organizer: service?.contactName || service?.provider?.name || service?.providerName || 'N/A',
+    listingHeadline: service?.listingHeadline || service?.title || '',
+    organizationName:
+      service?.organizationName ||
+      service?.provider?.organizationName ||
+      '',
+    providerName:
+      service?.organizationName ||
+      service?.provider?.organizationName ||
+      service?.providerName ||
+      service?.provider?.name ||
+      'Provider',
+    organizer:
+      service?.organizationName ||
+      service?.provider?.organizationName ||
+      '',
     category:
       service?.role ||
       (Array.isArray(service?.providerType) ? service.providerType.join(', ') : service?.providerType) ||
@@ -67,6 +87,9 @@ const mapServiceToViewModel = (service) => {
     },
     shareLink: service?.shareLink || '',
     status: service?.status || '',
+    image: service?.image || '',
+    logo: service?.logo || '',
+    providerAvatar: service?.provider?.avatar || '',
     analytics: {
       bookingLinkClicks:
         analyticsEntry?.bookingLinkClicks ??
@@ -179,12 +202,11 @@ const AddListingDetails = () => {
 
   const clinicAddress = [serviceOverview.addressLine1, serviceOverview.townCity, serviceOverview.postcode].filter(Boolean).join(', ');
 
-  const providerInitials = String(item?.providerName || 'RW')
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() || '')
-    .join('');
+  const avatarSrc = resolveImageUrl(
+    // Same as public service details: org logo when listing image exists, else placeholder
+    pickImageSource(item?.image ? item?.logo : null),
+    SERVICE_PLACEHOLDER
+  );
 
   const bookings = useMemo(() => (Array.isArray(item?.bookings) ? item.bookings : []), [item?.bookings]);
   const enquiries = useMemo(() => (Array.isArray(item?.enquiries) ? item.enquiries : []), [item?.enquiries]);
@@ -247,17 +269,28 @@ const AddListingDetails = () => {
           <section className="space-y-6">
             <article className="rounded-2xl ">
               <div className="flex items-center gap-3">
-                <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#111827] text-sm font-semibold text-white shadow-sm">
-                  {providerInitials || 'RW'}
+                <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#111827] text-sm font-semibold text-white shadow-sm">
+                  <img
+                    src={avatarSrc}
+                    alt={item?.organizationName || item?.listingHeadline || 'Provider'}
+                    className="h-full w-full object-cover"
+                    onError={(e) => handleImageLoadError(e, SERVICE_PLACEHOLDER)}
+                  />
                 </div>
 
                 <div>
                   <h1 className="text-3xl leading-tight font-semibold text-subtitle md:text-4xl">
-                    {item?.providerName || 'Richmond Wellness'}
+                    {item?.listingHeadline ||
+                      item?.organizationName ||
+                      item?.providerName ||
+                      'Provider'}
                   </h1>
-                  <p className="mt-0.5 text-base font-semibold text-[#1D1D1D]">
-                    {item?.organizer || item?.contactName || ''}
-                  </p>
+                  {item?.organizationName &&
+                  item?.organizationName !== item?.listingHeadline ? (
+                    <p className="mt-0.5 text-base font-semibold text-[#1D1D1D]">
+                      {item.organizationName}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 

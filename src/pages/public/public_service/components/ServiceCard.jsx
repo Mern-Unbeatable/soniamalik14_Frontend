@@ -79,9 +79,8 @@ const DUMMY_IMAGE = '/service-placeholder.png';
 const ServiceCard = ({ item }) => {
   const { isAuthenticated } = useAuth();
 
-  // Safely extract type and sport from the data
+  // Service type tag only (no sport / "General" badge)
   const typeLabel = item.serviceType || item.type || item.service_type || 'Service';
-  const sportLabel = item.sport || 'General';
   const imageSrc = resolveImageUrl(
     pickImageSource(item.image),
     DUMMY_IMAGE
@@ -110,21 +109,27 @@ const ServiceCard = ({ item }) => {
               {formatLabel(typeLabel)}
             </span>
           </div>
-
-          <div className="absolute bottom-3 left-3">
-            <span className="bg-[#EAF2F1] text-[#147B6B] px-3.5 py-1.5 rounded-full text-[12px] font-medium">
-              {formatLabel(sportLabel)}
-            </span>
-          </div>
         </div>
 
-        {/* Title */}
+        {/* Title — listing headline */}
         <h3
-          className="font-bold text-lg md:text-xl leading-snug mb-2.5"
+          className="font-bold text-lg md:text-xl leading-snug mb-1.5"
           style={{ color: item.titleColor || '#1A1D1F' }}
         >
           {item.title}
         </h3>
+
+        {/* Provider / business name */}
+        {item.organizationName ? (
+          <p className="mb-1.5 text-base font-semibold text-[#1A1D1F]">
+            {item.organizationName}
+          </p>
+        ) : null}
+
+        {/* Location / delivery (In clinic → town; Online → Online; both → Town + Online) */}
+        {item.deliveryLocation ? (
+          <p className="mb-3 text-sm text-[#4A5565]">{item.deliveryLocation}</p>
+        ) : null}
 
         {/* Description */}
         <p className="text-[#4A5565] text-base leading-relaxed mb-6 line-clamp-2">
