@@ -634,38 +634,15 @@ const ServiceDetails = () => {
                   ) : null}
 
                   {/* CTA Buttons */}
-                  <div className="flex flex-wrap gap-3">
-                    {/* <button
-                      onClick={() => {
-                        const isInterestOnly =
-                          item?.responseType === 'INTERESTED' ||
-                          item?.participantResponseType === 'ALLOW_REGISTER_INTEREST';
-                        if (isInterestOnly) {
-                          handleRegisterInterest();
-                        } else {
-                          handleBookNowClick();
-                        }
-                      }}
-                      disabled={isInterest || bookLoading}
-                      className="bg-[#147B6B] hover:bg-[#0D655D] text-white px-6 py-2.5 rounded-lg text-[14px] font-medium transition-colors disabled:opacity-70"
+                  {hasValue(displayData.bookingLink) ? (
+                    <button
+                      type="button"
+                      onClick={handleVisitProviderPage}
+                      className="inline-flex w-full items-center justify-center rounded-lg bg-[#147B6B] px-6 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-[#0D655D] md:w-auto"
                     >
-                      {item?.responseType === 'INTERESTED' ||
-                      item?.participantResponseType === 'ALLOW_REGISTER_INTEREST'
-                        ? isInterest
-                          ? 'Registering…'
-                          : 'Register interest'
-                        : 'Register'}
-                    </button> */}
-                    {hasValue(displayData.bookingLink) ? (
-                      <button
-                        type="button"
-                        onClick={handleVisitProviderPage}
-                        className="inline-flex items-center rounded-lg bg-[#147B6B] px-6 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-[#0D655D]"
-                      >
-                        Visit provider page
-                      </button>
-                    ) : null}
-                  </div>
+                      Visit provider page
+                    </button>
+                  ) : null}
                 </div>
               )}
             </div>

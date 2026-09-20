@@ -66,6 +66,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { MapPin } from 'lucide-react';
 import Card from '../../../../components/ui/Card';
 import { useAuth } from '../../../../context/AuthContext';
 import {
@@ -128,7 +129,10 @@ const ServiceCard = ({ item }) => {
 
         {/* Location / delivery (In clinic → town; Online → Online; both → Town + Online) */}
         {item.deliveryLocation ? (
-          <p className="mb-3 text-sm text-[#4A5565]">{item.deliveryLocation}</p>
+          <div className="mb-3 flex items-center gap-3 text-base text-[#363636]">
+            <MapPin className="h-4 w-4 shrink-0 text-[#363636]" />
+            <span className="line-clamp-2">{item.deliveryLocation}</span>
+          </div>
         ) : null}
 
         {/* Description */}
