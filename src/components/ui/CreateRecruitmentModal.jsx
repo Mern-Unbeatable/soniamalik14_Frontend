@@ -915,10 +915,7 @@ const CreateRecruitmentModal = ({
         womenOnly: form.womensOnly === 'YES',
         sports: normalizedSports,
         whoServiceFor: normalizedSports.join(', '),
-        whoCanTakePart:
-          normalizedSuitableFor.join(', ') ||
-          normalizedSports.join(', ') ||
-          (form.womensOnly === 'NO' ? 'Mixed, women welcome' : 'Women only'),
+        whoCanTakePart: form.womensOnly === 'NO' ? 'Mixed, women welcome' : 'Women-only',
         sessonDay: sessionDay,
         date: dateValue,
         timeFrom,
@@ -1021,11 +1018,10 @@ const CreateRecruitmentModal = ({
       appendIfPresent(payload, 'womenOnly', String(form.womensOnly === 'YES'));
       appendArrayField(payload, 'sports', normalizedSports);
       appendIfPresent(payload, 'whoServiceFor', normalizedSports.join(', '));
-      const whoCanTakePartValue =
-        normalizedSuitableFor.join(', ') ||
-        normalizedSports.join(', ') ||
-        (form.womensOnly === 'NO' ? 'Mixed, women welcome' : 'Women only');
-      payload.append('whoCanTakePart', whoCanTakePartValue);
+      payload.append(
+        'whoCanTakePart',
+        form.womensOnly === 'NO' ? 'Mixed, women welcome' : 'Women-only'
+      );
       appendIfPresent(payload, 'sessonDay', sessionDay);
       appendIfPresent(payload, 'date', dateValue);
       appendIfPresent(payload, 'timeFrom', timeFrom);
