@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { Upload, X, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { createService, updateService } from '../../features/service/serviceApi';
@@ -541,6 +542,7 @@ const CreateRecruitmentModal = ({
   onSwitchToEvent,
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const sportsCategories = useSelector(selectSportsCategories);
   const user = useSelector(selectAuthUser);
   const createLoading = useSelector(selectCreateLoading);
@@ -1481,19 +1483,14 @@ const CreateRecruitmentModal = ({
                     </div>
                     <button
                       type="button"
-                      onClick={() => orgLogoInputRef.current?.click()}
+                      onClick={() => {
+                        onClose?.();
+                        navigate(isProvider ? '/provider/settings' : '/coach/settings');
+                      }}
                       className="text-sm font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"
                     >
                       Edit organisation details
                     </button>
-                    <input
-                      ref={orgLogoInputRef}
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png"
-                      className="hidden"
-                      aria-label="Upload organisation logo"
-                      onChange={handleLogoFile}
-                    />
                   </div>
                 </div>
               </div>
