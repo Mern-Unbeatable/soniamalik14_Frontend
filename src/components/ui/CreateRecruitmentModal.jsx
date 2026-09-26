@@ -175,7 +175,7 @@ const appendServiceImageFiles = (formData, { listingImage, logo } = {}) => {
     dualFlag === 'true' ||
     (dualFlag !== 'false' && /localhost|127\.0\.0\.1/.test(apiBase));
 
-  if (logoUrl) {
+  if (logoUrl && !formData.has('logoUrl')) {
     formData.append('logoUrl', logoUrl);
   }
 
