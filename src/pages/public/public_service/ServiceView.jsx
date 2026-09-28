@@ -5,15 +5,23 @@ import Pagination from '../../../components/ui/Pagination';
 import PageHeader from '../../../components/ui/PageHeader';
 import { GET } from '../../../services/httpMethods';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner';
+import {
+    ALL_SERVICES_FILTER,
+    SERVICE_FILTER_OPTIONS,
+    isAllServicesFilter,
+    normalizeServiceType,
+    serviceTypeMatchesFilter,
+} from '../../../utils/serviceTypes';
 
 const SERVICE_BY_ROLE_API = '/api/services/by-role';
 
 const toServiceCardItem = (service) => {
     const sessionTypes = Array.isArray(service?.sessionTypes) ? service.sessionTypes.filter(Boolean) : [];
     const sports = Array.isArray(service?.sports) ? service.sports.filter(Boolean) : [];
-    const providerTypes = Array.isArray(service?.providerType)
+    const providerTypes = (Array.isArray(service?.providerType)
         ? service.providerType.filter(Boolean)
-        : [];
+        : []
+    ).map((type) => String(type || '').trim()).filter(Boolean);
     const city = String(service?.city || service?.town || '').trim();
     const organizationName = String(
         service?.organizationName || service?.provider?.organizationName || ''
@@ -56,7 +64,12 @@ const toServiceCardItem = (service) => {
             service?.description ||
             service?.aboutService ||
             'Professional support tailored to your sport and recovery needs.',
-        type: providerTypes[0] || sessionTypes[0] || 'Service',
+        type:
+            normalizeServiceType(providerTypes[0]) ||
+            providerTypes[0] ||
+            sessionTypes[0] ||
+            'Service',
+        providerTypes,
         sport: sports[0] || 'General',
         image: service?.image || service?.logo || '',
         location: city || service?.location || '',
@@ -73,7 +86,7 @@ const ServiceView = () => {
     const [page, setPage] = useState(1);
     const [postcode, setPostcode] = useState('');
     const [distance, setDistance] = useState('');
-    const [selectedService, setSelectedService] = useState('All');
+    const [selectedService, setSelectedService] = useState(ALL_SERVICES_FILTER);
     const itemsPerPage = 3;
 
     useEffect(() => {
@@ -118,25 +131,20 @@ const ServiceView = () => {
         return () => controller.abort();
     }, []);
 
-    const serviceTypeOptions = useMemo(() => [
-        { label: 'Services', value: 'All' },
-        { label: 'All services', value: 'All services' },
-        { label: 'Nutrition', value: 'Nutrition' },
-        { label: 'Physiotherapy & injury recovery', value: 'Physiotherapy & injury recovery' },
-        { label: 'Sports massage', value: 'Sports massage' },
-        { label: 'Strength & conditioning', value: 'Strength & conditioning' },
-        { label: 'Mental wellbeing', value: 'Mental wellbeing' },
-        { label: '1:1 coaching', value: '1:1 coaching' },
-        { label: 'Other', value: 'Other' }
-    ], []);
+    const serviceTypeOptions = useMemo(
+        () => SERVICE_FILTER_OPTIONS.map((option) => ({ label: option, value: option })),
+        []
+    );
 
     const filtered = useMemo(() => {
         return services.filter((item) => {
-            const serviceMatch =
-                selectedService === 'All' ||
-                selectedService === 'All services' ||
-                selectedService === '' ||
-                item.type?.toLowerCase() === selectedService.toLowerCase();
+            const typesToMatch =
+                Array.isArray(item.providerTypes) && item.providerTypes.length > 0
+                    ? item.providerTypes
+                    : [item.type];
+            const serviceMatch = typesToMatch.some((type) =>
+                serviceTypeMatchesFilter(type, selectedService)
+            );
 
             const search = postcode.trim().toLowerCase();
             const locationMatch =
@@ -182,7 +190,7 @@ const ServiceView = () => {
                     />
 
                     {/* Services Dropdown */}
-                    <div className="relative w-full sm:w-45">
+                    <div className="relative w-full sm:w-72">
                         <select
                             value={selectedService}
                             onChange={(e) => { setSelectedService(e.target.value); setPage(1); }}
@@ -254,11 +262,11 @@ const ServiceView = () => {
                             </svg>
                             <h3 className="text-xl font-semibold text-[#1A1D1F] mb-2">No Services Found</h3>
                             <p className="text-[#4A5565] text-base mb-4">
-                                We couldn't find any {selectedService !== 'All' ? selectedService.toLowerCase() : 'services'} matching your search.
+                                We couldn't find any {isAllServicesFilter(selectedService) ? 'services' : selectedService.toLowerCase()} matching your search.
                             </p>
                             <button
                                 onClick={() => {
-                                    setSelectedService('All');
+                                    setSelectedService(ALL_SERVICES_FILTER);
                                     setPostcode('');
                                     setDistance('');
                                     setPage(1);

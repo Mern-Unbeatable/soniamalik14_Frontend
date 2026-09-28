@@ -10,18 +10,11 @@ import {
   pickImageSource,
   resolveImageUrl,
 } from '../../../../utils/resolveImageUrl';
+import { SERVICE_TYPE_OPTIONS, normalizeServiceType } from '../../../../utils/serviceTypes';
 
 const PROFILE_PLACEHOLDER = '/discover-placeholder.png';
 
-const joiningAsOptions = [
-  'Physiotherapy',
-  'Nutrition',
-  'Personal Training',
-  'Sports Massage',
-  'Mental Health & Wellbeing',
-  'Coaching',
-  'Other',
-];
+const joiningAsOptions = SERVICE_TYPE_OPTIONS;
 
 const resolveUserId = (user) => user?.id || user?._id || user?.userId || null;
 
@@ -68,12 +61,14 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
   );
 
   const selectedServiceTypes = useMemo(
-    () =>
-      Array.isArray(profile.serviceTypes)
+    () => {
+      const raw = Array.isArray(profile.serviceTypes)
         ? profile.serviceTypes
         : String(profile.serviceTypes || '')
             .split(',')
-            .filter(Boolean),
+            .filter(Boolean);
+      return raw.map((type) => normalizeServiceType(type) || type);
+    },
     [profile.serviceTypes]
   );
 
@@ -101,9 +96,10 @@ const ProviderProfileSection = ({ user, fetchMe }) => {
   const toggleServiceType = (service) => {
     setProfile((prev) => {
       const existing = Array.isArray(prev.serviceTypes) ? prev.serviceTypes : [];
-      const next = existing.includes(service)
-        ? existing.filter((s) => s !== service)
-        : [...existing, service];
+      const isSelected = existing.some((type) => normalizeServiceType(type) === service);
+      const next = isSelected
+        ? existing.filter((type) => normalizeServiceType(type) !== service)
+        : [...existing.filter((type) => normalizeServiceType(type) !== service), service];
       return { ...prev, serviceTypes: next };
     });
   };

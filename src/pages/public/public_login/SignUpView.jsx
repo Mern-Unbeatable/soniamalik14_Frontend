@@ -4,6 +4,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { register as registerThunk, ROLES, selectAuthLoading } from '../../../features/auth/authSlice';
+import { SERVICE_TYPE_OPTIONS } from '../../../utils/serviceTypes';
 
 // Declare components outside to fix "Cannot create components during render" error
 const InputField = ({ label, name, placeholder, type = "text", optional = false, value, onChange }) => (
@@ -70,7 +71,7 @@ const RegisterView = () => {
   });
 
   const sportsOptions = ['Football', 'Squash', 'Rugby', 'Netball', 'Cricket', 'Padel', 'Tennis', 'Badminton', 'Golf', 'Running', 'Other'];
-  const serviceOptions = ['Physiotherapy', 'Nutrition', 'Personal Training', 'Sports Massage', 'Mental Health & Wellbeing', 'Coaching', 'Other'];
+  const serviceOptions = SERVICE_TYPE_OPTIONS;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -394,4 +395,4 @@ const RegisterView = () => {
   );
 };
 
-export default RegisterView;
+export default RegisterView;

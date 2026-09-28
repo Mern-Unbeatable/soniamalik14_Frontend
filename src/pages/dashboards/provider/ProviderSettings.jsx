@@ -2,12 +2,13 @@
 import { FiCamera, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const sportsOptions = [
-    'Physiotherapy',
+    'Physiotherapy & Injury Recovery',
     'Nutrition',
     'Personal Training',
     'Sports Massage',
+    'Strength & Conditioning',
     'Mental Health & Wellbeing',
-    'Coaching',
+    'Sports Coaching',
     'Other',
 ];
 

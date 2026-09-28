@@ -16,20 +16,13 @@ import {
   isEndAfterStart,
   parseSchedulesFromService,
 } from '../../utils/sessionSchedules';
+import { SERVICE_TYPE_OPTIONS, toServiceTypeOption } from '../../utils/serviceTypes';
 
 const sessionTypeOptions = ['Training', 'Coaching', 'Social Play','Other'];
 
 const DELIVERY_TYPE_OPTIONS = ['In clinic', 'Online', 'At venue'];
 
-const PROVIDER_SERVICE_TYPE_OPTIONS = [
-  'Physiotherapy',
-  'Nutrition',
-  'Personal Training',
-  'Sports Massage',
-  'Mental Health & Wellbeing',
-  'Coaching',
-  'Other',
-];
+const PROVIDER_SERVICE_TYPE_OPTIONS = SERVICE_TYPE_OPTIONS;
 
 const SESSION_FREQUENCY_OPTIONS = ['Weekly', 'Fortnightly', 'Monthly', 'Other'];
 
@@ -435,7 +428,7 @@ const mapUserToForm = (user) => {
   const contactPerson = resolveContactPerson(user, organisationName);
   const about = user?.bio || user?.aboutOrganization || user?.about || user?.profile?.bio || '';
   const logo = user?.logo || user?.avatar || user?.profileImage || user?.photo || user?.profile?.avatar || null;
-  const role = resolveRoleFromUser(user);
+  const role = toServiceTypeOption(resolveRoleFromUser(user));
 
   const mapped = {
     ...createInitialForm(),
@@ -474,12 +467,13 @@ const mapInitialDataToForm = (initialData) => {
     title: initialData?.title || initialData?.listingHeadline || '',
     contactPerson: initialData?.contactName || '',
     role:
-      initialData?.role ||
-      resolveRoleFromUser(initialData?.provider || initialData?.user || {}) ||
-      (Array.isArray(initialData?.providerType)
-        ? initialData.providerType[0]
-        : initialData?.providerType) ||
-      '',
+      toServiceTypeOption(
+        initialData?.role ||
+          resolveRoleFromUser(initialData?.provider || initialData?.user || {}) ||
+          (Array.isArray(initialData?.providerType)
+            ? initialData.providerType[0]
+            : initialData?.providerType)
+      ) || '',
     about: initialData?.aboutOrganization || '',
     sessionDescription: initialData?.aboutService || initialData?.description || '',
     logo: initialData?.image ? initialData?.logo || null : null,
@@ -593,7 +587,10 @@ const CreateRecruitmentModal = ({
               ...nextForm,
               organisationName: effectiveOrgName,
               contactPerson: nextForm.contactPerson || backendContactPerson,
-              role: nextForm.role || resolveRoleFromUser(profile),
+              role:
+                toServiceTypeOption(nextForm.role || resolveRoleFromUser(profile)) ||
+                nextForm.role ||
+                '',
               about: nextForm.about || profile.bio || profile.aboutOrganization || profile.about || '',
               logo:
                 nextForm.logo ||

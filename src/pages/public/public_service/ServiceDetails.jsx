@@ -427,7 +427,7 @@ const ServiceDetails = () => {
         String(item.provider?.organizationName || '').trim() ||
         '',
       avatar: resolveImageUrl(
-        pickImageSource(item.image ? item.logo : null),
+        pickImageSource(item.image, item.logo),
         DUMMY_IMAGE
       ),
       description: item.aboutService || item.description || '',
@@ -649,27 +649,26 @@ const ServiceDetails = () => {
 
             {/* Contact Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-45 rounded-lg bg-[#E7F1F1] p-4 shadow-sm">
-                <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">
-                  {' '}
-                  Contact the provider.
-                </h3>
-                <p className="mb-3 text-base text-[#1A1D1F]">Enquire about this service.</p>
-                <form onSubmit={handleSubmit} className="flex flex-col">
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Write your message"
-                    className="mb-4 h-32 w-full resize-none rounded-xl border-none bg-[#B5D5D2] p-4 text-base text-[#1A1D1F] placeholder-gray-500 focus:ring-1 focus:ring-[#147B6B]"
-                  />
-                  <button
-                    type="submit"
-                    disabled={submitLoading}
-                    className="bg-btn-primary w-fit rounded-lg px-6 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-[#0D655D] disabled:opacity-70"
-                  >
-                    {submitLoading ? 'Sending...' : 'Send enquiry'}
-                  </button>
-                </form>
+              <div className="sticky top-45">
+                <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Contact Provider</h3>
+                <div className="rounded-lg bg-[#E7F1F1] p-4 shadow-sm">
+                  <p className="mb-3 text-base text-[#1A1D1F]">Enquire about this service.</p>
+                  <form onSubmit={handleSubmit} className="flex flex-col">
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Write your message"
+                      className="mb-4 h-32 w-full resize-none rounded-xl border-none bg-[#B5D5D2] p-4 text-base text-[#1A1D1F] placeholder-gray-500 focus:ring-1 focus:ring-[#147B6B]"
+                    />
+                    <button
+                      type="submit"
+                      disabled={submitLoading}
+                      className="bg-btn-primary w-fit rounded-lg px-6 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-[#0D655D] disabled:opacity-70"
+                    >
+                      {submitLoading ? 'Sending...' : 'Send enquiry'}
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>

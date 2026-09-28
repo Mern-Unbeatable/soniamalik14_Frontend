@@ -784,7 +784,7 @@ const DiscoverDetails = () => {
 
             {/* Column 3: Contact Organiser */}
             <div>
-              <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4"> Contact the provider.</h3>
+              <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Contact Provider</h3>
               <div className="bg-[#E7F1F1] p-4 rounded-lg h-100 flex flex-col">
                 <p className="text-base mb-4 text-[#1A1D1F] ">Ask the organiser a question</p>
                 <form onSubmit={handleSendMessage} className="flex flex-col flex-1">
