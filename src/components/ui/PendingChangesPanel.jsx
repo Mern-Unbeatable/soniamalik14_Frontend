@@ -64,6 +64,12 @@ const FIELD_LABELS = {
   logo: 'Organisation logo',
 };
 
+// The service form writes one input into both columns; show it once under the primary field.
+const MIRRORED_FIELDS = {
+  description: 'aboutService',
+  title: 'listingHeadline',
+};
+
 const IMAGE_FIELDS = ['image', 'logo'];
 const DATE_FIELDS = ['startDate', 'endDate'];
 
@@ -109,6 +115,15 @@ const ImageValue = ({ src, tone }) =>
     />
   );
 
+const dedupeMirroredFields = (diff) => {
+  const byField = new Map(diff.map((item) => [item.field, item]));
+  return diff.filter(({ field, newValue }) => {
+    const primary = MIRRORED_FIELDS[field];
+    if (!primary || !byField.has(primary)) return true;
+    return String(byField.get(primary).newValue ?? '') !== String(newValue ?? '');
+  });
+};
+
 const formatSubmittedAt = (value) => {
   if (!value) return '';
   const parsed = new Date(value);
@@ -132,6 +147,7 @@ const PendingChangesPanel = ({ entityType = 'service', entityId, diff = [], subm
   if (!entityId || !Array.isArray(diff) || diff.length === 0) return null;
 
   const endpoints = entityType === 'event' ? ENDPOINT.EVENTS : ENDPOINT.SERVICES;
+  const visibleDiff = entityType === 'service' ? dedupeMirroredFields(diff) : diff;
 
   const handleAction = async (action) => {
     if (action === 'reject') {
@@ -186,7 +202,7 @@ const PendingChangesPanel = ({ entityType = 'service', entityId, diff = [], subm
       </p>
 
       <div className="divide-y divide-amber-100 overflow-hidden rounded-lg border border-amber-100 bg-white">
-        {diff.map(({ field, oldValue, newValue }) => (
+        {visibleDiff.map(({ field, oldValue, newValue }) => (
           <div key={field} className="grid grid-cols-1 gap-2 p-3 md:grid-cols-[200px_1fr] md:gap-4">
             <p className="text-sm font-semibold text-gray-900">{FIELD_LABELS[field] || humanize(field)}</p>
             {IMAGE_FIELDS.includes(field) ? (
