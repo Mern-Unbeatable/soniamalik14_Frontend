@@ -11,6 +11,7 @@ import {
 import SessionOverview from './components/SessionOverview';
 import VenueInformation from './components/VenueInformation';
 import ContactOrganiser from './components/ContactOrganiser';
+import { PendingChangesNotice } from '../../../../components/ui/PendingChangesPanel';
 import {
   DUMMY_IMAGE_PATH,
   EVENT_PLACEHOLDER_PATH,
@@ -58,7 +59,7 @@ const ProviderEventDetails = () => {
 
   useEffect(() => {
     if (!id) return;
-    dispatch(fetchOrganizerEventById(id));
+    dispatch(fetchOrganizerEventById({ id, includePending: true }));
   }, [dispatch, id]);
 
   const event = eventDetails?.data || eventDetails || null;
@@ -149,6 +150,8 @@ const ProviderEventDetails = () => {
             </button>
           )} */}
         </div>
+
+        <PendingChangesNotice show={event.hasPendingChanges} className="mb-4" />
 
         <div className=" w-full  rounded-xl ">
           <img

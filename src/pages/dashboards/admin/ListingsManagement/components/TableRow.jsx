@@ -21,6 +21,11 @@ const TableRow = ({ row, onActionDone }) => {
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <StatusBadge status={row.status} />
+                {row.hasPendingChanges ? (
+                    <span className="mt-2 block w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+                        Changes awaiting approval
+                    </span>
+                ) : null}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <EngagementMetrics engagement={row.engagement} />

@@ -101,9 +101,12 @@ const mapServiceToRow = (service) => {
     postcode: service?.postcode || 'N/A',
     status: normalizeStatus(service),
     isFeatured: !!service?.isFeatured,
+    hasPendingChanges: !!service?.hasPendingChanges,
     engagement: null,
   };
 };
+
+const CHANGES_PENDING_FILTER = 'Changes awaiting approval';
 
 const ListingsManagement = () => {
   // Filter States
@@ -172,7 +175,7 @@ const ListingsManagement = () => {
       ...Array.from(new Set(tableData.map((item) => item.category))),
     ];
   }, [sportsCategories, tableData]);
-  const uniqueStatuses = ['All Status', 'Featured', 'Pending', 'Live', 'Banned'];
+  const uniqueStatuses = ['All Status', 'Featured', 'Pending', CHANGES_PENDING_FILTER, 'Live', 'Banned'];
 
   // Filter Logic
   const filteredData = useMemo(() => {
@@ -189,7 +192,11 @@ const ListingsManagement = () => {
 
       // 3. Dropdown Filters
       const matchesSport = selectedSport === 'All Sports' || item.category === selectedSport;
-      const matchesStatus = selectedStatus === 'All Status' || item.status === selectedStatus;
+      const matchesStatus =
+        selectedStatus === 'All Status' ||
+        (selectedStatus === CHANGES_PENDING_FILTER
+          ? item.hasPendingChanges
+          : item.status === selectedStatus);
 
       // 4. Date Filter
       let matchesDate = true;

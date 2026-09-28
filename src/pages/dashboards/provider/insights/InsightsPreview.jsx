@@ -206,7 +206,11 @@ const InsightsPreview = () => {
       setEventError('');
 
       try {
-        const response = await GET(ENDPOINT.EVENTS.DETAIL(id), {}, abortController.signal);
+        const response = await GET(
+          ENDPOINT.EVENTS.DETAIL(id),
+          { includePending: true },
+          abortController.signal
+        );
         console.log('InsightsPreview RAW loadEvent Response:', response);
         const data = response?.data?.data || response?.data || null;
         setRawEvent(data);

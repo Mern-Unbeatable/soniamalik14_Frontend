@@ -24,6 +24,7 @@ import { toast } from 'react-toastify';
 import { GET, POST } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import PendingChangesPanel from '../../../../components/ui/PendingChangesPanel';
 import {
   handleImageLoadError,
   pickImageSource,
@@ -131,6 +132,7 @@ const ServiceProviderListingDetails = () => {
   const [service, setService] = useState(null);
   const [chatMessage, setChatMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -172,7 +174,7 @@ const ServiceProviderListingDetails = () => {
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, reloadKey]);
 
   const data = useMemo(() => {
     if (!service) return null;
@@ -379,6 +381,14 @@ const ServiceProviderListingDetails = () => {
               ) : null}
             </div>
           </div>
+
+          <PendingChangesPanel
+            entityType="service"
+            entityId={service?.id}
+            diff={service?.pendingDiff}
+            submittedAt={service?.pendingChangesAt}
+            onResolved={() => setReloadKey((key) => key + 1)}
+          />
 
           {/* Banned Alert Banner */}
           {data.status === 'Banned' && (

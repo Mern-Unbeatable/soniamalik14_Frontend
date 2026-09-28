@@ -4,6 +4,7 @@ import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import { PendingChangesNotice } from '../../../../components/ui/PendingChangesPanel';
 import HeroBanner from './components/HeroBanner';
 import TitleCoachInfo from './components/TitleCoachInfo';
 import SessionDetailsCard from './components/SessionDetailsCard';
@@ -118,6 +119,7 @@ const mapServiceToDetailsItem = (service) => {
     bookingLink: service?.bookingLink || '',
     costMemebershipDetail: service?.costMemebershipDetail || '',
     status: service?.status || '',
+    hasPendingChanges: !!service?.hasPendingChanges,
     responseType:
       service?.responseType ||
       (service?.participantResponseType === 'ALLOW_REGISTER_INTEREST' ? 'INTERESTED' : 'REGISTER'),
@@ -170,7 +172,7 @@ const RecruitmentDetails = () => {
       setError('');
 
       try {
-        const response = await GET(ENDPOINT.SERVICES.DETAIL(id));
+        const response = await GET(ENDPOINT.SERVICES.DETAIL(id), { includePending: true });
         const payload = response?.data || response;
         const service = payload?.data?.service || payload?.service || payload?.data || null;
 
@@ -341,6 +343,8 @@ const RecruitmentDetails = () => {
             <ArrowLeft className="mr-1.5 h-4 w-4" /> Back
           </Link>
         </div>
+
+        <PendingChangesNotice show={item.hasPendingChanges} />
 
         {/* Hero Banner */}
         <HeroBanner item={item} />

@@ -11,6 +11,7 @@ import {
 import SessionOverview from './components/SessionOverview';
 import VenueInformation from './components/VenueInformation';
 import ContactOrganiser from './components/ContactOrganiser';
+import { PendingChangesNotice } from '../../../../components/ui/PendingChangesPanel';
 import {
   EVENT_PLACEHOLDER_PATH,
   handleImageLoadError,
@@ -63,7 +64,7 @@ const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
 
   useEffect(() => {
     if (!id) return;
-    dispatch(fetchOrganizerEventById(id));
+    dispatch(fetchOrganizerEventById({ id, includePending: true }));
   }, [dispatch, id]);
 
   const event = eventDetails?.data || eventDetails || null;
@@ -150,6 +151,8 @@ const EventDetails = ({ backRoute = '/provider/event', useOrganizerApi }) => {
             </button>
           )} */}
         </div>
+
+        <PendingChangesNotice show={event.hasPendingChanges} className="mb-4" />
 
         <div className="overflow-hidden rounded-xl">
           <img

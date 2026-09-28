@@ -123,7 +123,7 @@ export const updateService = createAsyncThunk(
     try {
       const response = await PUT(ENDPOINT.SERVICES.UPDATE(id), serviceData, signal);
       const result = response?.data || response;
-      toast.success('Service updated successfully');
+      toast.success(result?.message || 'Service updated successfully');
       return result;
     } catch (error) {
       const message = getApiErrorMessage(error, 'Failed to update service');

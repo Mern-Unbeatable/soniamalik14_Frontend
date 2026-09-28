@@ -222,13 +222,16 @@ export const fetchOrganizerEvents = createAsyncThunk(
 
 export const fetchOrganizerEventById = createAsyncThunk(
   'events/fetchOrganizerEventById',
-  async (eventId, { rejectWithValue, signal }) => {
+  async (arg, { rejectWithValue, signal }) => {
     try {
+      const isOptions = arg !== null && typeof arg === 'object';
+      const eventId = isOptions ? arg.id : arg;
       if (!eventId) {
         return rejectWithValue('Event id is required');
       }
 
-      const response = await GET(`/api/events/${eventId}`, {}, signal);
+      const params = isOptions && arg.includePending ? { includePending: true } : {};
+      const response = await GET(`/api/events/${eventId}`, params, signal);
       const result = response?.data || response;
       return result?.data || result;
     } catch (error) {

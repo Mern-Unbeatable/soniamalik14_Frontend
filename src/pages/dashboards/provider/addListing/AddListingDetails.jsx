@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import TablePagination from '../../../../components/ui/TablePagination';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import { PendingChangesNotice } from '../../../../components/ui/PendingChangesPanel';
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import ApplicantModal from '../../coach/recruitment/components/ApplicantModal';
@@ -141,7 +142,7 @@ const AddListingDetails = () => {
       setError('');
 
       try {
-        const response = await GET(ENDPOINT.SERVICES.DETAIL(id));
+        const response = await GET(ENDPOINT.SERVICES.DETAIL(id), { includePending: true });
         const payload = response?.data || response;
         const service = payload?.data?.service || payload?.service || payload?.data || null;
 
@@ -159,7 +160,10 @@ const AddListingDetails = () => {
           return;
         }
 
-        setItem(mapServiceToViewModel(service));
+        setItem({
+          ...mapServiceToViewModel(service),
+          hasPendingChanges: !!service.hasPendingChanges,
+        });
       } catch (err) {
         if (!active) return;
         const message = err?.response?.data?.message || err?.message || 'Failed to load service details';
@@ -264,6 +268,8 @@ const AddListingDetails = () => {
           <ArrowLeft className="h-4 w-4" />
           Back
         </button>
+
+        <PendingChangesNotice show={item.hasPendingChanges} className="mb-6" />
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(380px,460px)]">
           <section className="space-y-6">

@@ -35,6 +35,11 @@ const EventTableRow = ({ row }) => {
             </td>
             <td className={`${cellBase} whitespace-nowrap`}>
                 <EventStatusBadge status={row.status} />
+                {row.hasPendingChanges ? (
+                    <span className="mt-2 block w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+                        Changes pending
+                    </span>
+                ) : null}
             </td>
             <td className={`${cellBase} whitespace-nowrap text-base text-gray-500`}>
                 <EventEngagementMetrics engagement={row.engagement} />

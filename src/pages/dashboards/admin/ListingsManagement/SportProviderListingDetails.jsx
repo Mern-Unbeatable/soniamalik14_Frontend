@@ -15,6 +15,7 @@ import {
 import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import PendingChangesPanel from '../../../../components/ui/PendingChangesPanel';
 import {
     DUMMY_IMAGE_PATH,
     handleImageLoadError,
@@ -97,6 +98,7 @@ const SportProviderListingDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [service, setService] = useState(null);
+    const [reloadKey, setReloadKey] = useState(0);
 
     useEffect(() => {
         let active = true;
@@ -138,7 +140,7 @@ const SportProviderListingDetails = () => {
         return () => {
             active = false;
         };
-    }, [id]);
+    }, [id, reloadKey]);
 
     const data = useMemo(() => {
         if (!service) return null;
@@ -286,6 +288,16 @@ const SportProviderListingDetails = () => {
                             <span className="flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> {data.engagement.shares}</span>
                         </div>
                     )}
+                </div>
+
+                <div className="mx-2">
+                    <PendingChangesPanel
+                        entityType="service"
+                        entityId={service?.id}
+                        diff={service?.pendingDiff}
+                        submittedAt={service?.pendingChangesAt}
+                        onResolved={() => setReloadKey((key) => key + 1)}
+                    />
                 </div>
 
                 {/* 2. Banned Status Alert Banner */}

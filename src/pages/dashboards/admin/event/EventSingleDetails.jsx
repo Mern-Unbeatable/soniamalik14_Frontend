@@ -10,6 +10,7 @@ import EventBannedAlert from './components/singleEvent/EventBannedAlert';
 import EventOverviewSection from './components/singleEvent/EventOverviewSection';
 import EventInteractionSection from './components/singleEvent/EventInteractionSection';
 import EventVenueCard from './components/singleEvent/EventVenueCard';
+import PendingChangesPanel from '../../../../components/ui/PendingChangesPanel';
 import {
     DUMMY_IMAGE_PATH,
     pickImageSource,
@@ -97,6 +98,7 @@ const EventSingleDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -152,7 +154,7 @@ const EventSingleDetails = () => {
       isCurrentRequest = false;
       controller.abort();
     };
-  }, [id]);
+  }, [id, reloadKey]);
 
   const normalizedStatus = useMemo(
     () => String(eventData?.status || '').toUpperCase(),
@@ -221,6 +223,14 @@ const EventSingleDetails = () => {
 
       <div className="space-y-6 p-4 md:p-8">
         <EventHeroSection image={coverImage} onBack={() => navigate(-1)} />
+
+        <PendingChangesPanel
+          entityType="event"
+          entityId={eventData.id}
+          diff={eventData.pendingDiff}
+          submittedAt={eventData.pendingChangesAt}
+          onResolved={() => setReloadKey((key) => key + 1)}
+        />
 
         {isBanned && <EventBannedAlert reason={eventData.bannedReason || eventData.rejectionReason} />}
 

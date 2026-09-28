@@ -88,6 +88,8 @@ const resolveIsFeatured = (event) => {
   );
 };
 
+const CHANGES_PENDING_TAB = 'Changes awaiting approval';
+
 const Events = () => {
   const dispatch = useDispatch();
   const ITEMS_PER_PAGE = 10;
@@ -119,6 +121,7 @@ const Events = () => {
       postcode: formatPostcode(event),
       status: formatStatus(event?.status || event?.approvalStatus || event?.eventStatus),
       isFeatured: resolveIsFeatured(event),
+      hasPendingChanges: !!event?.hasPendingChanges,
       engagement: formatEngagement(event),
     }));
   }, [eventsData]);
@@ -130,7 +133,7 @@ const Events = () => {
     dispatch(fetchSportsCategories());
   }, [dispatch]);
 
-  const tabs = ['All Events', 'Pending', 'Featured', 'Live', 'Past', 'Banned'];
+  const tabs = ['All Events', 'Pending', CHANGES_PENDING_TAB, 'Featured', 'Live', 'Past', 'Banned'];
 
   // Get unique sports for the dropdown
   const uniqueSports = useMemo(() => {
@@ -154,9 +157,9 @@ const Events = () => {
   const filteredData = useMemo(() => {
     return renderedEvents.filter((event) => {
       // 1. Tab Filter
-      const matchesTab =
-        activeTab === 'All Events' ||
-        (activeTab === 'Featured' ? event.isFeatured === true : event.status === activeTab);
+      let matchesTab = activeTab === 'All Events' || event.status === activeTab;
+      if (activeTab === 'Featured') matchesTab = event.isFeatured === true;
+      if (activeTab === CHANGES_PENDING_TAB) matchesTab = event.hasPendingChanges;
 
       // 2. Search Filter
       const query = searchQuery.toLowerCase();

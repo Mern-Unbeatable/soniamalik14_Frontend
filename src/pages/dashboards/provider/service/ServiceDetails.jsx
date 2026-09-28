@@ -28,7 +28,7 @@ const ServiceDetails = () => {
             setError(null);
 
             try {
-                const res = await GET(ENDPOINT.SERVICES.DETAIL(id));
+                const res = await GET(ENDPOINT.SERVICES.DETAIL(id), { includePending: true });
                 let payload = res?.data;
                 if (payload?.data) payload = payload.data;
                 if (payload?.service) payload = payload.service;
