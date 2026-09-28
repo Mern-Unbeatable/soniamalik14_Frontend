@@ -652,7 +652,7 @@ const ServiceDetails = () => {
               <div className="sticky top-45">
                 <h3 className="mb-4 text-xl font-semibold text-[#1A1D1F]">Contact Provider</h3>
                 <div className="rounded-lg bg-[#E7F1F1] p-4 shadow-sm">
-                  <p className="mb-3 text-base text-[#1A1D1F]">Enquire about this service.</p>
+                  <p className="mb-3 text-base text-[#1A1D1F]">Ask the organiser a question</p>
                   <form onSubmit={handleSubmit} className="flex flex-col">
                     <textarea
                       value={message}
