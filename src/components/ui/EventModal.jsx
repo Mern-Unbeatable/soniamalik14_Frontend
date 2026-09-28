@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { useEvent } from '../../context/EventContext';
 import { toast } from 'react-toastify';
 import { createOrganizerEvent, updateOrganizerEvent } from '../../features/events/eventsAPI';
@@ -13,6 +14,7 @@ import {
 import { fetchSportsCategories } from '../../features/sportsCategories/sportsCategoriesAPI';
 import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
 import { GET } from '../../services/httpMethods';
+import { toWomensOnlyBoolean } from '../../utils/eventParticipation';
 
 const ALL_LEVELS_WELCOME = 'All levels welcome';
 
@@ -267,7 +269,7 @@ const buildEmptyEventForm = (authUser) => {
     organizerPhone: authUser?.phone || authUser?.phoneNumber || '',
     organizerEmail: authUser?.email || '',
     image: null,
-    womensOnly: true,
+    womensOnly: '',
   };
 };
 
@@ -316,7 +318,12 @@ const mapEventToForm = (initialData, authUser) => {
     organizerPhone: initialData.organizerPhone || authUser?.phone || authUser?.phoneNumber || '',
     organizerEmail: initialData.organizerEmail || authUser?.email || '',
     image: initialData.image || null,
-    womensOnly: initialData?.womensOnly ?? initialData?.womenOnly ?? true,
+    womensOnly: (() => {
+      const raw =
+        initialData?.womensOnly ?? initialData?.womenOnly ?? initialData?.whoCanTakePart;
+      if (raw === undefined || raw === null || String(raw).trim() === '') return '';
+      return toWomensOnlyBoolean(raw, true);
+    })(),
   };
 };
 
@@ -330,6 +337,7 @@ const EventModal = ({
   onSwitchToSession,
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const todayStr = useMemo(() => {
     const today = new Date();
     const year = today.getFullYear();
@@ -348,7 +356,6 @@ const EventModal = ({
   const authUser = useSelector(selectAuthUser);
   const createOrganizerLoading = useSelector(selectCreateOrganizerEventLoading);
   const updateOrganizerLoading = useSelector(selectUpdateOrganizerEventLoading);
-  const orgLogoInputRef = useRef(null);
   const eventImageInputRef = useRef(null);
   const [formData, setFormData] = useState(() => buildEmptyEventForm(authUser));
 
@@ -459,14 +466,6 @@ const EventModal = ({
     };
   }, [imagePreview, orgLogoPreview]);
 
-  const handleOrgLogoFile = (event) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      handleChange('orgLogo', file);
-    }
-    event.target.value = '';
-  };
-
   const handleEventImageFile = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -515,6 +514,10 @@ const EventModal = ({
 
     if (!Array.isArray(formData.responseMethods) || formData.responseMethods.length === 0) {
       newErrors.responseMethods = 'Select at least one response option';
+    }
+
+    if (formData.womensOnly !== true && formData.womensOnly !== false) {
+      newErrors.womensOnly = 'Please choose an option';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -568,7 +571,7 @@ const EventModal = ({
     payload.append('role', formData.role || '');
     payload.append(
       'whoCanTakePart',
-      formData.womensOnly ? 'women only' : 'Mixed, women welcome'
+      formData.womensOnly ? 'Women only' : 'Mixed, women welcome'
     );
     payload.append('minAge', formData.minAge || '18');
     payload.append('maxParticipants', formData.maxParticipant || '20');
@@ -615,12 +618,7 @@ const EventModal = ({
     payload.append('womensOnly', String(formData.womensOnly === true));
 
     // API multer accepts a single file field: `image` (not `logo`)
-    const eventImageFile =
-      formData.image instanceof File
-        ? formData.image
-        : formData.orgLogo instanceof File
-          ? formData.orgLogo
-          : null;
+    const eventImageFile = formData.image instanceof File ? formData.image : null;
     if (eventImageFile) {
       payload.append('image', eventImageFile);
     }
@@ -757,19 +755,22 @@ const EventModal = ({
                     </div>
                     <button
                       type="button"
-                      onClick={() => orgLogoInputRef.current?.click()}
+                      onClick={() => {
+                        onClose?.();
+                        const role = String(authUser?.role || '')
+                          .trim()
+                          .toLowerCase()
+                          .replace(/^role[_\s-]*/, '');
+                        navigate(
+                          role === 'provider' || role.includes('provider')
+                            ? '/provider/settings'
+                            : '/coach/settings'
+                        );
+                      }}
                       className="text-sm font-medium text-[#F5F1EB] underline underline-offset-2 hover:text-white"
                     >
                       Edit organisation details
                     </button>
-                    <input
-                      ref={orgLogoInputRef}
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png"
-                      className="hidden"
-                      aria-label="Upload organisation logo"
-                      onChange={handleOrgLogoFile}
-                    />
                   </div>
                 </div>
               </div>
@@ -853,14 +854,17 @@ const EventModal = ({
                   {errors.suitableFor && <p className={errorClass}>{errors.suitableFor}</p>}
                 </div>
                 <div>
-                  <label className={labelClass}>Who can take part?</label>
+                  <label className={labelClass}>Who can take part? *</label>
                   <div className="mt-2 flex flex-wrap items-center gap-6">
                     <label className="flex cursor-pointer items-center gap-2 text-sm text-white/90">
                       <input
                         type="checkbox"
                         name="eventWho"
                         checked={formData.womensOnly === true}
-                        onChange={() => handleChange('womensOnly', true)}
+                        onChange={() => {
+                          handleChange('womensOnly', true);
+                          setErrors((prev) => ({ ...prev, womensOnly: undefined }));
+                        }}
                         className="accent-[#0f756d]"
                       />
                       Women only
@@ -870,12 +874,16 @@ const EventModal = ({
                         type="checkbox"
                         name="eventWho"
                         checked={formData.womensOnly === false}
-                        onChange={() => handleChange('womensOnly', false)}
+                        onChange={() => {
+                          handleChange('womensOnly', false);
+                          setErrors((prev) => ({ ...prev, womensOnly: undefined }));
+                        }}
                         className="accent-[#0f756d]"
                       />
                       Mixed, women welcome
                     </label>
                   </div>
+                  {errors.womensOnly && <p className={errorClass}>{errors.womensOnly}</p>}
                 </div>
               </div>
             </FormSection>

@@ -15,6 +15,7 @@ import {
     pickImageSource,
     resolveImageUrl,
 } from '../../../../utils/resolveImageUrl';
+import { getWhoCanTakePartLabel } from '../../../../utils/eventParticipation';
 
 const formatReadableText = (value) => {
   if (!value) return 'N/A';
@@ -175,7 +176,7 @@ const EventSingleDetails = () => {
     Array.isArray(eventData?.suitableFor) && eventData.suitableFor.length > 0
       ? eventData.suitableFor.join(', ')
       : 'N/A';
-  const ageGroupValue = eventData?.minAge ? `${eventData.minAge}+ Years` : 'N/A';
+  const whoCanTakePartValue = getWhoCanTakePartLabel(eventData) || 'N/A';
   const mapEmbedUrl = useMemo(() => buildMapEmbedUrl(eventData), [eventData]);
   const coverImage = useMemo(
     () =>
@@ -237,8 +238,7 @@ const EventSingleDetails = () => {
               dateValue={dateValue}
               timeValue={timeValue}
               suitableForValue={suitableForValue}
-              ageGroupValue={ageGroupValue}
-              skillLevel={formatReadableText(eventData.skillLevel)}
+              whoCanTakePartValue={whoCanTakePartValue}
             />
 
             <EventInteractionSection

@@ -20,6 +20,7 @@ import {
   pickImageSource,
   resolveImageUrl,
 } from '../../../utils/resolveImageUrl';
+import { getWhoCanTakePartLabel } from '../../../utils/eventParticipation';
 const toTitleCase = (value = '') =>
   String(value)
     .toLowerCase()
@@ -28,32 +29,7 @@ const toTitleCase = (value = '') =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
 
-const getWomenOnlyValue = (item) => {
-  const fromWhoCanTakePart = String(item?.whoCanTakePart || '').trim().toLowerCase();
-  if (fromWhoCanTakePart.includes('women only') || fromWhoCanTakePart === 'women-only') {
-    return 'Women-only';
-  }
-  if (
-    fromWhoCanTakePart.includes('mixed') ||
-    fromWhoCanTakePart.includes('women welcome')
-  ) {
-    return 'Mixed, women welcome';
-  }
-
-  const val = item?.womensOnly ?? item?.womenOnly;
-  if (typeof val === 'boolean') {
-    return val ? 'Women-only' : 'Mixed, women welcome';
-  }
-  const str = String(val || '').trim().toLowerCase();
-  if (str === 'yes' || str === 'women-only' || str === 'women_only' || str === 'true') {
-    return 'Women-only';
-  }
-  if (str === 'no' || str === 'mixed' || str === 'mixed, women welcome' || str === 'false') {
-    return 'Mixed, women welcome';
-  }
-
-  return '';
-};
+const getWomenOnlyValue = (item) => getWhoCanTakePartLabel(item);
 
 const formatEventCost = (item) => {
   const costType = String(item?.costType || '').trim().toLowerCase();

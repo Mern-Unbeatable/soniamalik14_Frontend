@@ -215,11 +215,11 @@ const SessionOverview = ({ event }) => {
                 <p className="text-base text-[#4A5565]">{event.womensOnly}</p>
               </div>
             </div>
-            {event.womensOnly === 'Women-only' && (
+            {event.womensOnly === 'Women-only' || event.womensOnly === 'Women only' ? (
               <p className="mt-1 pl-14 text-[12px] italic leading-normal text-gray-500">
                 Women-only refers to participants. Coaches, organisers, officials or venue staff may be male unless stated otherwise.
               </p>
-            )}
+            ) : null}
           </div>
         ) : null}
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CalendarDays, Target, Trophy, Users, Copy, Check, ExternalLink } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { getUser } from '../../../../../utils/storage';
+import { getWhoCanTakePartLabel } from '../../../../../utils/eventParticipation';
 
 const toNormalText = (str) => {
   if (!str) return '';
@@ -22,17 +23,17 @@ const SessionOverview = ({ event, onBookPlace }) => {
     }
   };
 
+  const suitableForValue = Array.isArray(event.suitableFor)
+    ? event.suitableFor.filter(Boolean).join(', ')
+    : String(event.suitableFor || '').trim();
+
   const overviewItems = [
     { label: 'Sport', value: toNormalText(event.sportType) || 'Football', icon: Trophy },
     { label: 'Event Type', value: toNormalText(event.eventType) || 'Training Camp', icon: CalendarDays },
-    { label: 'Suitable For', value: toNormalText(event.skillLevel) || 'New to the sport', icon: Target },
+    { label: 'Suitable For', value: suitableForValue || 'N/A', icon: Target },
     {
       label: 'Participation',
-      value: typeof event.womensOnly === 'boolean'
-        ? (event.womensOnly ? 'Women only' : 'Mixed, women welcome')
-        : (String(event.womensOnly || '').toLowerCase() === 'yes' || String(event.womensOnly || '').toLowerCase() === 'women-only'
-            ? 'Women only'
-            : 'Mixed, women welcome'),
+      value: getWhoCanTakePartLabel(event) || 'N/A',
       icon: Users,
     },
   ];
