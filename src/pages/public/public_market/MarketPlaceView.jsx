@@ -39,7 +39,7 @@ const sampleBrands = [
   // },
   {
     id: 5,
-    name: 'Everera Active',
+    name: 'Evera Active',
     sport: 'Fitness',
     logo: '/evera.jpg',
     description:
