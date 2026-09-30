@@ -50,8 +50,7 @@ const Foundersection = () => {
           </p>
 
           <p className="text-[15px] leading-relaxed text-[#1A1D1F]/80 md:text-lg">
-            Whether you want to pick up a racket for the first time or lace up your boots again,
-            ESSA Hub is here to help.
+          Whether you’re picking up a racket for the first time, looking for your next challenge or lacing up your boots again, I hope ESSA Hub makes it that little bit easier to find your place in sport.
           </p>
         </div>
 
