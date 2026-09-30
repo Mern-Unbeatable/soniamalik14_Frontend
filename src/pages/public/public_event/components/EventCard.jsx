@@ -19,7 +19,13 @@ const EventCard = ({ event, onViewDetails }) => {
     <Card className="p-4 h-full flex flex-col justify-between" style={{ borderColor: '#B5D5D2' }}>
       <div>
         <div className="relative">
-          <div className="absolute top-3 left-3 bg-secondary text-btn-primary rounded-md px-3 py-1.5 text-base font-semibold">{event.tag}</div>
+          {event.tag ? (
+            <div className="absolute top-3 left-3 z-10">
+              <span className="bg-[#EAF2F1] text-[#147B6B] px-3.5 py-1.5 rounded-full text-[12px] font-medium">
+                {event.tag}
+              </span>
+            </div>
+          ) : null}
           <div className="h-40 sm:h-48 lg:h-64 bg-gray-200 rounded-md mb-4 overflow-hidden">
             <img
               src={coverSrc}
