@@ -29,8 +29,7 @@ const Foundersection = () => {
             </h1>
             {/**for large device */}
             <p className="hidden text-[15px] leading-relaxed text-[#1A1D1F]/80 md:text-lg lg:block">
-              Joining a football team and taking up squash in my 40s opened my eyes to something I
-              wish more women could experience.
+            Joining a football team and taking up squash in my 40s opened my eyes to something I wish more women could experience.
             </p>
           </div>
         </header>
@@ -39,18 +38,17 @@ const Foundersection = () => {
         <div className="space-y-5">
           {/**for mobile device */}
           <p className="text-[15px] leading-relaxed text-[#1A1D1F]/80 md:text-lg lg:hidden">
-            Joining a football team and taking up squash in my 40s opened my eyes to something I
-            wish more women could experience.
+          Joining a football team and taking up squash in my 40s opened my eyes to something I wish more women could experience.
           </p>
           <p className="text-[15px] leading-relaxed text-[#1A1D1F]/80 md:text-lg">
-            Beyond the fitness, sport has given me space to have fun, laugh, challenge myself and be
-            part of something outside the usual responsibilities of everyday life. It has also
-            reminded me that it is never too late to try something new or return to something you
-            once loved.
+          Beyond the fitness, sport has given me space to have fun, laugh, challenge myself and be part of something outside the usual responsibilities of everyday life. It has also reminded me that it is never too late to try something new or return to something you once loved.
+          </p>
+          <p className="text-[15px] leading-relaxed text-[#1A1D1F]/80 md:text-lg">
+          Those experiences have shaped a lot of the thinking behind ESSA Hub. We’re only at the beginning of the journey and I’m excited to see how it grows and develops.
           </p>
 
           <p className="text-[15px] leading-relaxed text-[#1A1D1F]/80 md:text-lg">
-          Whether you’re picking up a racket for the first time, looking for your next challenge or lacing up your boots again, I hope ESSA Hub makes it that little bit easier to find your place in sport.
+          Whether you’re picking up a racket for the first time, looking for something more competitive or lacing up your boots again, I hope ESSA Hub makes it that little bit easier to find your place in sport.
           </p>
         </div>
 
