@@ -316,6 +316,7 @@ const EventView = () => {
     () =>
       events.map((event) => ({
         id: event.id,
+        isExample: Boolean(event.isExample),
         title: event.title || 'Untitled Event',
         titleColor: '#0B544E',
         date: formatDate(event.startDate || event.date),
@@ -353,7 +354,7 @@ const EventView = () => {
   const handleViewDetails = (event) => {
     if (!event?.id) return;
 
-    if (isAuthenticated) {
+    if (isAuthenticated || event.isExample) {
       navigate(`/events/${event.id}`, { state: { event } });
       return;
     }

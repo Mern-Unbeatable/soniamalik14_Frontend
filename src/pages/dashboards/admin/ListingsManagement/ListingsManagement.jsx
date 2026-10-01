@@ -102,6 +102,7 @@ const mapServiceToRow = (service) => {
     status: normalizeStatus(service),
     isFeatured: !!service?.isFeatured,
     hasPendingChanges: !!service?.hasPendingChanges,
+    isExample: !!service?.isExample,
     engagement: null,
   };
 };

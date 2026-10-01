@@ -1,4 +1,4 @@
-﻿// import React from 'react';
+// import React from 'react';
 // import { Link } from 'react-router-dom';
 // import Card from '../../../../components/ui/Card';
 // import Button from '../../../../components/ui/Button';
@@ -79,6 +79,7 @@ const DUMMY_IMAGE = '/service-placeholder.png';
 
 const ServiceCard = ({ item }) => {
   const { isAuthenticated } = useAuth();
+  const canOpen = isAuthenticated || item.isExample;
 
   // Service type tag only (no sport / "General" badge)
   const typeLabel = item.serviceType || item.type || item.service_type || 'Service';
@@ -144,8 +145,8 @@ const ServiceCard = ({ item }) => {
       {/* Action Button */}
       <div className="mt-auto">
         <Link
-          to={isAuthenticated ? `/services/${item.id}` : '/signin'}
-          state={isAuthenticated ? { item } : { from: `/services/${item.id}`, item }}
+          to={canOpen ? `/services/${item.id}` : '/signin'}
+          state={canOpen ? { item } : { from: `/services/${item.id}`, item }}
           className="block w-full"
         >
           <button className="w-full bg-[#147B6B] hover:bg-[#0D655D] text-white py-2.5 rounded-lg text-[14px] font-medium transition-colors">

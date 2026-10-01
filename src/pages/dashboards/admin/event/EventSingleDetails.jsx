@@ -11,6 +11,7 @@ import EventOverviewSection from './components/singleEvent/EventOverviewSection'
 import EventInteractionSection from './components/singleEvent/EventInteractionSection';
 import EventVenueCard from './components/singleEvent/EventVenueCard';
 import PendingChangesPanel from '../../../../components/ui/PendingChangesPanel';
+import ExampleListingToggle from '../../../../components/ui/ExampleListingToggle';
 import {
     DUMMY_IMAGE_PATH,
     pickImageSource,
@@ -230,6 +231,13 @@ const EventSingleDetails = () => {
           diff={eventData.pendingDiff}
           submittedAt={eventData.pendingChangesAt}
           onResolved={() => setReloadKey((key) => key + 1)}
+        />
+
+        <ExampleListingToggle
+          entityType="event"
+          entityId={eventData.id}
+          isExample={Boolean(eventData.isExample)}
+          onChange={(isExample) => setEventData((prev) => (prev ? { ...prev, isExample } : prev))}
         />
 
         {isBanned && <EventBannedAlert reason={eventData.bannedReason || eventData.rejectionReason} />}

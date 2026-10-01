@@ -68,6 +68,7 @@ const toDiscoverItem = (service) => {
 
   return {
     id: service?.id,
+    isExample: Boolean(service?.isExample),
     title: service?.listingHeadline || service?.organizationName || service?.providerName || 'Untitled service',
     titleColor: '#0B544E',
     type: sessionTypes[0] || 'Training',

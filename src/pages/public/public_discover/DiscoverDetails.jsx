@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useAuth } from '../../../context/AuthContext';
 import { ArrowLeft, Heart, Medal, Calendar, Users, MapPin, CircleDollarSign, ShieldCheck } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import Container from '../../../components/layout/Container';
@@ -67,6 +69,8 @@ const buildGoogleMapsSearchUrl = (query) => {
 const DiscoverDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -297,7 +301,16 @@ const DiscoverDetails = () => {
     }
   };
 
+  // Example listings can be viewed logged out, but taking part still needs an account
+  const requireLogin = (text) => {
+    if (isAuthenticated) return true;
+    toast.info(text);
+    navigate('/signin', { state: { from: location.pathname } });
+    return false;
+  };
+
   const handleOpenRegister = () => {
+    if (!requireLogin('Please log in to register.')) return;
     const user = authUser || getUser();
     const name = user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
     setBookingForm({
@@ -309,6 +322,7 @@ const DiscoverDetails = () => {
   };
 
   const handleOpenInterest = () => {
+    if (!requireLogin('Please log in to register interest.')) return;
     const user = authUser || getUser();
     const name = user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
     const phone = user?.phoneNumber || user?.phone || user?.mobile || '';
@@ -419,6 +433,8 @@ const DiscoverDetails = () => {
       setMessageStatus('Please write a message before sending.');
       return;
     }
+
+    if (!requireLogin('Please log in to send a message.')) return;
 
     const recipientId = item?.providerId;
     if (!id || !recipientId) {
@@ -769,16 +785,6 @@ const DiscoverDetails = () => {
               >
                 {item.responseType === 'INTERESTED' ? 'Register Interest' : 'Register'}
               </button>
-              {hasText(item.bookingLink) ? (
-                <a
-                  href={item.bookingLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:flex-1 bg-[#0F766E] hover:bg-[#0D655D] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors text-center"
-                >
-                  Visit provider page
-                </a>
-              ) : null}
             </div>
           </div>
 

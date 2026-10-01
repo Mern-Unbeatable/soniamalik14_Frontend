@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Card from '../../../../components/ui/Card';
 import Button from '../../../../components/ui/Button';
@@ -36,9 +36,11 @@ const DiscoverCard = ({ item }) => {
     DISCOVER_PLACEHOLDER
   );
 
+  const canOpen = isAuthenticated || item.isExample;
+
   const handleViewDetails = (e) => {
     e.preventDefault();
-    if (!isAuthenticated) {
+    if (!canOpen) {
       setShowLoginModal(true);
     } else {
       navigate(`/discover/${item.id}`, { state: { item } });
@@ -101,7 +103,7 @@ const DiscoverCard = ({ item }) => {
       </div>
 
       <Link
-        to={isAuthenticated ? `/discover/${item.id}` : '#'}
+        to={canOpen ? `/discover/${item.id}` : '#'}
         onClick={handleViewDetails}
       >
         <Button

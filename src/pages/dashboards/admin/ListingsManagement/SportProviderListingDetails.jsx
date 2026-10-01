@@ -16,6 +16,7 @@ import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import PendingChangesPanel from '../../../../components/ui/PendingChangesPanel';
+import ExampleListingToggle from '../../../../components/ui/ExampleListingToggle';
 import {
     DUMMY_IMAGE_PATH,
     handleImageLoadError,
@@ -297,6 +298,15 @@ const SportProviderListingDetails = () => {
                         diff={service?.pendingDiff}
                         submittedAt={service?.pendingChangesAt}
                         onResolved={() => setReloadKey((key) => key + 1)}
+                    />
+                </div>
+
+                <div className="mx-2">
+                    <ExampleListingToggle
+                        entityType="service"
+                        entityId={service?.id}
+                        isExample={Boolean(service?.isExample)}
+                        onChange={(isExample) => setService((prev) => (prev ? { ...prev, isExample } : prev))}
                     />
                 </div>
 

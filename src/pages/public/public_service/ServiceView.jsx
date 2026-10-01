@@ -52,6 +52,7 @@ const toServiceCardItem = (service) => {
 
     return {
         id: service?.id,
+        isExample: Boolean(service?.isExample),
         title:
             service?.listingHeadline ||
             organizationName ||

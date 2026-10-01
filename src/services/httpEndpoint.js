@@ -75,6 +75,7 @@ export const ENDPOINT = {
     FEATURE: (id) => `/api/services/${id}/feature`,
     APPROVE_PENDING_CHANGES: (id) => `/api/services/${id}/pending-changes/approve`,
     REJECT_PENDING_CHANGES: (id) => `/api/services/${id}/pending-changes/reject`,
+    SET_EXAMPLE: (id) => `/api/services/${id}/example`,
     MY_CONVERSATIONS: '/api/services/conversations/my',
   },
   EVENTS: {
@@ -94,6 +95,7 @@ export const ENDPOINT = {
     APPROVAL_STATUS: (id) => `/api/events/${id}/approval-status`,
     APPROVE_PENDING_CHANGES: (id) => `/api/events/${id}/pending-changes/approve`,
     REJECT_PENDING_CHANGES: (id) => `/api/events/${id}/pending-changes/reject`,
+    SET_EXAMPLE: (id) => `/api/events/${id}/example`,
     BAN: (id) => `/api/events/${id}/ban`,
   },
   COMMUNITY: {

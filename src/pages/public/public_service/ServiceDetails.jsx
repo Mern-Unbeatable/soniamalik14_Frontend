@@ -260,7 +260,7 @@ const ServiceDetails = () => {
   const handleBookNowClick = () => {
     if (!isAuthenticated || !user) {
       toast.info('Please log in to register for this service.');
-      navigate('/login', { state: { from: location.pathname } });
+      navigate('/signin', { state: { from: location.pathname } });
       return;
     }
     setShowBookModal(true);
@@ -270,7 +270,7 @@ const ServiceDetails = () => {
   const handleRegisterInterest = async () => {
     if (!isAuthenticated || !user) {
       toast.info('Please log in to register interest.');
-      navigate('/login', { state: { from: location.pathname } });
+      navigate('/signin', { state: { from: location.pathname } });
       return;
     }
     try {
@@ -352,7 +352,7 @@ const ServiceDetails = () => {
 
     if (!isAuthenticated || !user) {
       toast.info('Please log in to send a message.');
-      navigate('/login', { state: { from: location.pathname } });
+      navigate('/signin', { state: { from: location.pathname } });
       return;
     }
 

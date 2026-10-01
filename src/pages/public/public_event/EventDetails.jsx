@@ -176,7 +176,7 @@ const EventDetails = () => {
 
   const handleModalLogin = () => {
     setShowLoginModal(false);
-    navigate('/login', { state: { from: `/events/${id}` } });
+    navigate('/signin', { state: { from: `/events/${id}` } });
   };
 
   const handleBack = () => {

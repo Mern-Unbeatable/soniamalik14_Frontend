@@ -122,6 +122,7 @@ const Events = () => {
       status: formatStatus(event?.status || event?.approvalStatus || event?.eventStatus),
       isFeatured: resolveIsFeatured(event),
       hasPendingChanges: !!event?.hasPendingChanges,
+      isExample: !!event?.isExample,
       engagement: formatEngagement(event),
     }));
   }, [eventsData]);
