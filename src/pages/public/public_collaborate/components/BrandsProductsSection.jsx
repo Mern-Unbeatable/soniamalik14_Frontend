@@ -108,7 +108,7 @@ const BrandsProductsSection = () => {
                 <img
                     src="/MarketPlace1.webp"
                     alt="For Brands & Products"
-                  ame="absolute inset-0 w-full h-full object-cover object-right-bottom"
+                    className="absolute inset-0 w-full h-full object-cover object-right-bottom"
                 />
                 {/* Smooth Gradient Overlay exactly like the image (Fades Left to Right) */}
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,#FFFFFF_40%,rgba(255,255,255,0.9)_55%,transparent_100%)] w-[90%] lg:w-[80%]" />

@@ -7,7 +7,7 @@ import { ENDPOINT } from '../../../../services/httpEndpoint'
 
 const Checkbox = ({ label, checked, onChange }) => (
     <label className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-base mr-2 mb-2 cursor-pointer select-none transition-all ${
-        checked ? 'bg-[#107C66] text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        checked ? 'bg-[#107C66] text-white shadow-sm' : 'bg-loginInput text-[#1A1D1D] hover:bg-[#A7C8C7]'
     }`}>
         <input 
             type="checkbox" 
@@ -157,7 +157,7 @@ const FindSupportModal = ({ open, onClose }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-            <div className="relative w-full max-w-md mx-4 bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="relative w-full max-w-md mx-4 form-shell rounded-2xl border border-[#DCE7E6] shadow-2xl overflow-hidden">
                 {/* Header - sticky */}
                 <div className="sticky top-0 form-shell border-b border-[#DCE7E6] px-4 py-3 flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Fill the form</h3>
@@ -170,10 +170,10 @@ const FindSupportModal = ({ open, onClose }) => {
                     onWheel={handleWheel}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
-                    className="p-4 overflow-y-auto max-h-[60vh] space-y-4"
+                    className="form-shell p-4 overflow-y-auto max-h-[60vh] space-y-4"
                 >
                     <div>
-                        <div className="text-base font-medium text-gray-700 mb-2">Interested In</div>
+                        <div className="text-base font-medium text-[#107C66] mb-2">Interested In</div>
                         <div className="flex flex-wrap">
                             {['Football', 'Squash', 'Rugby', 'Netball', 'Cricket', 'Padel', 'Tennis', 'Other'].map(sport => (
                                 <Checkbox
@@ -189,16 +189,16 @@ const FindSupportModal = ({ open, onClose }) => {
                             value={otherSportName}
                             onChange={(e) => setOtherSportName(e.target.value)}
                             disabled={sportName !== 'Other'}
-                            className="mt-3 w-full bg-gray-100 rounded-md px-3 py-2 text-base border border-gray-200 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-[#107C66] focus:border-transparent transition-all"
+                            className="form-field mt-3 text-base disabled:opacity-50"
                         />
                     </div>
 
                     <div>
-                        <div className="text-base font-medium text-gray-700 mb-2">Level</div>
+                        <div className="text-base font-medium text-[#107C66] mb-2">Level</div>
                         <select
                             value={level}
                             onChange={(e) => setLevel(e.target.value)}
-                            className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-base focus:outline-none focus:ring-1 focus:ring-[#107C66] focus:border-transparent transition-all"
+                            className="form-field text-base"
                         >
                             <option value="New to the sport">New to the sport</option>
                             <option value="Some experience">Some experience</option>
@@ -208,7 +208,7 @@ const FindSupportModal = ({ open, onClose }) => {
                     </div>
 
                     <div>
-                        <div className="text-base font-medium text-gray-700 mb-2">Preferred Days</div>
+                        <div className="text-base font-medium text-[#107C66] mb-2">Preferred Days</div>
                         <div className="flex flex-wrap">
                             {[
                                 { label: 'Weekday evenings', key: 'WEEKDAY_EVENINGS' },
@@ -232,7 +232,7 @@ const FindSupportModal = ({ open, onClose }) => {
                     </div>
 
                     <div>
-                        <div className="text-base font-medium text-gray-700 mb-2">Preference</div>
+                        <div className="text-base font-medium text-[#107C66] mb-2">Preference</div>
                         <div className="flex flex-wrap">
                             {[
                                 { label: 'Women-only sessions', key: 'WOMEN_ONLY' },
@@ -251,7 +251,7 @@ const FindSupportModal = ({ open, onClose }) => {
                     </div>
 
                     <div>
-                        <div className="text-base font-medium text-gray-700 mb-2">Would you help start something?</div>
+                        <div className="text-base font-medium text-[#107C66] mb-2">Would you help start something?</div>
                         <div className="flex gap-4">
                             <label className="inline-flex items-center gap-2 cursor-pointer text-gray-700 font-medium hover:text-[#107C66] transition-colors">
                                 <input
