@@ -11,6 +11,7 @@ import {
   resolveImageUrl,
 } from '../../../../utils/resolveImageUrl';
 import { SERVICE_TYPE_OPTIONS, normalizeServiceType } from '../../../../utils/serviceTypes';
+import { normalizeStringList } from '../../../../utils/stringList';
 
 const PROFILE_PLACEHOLDER = '/discover-placeholder.png';
 
@@ -31,8 +32,8 @@ const normalizeProfileFromUser = (user, fallbackProfile = {}) => ({
   bio: user?.bio || user?.aboutOrganization || fallbackProfile?.bio || '',
   postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || fallbackProfile?.postcode || '',
   sessionType: user?.sessionType || fallbackProfile?.sessionType || 'women',
-  sportsOffered: Array.isArray(user?.sportsOffered) && user.sportsOffered.length > 0 ? user.sportsOffered : (fallbackProfile?.sportsOffered || []),
-  serviceTypes: Array.isArray(user?.serviceTypes) && user.serviceTypes.length > 0 ? user.serviceTypes : (fallbackProfile?.serviceTypes || []),
+  sportsOffered: normalizeStringList(user?.sportsOffered).length > 0 ? normalizeStringList(user.sportsOffered) : normalizeStringList(fallbackProfile?.sportsOffered),
+  serviceTypes: normalizeStringList(user?.serviceTypes).length > 0 ? normalizeStringList(user.serviceTypes) : normalizeStringList(fallbackProfile?.serviceTypes),
   fullName: user?.fullName || user?.name || fallbackProfile?.fullName || '',
   email: user?.email || fallbackProfile?.email || '',
   phone: user?.phone || fallbackProfile?.phone || '',

@@ -3,6 +3,7 @@ import { FiCamera, FiUser } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../../context/AuthContext';
 import { updateUserProfile } from '../../../../services/authService';
+import { normalizeStringList } from '../../../../utils/stringList';
 
 const sportsOptions = [
   'Football',
@@ -38,7 +39,7 @@ const normalizeProfileFromUser = (user) => ({
   address: user?.address || '',
   postcode: user?.postcode || user?.postCode || user?.postalCode || user?.zip || '',
   sessionType: normalizeSessionType(user?.sessionType),
-  sports: user?.sportsOffered || user?.sports || [],
+  sports: normalizeStringList(user?.sportsOffered || user?.sports),
   fullName:
     user?.fullName ||
     user?.contactName ||

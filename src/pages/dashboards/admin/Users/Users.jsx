@@ -9,6 +9,7 @@ import TabsSection from './components/TabsSection';
 import PaginationSection from './components/PaginationSection';
 import SuspendModal from './components/SuspendModal';
 import AddProviderModal from './components/AddProviderModal';
+import { normalizeStringList } from '../../../../utils/stringList';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import { toast } from 'react-toastify';
 import {
@@ -155,10 +156,7 @@ const Users = () => {
         contactName: contactName || row?.name || '-',
         email: row?.email || '-',
         postcode: row?.postcode || '-',
-        sport:
-          Array.isArray(row?.sportsOffered) && row.sportsOffered.length
-            ? row.sportsOffered.join(', ')
-            : '-',
+        sport: normalizeStringList(row?.sportsOffered).join(', ') || '-',
         joined: formatDateValue(row?.createdAt),
         listingsCount: row?.listingsCount ?? 0,
         eventsCount: row?.eventsCount ?? 0,
@@ -183,10 +181,7 @@ const Users = () => {
         '-',
       email: row?.email || '-',
       postcode: row?.postcode || '-',
-      sport:
-        Array.isArray(row?.sportsInterests) && row.sportsInterests.length
-          ? row.sportsInterests.join(', ')
-          : '-',
+      sport: normalizeStringList(row?.sportsInterests).join(', ') || '-',
       joined: formatDateValue(row?.createdAt),
       lastLogin: formatDateValue(row?.lastLogin),
       events: row?.eventsCount ?? 0,
@@ -201,10 +196,7 @@ const Users = () => {
       providerName: row?.organizationName || row?.name || '-',
       email: row?.email || '-',
       postcode: row?.postcode || '-',
-      sport:
-        Array.isArray(row?.serviceTypes) && row.serviceTypes.length
-          ? row.serviceTypes.join(', ')
-          : '-',
+      sport: normalizeStringList(row?.serviceTypes).join(', ') || '-',
       joined: formatDateValue(row?.createdAt),
       lastLogin: formatDateValue(row?.lastLogin),
       phone: row?.phone || '-',
@@ -254,10 +246,11 @@ const Users = () => {
 
     if (selectedSport && selectedSport !== 'All Sports') {
       rawList = rawList.filter((row) => {
-        const interests = Array.isArray(row?.sportsInterests) ? row.sportsInterests : [];
-        const offered = Array.isArray(row?.sportsOffered) ? row.sportsOffered : [];
-        const types = Array.isArray(row?.serviceTypes) ? row.serviceTypes : [];
-        const allSports = [...interests, ...offered, ...types].map(s => String(s || '').toLowerCase());
+        const allSports = normalizeStringList([
+          row?.sportsInterests,
+          row?.sportsOffered,
+          row?.serviceTypes,
+        ]).map((s) => s.toLowerCase());
         return allSports.includes(selectedSport.toLowerCase());
       });
     }
