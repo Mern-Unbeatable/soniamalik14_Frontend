@@ -10,6 +10,8 @@ import PaginationSection from './components/PaginationSection';
 import SuspendModal from './components/SuspendModal';
 import AddProviderModal from './components/AddProviderModal';
 import { normalizeStringList } from '../../../../utils/stringList';
+import { POST } from '../../../../services/httpMethods';
+import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import { toast } from 'react-toastify';
 import {
@@ -41,6 +43,7 @@ const Users = () => {
   const [selectedSport, setSelectedSport] = useState('All Sports');
   const [selectedStatus, setSelectedStatus] = useState('All Status');
   const [isAddProviderOpen, setIsAddProviderOpen] = useState(false);
+  const [creatingProvider, setCreatingProvider] = useState(false);
 
   const sportsCategories = useSelector(selectSportsCategories);
 
@@ -130,14 +133,40 @@ const Users = () => {
   const addProviderType =
     activeTab === 'sportProviders' ? 'sport' : activeTab === 'serviceProviders' ? 'service' : null;
 
-  // TODO: connect to the admin create-provider + invite endpoints once the backend is built
-  const handleCreateProvider = () => {
-    toast.info('Design preview: account creation and invite emails will be connected next.');
-    setIsAddProviderOpen(false);
+  const getErrorMessage = (error, fallback) =>
+    error?.response?.data?.errors?.[0]?.message ||
+    error?.response?.data?.message ||
+    error?.message ||
+    fallback;
+
+  const handleCreateProvider = async (payload) => {
+    setCreatingProvider(true);
+    try {
+      const response = await POST(ENDPOINT.USERS.CREATE_PROVIDER, payload);
+      const inviteSent = response?.data?.data?.inviteSent;
+      if (inviteSent === false) {
+        toast.warning(response?.data?.message || 'Provider created, but the invite email could not be sent.');
+      } else {
+        toast.success(response?.data?.message || 'Provider created and invite sent');
+      }
+      setIsAddProviderOpen(false);
+      setActiveSubTab('all');
+      await reloadCurrentUsers();
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Could not create provider'));
+    } finally {
+      setCreatingProvider(false);
+    }
   };
 
-  const handleResendInvite = () => {
-    toast.info('Design preview: resending invites will be connected next.');
+  const handleResendInvite = async (row) => {
+    try {
+      const response = await POST(ENDPOINT.USERS.RESEND_INVITE(row.id), {});
+      toast.success(response?.data?.message || 'Invite sent again');
+      await reloadCurrentUsers();
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Could not resend invite'));
+    }
   };
 
   const formatDateValue = (value) => {
@@ -504,6 +533,7 @@ const Users = () => {
           onClose={() => setIsAddProviderOpen(false)}
           providerType={addProviderType}
           onSubmit={handleCreateProvider}
+          submitting={creatingProvider}
         />
       )}
     </div>

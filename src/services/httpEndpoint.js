@@ -28,6 +28,8 @@ export const ENDPOINT = {
     RESET_PASSWORD: '/api/auth/reset-password',
     VERIFY_EMAIL: '/api/auth/verify-email',
     CHANGE_PASSWORD: '/api/auth/change-password',
+    INVITE_DETAILS: (token) => `/api/auth/invite/${encodeURIComponent(token)}`,
+    ACCEPT_INVITE: '/api/auth/accept-invite',
   },
   USER: {
     UPDATE: (userId) => `/api/users/${userId}`,
@@ -42,6 +44,8 @@ export const ENDPOINT = {
     SUSPEND: (userId) => `/api/admin/users/${userId}/suspend`,
     UNSUSPEND: (userId) => `/api/admin/users/${userId}/unsuspend`,
     SUSPENDED_LIST: '/api/admin/suspended-users',
+    CREATE_PROVIDER: '/api/admin/providers',
+    RESEND_INVITE: (userId) => `/api/admin/providers/${userId}/resend-invite`,
   },
   ADMIN: {
     DASHBOARD_STATS: '/api/admin/dashboard/stats',
