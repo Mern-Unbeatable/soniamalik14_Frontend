@@ -13,6 +13,7 @@ import VerifyEmailView from '../pages/public/public_login/VerifyEmailView.jsx';
 import ForgotPasswordView from '../pages/public/public_login/ForgotPasswordView.jsx';
 import OtpVerificationView from '../pages/public/public_login/OtpVerificationView.jsx';
 import ResetPasswordView from '../pages/public/public_login/ResetPasswordView.jsx';
+import SetPasswordView from '../pages/public/public_login/SetPasswordView.jsx';
 import CommunityView from '../pages/public/public_community/CommunityView';
 
 import NotFound from '../pages/error/NotFound';
@@ -105,6 +106,7 @@ const router = createBrowserRouter(
       <Route path="/otp-verification" element={<OtpVerificationView />} />
       <Route path="/verify-email" element={<VerifyEmailView />} />
       <Route path="/reset-password" element={<ResetPasswordView />} />
+      <Route path="/set-password" element={<SetPasswordView />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       <Route path="/" element={<RootLayout />}>

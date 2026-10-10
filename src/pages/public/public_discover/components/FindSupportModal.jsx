@@ -1,19 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import Swal from 'sweetalert2'
-import Button from '../../../../components/ui/Button'
 import { POST } from '../../../../services/httpMethods'
 import { ENDPOINT } from '../../../../services/httpEndpoint'
 
 const Checkbox = ({ label, checked, onChange }) => (
-    <label className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-base mr-2 mb-2 cursor-pointer select-none transition-all ${
-        checked ? 'bg-[#107C66] text-white shadow-sm' : 'bg-loginInput text-[#1A1D1D] hover:bg-[#A7C8C7]'
+    <label className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm mr-2 mb-2 cursor-pointer select-none transition-all ${
+        checked ? 'bg-[#F5F1EB] text-[#0f756d] border-[#F5F1EB] font-semibold' : 'bg-white/10 text-white border-white/20 hover:border-white/40'
     }`}>
         <input 
             type="checkbox" 
             checked={checked} 
             onChange={(e) => onChange && onChange(e.target.checked)} 
-            className="cursor-pointer accent-[#107C66]" 
+            className="cursor-pointer accent-[#0f756d]" 
         />
         <span>{label}</span>
     </label>
@@ -157,11 +156,11 @@ const FindSupportModal = ({ open, onClose }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-            <div className="relative w-full max-w-md mx-4 form-shell rounded-2xl border border-[#DCE7E6] shadow-2xl overflow-hidden">
+            <div className="relative w-full max-w-md mx-4 bg-[#0f756d] rounded-2xl shadow-2xl overflow-hidden">
                 {/* Header - sticky */}
-                <div className="sticky top-0 form-shell border-b border-[#DCE7E6] px-4 py-3 flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Fill the form</h3>
-                    <button onClick={onClose} aria-label="Close" className="text-gray-600 hover:text-gray-900 bg-[#D9D9D9] rounded-full p-1"><X className="w-5 h-5" /></button>
+                <div className="sticky top-0 bg-[#0f756d] border-b border-white/15 px-4 py-3 flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-white">Fill the form</h3>
+                    <button onClick={onClose} aria-label="Close" className="text-white hover:bg-white/20 bg-white/10 rounded-full p-1 transition-colors"><X className="w-5 h-5" /></button>
                 </div>
 
                 {/* Body - scrollable */}
@@ -170,10 +169,10 @@ const FindSupportModal = ({ open, onClose }) => {
                     onWheel={handleWheel}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
-                    className="form-shell p-4 overflow-y-auto max-h-[60vh] space-y-4"
+                    className="p-4 overflow-y-auto max-h-[60vh] space-y-4"
                 >
                     <div>
-                        <div className="text-base font-medium text-[#107C66] mb-2">Interested In</div>
+                        <div className="text-base font-medium text-white mb-2">Interested In</div>
                         <div className="flex flex-wrap">
                             {['Football', 'Squash', 'Rugby', 'Netball', 'Cricket', 'Padel', 'Tennis', 'Other'].map(sport => (
                                 <Checkbox
@@ -189,16 +188,16 @@ const FindSupportModal = ({ open, onClose }) => {
                             value={otherSportName}
                             onChange={(e) => setOtherSportName(e.target.value)}
                             disabled={sportName !== 'Other'}
-                            className="form-field mt-3 text-base disabled:opacity-50"
+                            className="mt-3 w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-base text-[#1A1D1D] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-white/40 disabled:opacity-50"
                         />
                     </div>
 
                     <div>
-                        <div className="text-base font-medium text-[#107C66] mb-2">Level</div>
+                        <div className="text-base font-medium text-white mb-2">Level</div>
                         <select
                             value={level}
                             onChange={(e) => setLevel(e.target.value)}
-                            className="form-field text-base"
+                            className="w-full rounded-lg border border-transparent bg-[#F5F1EB] px-3 py-2.5 text-base text-[#1A1D1D] outline-none focus:ring-2 focus:ring-white/40 cursor-pointer"
                         >
                             <option value="New to the sport">New to the sport</option>
                             <option value="Some experience">Some experience</option>
@@ -208,7 +207,7 @@ const FindSupportModal = ({ open, onClose }) => {
                     </div>
 
                     <div>
-                        <div className="text-base font-medium text-[#107C66] mb-2">Preferred Days</div>
+                        <div className="text-base font-medium text-white mb-2">Preferred Days</div>
                         <div className="flex flex-wrap">
                             {[
                                 { label: 'Weekday evenings', key: 'WEEKDAY_EVENINGS' },
@@ -232,7 +231,7 @@ const FindSupportModal = ({ open, onClose }) => {
                     </div>
 
                     <div>
-                        <div className="text-base font-medium text-[#107C66] mb-2">Preference</div>
+                        <div className="text-base font-medium text-white mb-2">Preference</div>
                         <div className="flex flex-wrap">
                             {[
                                 { label: 'Women-only sessions', key: 'WOMEN_ONLY' },
@@ -247,29 +246,29 @@ const FindSupportModal = ({ open, onClose }) => {
                                 />
                             ))}
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Women-only sessions may be led by male or female coaches.</p>
+                        <p className="text-xs text-white/70 mt-2">Women-only sessions may be led by male or female coaches.</p>
                     </div>
 
                     <div>
-                        <div className="text-base font-medium text-[#107C66] mb-2">Would you help start something?</div>
+                        <div className="text-base font-medium text-white mb-2">Would you help start something?</div>
                         <div className="flex gap-4">
-                            <label className="inline-flex items-center gap-2 cursor-pointer text-gray-700 font-medium hover:text-[#107C66] transition-colors">
+                            <label className="inline-flex items-center gap-2 cursor-pointer text-white/90 font-medium hover:text-white transition-colors">
                                 <input
                                     type="radio"
                                     name="help"
                                     checked={wantToHelpStart === true}
                                     onChange={() => setWantToHelpStart(true)}
-                                    className="cursor-pointer accent-[#107C66]"
+                                    className="cursor-pointer accent-[#F5F1EB]"
                                 />
                                 Yes
                             </label>
-                            <label className="inline-flex items-center gap-2 cursor-pointer text-gray-700 font-medium hover:text-[#107C66] transition-colors">
+                            <label className="inline-flex items-center gap-2 cursor-pointer text-white/90 font-medium hover:text-white transition-colors">
                                 <input
                                     type="radio"
                                     name="help"
                                     checked={wantToHelpStart === false}
                                     onChange={() => setWantToHelpStart(false)}
-                                    className="cursor-pointer accent-[#107C66]"
+                                    className="cursor-pointer accent-[#F5F1EB]"
                                 />
                                 Just want to play
                             </label>
@@ -278,17 +277,15 @@ const FindSupportModal = ({ open, onClose }) => {
                 </div>
 
                 {/* Footer - sticky */}
-                <div className="sticky bottom-0 form-shell border-t border-[#DCE7E6] px-4 py-3">
-                    <div className="flex items-center justify-end">
-                        <Button
-                            variant="primary"
-                            className="w-full rounded-lg font-semibold"
-                            disabled={submitting}
-                            onClick={handleSubmit}
-                        >
-                            {submitting ? 'Submitting...' : 'Add my name to the list'}
-                        </Button>
-                    </div>
+                <div className="sticky bottom-0 bg-[#0f756d] border-t border-white/15 px-4 py-3">
+                    <button
+                        type="button"
+                        className="w-full bg-[#F5F1EB] text-[#0f756d] py-3 rounded-xl font-bold hover:bg-white hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={submitting}
+                        onClick={handleSubmit}
+                    >
+                        {submitting ? 'Submitting...' : 'Add my name to the list'}
+                    </button>
                 </div>
             </div>
         </div>

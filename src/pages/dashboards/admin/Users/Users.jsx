@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Download } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 import FilterSection from './components/FilterSection';
 import PlayersTable from './components/PlayersTable';
 import SportProvidersTable from './components/SportProvidersTable';
@@ -8,6 +8,7 @@ import ServiceProvidersTable from './components/ServiceProvidersTable';
 import TabsSection from './components/TabsSection';
 import PaginationSection from './components/PaginationSection';
 import SuspendModal from './components/SuspendModal';
+import AddProviderModal from './components/AddProviderModal';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import { toast } from 'react-toastify';
 import {
@@ -38,6 +39,7 @@ const Users = () => {
   const [toDate, setToDate] = useState('');
   const [selectedSport, setSelectedSport] = useState('All Sports');
   const [selectedStatus, setSelectedStatus] = useState('All Status');
+  const [isAddProviderOpen, setIsAddProviderOpen] = useState(false);
 
   const sportsCategories = useSelector(selectSportsCategories);
 
@@ -124,6 +126,19 @@ const Users = () => {
     }
   };
 
+  const addProviderType =
+    activeTab === 'sportProviders' ? 'sport' : activeTab === 'serviceProviders' ? 'service' : null;
+
+  // TODO: connect to the admin create-provider + invite endpoints once the backend is built
+  const handleCreateProvider = () => {
+    toast.info('Design preview: account creation and invite emails will be connected next.');
+    setIsAddProviderOpen(false);
+  };
+
+  const handleResendInvite = () => {
+    toast.info('Design preview: resending invites will be connected next.');
+  };
+
   const formatDateValue = (value) => {
     if (!value) return '-';
     const date = new Date(value);
@@ -151,6 +166,9 @@ const Users = () => {
         externalLinkClicks: row?.externalLinkClicks ?? 0,
         avgResponseTime: row?.avgResponseTime || '-',
         status: row?.status || '-',
+        invitedAt: row?.invitedAt || null,
+        invitedOn: formatDateValue(row?.invitedAt),
+        termsAcceptedAt: row?.termsAcceptedAt || null,
       };
     });
   };
@@ -192,6 +210,9 @@ const Users = () => {
       phone: row?.phone || '-',
       organization: row?.organizationName || row?.name || '-',
       status: row?.status || '-',
+      invitedAt: row?.invitedAt || null,
+      invitedOn: formatDateValue(row?.invitedAt),
+      termsAcceptedAt: row?.termsAcceptedAt || null,
     }));
   };
 
@@ -381,6 +402,7 @@ const Users = () => {
           data={currentTableData}
           activeSubTab={activeSubTab}
           onSuspend={handleOpenSuspendModal}
+          onResendInvite={handleResendInvite}
         />
       );
     }
@@ -390,6 +412,7 @@ const Users = () => {
           data={currentTableData}
           activeSubTab={activeSubTab}
           onSuspend={handleOpenSuspendModal}
+          onResendInvite={handleResendInvite}
         />
       );
     }
@@ -406,15 +429,27 @@ const Users = () => {
               Manage platform identities and permissions.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleExportCsv}
-            className="bg-btn-primary flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap text-white transition-colors hover:bg-teal-700 sm:px-6 sm:py-3 sm:text-base"
-          >
-            <Download className="h-5 w-5 sm:h-6 sm:w-6" />
-            <span className="hidden sm:inline">Export CSV</span>
-            <span className="sm:hidden">Export</span>
-          </button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {addProviderType && (
+              <button
+                type="button"
+                onClick={() => setIsAddProviderOpen(true)}
+                className="bg-btn-primary flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap text-white transition-colors hover:bg-teal-700 sm:px-6 sm:py-3 sm:text-base"
+              >
+                <Plus className="h-5 w-5 sm:h-6 sm:w-6" />
+                {addProviderType === 'sport' ? 'Add sport provider' : 'Add service provider'}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              className="bg-btn-primary flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap text-white transition-colors hover:bg-teal-700 sm:px-6 sm:py-3 sm:text-base"
+            >
+              <Download className="h-5 w-5 sm:h-6 sm:w-6" />
+              <span className="hidden sm:inline">Export CSV</span>
+              <span className="sm:hidden">Export</span>
+            </button>
+          </div>
         </div>
 
         {/* Main Content Card */}
@@ -469,6 +504,15 @@ const Users = () => {
         onSubmit={handleSubmitSuspend}
         userId={selectedUserId}
       />
+
+      {isAddProviderOpen && addProviderType && (
+        <AddProviderModal
+          key={addProviderType}
+          onClose={() => setIsAddProviderOpen(false)}
+          providerType={addProviderType}
+          onSubmit={handleCreateProvider}
+        />
+      )}
     </div>
   );
 };
