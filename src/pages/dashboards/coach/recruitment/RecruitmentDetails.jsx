@@ -5,6 +5,7 @@ import { GET } from '../../../../services/httpMethods';
 import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import { PendingChangesNotice } from '../../../../components/ui/PendingChangesPanel';
+import { getCourseDateRange, isCourseEnded } from '../../../../utils/courseDates';
 import HeroBanner from './components/HeroBanner';
 import TitleCoachInfo from './components/TitleCoachInfo';
 import SessionDetailsCard from './components/SessionDetailsCard';
@@ -116,6 +117,8 @@ const mapServiceToDetailsItem = (service) => {
     sessionTime: scheduleTimes || service?.timeSlote || 'N/A',
     time: scheduleTimes || service?.timeSlote || 'N/A',
     frequency: String(service?.frequency || service?.sessionFrequency || '').trim(),
+    courseDates: getCourseDateRange(service),
+    courseEnded: isCourseEnded(service),
     bookingLink: service?.bookingLink || '',
     costMemebershipDetail: service?.costMemebershipDetail || '',
     status: service?.status || '',

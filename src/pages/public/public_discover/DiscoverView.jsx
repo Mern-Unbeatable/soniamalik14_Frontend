@@ -15,6 +15,7 @@ import {
   formatScheduleTimeLine,
   parseSchedulesFromService,
 } from '../../../utils/sessionSchedules';
+import { getCourseDateRange } from '../../../utils/courseDates';
 
 const DISCOVER_API = '/api/services/by-role';
 
@@ -76,6 +77,7 @@ const toDiscoverItem = (service) => {
     sports,
     day: scheduleDays || service?.sessonDay || availableDays.join(', ') || 'Schedule not specified',
     time: scheduleTimes || service?.timeSlote || 'Time not specified',
+    courseDates: getCourseDateRange(service),
     location: service?.city || service?.town || 'Location not specified',
     summary: 'Login to see contact details & ability requirements',
     image: service?.image || '',

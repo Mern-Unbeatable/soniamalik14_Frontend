@@ -46,6 +46,8 @@ export const ENDPOINT = {
     SUSPENDED_LIST: '/api/admin/suspended-users',
     CREATE_PROVIDER: '/api/admin/providers',
     RESEND_INVITE: (userId) => `/api/admin/providers/${userId}/resend-invite`,
+    REASSIGN_CANDIDATES: (listingId) => `/api/admin/listings/${listingId}/reassign-candidates`,
+    REASSIGN_LISTING: (listingId) => `/api/admin/listings/${listingId}/reassign`,
   },
   ADMIN: {
     DASHBOARD_STATS: '/api/admin/dashboard/stats',

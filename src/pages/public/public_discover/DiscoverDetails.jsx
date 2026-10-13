@@ -16,6 +16,7 @@ import {
   resolveImageUrl,
 } from '../../../utils/resolveImageUrl';
 import BlankCalendarIcon from '../../../components/ui/BlankCalendarIcon';
+import { getCourseDateRange, isCourseEnded } from '../../../utils/courseDates';
 import {
   formatScheduleDaysLabel,
   formatScheduleTimeLine,
@@ -198,6 +199,8 @@ const DiscoverDetails = () => {
       day: scheduleDays || service.sessonDay || formatList(service.availableDays),
       time: scheduleTimes || service.timeSlote || timeRange || '',
       sessionFrequency: service.frequency || service.sessionFrequency || '',
+      courseDates: getCourseDateRange(service),
+      courseEnded: isCourseEnded(service),
       image: service.image || '',
       // Circular = org/club logo only (never the listing cover fallback)
       avatar: service.logo || service.provider?.avatar || '',
@@ -682,6 +685,7 @@ const DiscoverDetails = () => {
                 hasText(item.day) ||
                 hasText(item.time) ||
                 hasText(item.sessionFrequency) ||
+                hasText(item.courseDates) ||
                 hasText(item.mapEmbedUrl) ||
                 hasText(buildLocationSearchLabel(item))) && (
                 <h3 className="text-xl font-semibold text-[#1A1D1F] mb-4">Location & Timing</h3>
@@ -693,6 +697,7 @@ const DiscoverDetails = () => {
                 hasText(item.day) ||
                 hasText(item.time) ||
                 hasText(item.sessionFrequency) ||
+                hasText(item.courseDates) ||
                 hasText(item.mapEmbedUrl) ||
                 hasText(buildLocationSearchLabel(item))) && (
               <div className="flex flex-col overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
@@ -753,6 +758,20 @@ const DiscoverDetails = () => {
                         🔄
                       </span>
                       <span>{item.sessionFrequency}</span>
+                    </p>
+                  ) : null}
+
+                  {hasText(item.courseDates) ? (
+                    <p className="flex items-center gap-2 text-base text-[#1A1D1F]">
+                      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                        📆
+                      </span>
+                      <span>
+                        Course dates: {item.courseDates}
+                        {item.courseEnded ? (
+                          <span className="ml-2 text-sm font-medium text-[#B45309]">(This course has ended)</span>
+                        ) : null}
+                      </span>
                     </p>
                   ) : null}
                 </div>

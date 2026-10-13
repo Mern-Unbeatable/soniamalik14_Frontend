@@ -17,6 +17,7 @@ import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import PendingChangesPanel from '../../../../components/ui/PendingChangesPanel';
 import ExampleListingToggle from '../../../../components/ui/ExampleListingToggle';
+import ReassignListingPanel from '../../../../components/ui/ReassignListingPanel';
 import {
     DUMMY_IMAGE_PATH,
     handleImageLoadError,
@@ -29,6 +30,7 @@ import {
     formatScheduleTimeLine,
     parseSchedulesFromService,
 } from '../../../../utils/sessionSchedules';
+import { getCourseDateRange, isCourseEnded } from '../../../../utils/courseDates';
 
 const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
 
@@ -204,6 +206,8 @@ const SportProviderListingDetails = () => {
                 (service?.date ? `Date: ${formatReadableDate(service.date)}` : ''),
             sessionTime: scheduleTimes || service?.timeSlote || '',
             frequency: String(service?.frequency || service?.sessionFrequency || '').trim(),
+            courseDates: getCourseDateRange(service),
+            courseEnded: isCourseEnded(service),
             participantResponseType: service?.participantResponseType || 'ADD_BOOKING_LINK',
             fullAddress: service?.fullAddress || '',
             googleMapLink: service?.googleMapLink || service?.googleMapLinks || '',
@@ -307,6 +311,18 @@ const SportProviderListingDetails = () => {
                         entityId={service?.id}
                         isExample={Boolean(service?.isExample)}
                         onChange={(isExample) => setService((prev) => (prev ? { ...prev, isExample } : prev))}
+                    />
+                </div>
+
+                <div className="mx-2">
+                    <ReassignListingPanel
+                        listingId={service?.id}
+                        listingType="sport"
+                        currentOwner={{
+                            name: service?.provider?.organizationName || service?.provider?.name || service?.providerName,
+                            email: service?.provider?.email || service?.providerEmail,
+                        }}
+                        onReassigned={() => setReloadKey((key) => key + 1)}
                     />
                 </div>
 
@@ -482,6 +498,21 @@ const SportProviderListingDetails = () => {
                                             🔄
                                         </span>
                                         <span>{data.frequency}</span>
+                                    </p>
+                                ) : null}
+                                {data.courseDates ? (
+                                    <p className="flex items-center gap-2">
+                                        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                                            📆
+                                        </span>
+                                        <span>
+                                            Course dates: {data.courseDates}
+                                            {data.courseEnded ? (
+                                                <span className="ml-2 rounded-md bg-amber-50 px-2 py-0.5 text-sm font-semibold text-amber-700">
+                                                    Course ended · hidden from Discover
+                                                </span>
+                                            ) : null}
+                                        </span>
                                     </p>
                                 ) : null}
                             </div>

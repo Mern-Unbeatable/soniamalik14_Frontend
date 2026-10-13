@@ -26,6 +26,11 @@ const PROVIDER_SERVICE_TYPE_OPTIONS = SERVICE_TYPE_OPTIONS;
 
 const SESSION_FREQUENCY_OPTIONS = ['Weekly', 'Fortnightly', 'Monthly', 'Other'];
 
+const SCHEDULE_TYPE_OPTIONS = [
+  { value: 'REGULAR', label: 'Regular / Ongoing' },
+  { value: 'FIXED_TERM', label: 'Fixed-term Course / Programme' },
+];
+
 const DAY_OPTIONS = [
   'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
 ];
@@ -123,6 +128,9 @@ const createInitialForm = () => ({
   googleMapLink: '',
   sessonDay: '',
   sessionFrequency: '',
+  scheduleType: '',
+  courseStartDate: '',
+  courseEndDate: '',
   sessionSchedules: [createEmptySchedule()],
   sessionDescription: '',
   costMembershipDetail: '',
@@ -270,6 +278,19 @@ const toDateInputValue = (value) => {
   const month = String(parsed.getMonth() + 1).padStart(2, '0');
   const day = String(parsed.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+// Course dates are stored as UTC midnight, so read the calendar day straight from the ISO string
+const toCourseDateInput = (value) => {
+  const match = String(value || '').match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : '';
+};
+
+const getTodayDateInput = () => {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
 };
 
 const toTimeInputValue = (value) => {
@@ -485,6 +506,9 @@ const mapInitialDataToForm = (initialData) => {
     sessionType: toArray(initialData?.sessionType || initialData?.sessionTypes)[0] || '',
     sessionTypes: toArray(initialData?.sessionType || initialData?.sessionTypes),
     sessionFrequency: initialData?.frequency || initialData?.sessionFrequency || '',
+    scheduleType: initialData?.scheduleType === 'FIXED_TERM' ? 'FIXED_TERM' : 'REGULAR',
+    courseStartDate: toCourseDateInput(initialData?.courseStartDate),
+    courseEndDate: toCourseDateInput(initialData?.courseEndDate),
     sessionSchedules: schedules.length > 0 ? schedules : [createEmptySchedule()],
     costMembershipDetail: initialData?.costMemebershipDetail || '',
     suitableFor: toArray(initialData?.suitableFor),
@@ -817,6 +841,26 @@ const CreateRecruitmentModal = ({
       if (!String(form.townCity || '').trim()) newErrors.townCity = true;
       if (!String(form.postcode || '').trim()) newErrors.postcode = true;
       if (!String(form.sessionFrequency || '').trim()) newErrors.sessionFrequency = true;
+      if (!form.scheduleType) newErrors.scheduleType = true;
+      if (form.scheduleType === 'FIXED_TERM') {
+        if (!form.courseStartDate) newErrors.courseStartDate = true;
+        if (!form.courseEndDate) newErrors.courseEndDate = true;
+        if (
+          form.courseStartDate &&
+          form.courseEndDate &&
+          form.courseEndDate < form.courseStartDate
+        ) {
+          newErrors.courseDateRange = true;
+        }
+        const savedEndDate = mode === 'edit' ? toCourseDateInput(initialData?.courseEndDate) : '';
+        if (
+          form.courseEndDate &&
+          form.courseEndDate !== savedEndDate &&
+          form.courseEndDate < getTodayDateInput()
+        ) {
+          newErrors.courseEndInPast = true;
+        }
+      }
       if (!String(form.costMembershipDetail || '').trim()) newErrors.costMembershipDetail = true;
       if (!serviceDescription) newErrors.sessionDescription = true;
 
@@ -871,6 +915,11 @@ const CreateRecruitmentModal = ({
         messages.push('End time must be later than Start time');
       }
       if (newErrors.sessionFrequency) messages.push('How often does it run');
+      if (newErrors.scheduleType) messages.push('Schedule type');
+      if (newErrors.courseStartDate) messages.push('Course start date');
+      if (newErrors.courseEndDate) messages.push('Course end date');
+      if (newErrors.courseDateRange) messages.push('Course end date cannot be before the start date');
+      if (newErrors.courseEndInPast) messages.push('Course end date cannot be in the past');
       if (newErrors.costMembershipDetail) messages.push('Cost or membership');
       if (newErrors.sessionDescription) {
         messages.push(isProvider ? 'About your service' : 'Session description');
@@ -879,6 +928,15 @@ const CreateRecruitmentModal = ({
       return;
     }
     setErrors({});
+
+    const isFixedTerm = form.scheduleType === 'FIXED_TERM';
+    const courseSchedule = isProvider
+      ? {}
+      : {
+          scheduleType: isFixedTerm ? 'FIXED_TERM' : 'REGULAR',
+          courseStartDate: isFixedTerm ? form.courseStartDate : '',
+          courseEndDate: isFixedTerm ? form.courseEndDate : '',
+        };
 
     let resultAction;
 
@@ -924,6 +982,7 @@ const CreateRecruitmentModal = ({
         timeSlote: timeSlot,
         timeSlots: JSON.stringify(schedulePayload.schedules),
         frequency: String(form.sessionFrequency || '').trim(),
+        ...courseSchedule,
         costMemebershipDetail: String(form.costMembershipDetail || '').trim(),
         aboutOrganization: orgAbout,
         bookingLink: String(form.bookingLink || '').trim(),
@@ -1034,6 +1093,7 @@ const CreateRecruitmentModal = ({
       }
       appendIfPresent(payload, 'timeSlote', timeSlot);
       appendIfPresent(payload, 'frequency', form.sessionFrequency);
+      Object.entries(courseSchedule).forEach(([key, value]) => appendIfPresent(payload, key, value));
       appendIfPresent(payload, 'costMemebershipDetail', form.costMembershipDetail);
       appendIfPresent(payload, 'aboutOrganization', orgAbout);
       appendIfPresent(payload, 'bookingLink', form.bookingLink);
@@ -1103,8 +1163,8 @@ const CreateRecruitmentModal = ({
                 'Join our community of professional support services aimed at empowering women in sport and fitness.'
               ) : (
                 <>
-                  Use this form for regular or recurring sport sessions and activities. For a one-off activity,
-                  taster session or special occasion, please add an{' '}
+                  Use this form for regular or ongoing sports sessions and fixed-term courses or programmes. For
+                  one-off activities, taster sessions or special occasions, please add an{' '}
                   {mode === 'create' && typeof onSwitchToEvent === 'function' ? (
                     <button
                       type="button"
@@ -1682,6 +1742,79 @@ const CreateRecruitmentModal = ({
                     {errors.postcode && <p className={errorClass}>Required</p>}
                   </div>
                 </div>
+                <div>
+                  <label className={labelClass}>Schedule type *</label>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-6">
+                    {SCHEDULE_TYPE_OPTIONS.map((item) => (
+                      <label
+                        key={item.value}
+                        className="flex cursor-pointer items-center gap-2 text-sm text-white/90"
+                      >
+                        <input
+                          type="radio"
+                          name="scheduleType"
+                          checked={form.scheduleType === item.value}
+                          onChange={() => {
+                            handleChange('scheduleType', item.value);
+                            setErrors((prev) => ({
+                              ...prev,
+                              scheduleType: false,
+                              courseStartDate: false,
+                              courseEndDate: false,
+                              courseDateRange: false,
+                              courseEndInPast: false,
+                            }));
+                          }}
+                          className="accent-[#F5F1EB]"
+                        />
+                        {item.label}
+                      </label>
+                    ))}
+                  </div>
+                  {errors.scheduleType && <p className={errorClass}>Please choose an option</p>}
+                </div>
+                {form.scheduleType === 'FIXED_TERM' ? (
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <label className={labelClass}>Course start date *</label>
+                      <input
+                        type="date"
+                        className={dateTimeFieldClass}
+                        value={form.courseStartDate}
+                        onChange={(e) => {
+                          handleChange('courseStartDate', e.target.value);
+                          setErrors((prev) => ({ ...prev, courseStartDate: false, courseDateRange: false }));
+                        }}
+                      />
+                      {errors.courseStartDate && <p className={errorClass}>Required</p>}
+                    </div>
+                    <div>
+                      <label className={labelClass}>Course end date *</label>
+                      <input
+                        type="date"
+                        className={dateTimeFieldClass}
+                        value={form.courseEndDate}
+                        min={form.courseStartDate || undefined}
+                        onChange={(e) => {
+                          handleChange('courseEndDate', e.target.value);
+                          setErrors((prev) => ({
+                            ...prev,
+                            courseEndDate: false,
+                            courseDateRange: false,
+                            courseEndInPast: false,
+                          }));
+                        }}
+                      />
+                      {errors.courseEndDate && <p className={errorClass}>Required</p>}
+                      {errors.courseDateRange && (
+                        <p className={errorClass}>End date cannot be before the start date</p>
+                      )}
+                      {errors.courseEndInPast && (
+                        <p className={errorClass}>End date cannot be in the past</p>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-medium text-white">Day & time *</p>

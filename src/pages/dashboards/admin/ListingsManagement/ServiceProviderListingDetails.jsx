@@ -26,6 +26,7 @@ import { ENDPOINT } from '../../../../services/httpEndpoint';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import PendingChangesPanel from '../../../../components/ui/PendingChangesPanel';
 import ExampleListingToggle from '../../../../components/ui/ExampleListingToggle';
+import ReassignListingPanel from '../../../../components/ui/ReassignListingPanel';
 import {
   handleImageLoadError,
   pickImageSource,
@@ -396,6 +397,16 @@ const ServiceProviderListingDetails = () => {
             entityId={service?.id}
             isExample={Boolean(service?.isExample)}
             onChange={(isExample) => setService((prev) => (prev ? { ...prev, isExample } : prev))}
+          />
+
+          <ReassignListingPanel
+            listingId={service?.id}
+            listingType="service"
+            currentOwner={{
+              name: service?.provider?.organizationName || service?.provider?.name || service?.providerName,
+              email: service?.provider?.email || service?.providerEmail,
+            }}
+            onReassigned={() => setReloadKey((key) => key + 1)}
           />
 
           {/* Banned Alert Banner */}

@@ -33,6 +33,9 @@ const FIELD_LABELS = {
   location: 'Location',
   googleMapLink: 'Google Maps link',
   frequency: 'Frequency',
+  scheduleType: 'Schedule type',
+  courseStartDate: 'Course start date',
+  courseEndDate: 'Course end date',
   sessonDay: 'Session days',
   availableDays: 'Available days',
   date: 'Date',
@@ -72,6 +75,12 @@ const MIRRORED_FIELDS = {
 
 const IMAGE_FIELDS = ['image', 'logo'];
 const DATE_FIELDS = ['startDate', 'endDate'];
+// Stored as UTC midnight calendar days
+const COURSE_DATE_FIELDS = ['courseStartDate', 'courseEndDate'];
+const SCHEDULE_TYPE_LABELS = {
+  REGULAR: 'Regular / Ongoing',
+  FIXED_TERM: 'Fixed-term Course / Programme',
+};
 
 const humanize = (value) =>
   String(value)
@@ -90,6 +99,18 @@ const formatValue = (field, value) => {
   if (isEmpty(value)) return 'Not set';
   if (field === 'womenOnly') return value ? 'Women only' : 'Mixed, women welcome';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (field === 'scheduleType') return SCHEDULE_TYPE_LABELS[value] || humanize(value);
+  if (COURSE_DATE_FIELDS.includes(field)) {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      });
+    }
+  }
   if (DATE_FIELDS.includes(field)) {
     const parsed = new Date(value);
     if (!Number.isNaN(parsed.getTime())) {

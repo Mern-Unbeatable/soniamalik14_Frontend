@@ -112,6 +112,22 @@ const VenueInformation = ({ item }) => {
               <span>{frequencyLabel}</span>
             </p>
           ) : null}
+
+          {hasText(item.courseDates) ? (
+            <p className="flex items-center gap-2 text-base leading-snug text-[#1A1D1F]">
+              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[1.125rem] leading-none">
+                📆
+              </span>
+              <span>
+                Course dates: {item.courseDates}
+                {item.courseEnded ? (
+                  <span className="mt-1 block text-sm font-medium text-amber-700">
+                    This course has ended and is hidden from Discover. Update the dates to resubmit it for approval.
+                  </span>
+                ) : null}
+              </span>
+            </p>
+          ) : null}
         </div>
 
         <div className="relative mt-3 min-h-[280px] w-full flex-1 overflow-hidden rounded-lg bg-gray-100">

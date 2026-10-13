@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Card from '../../../../components/ui/Card';
 import Button from '../../../../components/ui/Button';
-import { MapPin, Calendar, Clock } from 'lucide-react';
+import { MapPin, Calendar, CalendarRange, Clock } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import LoginModal from './LoginModal';
 import {
@@ -99,6 +99,12 @@ const DiscoverCard = ({ item }) => {
             <Clock className="h-4 w-4 shrink-0 text-[#363636]" />
             <span>{item.time}</span>
           </div>
+          {item.courseDates ? (
+            <div className="flex items-center gap-2">
+              <CalendarRange className="h-4 w-4 shrink-0 text-[#363636]" />
+              <span>{item.courseDates}</span>
+            </div>
+          ) : null}
         </div>
       </div>
 

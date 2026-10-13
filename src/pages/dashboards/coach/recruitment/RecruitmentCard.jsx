@@ -1,8 +1,8 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../../../../components/ui/Card';
 import Button from '../../../../components/ui/Button';
-import { MapPin, Calendar, Clock } from 'lucide-react';
+import { MapPin, Calendar, CalendarRange, Clock } from 'lucide-react';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import DeleteConfirmationModal from '../../../../components/ui/DeleteConfirmationModal';
 import {
@@ -10,12 +10,15 @@ import {
     pickImageSource,
     resolveImageUrl,
 } from '../../../../utils/resolveImageUrl';
+import { getCourseDateRange, isCourseEnded } from '../../../../utils/courseDates';
 
 const DISCOVER_PLACEHOLDER = '/discover-placeholder.png';
 
 const RecruitmentCard = ({ item = {}, editLink, onEdit, onDelete, className = '' }) => {
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const courseDates = getCourseDateRange(item);
+    const courseEnded = isCourseEnded(item);
 
     const handleEditClick = (e) => {
         e.preventDefault();
@@ -46,6 +49,26 @@ const RecruitmentCard = ({ item = {}, editLink, onEdit, onDelete, className = ''
                             {item.tag && (
                                 <div className="absolute top-3 left-3 z-10 rounded-md px-3 py-1 text-base font-medium text-[#0F766E] bg-[#E7F1F1]">{item.tag}</div>
                             )}
+                            {(item.hasPendingChanges || courseEnded) && (
+                                <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+                                    {item.hasPendingChanges && (
+                                        <span
+                                            className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 shadow-sm"
+                                            title="The approved version stays live until an admin approves your changes."
+                                        >
+                                            Changes awaiting approval
+                                        </span>
+                                    )}
+                                    {courseEnded && (
+                                        <span
+                                            className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 shadow-sm"
+                                            title="Hidden from Discover. Update the course dates to resubmit it for approval."
+                                        >
+                                            Course ended
+                                        </span>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="h-36 bg-gray-200 rounded-md mb-4 overflow-hidden flex items-center justify-center">
                                 <img
@@ -71,6 +94,12 @@ const RecruitmentCard = ({ item = {}, editLink, onEdit, onDelete, className = ''
                         <div className="text-base text-[#363636] mb-3 flex items-start gap-2 flex-col">
                             <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#363636]" /> <span className="text-base">{item.time || item.timeSlots || "N/A"}</span></div>
                         </div>
+                        {courseDates && (
+                            <div className="text-base text-[#363636] mb-3 flex items-center gap-2">
+                                <CalendarRange className="w-4 h-4 text-[#363636]" />
+                                <span className="text-base">{courseDates}</span>
+                            </div>
+                        )}
 
 
                     </div>
