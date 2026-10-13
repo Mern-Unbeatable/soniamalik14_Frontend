@@ -352,7 +352,7 @@ const ServiceProviderListingDetails = () => {
         </button>
 
         {/* Main Content Layout */}
-        <div className="max-w-4xl space-y-8">
+        <div className="space-y-8">
           {/* Header / Profile Card */}
           <div className="flex items-center gap-4">
             <img
