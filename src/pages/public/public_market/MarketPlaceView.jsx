@@ -38,15 +38,6 @@ const sampleBrands = [
   //     url: 'https://www.adidas.com',
   // },
   {
-    id: 5,
-    name: 'Evera Active',
-    sport: 'Fitness',
-    logo: '/evera.jpg',
-    description:
-      'Activewear and fitness accessories designed to support women in moving, training and staying active every day.',
-    url: '#',
-  },
-  {
     id: 6,
     name: 'Elandr',
     sport: 'Netball',
@@ -54,6 +45,15 @@ const sampleBrands = [
     description:
       'Elandr is a protective footwear brand founded by Eloise Alexander Gueye, who created the world’s first purpose-built netball shoe brand after finding no alternative to uncomfortable, costly ankle braces.',
     url: 'https://elandrsport.com/',
+  },
+  {
+    id: 5,
+    name: 'Evera Active',
+    sport: 'Fitness',
+    logo: '/evera.jpg',
+    description:
+      'Activewear and fitness accessories designed to support women in moving, training and staying active every day.',
+    url: '#',
   },
 ];
 
