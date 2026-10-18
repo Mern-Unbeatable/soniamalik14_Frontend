@@ -46,6 +46,15 @@ const sampleBrands = [
       'Activewear and fitness accessories designed to support women in moving, training and staying active every day.',
     url: '#',
   },
+  {
+    id: 6,
+    name: 'Elandr',
+    sport: 'Netball',
+    logo: '/Elandr.jpeg',
+    description:
+      'Elandr is a protective footwear brand founded by Eloise Alexander Gueye, who created the world’s first purpose-built netball shoe brand after finding no alternative to uncomfortable, costly ankle braces.',
+    url: 'https://elandrsport.com/',
+  },
 ];
 
 const BrandCard = ({ brand }) => {
