@@ -135,4 +135,12 @@ export const ENDPOINT = {
     READ_ALL: '/api/notifications/read-all',
     READ: (notificationId) => `/api/notifications/${notificationId}/read`,
   },
+  DRAFTS: {
+    LIST: '/api/drafts',
+    DETAIL: (draftId) => `/api/drafts/${draftId}`,
+  },
+  MARKETPLACE: {
+    BRAND_CLICK: '/api/marketplace/brand-clicks',
+    ADMIN_BRAND_CLICKS: '/api/admin/brand-clicks',
+  },
 };

@@ -17,6 +17,7 @@ import {
   parseSchedulesFromService,
 } from '../../utils/sessionSchedules';
 import { SERVICE_TYPE_OPTIONS, toServiceTypeOption } from '../../utils/serviceTypes';
+import { DRAFT_KIND, getDraftErrorMessage, saveDraft, toDraftData } from '../../utils/listingDrafts';
 
 const sessionTypeOptions = ['Training', 'Coaching', 'Social Play','Other'];
 
@@ -558,6 +559,8 @@ const CreateRecruitmentModal = ({
   mode = 'create',
   onSuccess,
   onSwitchToEvent,
+  draft = null,
+  onDraftSaved,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -568,7 +571,10 @@ const CreateRecruitmentModal = ({
   const listingImageInputRef = useRef(null);
   const [form, setForm] = useState(() => createInitialForm());
   const [errors, setErrors] = useState({});
+  const [draftId, setDraftId] = useState(null);
+  const [savingDraft, setSavingDraft] = useState(false);
   const isProvider = isProviderUser(user);
+  const canSaveDraft = mode !== 'edit';
 
   useEffect(() => {
     if (isOpen) {
@@ -584,10 +590,18 @@ const CreateRecruitmentModal = ({
     const hydrateForm = async () => {
       let nextForm;
       try {
-        nextForm =
-          initialData && mode === 'edit'
-            ? mapInitialDataToForm(initialData)
-            : mapUserToForm(user);
+        if (initialData && mode === 'edit') {
+          nextForm = mapInitialDataToForm(initialData);
+        } else if (draft) {
+          nextForm = {
+            ...createInitialForm(),
+            ...(draft.data || {}),
+            listingImage: draft.image || draft.data?.listingImage || null,
+            logo: draft.logo || draft.data?.logo || null,
+          };
+        } else {
+          nextForm = mapUserToForm(user);
+        }
       } catch {
         nextForm = createInitialForm();
       }
@@ -633,6 +647,7 @@ const CreateRecruitmentModal = ({
         console.log('[CreateRecruitmentModal] 🎯 Final hydrated form state set to:', nextForm);
         setForm(nextForm);
         setErrors({});
+        setDraftId(mode === 'edit' ? null : draft?.id || null);
       }
     };
 
@@ -641,7 +656,28 @@ const CreateRecruitmentModal = ({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, initialData, mode, user]);
+  }, [isOpen, initialData, mode, user, draft]);
+
+  const handleSaveDraft = async () => {
+    setSavingDraft(true);
+    try {
+      const saved = await saveDraft({
+        kind: DRAFT_KIND.SERVICE,
+        draftId,
+        title: String((isProvider ? form.listingHeadline : form.title) || '').trim(),
+        data: toDraftData(form),
+        files: { image: form.listingImage, logo: form.logo },
+      });
+      setDraftId(saved?.id || draftId);
+      toast.success('Draft saved. You can continue it later from your dashboard.');
+      onDraftSaved?.(saved);
+      onClose?.();
+    } catch (error) {
+      toast.error(getDraftErrorMessage(error));
+    } finally {
+      setSavingDraft(false);
+    }
+  };
 
   const dynamicSports = useMemo(() => {
     if (!sportsCategories || sportsCategories.length === 0) {
@@ -1110,6 +1146,7 @@ const CreateRecruitmentModal = ({
         listingImage: form.listingImage,
         logo: form.logo,
       });
+      if (draftId) payload.append('draftId', draftId);
 
       logFormDataPayload('[CreateRecruitmentModal] CREATE payload', payload);
       resultAction = await dispatch(createService(payload));
@@ -2054,11 +2091,21 @@ const CreateRecruitmentModal = ({
           </form>
         </div>
 
-        <div className="border-t border-white/15 px-5 py-4">
+        <div className="flex flex-col gap-3 border-t border-white/15 px-5 py-4 sm:flex-row">
+          {canSaveDraft && (
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              disabled={savingDraft || createLoading}
+              className="w-full rounded-lg border border-[#F5F1EB] py-3 text-sm font-semibold text-[#F5F1EB] hover:bg-white/10 disabled:opacity-60 sm:w-1/3"
+            >
+              {savingDraft ? 'Saving draft...' : 'Save as draft'}
+            </button>
+          )}
           <button
             type="submit"
             form="add-listing-form"
-            disabled={createLoading}
+            disabled={createLoading || savingDraft}
             className="w-full rounded-lg bg-[#F5F1EB] py-3 text-sm font-semibold text-[#0f756d] hover:bg-[#ebe5dc] disabled:opacity-60"
           >
             {createLoading

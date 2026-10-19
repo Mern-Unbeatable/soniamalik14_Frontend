@@ -6,6 +6,8 @@ import Pagination from '../../../../components/ui/Pagination';
 import DeleteConfirmationModal from '../../../../components/ui/DeleteConfirmationModal';
 import CreateRecruitmentModal from '../../../../components/ui/CreateRecruitmentModal';
 import EventModal from '../../../../components/ui/EventModal';
+import DraftsList from '../../../../components/ui/DraftsList';
+import { DRAFT_KIND } from '../../../../utils/listingDrafts';
 import { fetchProviderListings, deleteProviderListing } from '../../../../features/providerListing/providerListingAPI';
 import { selectProviderListings } from '../../../../features/providerListing/providerListingSlice';
 import {
@@ -26,6 +28,9 @@ const AddListing = () => {
   const [editingService, setEditingService] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedDraft, setSelectedDraft] = useState(null);
+  const [draftsRefreshKey, setDraftsRefreshKey] = useState(0);
+  const refreshDrafts = () => setDraftsRefreshKey((key) => key + 1);
 
   const reduxServices = useSelector(selectProviderListings);
 
@@ -51,12 +56,21 @@ const AddListing = () => {
   const openCreateModal = () => {
     setModalMode('create');
     setEditingService(null);
+    setSelectedDraft(null);
     setIsModalOpen(true);
   };
 
   const openEditModal = (service) => {
     setModalMode('edit');
     setEditingService(service);
+    setSelectedDraft(null);
+    setIsModalOpen(true);
+  };
+
+  const openDraft = (draft) => {
+    setModalMode('create');
+    setEditingService(null);
+    setSelectedDraft(draft);
     setIsModalOpen(true);
   };
 
@@ -73,6 +87,7 @@ const AddListing = () => {
   const handleModalSuccess = () => {
     dispatch(fetchProviderListings());
     setCurrentPage(1);
+    refreshDrafts();
   };
 
   return (
@@ -95,6 +110,13 @@ const AddListing = () => {
             Create Service
           </button>
         </div>
+
+        <DraftsList
+          kind={DRAFT_KIND.SERVICE}
+          onContinue={openDraft}
+          refreshKey={draftsRefreshKey}
+          untitledLabel="Untitled service"
+        />
 
         {listingSource.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white px-4 py-10 text-center">
@@ -200,11 +222,16 @@ const AddListing = () => {
       </div>
 
       <CreateRecruitmentModal
-        key={`${modalMode}-${editingService?.id ?? 'new'}`}
+        key={`${modalMode}-${editingService?.id ?? selectedDraft?.id ?? 'new'}`}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedDraft(null);
+        }}
         mode={modalMode}
         initialData={editingService}
+        draft={selectedDraft}
+        onDraftSaved={refreshDrafts}
         onSuccess={handleModalSuccess}
         onSwitchToEvent={() => setIsEventModalOpen(true)}
       />
@@ -218,6 +245,7 @@ const AddListing = () => {
         onSwitchToSession={() => {
           setModalMode('create');
           setEditingService(null);
+          setSelectedDraft(null);
           setIsModalOpen(true);
         }}
       />

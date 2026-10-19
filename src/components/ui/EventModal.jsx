@@ -15,6 +15,7 @@ import { fetchSportsCategories } from '../../features/sportsCategories/sportsCat
 import { selectSportsCategories } from '../../features/sportsCategories/sportsCategoriesSlice';
 import { GET } from '../../services/httpMethods';
 import { toWomensOnlyBoolean } from '../../utils/eventParticipation';
+import { DRAFT_KIND, getDraftErrorMessage, saveDraft, toDraftData } from '../../utils/listingDrafts';
 
 const ALL_LEVELS_WELCOME = 'All levels welcome';
 
@@ -335,6 +336,8 @@ const EventModal = ({
   useOrganizerApi = false,
   onSuccess,
   onSwitchToSession,
+  draft = null,
+  onDraftSaved,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -358,6 +361,9 @@ const EventModal = ({
   const updateOrganizerLoading = useSelector(selectUpdateOrganizerEventLoading);
   const eventImageInputRef = useRef(null);
   const [formData, setFormData] = useState(() => buildEmptyEventForm(authUser));
+  const [draftId, setDraftId] = useState(null);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const canSaveDraft = mode !== 'edit';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -365,10 +371,18 @@ const EventModal = ({
     let cancelled = false;
 
     const hydrateForm = async () => {
-      let nextForm =
-        initialData && mode === 'edit'
-          ? mapEventToForm(initialData, authUser)
-          : buildEmptyEventForm(authUser);
+      let nextForm;
+      if (initialData && mode === 'edit') {
+        nextForm = mapEventToForm(initialData, authUser);
+      } else if (draft) {
+        nextForm = {
+          ...buildEmptyEventForm(authUser),
+          ...(draft.data || {}),
+          image: draft.image || draft.data?.image || null,
+        };
+      } else {
+        nextForm = buildEmptyEventForm(authUser);
+      }
 
       if (mode !== 'edit') {
         try {
@@ -403,7 +417,10 @@ const EventModal = ({
         }
       }
 
-      if (!cancelled) setFormData(nextForm);
+      if (!cancelled) {
+        setFormData(nextForm);
+        setDraftId(mode === 'edit' ? null : draft?.id || null);
+      }
     };
 
     hydrateForm();
@@ -411,7 +428,28 @@ const EventModal = ({
     return () => {
       cancelled = true;
     };
-  }, [initialData, mode, isOpen, authUser]);
+  }, [initialData, mode, isOpen, authUser, draft]);
+
+  const handleSaveDraft = async () => {
+    setSavingDraft(true);
+    try {
+      const saved = await saveDraft({
+        kind: DRAFT_KIND.EVENT,
+        draftId,
+        title: String(formData.eventTitle || '').trim(),
+        data: toDraftData(formData),
+        files: { image: formData.image },
+      });
+      setDraftId(saved?.id || draftId);
+      toast.success('Draft saved. You can continue it later from your dashboard.');
+      onDraftSaved?.(saved);
+      onClose?.();
+    } catch (error) {
+      toast.error(getDraftErrorMessage(error));
+    } finally {
+      setSavingDraft(false);
+    }
+  };
 
   const [errors, setErrors] = useState({});
 
@@ -621,6 +659,9 @@ const EventModal = ({
     const eventImageFile = formData.image instanceof File ? formData.image : null;
     if (eventImageFile) {
       payload.append('image', eventImageFile);
+    }
+    if (mode !== 'edit' && draftId) {
+      payload.append('draftId', draftId);
     }
 
     // Call create or update based on mode
@@ -1133,12 +1174,22 @@ const EventModal = ({
           </form>
         </div>
 
-        <div className="border-t border-white/15 px-5 py-4">
+        <div className="flex flex-col gap-3 border-t border-white/15 px-5 py-4 sm:flex-row">
+          {canSaveDraft && (
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              disabled={savingDraft || isSubmitting}
+              className="w-full rounded-lg border border-[#F5F1EB] py-3 text-sm font-semibold text-[#F5F1EB] hover:bg-white/10 disabled:opacity-60 sm:w-1/3"
+            >
+              {savingDraft ? 'Saving draft...' : 'Save as draft'}
+            </button>
+          )}
           <button
             type="submit"
             form="event-form"
             className="w-full rounded-lg bg-[#F5F1EB] py-3 text-sm font-semibold text-[#0f756d] hover:bg-[#ebe5dc] disabled:opacity-60"
-            disabled={isSubmitting}
+            disabled={isSubmitting || savingDraft}
           >
             {isSubmitting ? 'Submitting...' : mode === 'edit' ? 'Update Event' : 'Submit for approval'}
           </button>

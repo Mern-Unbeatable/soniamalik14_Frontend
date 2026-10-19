@@ -2,6 +2,9 @@ import React, { useMemo, useState } from 'react';
 import Container from '../../../components/layout/Container';
 import Button from '../../../components/ui/Button';
 import PageHeader from '../../../components/ui/PageHeader';
+import { marketplaceBrands } from '../../../data/marketplaceBrands';
+import { POST } from '../../../services/httpMethods';
+import { ENDPOINT } from '../../../services/httpEndpoint';
 
 // Sample data using the placeholder image to match your screenshot
 const sampleBrands = [
@@ -37,25 +40,13 @@ const sampleBrands = [
   //     description: 'Performance padel rackets and apparel designed for power, control and comfort.',
   //     url: 'https://www.adidas.com',
   // },
-  {
-    id: 6,
-    name: 'Elandr',
-    sport: 'Netball',
-    logo: '/Elandr.jpeg',
-    description:
-      'Elandr is a protective footwear brand founded by Eloise Alexander Gueye, who created the world’s first purpose-built netball shoe brand after finding no alternative to uncomfortable, costly ankle braces.',
-    url: 'https://elandrsport.com/',
-  },
-  {
-    id: 5,
-    name: 'Evera Active',
-    sport: 'Fitness',
-    logo: '/evera.jpg',
-    description:
-      'Activewear and fitness accessories designed to support women in moving, training and staying active every day.',
-    url: '#',
-  },
+  ...marketplaceBrands,
 ];
+
+const trackBrandClick = (brand) => {
+  if (!brand?.slug || !brand.url || brand.url === '#') return;
+  POST(ENDPOINT.MARKETPLACE.BRAND_CLICK, { brandKey: brand.slug }).catch(() => {});
+};
 
 const BrandCard = ({ brand }) => {
   return (
@@ -84,7 +75,13 @@ const BrandCard = ({ brand }) => {
 
         {/* Action Button */}
         <div className="mt-auto">
-          <a href={brand.url} target="_blank" rel="noreferrer" className="block w-full">
+          <a
+            href={brand.url}
+            target="_blank"
+            rel="noreferrer"
+            className="block w-full"
+            onClick={() => trackBrandClick(brand)}
+          >
             <Button className="w-full rounded-md border-none bg-[#137C71] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0F635A]">
               Shop Brand
             </Button>

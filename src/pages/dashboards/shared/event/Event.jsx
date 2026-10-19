@@ -6,6 +6,8 @@ import EventCard from '../../../../components/ui/EventCard';
 import Pagination from '../../../../components/ui/Pagination';
 import EventModal from '../../../../components/ui/EventModal';
 import DeleteConfirmationModal from '../../../../components/ui/DeleteConfirmationModal';
+import DraftsList from '../../../../components/ui/DraftsList';
+import { DRAFT_KIND } from '../../../../utils/listingDrafts';
 import { useEvent } from '../../../../context/EventContext';
 import { Plus } from 'lucide-react';
 import { deleteOrganizerEvent, fetchOrganizerEvents } from '../../../../features/events/eventsAPI';
@@ -108,9 +110,13 @@ const Event = ({
     const [editingEvent, setEditingEvent] = useState(null);
     const [eventToDelete, setEventToDelete] = useState(null);
     const [modalMode, setModalMode] = useState('create');
+    const [selectedDraft, setSelectedDraft] = useState(null);
+    const [draftsRefreshKey, setDraftsRefreshKey] = useState(0);
+    const refreshDrafts = () => setDraftsRefreshKey((key) => key + 1);
     const perPage = 9;
 
     const handleEdit = (item) => {
+        setSelectedDraft(null);
         setEditingEvent(item);
         setModalMode('edit');
         setIsModalOpen(true);
@@ -136,6 +142,14 @@ const Event = ({
 
     const handleCreateNew = () => {
         setEditingEvent(null);
+        setSelectedDraft(null);
+        setModalMode('create');
+        setIsModalOpen(true);
+    };
+
+    const handleContinueDraft = (draft) => {
+        setEditingEvent(null);
+        setSelectedDraft(draft);
         setModalMode('create');
         setIsModalOpen(true);
     };
@@ -143,6 +157,7 @@ const Event = ({
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingEvent(null);
+        setSelectedDraft(null);
         setModalMode('create');
     };
 
@@ -198,6 +213,13 @@ const Event = ({
           </div>
         </div>
             </div>
+
+            <DraftsList
+                kind={DRAFT_KIND.EVENT}
+                onContinue={handleContinueDraft}
+                refreshKey={draftsRefreshKey}
+                untitledLabel="Untitled event"
+            />
 
             {FilterComponent && (
                 <div>
@@ -257,10 +279,13 @@ const Event = ({
                 initialData={editingEvent}
                 mode={modalMode}
                 useOrganizerApi={useOrganizerApi}
+                draft={selectedDraft}
+                onDraftSaved={refreshDrafts}
                 onSuccess={() => {
                     if (useOrganizerApi) {
                         dispatch(fetchOrganizerEvents());
                     }
+                    refreshDrafts();
                 }}
             />
 

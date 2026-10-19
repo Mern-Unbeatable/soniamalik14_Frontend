@@ -4,6 +4,8 @@ import RecruitmentCard from './RecruitmentCard';
 import Pagination from '../../../../components/ui/Pagination';
 import CreateRecruitmentModal from '../../../../components/ui/CreateRecruitmentModal';
 import EventModal from '../../../../components/ui/EventModal';
+import DraftsList from '../../../../components/ui/DraftsList';
+import { DRAFT_KIND } from '../../../../utils/listingDrafts';
 import { Plus } from 'lucide-react';
 import { fetchProviderServices, deleteService } from '../../../../features/service/serviceApi';
 import {
@@ -26,6 +28,9 @@ const Recruitment = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedDraft, setSelectedDraft] = useState(null);
+  const [draftsRefreshKey, setDraftsRefreshKey] = useState(0);
+  const refreshDrafts = () => setDraftsRefreshKey((key) => key + 1);
 
   useEffect(() => {
     dispatch(fetchProviderServices());
@@ -70,7 +75,14 @@ const Recruitment = () => {
   }, [providerServices, items]);
 
   const handleEdit = (it) => {
+    setSelectedDraft(null);
     setSelectedItem(it);
+    setIsModalOpen(true);
+  };
+
+  const handleContinueDraft = (draft) => {
+    setSelectedItem(null);
+    setSelectedDraft(draft);
     setIsModalOpen(true);
   };
 
@@ -83,6 +95,7 @@ const Recruitment = () => {
   const handleModalSuccess = () => {
     dispatch(fetchProviderServices());
     setPage(1);
+    refreshDrafts();
   };
 
   const totalPages = Math.max(1, Math.ceil(items.length / perPage));
@@ -100,6 +113,7 @@ const Recruitment = () => {
             <button
               onClick={() => {
                 setSelectedItem(null);
+                setSelectedDraft(null);
                 setIsModalOpen(true);
               }}
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-[#0F766E] px-4 py-3 text-base font-medium whitespace-nowrap text-white transition-colors hover:bg-[#0d655d]"
@@ -110,6 +124,13 @@ const Recruitment = () => {
           </div>
         </div>
       </div>
+
+      <DraftsList
+        kind={DRAFT_KIND.SERVICE}
+        onContinue={handleContinueDraft}
+        refreshKey={draftsRefreshKey}
+        untitledLabel="Untitled session"
+      />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {items.slice((page - 1) * perPage, page * perPage).map((it, index) => (
@@ -137,9 +158,12 @@ const Recruitment = () => {
         onClose={() => {
           setIsModalOpen(false);
           setSelectedItem(null);
+          setSelectedDraft(null);
         }}
         initialData={selectedItem}
         mode={selectedItem ? 'edit' : 'create'}
+        draft={selectedDraft}
+        onDraftSaved={refreshDrafts}
         onSuccess={handleModalSuccess}
         onSwitchToEvent={() => setIsEventModalOpen(true)}
       />
@@ -152,6 +176,7 @@ const Recruitment = () => {
         onSuccess={handleModalSuccess}
         onSwitchToSession={() => {
           setSelectedItem(null);
+          setSelectedDraft(null);
           setIsModalOpen(true);
         }}
       />

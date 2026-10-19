@@ -350,6 +350,8 @@ import {
 import EventModal from '../../../../components/ui/EventModal';
 import CreateRecruitmentModal from '../../../../components/ui/CreateRecruitmentModal';
 import Pagination from '../../../../components/ui/Pagination';
+import DraftsList from '../../../../components/ui/DraftsList';
+import { DRAFT_KIND } from '../../../../utils/listingDrafts';
 import { deleteOrganizerEvent, fetchProviderEvents } from '../../../../features/events/eventsAPI';
 import {
   selectDeleteOrganizerEventLoading,
@@ -407,6 +409,9 @@ const ProviderEvent = () => {
   const [eventToDelete, setEventToDelete] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
+  const [selectedDraft, setSelectedDraft] = useState(null);
+  const [draftsRefreshKey, setDraftsRefreshKey] = useState(0);
+  const refreshDrafts = () => setDraftsRefreshKey((key) => key + 1);
 
   useEffect(() => {
     dispatch(fetchProviderEvents());
@@ -440,6 +445,12 @@ const ProviderEvent = () => {
   }, [filtered, safePage]);
 
   const openCreateModal = () => {
+    setSelectedDraft(null);
+    setIsCreateOpen(true);
+  };
+
+  const openDraft = (draft) => {
+    setSelectedDraft(draft);
     setIsCreateOpen(true);
   };
 
@@ -473,6 +484,13 @@ const ProviderEvent = () => {
           </button>
         </div>
       </section>
+
+      <DraftsList
+        kind={DRAFT_KIND.EVENT}
+        onContinue={openDraft}
+        refreshKey={draftsRefreshKey}
+        untitledLabel="Untitled event"
+      />
 
       <section className="w-full max-w-4xl rounded-xl bg-secondary p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
@@ -618,11 +636,17 @@ const ProviderEvent = () => {
 
       <EventModal
         isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
+        onClose={() => {
+          setIsCreateOpen(false);
+          setSelectedDraft(null);
+        }}
         mode="create"
         useOrganizerApi
+        draft={selectedDraft}
+        onDraftSaved={refreshDrafts}
         onSuccess={() => {
           dispatch(fetchProviderEvents());
+          refreshDrafts();
         }}
         onSwitchToSession={() => setIsSessionModalOpen(true)}
       />

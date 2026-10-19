@@ -3,6 +3,7 @@ import { Eye, Trash2, X } from 'lucide-react';
 import { DELETE, GET } from '../../../../services/httpMethods';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import { toast } from 'react-toastify';
+import BrandClicksTable from './BrandClicksTable';
 
 const Brands = () => {
   const [brands, setBrands] = useState([]);
@@ -127,6 +128,8 @@ const Brands = () => {
 
   return (
     <div className="dashboardPy dashboardSpaceY flex-1 overflow-auto bg-gray-50">
+      <BrandClicksTable />
+
       <div>
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">Brand Applications</h1>
