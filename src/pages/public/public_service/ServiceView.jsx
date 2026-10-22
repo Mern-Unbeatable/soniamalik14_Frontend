@@ -14,6 +14,8 @@ import {
 } from '../../../utils/serviceTypes';
 
 const SERVICE_BY_ROLE_API = '/api/services/by-role';
+// The API returns 12 by default; listings are filtered and paged on this page.
+const MAX_LISTINGS_TO_LOAD = 200;
 
 const toServiceCardItem = (service) => {
     const sessionTypes = Array.isArray(service?.sessionTypes) ? service.sessionTypes.filter(Boolean) : [];
@@ -88,7 +90,7 @@ const ServiceView = () => {
     const [postcode, setPostcode] = useState('');
     const [distance, setDistance] = useState('');
     const [selectedService, setSelectedService] = useState(ALL_SERVICES_FILTER);
-    const itemsPerPage = 3;
+    const itemsPerPage = 12;
 
     useEffect(() => {
         const controller = new AbortController();
@@ -100,7 +102,7 @@ const ServiceView = () => {
 
                 const response = await GET(
                     SERVICE_BY_ROLE_API,
-                    { status: 'ACTIVE', providerRole: 'PROVIDER' },
+                    { status: 'ACTIVE', providerRole: 'PROVIDER', limit: MAX_LISTINGS_TO_LOAD },
                     controller.signal,
                     { skipAuth: true, withCredentials: false }
                 );

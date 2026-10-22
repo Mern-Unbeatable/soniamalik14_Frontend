@@ -18,6 +18,8 @@ import {
 import { getCourseDateRange } from '../../../utils/courseDates';
 
 const DISCOVER_API = '/api/services/by-role';
+// The API returns 12 by default; listings are filtered and paged on this page.
+const MAX_LISTINGS_TO_LOAD = 200;
 
 const normalizeSportName = (value) => String(value || '').trim().toLowerCase();
 
@@ -122,7 +124,7 @@ const DiscoverView = () => {
   const [location, setLocation] = useState('');
   const [distance, setDistance] = useState('');
   const [page, setPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 24;
 
   const sportOptions = useMemo(() => {
     return (categories || [])
@@ -149,8 +151,8 @@ const DiscoverView = () => {
 
         const url = location.trim() ? '/api/services' : DISCOVER_API;
         const params = location.trim()
-          ? { postcode: location.trim(), status: 'ACTIVE', providerRole: 'COACH' }
-          : { status: 'ACTIVE', providerRole: 'COACH' };
+          ? { postcode: location.trim(), status: 'ACTIVE', providerRole: 'COACH', limit: MAX_LISTINGS_TO_LOAD }
+          : { status: 'ACTIVE', providerRole: 'COACH', limit: MAX_LISTINGS_TO_LOAD };
 
         const response = await GET(
           url,

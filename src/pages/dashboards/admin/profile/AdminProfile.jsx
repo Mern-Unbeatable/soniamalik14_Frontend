@@ -1,6 +1,26 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { useAuth } from '../../../../context/AuthContext';
+import { changePassword } from '../../../../services/authService';
+
+const MIN_ADMIN_PASSWORD_LENGTH = 10;
+
+const getWeakPasswordReason = (password = '') => {
+  if (password.length < MIN_ADMIN_PASSWORD_LENGTH) {
+    return `New password must be at least ${MIN_ADMIN_PASSWORD_LENGTH} characters`;
+  }
+  if (!/[a-z]/.test(password) || !/[A-Z]/.test(password)) {
+    return 'New password must include both upper and lower case letters';
+  }
+  if (!/\d/.test(password)) {
+    return 'New password must include at least one number';
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return 'New password must include at least one symbol (for example ! @ # ?)';
+  }
+  return null;
+};
 
 /* ────────────────────────────────────────────────────────────────
    Reusable labelled input
@@ -24,6 +44,17 @@ const Field = ({ label, id, type = 'text', value, onChange, placeholder, rightEl
       )}
     </div>
   </div>
+);
+
+const EyeToggle = ({ visible, onToggle }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="text-gray-400 hover:text-gray-600 transition-colors"
+    tabIndex={-1}
+  >
+    {visible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+  </button>
 );
 
 /* ────────────────────────────────────────────────────────────────
@@ -71,33 +102,31 @@ const AdminProfile = () => {
     confirm: '',
   });
   const [show, setShow] = useState({ current: false, newPass: false, confirm: false });
+  const [savingPassword, setSavingPassword] = useState(false);
 
   const toggleShow = (field) => setShow((prev) => ({ ...prev, [field]: !prev[field] }));
 
   const handlePasswordChange = (field) => (e) =>
     setPasswords((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    if (passwords.newPass !== passwords.confirm) {
-      alert('New passwords do not match.');
+    if (savingPassword) return;
+
+    const weakReason = getWeakPasswordReason(passwords.newPass);
+    if (weakReason) {
+      toast.error(weakReason);
       return;
     }
-    // TODO: dispatch change password thunk
-    // console.log('Change password submitted');
-    setPasswords({ current: '', newPass: '', confirm: '' });
-  };
 
-  const EyeToggle = ({ field }) => (
-    <button
-      type="button"
-      onClick={() => toggleShow(field)}
-      className="text-gray-400 hover:text-gray-600 transition-colors"
-      tabIndex={-1}
-    >
-      {show[field] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-    </button>
-  );
+    setSavingPassword(true);
+    const result = await changePassword(passwords.current, passwords.newPass, passwords.confirm);
+    setSavingPassword(false);
+
+    if (result.success) {
+      setPasswords({ current: '', newPass: '', confirm: '' });
+    }
+  };
 
   return (
     <div className="flex-1 overflow-auto bg-gray-50 dashboardPy dashboardSpaceY">
@@ -158,7 +187,7 @@ const AdminProfile = () => {
             value={passwords.current}
             onChange={handlePasswordChange('current')}
             placeholder="Enter current password"
-            rightElement={<EyeToggle field="current" />}
+            rightElement={<EyeToggle visible={show.current} onToggle={() => toggleShow('current')} />}
           />
           <Field
             id="admin-profile-new-password"
@@ -167,8 +196,11 @@ const AdminProfile = () => {
             value={passwords.newPass}
             onChange={handlePasswordChange('newPass')}
             placeholder="Enter new password"
-            rightElement={<EyeToggle field="newPass" />}
+            rightElement={<EyeToggle visible={show.newPass} onToggle={() => toggleShow('newPass')} />}
           />
+          <p className="-mt-3 text-xs text-gray-500">
+            At least {MIN_ADMIN_PASSWORD_LENGTH} characters, with upper and lower case letters, a number and a symbol.
+          </p>
           <Field
             id="admin-profile-confirm-password"
             label="Confirm New Password"
@@ -176,16 +208,17 @@ const AdminProfile = () => {
             value={passwords.confirm}
             onChange={handlePasswordChange('confirm')}
             placeholder="Re-enter new password"
-            rightElement={<EyeToggle field="confirm" />}
+            rightElement={<EyeToggle visible={show.confirm} onToggle={() => toggleShow('confirm')} />}
           />
 
           <div className="pt-1">
             <button
               id="admin-profile-change-password-btn"
               type="submit"
-              className="px-8 py-2.5 bg-[#0f766e] hover:bg-teal-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+              disabled={savingPassword}
+              className="px-8 py-2.5 bg-[#0f766e] hover:bg-teal-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm disabled:opacity-60"
             >
-              Change Password
+              {savingPassword ? 'Changing...' : 'Change Password'}
             </button>
           </div>
         </SectionCard>

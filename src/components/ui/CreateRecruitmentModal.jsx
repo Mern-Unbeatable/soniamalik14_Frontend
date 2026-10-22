@@ -160,28 +160,26 @@ const appendIfPresent = (formData, key, value) => {
 
 /**
  * Append listing cover + org logo for service create/update.
- * Production API currently only accepts Multer field `logo` — sending `image`
- * causes "Unexpected field". Dual fields are used for local API, or when
- * VITE_SERVICE_DUAL_IMAGE=true (after production backend deploy).
+ * The cover goes in the `image` file field and the org logo in `logo`;
+ * `uploadMode=separate` tells the API never to treat the logo file as the cover.
+ * Set VITE_SERVICE_DUAL_IMAGE=false only for an old API that accepts just `logo`.
  *
- * Always send `logoUrl` (org logo URL) as a text field so the circular logo
- * can be saved even when the only file field is used for the listing cover.
+ * Always send `logoUrl` (org logo URL) as a text field so an existing logo
+ * is kept when no new logo file is chosen.
  */
 const appendServiceImageFiles = (formData, { listingImage, logo } = {}) => {
   const listingFile = listingImage instanceof File ? listingImage : null;
   const logoFile = logo instanceof File ? logo : null;
   const logoUrl = typeof logo === 'string' && String(logo).trim() ? String(logo).trim() : null;
-  const apiBase = String(import.meta.env.VITE_API_BASE_URL || '');
   const dualFlag = String(import.meta.env.VITE_SERVICE_DUAL_IMAGE || '').toLowerCase();
-  const useDualUpload =
-    dualFlag === 'true' ||
-    (dualFlag !== 'false' && /localhost|127\.0\.0\.1/.test(apiBase));
+  const useDualUpload = dualFlag !== 'false';
 
   if (logoUrl && !formData.has('logoUrl')) {
     formData.append('logoUrl', logoUrl);
   }
 
   if (useDualUpload) {
+    formData.append('uploadMode', 'separate');
     if (listingFile) formData.append('image', listingFile);
     if (logoFile) formData.append('logo', logoFile);
     else if (logoUrl) formData.append('logo', logoUrl);
