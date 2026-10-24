@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Container from '../../../components/layout/Container';
 import Button from '../../../components/ui/Button';
 import PageHeader from '../../../components/ui/PageHeader';
@@ -49,32 +49,81 @@ const trackBrandClick = (brand) => {
 };
 
 const BrandCard = ({ brand }) => {
+  const descriptionRef = useRef(null);
+  const [expanded, setExpanded] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  useEffect(() => {
+    const el = descriptionRef.current;
+    if (!el || expanded) return undefined;
+
+    // Newer browsers report scrollHeight as the clamped height, so compare against the unclamped height.
+    const measure = () => {
+      const clampedHeight = el.getBoundingClientRect().height;
+      el.style.display = 'block';
+      el.style.webkitLineClamp = 'unset';
+      const fullHeight = el.getBoundingClientRect().height;
+      el.style.display = '';
+      el.style.webkitLineClamp = '';
+      setIsTruncated(fullHeight > clampedHeight + 1);
+    };
+    measure();
+    document.fonts?.ready.then(measure);
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure);
+      return () => window.removeEventListener('resize', measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [expanded, brand.description]);
+
   return (
-    <div className="flex h-full flex-col rounded-lg border border-[#B5D5D2] bg-white p-4">
-      {/* Inset Top Cover Image with its own rounded corners */}
-      <div className="mb-4 w-full overflow-hidden rounded-lg bg-[#F3B48A]">
-        {brand.logo ? (
-          <img
-            src={brand.logo}
-            alt={`${brand.name} logo`}
-            className="h-auto w-full rounded-lg object-contain"
-          />
-        ) : (
-          <div className="flex h-48 w-full items-center justify-center rounded-lg bg-gray-100 text-gray-400">
-            No Image
-          </div>
-        )}
+    // Only the image row is shared across the grid row (so names line up); the body sizes itself
+    // so expanding one description doesn't stretch the neighbouring cards.
+    <div className="row-span-2 mb-6 grid grid-rows-subgrid gap-y-0">
+      <div className="rounded-t-lg border border-b-0 border-[#B5D5D2] bg-white px-4 pt-4">
+        <div className="mb-4 w-full overflow-hidden rounded-lg bg-[#F3B48A]">
+          {brand.logo ? (
+            <img
+              src={brand.logo}
+              alt={`${brand.name} logo`}
+              className="h-auto w-full rounded-lg object-contain"
+            />
+          ) : (
+            <div className="flex h-48 w-full items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+              No Image
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Card Body */}
-      <div className="flex grow flex-col">
-        <h3 className="mb-2 text-2xl font-semibold text-[#0B544E]">{brand.name}</h3>
-        <p className="mb-6 grow pr-2 text-base leading-relaxed text-gray-600">
+      <div className="flex flex-col self-start rounded-b-lg border border-t-0 border-[#B5D5D2] bg-white px-4 pb-4">
+        <h3 className="mb-2 truncate text-2xl font-semibold text-[#0B544E]" title={brand.name}>
+          {brand.name}
+        </h3>
+        <p
+          ref={descriptionRef}
+          className={`min-h-[6.5rem] text-base leading-relaxed text-gray-600 ${expanded ? '' : 'line-clamp-4'}`}
+        >
           {brand.description}
         </p>
 
-        {/* Action Button */}
-        <div className="mt-auto">
+        <div className="mb-4 h-7">
+          {(isTruncated || expanded) && (
+            <button
+              type="button"
+              onClick={() => setExpanded((value) => !value)}
+              className="text-sm font-semibold text-[#137C71] hover:underline"
+              aria-expanded={expanded}
+            >
+              {expanded ? 'Read less' : 'Read more'}
+            </button>
+          )}
+        </div>
+
+        <div>
           <a
             href={brand.url}
             target="_blank"
@@ -165,7 +214,7 @@ const MarketPlaceView = () => {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filtered.map((b) => (
                   <BrandCard key={b.id} brand={b} />
                 ))}
