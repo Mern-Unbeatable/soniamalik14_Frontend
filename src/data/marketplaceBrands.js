@@ -1,6 +1,15 @@
 // `slug` is the key click counts are stored under; keep it unchanged once a brand is live.
 export const marketplaceBrands = [
-  
+  {
+    id: 8,
+    slug: 'active-and-able',
+    name: 'Active & Able',
+    sport: 'Fitness & Recovery',
+    logo: '/Active and Able.jpeg',
+    description:
+      'Active & Able is a family run UK fitness and recovery brand founded by qualified Personal Trainers with over 15 years of combined experience. We specialise in premium knee supports, recovery products and practical knee health education, helping people stay active and keep moving with confidence. From everyday activity to competitive sport, our products and educational resources are designed to support active lifestyles, promote movement and encourage better understanding of knee health.',
+    url: 'https://www.activeandable.co.uk/',
+  },
   {
     id: 6,
     slug: 'elandr',

@@ -149,8 +149,16 @@ const MarketPlaceView = () => {
   const filtered = useMemo(() => {
     const q = (query || '').trim().toLowerCase();
     if (!q) return sampleBrands;
+    const clean = (s) => (s || '').toLowerCase().replace(/&/g, 'and');
+    const cleanQ = clean(q);
     return sampleBrands.filter(
-      (b) => b.name.toLowerCase().includes(q) || (b.sport || '').toLowerCase().includes(q)
+      (b) =>
+        b.name.toLowerCase().includes(q) ||
+        clean(b.name).includes(cleanQ) ||
+        (b.sport || '').toLowerCase().includes(q) ||
+        clean(b.sport).includes(cleanQ) ||
+        (b.description || '').toLowerCase().includes(q) ||
+        clean(b.description).includes(cleanQ)
     );
   }, [query]);
 
@@ -163,7 +171,7 @@ const MarketPlaceView = () => {
         <div className="mb-6">
           <PageHeader
             title="Marketplace"
-            description={'Shop curated brands and products designed for women in sport.'}
+            description={'Shop a curated selection of brands and products supporting sport and active lifestyles.'}
           />
         </div>
 
