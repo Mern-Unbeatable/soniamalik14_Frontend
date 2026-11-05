@@ -5,7 +5,7 @@ export const marketplaceBrands = [
     slug: 'elandr',
     name: 'Elandr',
     sport: 'Netball',
-    logo: '/Elandr.jpeg',
+    logo: '/Elandr_1.jpeg',
     description:
       'Elandr is a protective footwear brand founded by Eloise Alexander Gueye, who created the world’s first purpose-built netball shoe brand after finding no alternative to uncomfortable, costly ankle braces.',
     url: 'https://elandrsport.com/',
@@ -35,7 +35,7 @@ export const marketplaceBrands = [
     slug: 'evera-active',
     name: 'Evera Active',
     sport: 'Fitness',
-    logo: '/evera.jpg',
+    logo: '/evera_1.jpg',
     description:
       'Activewear and fitness accessories designed to support women in moving, training and staying active every day.',
     url: '#',
