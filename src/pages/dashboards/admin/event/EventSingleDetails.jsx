@@ -27,6 +27,30 @@ const formatReadableText = (value) => {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
+const formatEventCost = (item) => {
+  const costType = String(item?.costType || '').trim().toLowerCase();
+  const costDetails = String(item?.costDetails || '').trim();
+  const feeRaw = item?.registrationFee ?? item?.price;
+  const fee = String(feeRaw ?? '').trim();
+  const feeNumber = Number(feeRaw);
+
+  if (costType === 'free') return 'Free';
+  if (costDetails) return costDetails;
+  if (costType === 'paid') {
+    if (fee && fee !== '0' && !Number.isNaN(feeNumber) && feeNumber > 0) {
+      return fee.startsWith('£') ? fee : `£${feeNumber % 1 === 0 ? feeNumber.toFixed(0) : feeNumber}`;
+    }
+    if (fee && fee !== '0' && Number.isNaN(feeNumber)) return fee;
+  }
+  if (fee && fee !== '0') {
+    if (!Number.isNaN(feeNumber) && feeNumber > 0) {
+      return fee.startsWith('£') ? fee : `£${feeNumber % 1 === 0 ? feeNumber.toFixed(0) : feeNumber}`;
+    }
+    return fee;
+  }
+  return costType ? costType.toUpperCase() : 'Free';
+};
+
 const formatDateRange = (startDate, endDate) => {
   if (!startDate && !endDate) return 'Date not set';
 
@@ -175,6 +199,7 @@ const EventSingleDetails = () => {
 
   const dateValue = formatDateRange(eventData?.startDate, eventData?.endDate);
   const timeValue = formatTimeRange(eventData?.startTime, eventData?.endTime);
+  const costValue = formatEventCost(eventData);
   const suitableForValue =
     Array.isArray(eventData?.suitableFor) && eventData.suitableFor.length > 0
       ? eventData.suitableFor.join(', ')
@@ -255,6 +280,7 @@ const EventSingleDetails = () => {
               description={eventData.description}
               dateValue={dateValue}
               timeValue={timeValue}
+              costValue={costValue}
               suitableForValue={suitableForValue}
               whoCanTakePartValue={whoCanTakePartValue}
             />

@@ -7,6 +7,7 @@ import {
   Eye,
   ExternalLink,
   MessageSquare,
+  PoundSterling,
   TrendingUp,
   Users,
 } from 'lucide-react';
@@ -36,6 +37,7 @@ const EventOverviewSection = ({
   timeValue,
   suitableForValue,
   whoCanTakePartValue,
+  costValue,
 }) => {
   return (
     <>
@@ -73,6 +75,7 @@ const EventOverviewSection = ({
           <OverviewCard icon={CalendarDays} label="Event Type" value={eventType || 'N/A'} />
           <OverviewCard icon={Calendar} label="Date" value={dateValue} />
           <OverviewCard icon={Clock} label="Time" value={timeValue} />
+          <OverviewCard icon={PoundSterling} label="Cost / Fee" value={costValue || 'Free'} />
           <OverviewCard icon={Users} label="Suitable for" value={suitableForValue} />
           <OverviewCard icon={Users} label="Who can take part?" value={whoCanTakePartValue} />
         </div>
