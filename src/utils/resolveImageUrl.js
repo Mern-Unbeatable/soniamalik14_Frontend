@@ -2,6 +2,34 @@ import { ENV } from '../config/env';
 
 export const DUMMY_IMAGE_PATH = '/dummy-image.jpeg';
 export const EVENT_PLACEHOLDER_PATH = '/event-placeholder.png';
+export const DISCOVER_DEFAULT_PLACEHOLDER = '/discover-placeholder.png';
+
+export const SPORT_PLACEHOLDERS = {
+    football: '/backup_football.jpeg',
+    cricket: '/backup_cricket.jpeg',
+    golf: '/backup_golf.jpeg',
+    squash: '/backup_squash.jpeg',
+};
+
+export const getSportPlaceholder = (
+    sportOrSports,
+    fallback = DISCOVER_DEFAULT_PLACEHOLDER
+) => {
+    if (!sportOrSports) return fallback;
+
+    const list = Array.isArray(sportOrSports) ? sportOrSports : [sportOrSports];
+    for (const item of list) {
+        if (!item) continue;
+        const normalized = String(item).trim().toLowerCase();
+        for (const [key, path] of Object.entries(SPORT_PLACEHOLDERS)) {
+            if (normalized.includes(key)) {
+                return path;
+            }
+        }
+    }
+
+    return fallback;
+};
 
 export const pickImageSource = (...candidates) => {
     for (const candidate of candidates) {

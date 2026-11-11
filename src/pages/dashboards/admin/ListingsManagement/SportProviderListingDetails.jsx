@@ -20,6 +20,7 @@ import ExampleListingToggle from '../../../../components/ui/ExampleListingToggle
 import ReassignListingPanel from '../../../../components/ui/ReassignListingPanel';
 import {
     DUMMY_IMAGE_PATH,
+    getSportPlaceholder,
     handleImageLoadError,
     pickImageSource,
     resolveImageUrl,
@@ -170,9 +171,10 @@ const SportProviderListingDetails = () => {
                 '',
             status: normalizeStatus(service),
             engagement: null,
+            placeholderImage: getSportPlaceholder(sports, DISCOVER_PLACEHOLDER),
             coverImage: resolveImageUrl(
                 pickImageSource(service?.image),
-                DISCOVER_PLACEHOLDER
+                getSportPlaceholder(sports, DISCOVER_PLACEHOLDER)
             ),
             avatar: resolveImageUrl(
                 pickImageSource(service?.logo, service?.provider?.avatar),
@@ -254,7 +256,7 @@ const SportProviderListingDetails = () => {
                         src={data.coverImage}
                         alt={data.listing}
                         className="w-full h-72 md:h-96 object-cover rounded-2xl shadow-sm"
-                        onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
+                        onError={(e) => handleImageLoadError(e, data.placeholderImage || DISCOVER_PLACEHOLDER)}
                     />
 
                     <button
