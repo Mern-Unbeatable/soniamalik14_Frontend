@@ -174,7 +174,7 @@ const ServiceView = () => {
             <Container>
                 {/* Header Section */}
                 <div className="mb-6">
-                    <PageHeader title="Services" description={"Support for your journey - from injury recovery to nutrition guidance. Professionals supporting women at every level."} />
+                    <PageHeader title="Professional Support" description={"Support for your journey - from injury recovery to nutrition guidance. Professionals supporting women at every level."} />
                 </div>
 
                 {/* Filter Bar (Matches the design from the image) */}
