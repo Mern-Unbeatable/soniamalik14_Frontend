@@ -6,6 +6,7 @@ import { MapPin, Calendar, CalendarRange, Clock } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import LoginModal from './LoginModal';
 import {
+  getSportPlaceholder,
   handleImageLoadError,
   pickImageSource,
   resolveImageUrl,
@@ -31,9 +32,14 @@ const DiscoverCard = ({ item }) => {
 
   const sportLabel = useMemo(() => resolveSportLabel(item), [item]);
 
+  const placeholderImage = useMemo(
+    () => getSportPlaceholder([sportLabel, item.sport, item.sports], DISCOVER_PLACEHOLDER),
+    [sportLabel, item.sport, item.sports]
+  );
+
   const imageSrc = resolveImageUrl(
     pickImageSource(item.image),
-    DISCOVER_PLACEHOLDER
+    placeholderImage
   );
 
   const canOpen = isAuthenticated || item.isExample;
@@ -63,7 +69,7 @@ const DiscoverCard = ({ item }) => {
             src={imageSrc}
             alt={item.title || 'Listing'}
             className="h-full w-full object-cover"
-            onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
+            onError={(e) => handleImageLoadError(e, placeholderImage)}
           />
           {sportLabel ? (
             <span className="absolute bottom-3 left-3 z-10 rounded-full bg-[#E7F1F1] px-3 py-1 text-sm font-semibold text-[#0F766E] shadow-sm">

@@ -11,6 +11,7 @@ import { getUser } from '../../../utils/storage';
 import Swal from 'sweetalert2';
 import {
   DUMMY_IMAGE_PATH,
+  getSportPlaceholder,
   handleImageLoadError,
   pickImageSource,
   resolveImageUrl,
@@ -224,13 +225,18 @@ const DiscoverDetails = () => {
     };
   }, [service]);
 
+  const placeholderImage = useMemo(
+    () => getSportPlaceholder([item?.sport, service?.sports], DISCOVER_PLACEHOLDER),
+    [item?.sport, service?.sports]
+  );
+
   const heroImageSrc = useMemo(
     () =>
       resolveImageUrl(
         pickImageSource(service?.image, item?.image),
-        DISCOVER_PLACEHOLDER
+        placeholderImage
       ),
-    [service?.image, item?.image]
+    [service?.image, item?.image, placeholderImage]
   );
 
   const avatarImageSrc = useMemo(
@@ -506,7 +512,7 @@ const DiscoverDetails = () => {
                 src={heroImageSrc}
                 alt={item.title || 'Listing'}
                 className="h-full w-full object-cover"
-                onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
+                onError={(e) => handleImageLoadError(e, placeholderImage)}
               />
             </div>
 

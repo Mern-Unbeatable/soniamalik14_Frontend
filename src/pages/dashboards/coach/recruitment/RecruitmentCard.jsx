@@ -6,6 +6,7 @@ import { MapPin, Calendar, CalendarRange, Clock } from 'lucide-react';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import DeleteConfirmationModal from '../../../../components/ui/DeleteConfirmationModal';
 import {
+    getSportPlaceholder,
     handleImageLoadError,
     pickImageSource,
     resolveImageUrl,
@@ -74,11 +75,11 @@ const RecruitmentCard = ({ item = {}, editLink, onEdit, onDelete, className = ''
                                 <img
                                     src={resolveImageUrl(
                                         pickImageSource(item.image),
-                                        DISCOVER_PLACEHOLDER
+                                        getSportPlaceholder(item.sport || item.sports, DISCOVER_PLACEHOLDER)
                                     )}
                                     alt={item.title || 'Listing'}
                                     className="h-full w-full rounded-md object-cover"
-                                    onError={(e) => handleImageLoadError(e, DISCOVER_PLACEHOLDER)}
+                                    onError={(e) => handleImageLoadError(e, getSportPlaceholder(item.sport || item.sports, DISCOVER_PLACEHOLDER))}
                                 />
                             </div>
                         </div>
